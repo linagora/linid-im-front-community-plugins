@@ -1,0 +1,32 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "catalog-ui",
+  "sourceRoot": "apps/catalog-ui/src",
+  "projectType": "library",
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vite --config apps/catalog-ui/vite.config.ts",
+        "cwd": ".",
+        "parallel": false
+      }
+    },
+    "build": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{workspaceRoot}/dist/apps/catalog-ui"],
+      "options": {
+        "outputPath": "dist/apps/catalog-ui",
+        "configFile": "apps/catalog-ui/vite.config.ts"
+      }
+    },
+
+    "preview": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vite preview --port 5001 --config apps/catalog-ui/vite.config.ts"
+      }
+    }
+  },
+  "tags": []
+}
