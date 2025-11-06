@@ -1,0 +1,12 @@
+{
+  "name": "@linid-im-front-community-plugins/catalog-ui",
+  "version": "0.0.1",
+  "private": true,
+  "devDependencies": {
+    "@originjs/vite-plugin-federation": "^1.4.1"
+  },
+  "peerDependencies": {
+    "@linagora/linid-im-front-corelib": "file:../../../linid-im-front-corelib/dist",
+    "quasar": "^2.16.0"
+  }
+}
