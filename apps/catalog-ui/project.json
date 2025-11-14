@@ -1,32 +1,47 @@
 {
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "catalog-ui",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/catalog-ui/src",
   "projectType": "library",
   "targets": {
-    "serve": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "vite --config apps/catalog-ui/vite.config.ts",
-        "cwd": ".",
-        "parallel": false
-      }
-    },
     "build": {
       "executor": "@nx/vite:build",
-      "outputs": ["{workspaceRoot}/dist/apps/catalog-ui"],
+      "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/apps/catalog-ui",
         "configFile": "apps/catalog-ui/vite.config.ts"
       }
     },
-
+    "serve": {
+      "executor": "@nx/vite:dev-server",
+      "options": {
+        "buildTarget": "catalog-ui:build",
+        "configFile": "apps/catalog-ui/vite.config.ts"
+      }
+    },
     "preview": {
+      "executor": "@nx/vite:preview-server",
+      "options": {
+        "buildTarget": "catalog-ui:build",
+        "configFile": "apps/catalog-ui/vite.config.ts"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "passWithNoTests": true,
+        "reportsDirectory": "coverage/apps/catalog-ui"
+      }
+    },
+    "typecheck": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "vite preview --port 5001 --config apps/catalog-ui/vite.config.ts"
+        "command": "vue-tsc --noEmit -p apps/catalog-ui/tsconfig.app.json"
       }
     }
-  },
-  "tags": []
+  }
 }
