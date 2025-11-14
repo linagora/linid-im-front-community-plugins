@@ -1,7 +1,16 @@
 {
   "name": "@linid-im-front-community-plugins/source",
   "version": "0.0.0",
-  "scripts": {},
+  "scripts": {
+    "build": "nx run-many -t build",
+    "lint": "nx run-many -t lint",
+    "test": "nx run-many -t test",
+    "typecheck": "nx run-many -t typecheck",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "graph": "nx graph",
+    "reset": "nx reset"
+  },
   "private": true,
   "dependencies": {
     "quasar": "2.18.6",

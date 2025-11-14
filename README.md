@@ -6,6 +6,11 @@ Community plugins for LinID Identity Manager frontend.
 
 This project uses **pnpm** as the package manager with Nx for monorepo management.
 
+### Prerequisites
+
+- Node.js 20+ (LTS)
+- pnpm 10.20.0 (managed via Corepack)
+
 ### Quick start
 
 ```sh
@@ -32,6 +37,19 @@ pnpm install
 
 This is an Nx monorepo containing micro-frontend applications using Module Federation.
 
+### Quick Commands
+
+```sh
+# Start development server for catalog-ui
+pnpm dev
+
+# Build all projects
+pnpm build
+
+# Run all checks (lint, test, typecheck, build)
+pnpm exec nx run-many -t lint test typecheck build
+```
+
 ### Build all projects
 
 ```sh
@@ -40,33 +58,6 @@ pnpm build
 
 # With npm
 npm run build
-```
-
-### Build catalog-ui
-
-```sh
-# Using Nx
-pnpm exec nx build catalog-ui
-
-# Or using the npm script
-pnpm catalog-ui:build
-```
-
-### Run catalog-ui locally
-
-```sh
-# Preview the built catalog-ui
-pnpm exec nx run catalog-ui:preview
-
-# Or using the npm script
-pnpm catalog-ui:preview
-```
-
-### Development server
-
-```sh
-# Start dev server for catalog-ui
-pnpm exec nx serve catalog-ui
 ```
 
 ## Code Quality
@@ -87,7 +78,7 @@ pnpm exec nx run-many -t lint test build typecheck
 pnpm lint
 
 # Lint a specific project
-pnpm exec nx lint catalog-ui
+pnpm catalog-ui:lint
 ```
 
 ### Type Checking
@@ -97,7 +88,7 @@ pnpm exec nx lint catalog-ui
 pnpm typecheck
 
 # Type check a specific project
-pnpm exec nx typecheck catalog-ui
+pnpm catalog-ui:typecheck
 ```
 
 ### Testing
@@ -107,17 +98,23 @@ pnpm exec nx typecheck catalog-ui
 pnpm test
 
 # Run tests for a specific project
-pnpm exec nx test catalog-ui
+pnpm catalog-ui:test
 ```
 
-### Nx Commands
+## Nx Commands
 
 ```sh
 # View project graph
-pnpm exec nx graph
+pnpm graph
 
 # Clear Nx cache
-pnpm exec nx reset
+pnpm reset
+
+# Run affected tasks only (based on git changes)
+pnpm exec nx affected -t build test lint
+
+# Show what will be affected
+pnpm exec nx show projects --affected
 ```
 
 ## CI/CD
