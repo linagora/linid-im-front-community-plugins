@@ -18,7 +18,7 @@ export default defineConfig({
     alias: {
       '@linagora/linid-im-front-corelib': resolve(
         __dirname,
-        '../../../linid-im-front-corelib/dist/core-lib.es.js',
+        '../../../linid-im-front-corelib/dist/core-lib.es.js'
       ),
     },
   },
@@ -37,11 +37,11 @@ export default defineConfig({
           singleton: true,
           requiredVersion: '3.5.24',
         },
-        quasar: { singleton: true } as Record<string, any>,
+        quasar: { singleton: true } as Record<string, unknown>,
         '@linagora/linid-im-front-corelib': {
           singleton: true,
           strictVersion: true,
-        } as Record<string, any>,
+        } as Record<string, unknown>,
       },
     }),
   ],
