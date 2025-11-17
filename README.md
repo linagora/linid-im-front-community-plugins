@@ -67,8 +67,18 @@ This project uses ESLint, Prettier, and TypeScript to ensure consistent code qua
 ### Run all checks
 
 ```sh
-# Run linting, tests, build, and type checking for all projects
-pnpm exec nx run-many -t lint test build typecheck
+# Run all checks (typecheck, lint, format, test)
+pnpm validate
+```
+
+### Format
+
+```sh
+# Automatically format the codebase
+pnpm format
+
+# Check formatting without modifying files
+pnpm format:check
 ```
 
 ### Linting
@@ -77,8 +87,8 @@ pnpm exec nx run-many -t lint test build typecheck
 # Lint all projects
 pnpm lint
 
-# Lint a specific project
-pnpm catalog-ui:lint
+# Auto-fix ESLint issues
+pnpm lint:fix
 ```
 
 ### Type Checking
@@ -86,9 +96,6 @@ pnpm catalog-ui:lint
 ```sh
 # Type check all projects
 pnpm typecheck
-
-# Type check a specific project
-pnpm catalog-ui:typecheck
 ```
 
 ### Testing
@@ -96,9 +103,6 @@ pnpm catalog-ui:typecheck
 ```sh
 # Run tests for all projects
 pnpm test
-
-# Run tests for a specific project
-pnpm catalog-ui:test
 ```
 
 ## Nx Commands
@@ -116,6 +120,13 @@ pnpm exec nx affected -t build test lint
 # Show what will be affected
 pnpm exec nx show projects --affected
 ```
+
+### Editor Setup
+
+The project includes `.vscode/settings.json` which enables:
+
+- Auto-format on save
+- ESLint auto-fix on save
 
 ## CI/CD
 
