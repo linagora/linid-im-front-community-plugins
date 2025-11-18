@@ -4,10 +4,11 @@ import path, { resolve } from 'path';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+  base: '',
   root: resolve(__dirname, './'),
   cacheDir: '../../node_modules/.vite/apps/catalog-ui',
   server: {
-    port: 4200,
+    port: 5001,
     strictPort: true,
   },
   preview: {
