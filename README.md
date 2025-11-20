@@ -35,7 +35,7 @@ pnpm install
 
 ## Development
 
-This is an Nx monorepo containing micro-frontend applications using Module Federation.
+This is an Nx monorepo containing multiple modules that serve as remote applications for the LinID Identity Manager host application. Each module is independently developed, tested, and can be deployed as a standalone remote.
 
 ### Quick Commands
 
@@ -127,6 +127,25 @@ The project includes `.vscode/settings.json` which enables:
 
 - Auto-format on save
 - ESLint auto-fix on save
+
+### Module Generator
+
+This section describes the module generator available in the project.
+
+#### Overview
+
+The generator allows you to quickly create a new module with a standardized base structure and all necessary configurations.
+
+#### Usage
+
+To generate a module, run the following command:
+
+```sh
+pnpm nx generate @linid-im-front-community-plugins/module:create
+
+# or
+pnpm exec nx generate @linid-im-front-community-plugins/module:create
+```
 
 ## CI/CD
 
