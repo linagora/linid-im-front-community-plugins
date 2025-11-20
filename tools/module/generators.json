@@ -1,0 +1,9 @@
+{
+  "generators": {
+    "create": {
+      "factory": "./src/generators/create/create",
+      "schema": "./src/generators/create/schema.json",
+      "description": "LinID module generator"
+    }
+  }
+}
