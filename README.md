@@ -1,156 +1,141 @@
-# linid-im-front-community-plugins
+# **linid-im-front-community-plugins**
 
-Community plugins for LinID Identity Manager frontend.
+## **🧩 Overview**
 
-## Installation
+`linid-im-front-community-plugins` is the central **plugin hub** for the LinID Identity Management ecosystem.
+It contains all **community plugins**, including:
 
-This project uses **pnpm** as the package manager with Nx for monorepo management.
+* **Modules** → Functional feature blocks that extend the host application
+* **Component Catalogs** → Collections of reusable UI components consumed across modules
 
-### Prerequisites
+This repository is designed to integrate seamlessly with the **Vue.js/Quasar module-federation architecture** used across LinID front-end applications.
 
-- Node.js 20+ (LTS)
-- pnpm 10.20.0 (managed via Corepack)
+It enables:
 
-### Quick start
+* Independent development of modular features
+* Remote loading of UI components and modules
+* A scalable ecosystem where new functionality can be plugged into the host at runtime
 
-```sh
-# Enable Corepack (included with Node.js 16.9+)
-corepack enable
+---
 
-# Install dependencies (Corepack will use pnpm@10.20.0 automatically)
-pnpm install
-```
+## **✨ Features**
 
-**Note:** The `packageManager` field in `package.json` ensures everyone uses the same pnpm version (10.20.0).
+* Centralized repository for all community plugins
+* Supports both **modules** and **component catalogs**
+* Fully compatible with **Module Federation**
+* Designed for seamless integration into all LinID front-end apps
+* Scalable architecture enabling future extensions
 
-### Using pnpm (recommended)
+---
 
-```sh
-# Install pnpm globally if you haven't already
-npm install -g pnpm
+## **🔍 Understanding Modules vs. Component Catalogs**
 
-# Install dependencies
-pnpm install
-```
+### **Modules**
 
-## Development
+A **module** is a functional part of the application that introduces domain-specific features.
+For example:
 
-This is an Nx monorepo containing multiple modules that serve as remote applications for the LinID Identity Manager host application. Each module is independently developed, tested, and can be deployed as a standalone remote.
+* A **User module** manages the CRUD lifecycle of users and exposes routing/pages
+* A **Group module** might depend on the User module to:
 
-### Quick Commands
+    * Add CRUD functionality for groups
+    * Insert plugin components into User pages (e.g., display groups a user belongs to)
 
-```sh
-# Start development server for catalog-ui
-pnpm dev
+Modules = **Feature-oriented**, often include pages, forms, services, and plugin components.
 
-# Build all projects
-pnpm build
+### **Component Catalogs**
 
-# Run all checks (lint, test, typecheck, build)
-pnpm exec nx run-many -t lint test typecheck build
-```
+A **component catalog** is a set of **generic reusable UI components**.
+These components are not tied to a specific business feature.
 
-### Build all projects
+Example:
+`catalog-ui` — a shared visual component library used by various modules.
 
-```sh
-# With pnpm (recommended)
-pnpm build
+Catalogs = **UI-oriented**, no business logic, reusable everywhere.
 
-# With npm
-npm run build
-```
+---
 
-## Code Quality
+## **🧪 Current Available Plugins**
 
-This project uses ESLint, Prettier, and TypeScript to ensure consistent code quality.
+### **📦 Component Catalogs**
 
-### Run all checks
+| Name        | Description                                                             |
+| ----------- | ----------------------------------------------------------------------- |
+| `catalog-ui` | A reusable, generic catalog of UI components used across LinID modules. |
 
-```sh
-# Run all checks (typecheck, lint, format, test)
-pnpm validate
-```
+### **🧩 Modules**
 
-### Format
+> *Coming soon…*
 
-```sh
-# Automatically format the codebase
-pnpm format
+---
 
-# Check formatting without modifying files
-pnpm format:check
-```
+## **Tech Stack 🛠️**
 
-### Linting
+| Area            | Technology               |
+| --------------- |--------------------------|
+| Language        | TypeScript               |
+| Framework       | Vue.js (Composition API) |
+| UI Toolkit      | Quasar Framework         |
+| Build System    | **Nx Workspace**         |
+| Module System   | Module Federation        |
+| Package Manager | npm / pnpm               |
 
-```sh
-# Lint all projects
-pnpm lint
+---
 
-# Auto-fix ESLint issues
-pnpm lint:fix
-```
+## **📋 Technical Prerequisites**
 
-### Type Checking
+To develop or run this plugin hub, ensure the following:
 
-```sh
-# Type check all projects
-pnpm typecheck
-```
+* **Node.js ≥ 22.19**
+* **npm or pnpm ≥ 10**
+* A host project using:
 
-### Testing
+    * Vue.js 3
+    * Quasar Framework (recommended)
+    * Module Federation
+* A workspace environment supporting **Nx**
 
-```sh
-# Run tests for all projects
-pnpm test
-```
+---
 
-## Nx Commands
+## 📚 Configuration Guide
 
-```sh
-# View project graph
-pnpm graph
+All configuration documentation is located in the `docs/` folder.
 
-# Clear Nx cache
-pnpm reset
+### **1️⃣ Plugin Documentation**
 
-# Run affected tasks only (based on git changes)
-pnpm exec nx affected -t build test lint
+Each plugin (module or component catalog) contains its own documentation inside its folder.
 
-# Show what will be affected
-pnpm exec nx show projects --affected
-```
+* 🎨 **Catalog UI** — A reusable set of visual components designed for all LinID modules
+  → Documentation is inside: [apps/catalog-ui/README.md](apps/catalog-ui/README.md)
 
-### Editor Setup
+These documents explain how developers can extend the community plugins ecosystem, create new modules, and integrate them with the host app:
 
-The project includes `.vscode/settings.json` which enables:
+* 🧱 **Creating a New Module** — How to scaffold, structure, expose, and register a new remote module
+  → Documentation inside: [docs/create-module.md](docs/create-module.md)
 
-- Auto-format on save
-- ESLint auto-fix on save
+* 🔌 **Plugin Architecture Overview** — How modules, catalogs, and the host communicate through Module Federation
+  → Documentation inside: [docs/plugin-architecture.md](docs/plugin-architecture.md)
 
-### Module Generator
+* 🧩 **Plugin Zones & Injection Points** — How modules can contribute UI to other modules dynamically
+  → Documentation inside: [docs/plugin-zones.md](docs/plugin-zones.md)
 
-This section describes the module generator available in the project.
+* 🛠️ **Shared UI & Cross-Module Guidelines** — Best practices for building reusable UI components and interacting with Catalog UI
+  → Documentation inside: [docs/shared-ui-guidelines.md](docs/shared-ui-guidelines.md)
 
-#### Overview
+---
 
-The generator allows you to quickly create a new module with a standardized base structure and all necessary configurations.
+## **📜 License**
 
-#### Usage
+This project is licensed under: **GNU Affero General Public License version 3**
 
-To generate a module, run the following command:
+---
 
-```sh
-pnpm nx generate @linid-im-front-community-plugins/module:create
+## **🤝 Contributing**
 
-# or
-pnpm exec nx generate @linid-im-front-community-plugins/module:create
-```
+Contributions are welcome!
+Please refer to the **[CONTRIBUTING.md](CONTRIBUTING.md)** file for:
 
-## CI/CD
-
-The project uses GitHub Actions for continuous integration. See [`.github/workflows/ci.yml`](.github/workflows/ci.yml) for details.
-
-## License
-
-This project is licensed under the GNU Affero General Public License version 3 - see [LICENSE](LICENSE.md) for details.
+* Development workflow
+* Coding guidelines
+* Commit conventions
+* PR rules
