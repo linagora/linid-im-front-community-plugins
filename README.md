@@ -124,6 +124,43 @@ These documents explain how developers can extend the community plugins ecosyste
 
 ---
 
+## **🐳 Docker for Module Federation Remotes**
+
+Each remote module in this Nx monorepo can be built and deployed independently using Docker.
+
+### **Build a Remote Docker Image**
+
+```bash
+# Replace <remote-name> with your Nx project name
+docker build -f docker/<remote-name>.Dockerfile -t <remote-name> .
+```
+
+* The `-f` flag points to the Dockerfile for the remote.
+* `.` specifies the build context (root of the repository).
+
+### **Run a Remote Container**
+
+```bash
+# Expose a dedicated port for the remote
+docker run -p 5001:80 <remote-name>
+```
+
+* The remote will be available at `http://localhost:5001/mf-manifest.json`.
+* Update the host application’s `public/remotes.json` to point to this URL.
+
+### **Notes & Best Practices**
+
+* **Independent builds:** Each remote should be able to build and run in isolation.
+* **Clean build environment:** Remove local `node_modules` before building, or rely on the Dockerfile multi-stage build.
+* **CI-friendly:** The Dockerfile sets `ENV CI=true` to prevent pnpm TTY issues.
+* **Runtime configuration:** Use environment variables or Nginx `envsubst` for dynamic URLs or API endpoints.
+* **Versioning:** Tag Docker images with version numbers or commit SHAs to manage deployments.
+* **Dedicated ports:** Each remote should expose a unique port to avoid conflicts.
+
+This makes each remote fully containerized, easy to deploy, and compatible with your Module Federation host.
+
+---
+
 ## **📜 License**
 
 This project is licensed under: **GNU Affero General Public License version 3**
