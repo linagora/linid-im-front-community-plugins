@@ -5,8 +5,8 @@ on:
     types: [opened, synchronize, reopened]
 
 env:
-  NODE_VERSION: 22.19
-  PNPM_VERSION: 10
+  NODE_VERSION: '22.19'
+  PNPM_VERSION: '10.20.0'
 
 jobs:
   delete-comments:
@@ -25,112 +25,52 @@ jobs:
     steps:
       - uses: deepakputhraya/action-branch-name@master
         with:
-          regex: '^(feature|bugfix|improvement||release|hotfix)\/[a-z0-9_.-]+$'
+          regex: '^(feature|bugfix|improvement|release|hotfix)\/[a-z0-9_.-]+$'
           allowed_prefixes: 'feature,bugfix,improvement,release,hotfix'
           ignore: main
           min_length: 5
           max_length: 50
 
-  build:
-    name: Setup app
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - uses: actions/cache/restore@v3
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-build-cache-node-modules-${{ hashFiles('./pnpm-lock.yaml') }}
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Set pnpm store cache
-        uses: actions/cache/save@v3
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-build-cache-node-modules-${{ hashFiles('./pnpm-lock.yaml') }}
-
   commit-checks:
     name: Check commit messages
     runs-on: ubuntu-latest
-    needs: [ build ]
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v3
+      - uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
 
-      - name: Retrieve pnpm store cache
-        uses: actions/cache/restore@v3
+      - uses: actions/setup-node@v4
         with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-build-cache-node-modules-${{ hashFiles('./pnpm-lock.yaml') }}
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
 
-      - name: Install commitlint (dev only)
-        run: |
-          pnpm install --save-dev @commitlint/{config-conventional,cli}
-
-      - name: Create commitlint config
-        run: |
-          echo "module.exports = { extends: ['@commitlint/config-conventional'] };" > commitlint.config.cjs
-
-      - name: Run commitlint
-        run: |
-          npx commitlint --from=origin/main --to=HEAD --verbose
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec commitlint --from=origin/main --to=HEAD --verbose
 
   check-dependencies:
     name: Check dependencies
-    needs: [ build ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v3
+      - uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
 
-      - name: Retrieve pnpm store cache
-        uses: actions/cache/restore@v3
+      - uses: actions/setup-node@v4
         with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-build-cache-node-modules-${{ hashFiles('./pnpm-lock.yaml') }}
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Run check dependencies
-        run: ./scripts/check-dependencies.sh
+      - run: pnpm install --frozen-lockfile
+      - run: ./scripts/check-dependencies.sh
 
       - uses: JoseThen/comment-pr@v1.2.0
+        if: always()
         with:
           file_path: './dependencies.txt'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -138,28 +78,35 @@ jobs:
   check-style:
     name: Code style
     runs-on: ubuntu-latest
-    needs: [build]
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v3
+      - uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
 
-      - name: Retrieve pnpm store cache
-        uses: actions/cache/restore@v3
+      - uses: actions/setup-node@v4
         with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-build-cache-node-modules-${{ hashFiles('./pnpm-lock.yaml') }}
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
 
-      - name: Check style
-        run: pnpm exec nx run-many -t validate
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
