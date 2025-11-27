@@ -5,16 +5,25 @@ import {
   defineConfigWithVueTs,
   vueTsConfigs,
 } from '@vue/eslint-config-typescript';
+import headers from 'eslint-plugin-headers';
 import jsdoc from 'eslint-plugin-jsdoc';
 import vue from 'eslint-plugin-vue';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export default defineConfigWithVueTs(
   {
     ignores: [
-      'dist/',
-      'coverage/',
+      '**/dist/',
+      '**/coverage/',
       '**/vite.config.*.timestamp*',
       '**/vitest.config.*.timestamp*',
+      '**/out-tsc/',
+      '**/*.template',
+      '**/.__mf__temp',
     ],
   },
   nx.configs['flat/base'],
@@ -74,7 +83,7 @@ export default defineConfigWithVueTs(
         'error',
         {
           require: {
-            ArrowFunctionExpression: true,
+            ArrowFunctionExpression: false,
             ClassDeclaration: true,
             ClassExpression: true,
             FunctionExpression: true,
@@ -86,6 +95,7 @@ export default defineConfigWithVueTs(
             'TSEnumDeclaration',
             'TSPropertySignature',
             'TSModuleDeclaration VariableDeclaration',
+            'VariableDeclaration > VariableDeclarator > ArrowFunctionExpression',
           ],
         },
       ],
@@ -102,6 +112,40 @@ export default defineConfigWithVueTs(
     },
   },
   {
+    files: ['**/*.vue'],
+    plugins: {
+      headers,
+    },
+    rules: {
+      'headers/header-format': [
+        'error',
+        {
+          source: 'file',
+          path: join(__dirname, 'COPYRIGHT'),
+          trailingNewlines: 2,
+          enableVueSupport: true,
+        },
+      ],
+    },
+  },
+  {
+    files: ['**/*.{ts,js}'],
+    plugins: {
+      headers,
+    },
+    rules: {
+      'headers/header-format': [
+        'error',
+        {
+          source: 'file',
+          path: join(__dirname, 'COPYRIGHT'),
+          blockPrefix: '\n',
+          trailingNewlines: 2,
+        },
+      ],
+    },
+  },
+  {
     files: [
       '**/*.test.ts',
       '**/*.spec.ts',
@@ -111,6 +155,7 @@ export default defineConfigWithVueTs(
     ],
     rules: {
       'jsdoc/require-jsdoc': 'off',
+      'headers/header-format': 'off',
     },
   }
 );

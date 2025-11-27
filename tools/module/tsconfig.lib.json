@@ -10,9 +10,11 @@
     "moduleResolution": "nodenext",
     "types": ["node"]
   },
-  "include": ["src/**/*.ts", "src/generators/create/files/src/vue-shims.d.ts"],
+  "include": ["src/**/*.ts", "src/generators/**/files/**/*"],
   "references": [],
   "exclude": [
+    "dist",
+    "out-tsc",
     "vite.config.ts",
     "vite.config.mts",
     "vitest.config.ts",
@@ -24,7 +26,6 @@
     "src/**/*.test.js",
     "src/**/*.spec.js",
     "src/**/*.test.jsx",
-    "src/**/*.spec.jsx",
-    "src/generators/**/files/*"
+    "src/**/*.spec.jsx"
   ]
 }
