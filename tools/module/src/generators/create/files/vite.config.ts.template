@@ -16,7 +16,7 @@ export default defineConfig({
       /**
        * This section allows you to expose components, services, or modules that will be
        * accessible by the host application or by other remote applications.
-       * 
+       *
        * @example
        * ```typescript
        *   './MyComponent': './src/components/MyComponent',
@@ -48,14 +48,6 @@ export default defineConfig({
   preview: {
     port: <%= port %>,
     strictPort: true
-  }, 
-  resolve: {
-    alias: {
-      '@linagora/linid-im-front-corelib': resolve(
-        __dirname,
-        '../../../linid-im-front-corelib/dist/core-lib.es.js'
-      )
-    }
   },
   build: {
     target: 'esnext',
