@@ -15,14 +15,6 @@ export default defineConfig({
     port: 5001,
     strictPort: true,
   },
-  resolve: {
-    alias: {
-      '@linagora/linid-im-front-corelib': resolve(
-        __dirname,
-        '../../../linid-im-front-corelib/dist/core-lib.es.js'
-      ),
-    },
-  },
   plugins: [
     vue(),
     federation({
