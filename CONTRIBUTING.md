@@ -189,7 +189,9 @@ pnpm typecheck
 ### Testing
 
 ```sh
-pnpm test
+pnpm test          # Runs the full test suite once
+pnpm test:watch    # Runs tests in watch mode
+pnpm test:coverage # Generates a coverage report
 ```
 
 ### Lint & Format
