@@ -39,11 +39,27 @@
       }
     },
     "test": {
-      "executor": "@nx/vite:test",
+      "executor": "@nx/vitest:test",
+      "options": {
+        "configFile": "apps/catalog-ui/vitest.config.ts",
+        "passWithNoTests": true
+      }
+    },
+    "test:coverage": {
+      "executor": "@nx/vitest:test",
       "outputs": ["{options.reportsDirectory}"],
       "options": {
+        "configFile": "apps/catalog-ui/vitest.config.ts",
         "passWithNoTests": true,
         "reportsDirectory": "coverage/apps/catalog-ui"
+      }
+    },
+    "test:watch": {
+      "executor": "@nx/vitest:test",
+      "options": {
+        "configFile": "apps/catalog-ui/vitest.config.ts",
+        "passWithNoTests": true,
+        "watch": true
       }
     },
     "typecheck": {

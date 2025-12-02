@@ -3,11 +3,6 @@
   "description": "<%= description %>",
   "version": "0.0.1",
   "private": true,
-  "scripts": {
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
-  },
   "devDependencies": {
     "@module-federation/vite": "1.9.0"
   },
