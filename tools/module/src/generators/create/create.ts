@@ -81,6 +81,12 @@ export async function createGenerator(
       `  pnpm nx test ${resolvedOptions.name}               # Run tests`
     );
     console.log(
+      `  pnpm nx test:coverage ${resolvedOptions.name}      # Run tests with coverage`
+    );
+    console.log(
+      `  pnpm nx test:watch ${resolvedOptions.name}         # Run tests in watch mode`
+    );
+    console.log(
       `  pnpm nx lint ${resolvedOptions.name}               # Check linting`
     );
     console.log(
