@@ -8,6 +8,7 @@
     "test": "nx run-many -t test",
     "test:coverage": "nx run-many -t test:coverage",
     "test:watch": "nx run-many -t test:watch",
+    "test:ci": "nx run-many -t test:ci",
     "typecheck": "nx run-many -t typecheck",
     "format": "nx format:write",
     "format:check": "nx format:check",
