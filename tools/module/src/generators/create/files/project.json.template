@@ -51,7 +51,15 @@
       "options": {
         "configFile": "<%= projectRoot %>/vitest.config.ts",
         "passWithNoTests": true,
-        "reportsDirectory": "coverage/<%= projectRoot %>"
+        "reportsDirectory": "../../coverage/<%= projectRoot %>",
+        "coverage": true
+      }
+    },
+    "test:ci": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run --coverage --reporter=dot --passWithNoTests",
+        "cwd": "<%= projectRoot %>"
       }
     },
     "test:watch": {
