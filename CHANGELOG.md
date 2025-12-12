@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.2](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.0.1...v0.0.2) (2025-12-12)
+
+
+### Features
+
+* **catalog-ui:** share Axios instance via Module Federation ([78f60fb](https://github.com/linagora/linid-im-front-community-plugins/commit/78f60fb0894eb4d42c0b738e7f259c6e5c8f7eef))
+
 ### 0.0.1 (2025-12-04)
 
 

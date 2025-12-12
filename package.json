@@ -1,6 +1,6 @@
 {
   "name": "@linid-im-front-community-plugins/source",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "scripts": {
     "build": "nx run-many -t build",
     "lint": "nx run-many -t lint",
