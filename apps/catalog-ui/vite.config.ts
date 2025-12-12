@@ -31,6 +31,10 @@ export default defineConfig({
           requiredVersion: '3.5.24',
         },
         quasar: { singleton: true } as Record<string, unknown>,
+        axios: {
+          singleton: true,
+          requiredVersion: '1.13.2',
+        },
         '@linagora/linid-im-front-corelib': {
           singleton: true,
           strictVersion: true,
