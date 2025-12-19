@@ -2,12 +2,14 @@ import { federation } from '@module-federation/vite';
 import vue from '@vitejs/plugin-vue';
 import path, { resolve } from 'path';
 import { defineConfig } from 'vite';
+import { quasar } from '@quasar/vite-plugin';
 
 export default defineConfig({
   root: resolve(__dirname, './'),
   cacheDir: '../../node_modules/.vite/apps/<%= name %>',
   plugins: [
     vue(),
+    quasar(),
     federation({
       name: '<%= name %>',
       filename: 'remoteEntry.js',

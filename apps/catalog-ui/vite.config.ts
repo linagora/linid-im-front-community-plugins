@@ -2,6 +2,7 @@ import { federation } from '@module-federation/vite';
 import vue from '@vitejs/plugin-vue';
 import path, { resolve } from 'path';
 import { defineConfig } from 'vite';
+import { quasar } from '@quasar/vite-plugin';
 
 export default defineConfig({
   base: '',
@@ -17,6 +18,7 @@ export default defineConfig({
   },
   plugins: [
     vue(),
+    quasar(),
     federation({
       name: 'catalogUI',
       filename: 'remoteEntry.js',
