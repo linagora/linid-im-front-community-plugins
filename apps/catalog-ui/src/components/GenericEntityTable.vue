@@ -25,31 +25,42 @@
 -->
 
 <template>
-  <q-page>
-    User home page with Fantastic Generic Table !
-    <component
-      :is="remoteComponent"
-      v-if="remoteComponent"
-      ui-namespace="catalogUI"
-      :columns
-      :rows
-    />
-  </q-page>
+  <q-table
+    :columns="columns"
+    :rows="rows"
+    row-key="id"
+    v-bind="tableProps"
+  />
 </template>
 
 <script setup lang="ts">
-import { loadAsyncComponent } from '@linagora/linid-im-front-corelib';
-import { ref, type Component } from 'vue';
+import { useUiDesign } from '@linagora/linid-im-front-corelib';
+import { QTable, type QTableColumn } from 'quasar';
+import { computed } from 'vue';
 
-const remoteComponent = ref<Component | null>(null);
-const columns = [
-  { name: 'id', label: 'ID', field: 'id', align: 'left' },
-  { name: 'name', label: 'Name', field: 'name', align: 'left' },
-];
-const rows = [
-  { id: 1, name: 'Vincent' },
-  { id: 3, name: 'Bertrand' },
-];
+const tableProps = computed(() => ({
+  flat: Boolean(ui(props.uiNamespace, 'q-table.flat')),
+  bordered: Boolean(ui(props.uiNamespace, 'q-table.bordered')),
+  dense: Boolean(ui(props.uiNamespace, 'q-table.dense')),
+}));
 
-remoteComponent.value = loadAsyncComponent('catalogUI/GenericEntityTable');
+/**
+ * Props for the GenericEntityTable component.
+ */
+const props = defineProps<{
+  /**
+   * Array of columns as expected by Quasar QTable.
+   */
+  columns: QTableColumn[];
+  /**
+   * Array of entity objects to display as rows in the table.
+   */
+  rows: Record<string, unknown>[];
+  /**
+   * UI namespace for design tokens.
+   */
+  uiNamespace: string;
+}>();
+
+const { ui } = useUiDesign();
 </script>

@@ -26,6 +26,10 @@ export default defineConfig({
       exposes: {
         './BaseLayout': resolve(__dirname, 'src/layouts/BaseLayout.vue'),
         './HelloWorld': resolve(__dirname, 'src/components/HelloWorld.vue'),
+        './GenericEntityTable': resolve(
+          __dirname,
+          'src/components/GenericEntityTable.vue'
+        ),
       },
       shared: {
         vue: {

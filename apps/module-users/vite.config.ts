@@ -5,8 +5,8 @@ import { defineConfig } from 'vite';
 import { quasar } from '@quasar/vite-plugin';
 
 export default defineConfig({
-  root: resolve(__dirname, './'),
   base: '',
+  root: resolve(__dirname, './'),
   cacheDir: '../../node_modules/.vite/apps/module-users',
   plugins: [
     vue(),
