@@ -26,7 +26,7 @@
 
 export default [
   {
-    path: '/{{basePath}}',
+    path: '{{ config.basePath or "/users" }}',
     component: 'catalogUI/BaseLayout',
     children: [
       {
