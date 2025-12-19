@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "scripts": {
     "build": "nx run-many -t build",
+    "preview": "nx run-many -t preview",
     "lint": "nx run-many -t lint",
     "lint:fix": "nx run-many -t lint:fix",
     "test": "nx run-many -t test",
