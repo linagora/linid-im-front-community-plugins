@@ -19,6 +19,7 @@ export default defineConfig({
       exposes: {
         './routes': resolve(__dirname, 'src/routes.ts'),
         './lifecycle': resolve(__dirname, 'src/module-lifecycle.ts'),
+        './HomePage': resolve(__dirname, 'src/pages/HomePage.vue'),
       },
       shared: {
         vue: {
