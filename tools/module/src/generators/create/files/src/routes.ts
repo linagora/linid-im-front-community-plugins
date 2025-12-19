@@ -24,14 +24,15 @@
  * LinID Identity Manager software.
  */
 
-// Export components
-export { default as HelloWorld } from './components/HelloWorld.vue';
-
-// Export pages
-export { default as HomePage } from './pages/HomePage.vue';
-
-// Export lifecycle
-export { default as lifecycle } from './module-lifecycle';
-
-// Export routes
-export { default as routes } from './routes';
+export default [
+  {
+    path: '/{{id}}',
+    component: 'catalog-ui/BaseLayout',
+    children: [
+      {
+        path: '',
+        component: '<%= name %>/HomePage',
+      },
+    ],
+  },
+];
