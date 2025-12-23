@@ -51,6 +51,10 @@ export default defineConfig({
           singleton: true,
           requiredVersion: '4.6.4',
         },
+        pinia: {
+          singleton: true,
+          requiredVersion: '3.0.4',
+        },
       },
     }),
   ],

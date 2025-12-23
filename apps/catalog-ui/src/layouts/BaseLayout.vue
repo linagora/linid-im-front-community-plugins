@@ -25,8 +25,43 @@
 -->
 
 <template>
+  <!-- v8 ignore start -->
   <q-layout view="hHh LpR fFf">
-    <!-- zone header -->
+    <q-header
+      v-bind="uiProps.header"
+      data-cy="header"
+    >
+      <q-toolbar
+        v-bind="uiProps.toolbar"
+        data-cy="toolbar"
+      >
+        <q-avatar
+          v-bind="uiProps.avatar"
+          data-cy="application_logo"
+        />
+        <q-toolbar-title
+          v-bind="uiProps.toolbarTitle"
+          data-cy="application_title"
+        >
+          {{ t('title') }}
+        </q-toolbar-title>
+        <q-badge
+          v-bind="uiProps.badge"
+          :label="t('version')"
+          data-cy="application_version"
+        />
+      </q-toolbar>
+      <q-toolbar
+        v-bind="uiProps.toolbar"
+        class="block"
+        data-cy="navigation_toolbar"
+      >
+        <NavigationMenu
+          :items="uiStore.mainNavigationItems"
+          :ui-namespace="toolbarUiNamespace"
+        />
+      </q-toolbar>
+    </q-header>
 
     <q-page-container>
       <router-view />
@@ -36,4 +71,43 @@
 
     <!-- zone footer -->
   </q-layout>
+  <!-- v8 ignore stop -->
 </template>
+
+<script setup lang="ts">
+import type {
+  LinidQAvatarProps,
+  LinidQBadgeProps,
+  LinidQHeaderProps,
+  LinidQToolbarProps,
+  LinidQToolbarTitleProps,
+} from '@linagora/linid-im-front-corelib';
+import {
+  useLinidUiStore,
+  useScopedI18n,
+  useUiDesign,
+} from '@linagora/linid-im-front-corelib';
+import NavigationMenu from '../components/NavigationMenu.vue';
+
+const { ui } = useUiDesign();
+const { t } = useScopedI18n('application');
+const uiStore = useLinidUiStore();
+
+const uiNamespace = 'base-layout';
+const headerUiNamespace = `${uiNamespace}.header`;
+const toolbarUiNamespace = `${headerUiNamespace}.toolbar`;
+const badgeUiNamespace = `${toolbarUiNamespace}.badge`;
+const avatarUiNamespace = `${toolbarUiNamespace}.avatar`;
+const titleUiNamespace = `${toolbarUiNamespace}.title`;
+
+const uiProps = {
+  header: ui<LinidQHeaderProps>(headerUiNamespace, 'q-header'),
+  toolbar: ui<LinidQToolbarProps>(toolbarUiNamespace, 'q-toolbar'),
+  avatar: ui<LinidQAvatarProps>(avatarUiNamespace, 'q-avatar'),
+  toolbarTitle: ui<LinidQToolbarTitleProps>(
+    titleUiNamespace,
+    'q-toolbar-title'
+  ),
+  badge: ui<LinidQBadgeProps>(badgeUiNamespace, 'q-badge'),
+};
+</script>
