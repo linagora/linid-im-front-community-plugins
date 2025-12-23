@@ -1,3 +1,4 @@
+import { quasar } from '@quasar/vite-plugin';
 import vue from '@vitejs/plugin-vue';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import { defineConfig } from 'vitest/config';
@@ -21,5 +22,5 @@ export default defineConfig({
       ],
     },
   },
-  plugins: [vue(), tsconfigPaths()],
+  plugins: [vue(), tsconfigPaths(), quasar()],
 });

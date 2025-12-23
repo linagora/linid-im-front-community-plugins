@@ -25,6 +25,10 @@ export default defineConfig({
       manifest: true,
       exposes: {
         './BaseLayout': resolve(__dirname, 'src/layouts/BaseLayout.vue'),
+        './NavigationMenu': resolve(
+          __dirname,
+          'src/components/NavigationMenu.vue'
+        ),
       },
       shared: {
         vue: {
@@ -42,6 +46,10 @@ export default defineConfig({
         '@linagora/linid-im-front-corelib': {
           singleton: true,
           strictVersion: true,
+        },
+        'vue-router': {
+          singleton: true,
+          requiredVersion: '4.6.4',
         },
       },
     }),

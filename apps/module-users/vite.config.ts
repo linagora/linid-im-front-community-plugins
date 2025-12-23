@@ -1,8 +1,8 @@
 import { federation } from '@module-federation/vite';
+import { quasar } from '@quasar/vite-plugin';
 import vue from '@vitejs/plugin-vue';
 import path, { resolve } from 'path';
 import { defineConfig } from 'vite';
-import { quasar } from '@quasar/vite-plugin';
 
 export default defineConfig({
   root: resolve(__dirname, './'),
@@ -34,6 +34,10 @@ export default defineConfig({
         '@linagora/linid-im-front-corelib': {
           singleton: true,
           strictVersion: true,
+        },
+        'vue-router': {
+          singleton: true,
+          requiredVersion: '4.6.4',
         },
       },
     }),
