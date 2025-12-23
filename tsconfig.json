@@ -8,6 +8,9 @@
     },
     {
       "path": "./tools/module"
+    },
+    {
+      "path": "./apps/module-users"
     }
   ]
 }
