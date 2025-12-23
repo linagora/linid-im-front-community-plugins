@@ -25,7 +25,6 @@ export default defineConfig({
       manifest: true,
       exposes: {
         './BaseLayout': resolve(__dirname, 'src/layouts/BaseLayout.vue'),
-        './HelloWorld': resolve(__dirname, 'src/components/HelloWorld.vue'),
       },
       shared: {
         vue: {
