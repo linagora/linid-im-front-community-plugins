@@ -26,7 +26,38 @@
 
 <template>
   <q-layout view="hHh LpR fFf">
-    <!-- zone header -->
+    <q-header
+      v-bind="uiProps.header"
+      data-cy="header"
+    >
+      <q-toolbar
+        v-bind="uiProps.toolbar"
+        data-cy="toolbar"
+      >
+        <q-avatar
+          v-bind="uiProps.avatar"
+          data-cy="application-logo"
+        />
+        <q-toolbar-title
+          v-bind="uiProps.toolbarTitle"
+          data-cy="application-title"
+        >
+          APP_TITLE
+        </q-toolbar-title>
+          <q-badge
+            v-bind="uiProps.badge"
+            label="VERSION"
+            data-cy="application-version"
+          />
+      </q-toolbar>
+      <q-toolbar data-cy="header-navigation-toolbar">
+        <NavigationMenu
+          :items="items"
+          :ui-namespace="props.uiNamespace"
+          data-cy="header-navigation-menu"
+        />
+      </q-toolbar>
+    </q-header>
 
     <q-page-container>
       <router-view />
@@ -37,3 +68,39 @@
     <!-- zone footer -->
   </q-layout>
 </template>
+
+<script setup lang="ts">
+import type {
+  LinidQAvatarProps,
+  LinidQBadgeProps,
+  LinidQBtnProps,
+  LinidQHeaderProps,
+  LinidQToolbarProps,
+  LinidQToolbarTitleProps,
+} from '@linagora/linid-im-front-corelib';
+import { useUiDesign } from '@linagora/linid-im-front-corelib';
+import NavigationMenu from '../components/NavigationMenu.vue';
+import { CommonComponentProps } from '../types/common';
+
+const props = defineProps<CommonComponentProps>();
+
+const { ui } = useUiDesign();
+
+const uiProps = {
+  header: ui<LinidQHeaderProps>(props.uiNamespace, 'q-header'),
+  toolbar: ui<LinidQToolbarProps>(props.uiNamespace, 'q-toolbar'),
+  avatar: ui<LinidQAvatarProps>(props.uiNamespace, 'q-avatar'),
+  toolbarTitle: ui<LinidQToolbarTitleProps>(
+    props.uiNamespace,
+    'q-toolbar-title'
+  ),
+  btn: ui<LinidQBtnProps>(props.uiNamespace, 'q-btn'),
+  badge: ui<LinidQBadgeProps>(props.uiNamespace, 'q-badge'),
+};
+
+// TODO : make it dynamic
+const items = [
+  { id: 1, label: 'Home', icon: 'home', path: '/' },
+  { id: 2, label: 'Users', icon: 'person', path: '/users' },
+];
+</script>
