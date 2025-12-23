@@ -1,8 +1,8 @@
 import { federation } from '@module-federation/vite';
+import { quasar } from '@quasar/vite-plugin';
 import vue from '@vitejs/plugin-vue';
 import path, { resolve } from 'path';
 import { defineConfig } from 'vite';
-import { quasar } from '@quasar/vite-plugin';
 
 export default defineConfig({
   base: '',
@@ -32,7 +32,10 @@ export default defineConfig({
           singleton: true,
           requiredVersion: '3.5.25',
         },
-        quasar: { singleton: true } as Record<string, unknown>,
+        quasar: {
+          singleton: true,
+          requiredVersion: '2.18.6',
+        },
         axios: {
           singleton: true,
           requiredVersion: '1.13.2',
@@ -40,7 +43,7 @@ export default defineConfig({
         '@linagora/linid-im-front-corelib': {
           singleton: true,
           strictVersion: true,
-        } as Record<string, unknown>,
+        },
       },
     }),
   ],
