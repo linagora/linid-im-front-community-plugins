@@ -23,3 +23,52 @@
  * General Public License version 3 and <http://www.linagora.com/licenses/> for the Additional Terms applicable to the
  * LinID Identity Manager software.
  */
+
+import type { CommonComponentProps } from './common';
+
+/**
+ * Navigation item structure.
+ */
+export interface NavigationMenuItem {
+  /**
+   * Unique identifier of the navigation item.
+   */
+  id: number;
+  /**
+   * Label of the navigation item.
+   */
+  label: string;
+  /**
+   * Path/route of the navigation item.
+   */
+  path: string;
+}
+
+/**
+ * Props for the NavigationMenu component.
+ */
+export interface NavigationMenuProps extends CommonComponentProps {
+  /**
+   * Navigation items to display in the menu.
+   */
+  items: NavigationMenuItem[];
+
+  /**
+   * Currently active panel identifier.
+   */
+  activeItem?: string | number;
+}
+
+/**
+ * Outputs (events) emitted by the NavigationMenu component.
+ */
+export interface NavigationMenuOutputs {
+  /**
+   * Emitted when a navigation item is selected.
+   */
+  select: [item: NavigationMenuItem];
+  /**
+   * Emitted when the active item changes.
+   */
+  'update:activeItem': [value: string];
+}

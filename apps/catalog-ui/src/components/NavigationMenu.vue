@@ -25,7 +25,77 @@
 -->
 
 <template>
-  <div>Hello World!</div>
+  <q-tabs
+    v-model="tab"
+    v-bind="uiProps.tabs"
+    @update:model-value="handleTabChange"
+    data-cy="navigationMenu"
+  >
+    <q-route-tab
+      v-for="item in props.items"
+      v-bind="uiProps.routeTab"
+      :key="item.id"
+      :to="item.path"
+      :label="item.label"
+      :exact="true"
+      :data-cy="`item-${item.id}`"
+    />
+  </q-tabs>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import type {
+  LinidQRouteTabProps,
+  LinidQTabsProps,
+} from '@linagora/linid-im-front-corelib';
+import { useUiDesign } from '@linagora/linid-im-front-corelib';
+import { ref } from 'vue';
+import type {
+  NavigationMenuOutputs,
+  NavigationMenuProps,
+} from '../types/navigationMenu';
+
+const props = defineProps<NavigationMenuProps>();
+
+const emit = defineEmits<NavigationMenuOutputs>();
+
+const { ui } = useUiDesign();
+
+const tab = ref(props.activeItem || '1');
+
+// TODO: manage routTab by id, expecting to have in design.json:
+/*
+ {
+    default: { ... }
+    header: {
+      toolbar: {
+        navigationItem: {
+          'route-users': {
+            icon: X
+          },
+          'route-Y': {
+            icon: 'Z'
+          }
+        }
+      }
+    }
+ }
+*/
+const uiProps = {
+  tabs: ui<LinidQTabsProps>(props.uiNamespace, 'q-tabs'),
+  routeTab: ui<LinidQRouteTabProps>(props.uiNamespace, 'q-route-tab'),
+};
+
+/**
+ * Handles the tab change event.
+ * @param value The new tab value.
+ */
+const handleTabChange = (value: string) => {
+  emit('update:activeItem', value);
+
+  const selectedItem = props.items.find((item) => item.path === value);
+  if (selectedItem) {
+    emit('select', selectedItem);
+  }
+};
+</script>

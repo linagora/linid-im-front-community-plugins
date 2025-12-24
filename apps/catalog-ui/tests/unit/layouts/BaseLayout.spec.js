@@ -23,3 +23,58 @@
  * General Public License version 3 and <http://www.linagora.com/licenses/> for the Additional Terms applicable to the
  * LinID Identity Manager software.
  */
+
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { shallowMount } from '@vue/test-utils';
+import BaseLayout from '../../../src/layouts/BaseLayout.vue';
+
+const mockUi = vi.fn(() => ({}));
+
+vi.mock('@linagora/linid-im-front-corelib', () => ({
+  useUiDesign: () => ({
+    ui: mockUi,
+  }),
+}));
+
+describe('Test layout: BaseLayout', () => {
+  let wrapper;
+
+  const defaultProps = {
+    uiNamespace: 'test-namespace',
+    header: {
+      appTitle: 'LinID Identity Manager',
+      userFullName: 'John Doe',
+      appVersion: 'v1.0.0',
+    },
+  };
+
+  beforeEach(() => {
+    mockUi.mockClear();
+    wrapper = shallowMount(BaseLayout, {
+      props: defaultProps,
+    });
+  });
+
+  it('should initialize uiProps object with all required properties', () => {
+    expect(mockUi).toHaveBeenCalledTimes(6);
+    expect(wrapper.vm.uiProps).toBeDefined();
+
+    expect(mockUi).toHaveBeenCalledWith('test-namespace', 'q-header');
+    expect(wrapper.vm.uiProps).toHaveProperty('header');
+
+    expect(mockUi).toHaveBeenCalledWith('test-namespace', 'q-toolbar');
+    expect(wrapper.vm.uiProps).toHaveProperty('toolbar');
+
+    expect(mockUi).toHaveBeenCalledWith('test-namespace', 'q-avatar');
+    expect(wrapper.vm.uiProps).toHaveProperty('avatar');
+
+    expect(mockUi).toHaveBeenCalledWith('test-namespace', 'q-toolbar-title');
+    expect(wrapper.vm.uiProps).toHaveProperty('toolbarTitle');
+
+    expect(mockUi).toHaveBeenCalledWith('test-namespace', 'q-btn');
+    expect(wrapper.vm.uiProps).toHaveProperty('btn');
+
+    expect(mockUi).toHaveBeenCalledWith('test-namespace', 'q-badge');
+    expect(wrapper.vm.uiProps).toHaveProperty('badge');
+  });
+});
