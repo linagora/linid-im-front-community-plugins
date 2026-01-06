@@ -32,6 +32,9 @@ export default [
       {
         path: '',
         component: 'moduleUsers/HomePage',
+        meta: {
+          instanceId: '{{ config.instanceId }}',
+        },
       },
     ],
   },

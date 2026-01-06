@@ -24,16 +24,56 @@
  * LinID Identity Manager software.
  */
 
-export default {
-  '{{config.instanceId}}': {
-    NavigationMenu: {
-      label: 'Utilisateurs',
-    },
-    HomePage: {
-      title: 'Gestion des utilisateurs',
-      content: "Nombre d'utilisateur(s): {count}",
-      loading: 'Chargement des utilisateurs...',
-      error: 'Impossible de charger les utilisateurs...',
-    },
+import { getEntities } from '@linagora/linid-im-front-corelib';
+import { shallowMount } from '@vue/test-utils';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import HomePage from '../../../src/pages/HomePage.vue';
+
+const mockRoute = {
+  meta: {
+    instanceId: 'test-instance-id',
   },
 };
+
+vi.mock('@linagora/linid-im-front-corelib', () => ({
+  getEntities: vi.fn(() => Promise.resolve({ content: [{ id: 1 }] })),
+  useScopedI18n: () => ({
+    t: vi.fn((v) => v),
+  }),
+}));
+
+vi.mock('vue-router', () => ({
+  useRoute: () => mockRoute,
+}));
+
+describe('Test component: HomePage', () => {
+  let wrapper;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    wrapper = shallowMount(HomePage);
+  });
+
+  describe('test function: loadData', () => {
+    it('should retrieve data', async () => {
+      wrapper.vm.users = [];
+      wrapper.vm.loading = true;
+
+      await wrapper.vm.loadData();
+
+      expect(wrapper.vm.loading).toEqual(false);
+      expect(wrapper.vm.users).toEqual([{ id: 1 }]);
+    });
+
+    it('should reset users on error', async () => {
+      getEntities.mockImplementation(() => Promise.reject());
+      wrapper.vm.users = [{ id: 1 }];
+      wrapper.vm.loading = true;
+
+      await wrapper.vm.loadData();
+
+      expect(wrapper.vm.loading).toEqual(false);
+      expect(wrapper.vm.users).toEqual([]);
+    });
+  });
+});
