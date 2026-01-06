@@ -25,9 +25,60 @@
 -->
 
 <template>
-  <q-page> User home page </q-page>
+  <!-- v8 ignore start -->
+  <q-page>
+    <h4>{{ t('title') }}</h4>
+    <p v-if="!loading">{{ t('content', { count: users.length }) }}</p>
+    <p v-else>{{ t('loading') }}</p>
+  </q-page>
+  <!-- v8 ignore stop -->
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { getEntities, useScopedI18n } from '@linagora/linid-im-front-corelib';
+import { computed, onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
+
+const route = useRoute();
+const instanceId = computed<string>(() => route.meta.instanceId as string);
+
+const { t } = useScopedI18n(`${instanceId.value}.HomePage`);
+const users = ref<Record<string, unknown>[]>([]);
+const loading = ref<boolean>(false);
+
+/**
+ * Loads a paginated list of entities and updates the reactive users state.
+ * @returns A promise that resolves when the data has been loaded and the loading state has been updated.
+ */
+function loadData(): Promise<void> {
+  loading.value = true;
+
+  return getEntities<Record<string, unknown>>(
+    instanceId.value,
+    {},
+    {
+      page: 0,
+      size: 20,
+    }
+  )
+    .then((data) => {
+      users.value = data.content;
+    })
+    .catch(() => {
+      users.value = [];
+      // TODO: uncomment when Notify is working
+      // Notify.create({
+      //   message: t('HomePage.error'),
+      // });
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+}
+
+onMounted(async () => {
+  await loadData();
+});
+</script>
 
 <style scoped></style>
