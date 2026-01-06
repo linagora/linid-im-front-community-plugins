@@ -18,6 +18,7 @@ export default defineConfig({
       manifest: true,
       exposes: {
         './routes': resolve(__dirname, 'src/routes.ts'),
+        './i18n': resolve(__dirname, 'src/i18n/index.ts'),
         './lifecycle': resolve(__dirname, 'src/module-lifecycle.ts'),
         './HomePage': resolve(__dirname, 'src/pages/HomePage.vue'),
       },

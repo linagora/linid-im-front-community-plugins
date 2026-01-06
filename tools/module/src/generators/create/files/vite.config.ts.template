@@ -29,6 +29,7 @@ export default defineConfig({
        */
         './routes': resolve(__dirname, 'src/routes.ts'),
         './lifecycle': resolve(__dirname, 'src/module-lifecycle.ts'),
+        './i18n': resolve(__dirname, 'src/i18n/index.ts'),
       },
       shared: {
         vue: {
