@@ -37,6 +37,10 @@ export default defineConfig({
           __dirname,
           'src/components/loader/BlurLoader.vue'
         ),
+        './InformationCard': resolve(
+          __dirname,
+          'src/components/card/InformationCard.vue'
+        ),
       },
       shared: {
         vue: {

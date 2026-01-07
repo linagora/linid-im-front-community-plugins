@@ -69,6 +69,9 @@ The library organizes components by category. For each component, documentation 
 - **GenericEntityTable** — Minimal QTable wrapper for simple entity lists
   → Documentation is inside: [`GenericEntityTable.md`](./docs/components/GenericEntityTable.md)
 
+- ✨ **InformationCard** — Reusable card component for displaying labeled read-only information with optional loading states
+  → Documentation is inside: [`InformationCard.md`](./docs/components/card/InformationCard.md)
+
 ### **Forms Components**
 
 - Coming soon…
