@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Linagora
+ * Copyright (C) 2026 Linagora
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General
  * Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option)
@@ -23,4 +23,3 @@
  * General Public License version 3 and <http://www.linagora.com/licenses/> for the Additional Terms applicable to the
  * LinID Identity Manager software.
  */
-
