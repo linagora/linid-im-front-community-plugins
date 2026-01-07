@@ -23,3 +23,6 @@
  * General Public License version 3 and <http://www.linagora.com/licenses/> for the Additional Terms applicable to the
  * LinID Identity Manager software.
  */
+
+export { default as BaseLayout } from './layouts/BaseLayout.vue';
+export { default as BlurLoader } from './components/loader/BlurLoader.vue';

@@ -33,6 +33,10 @@ export default defineConfig({
           __dirname,
           'src/components/NavigationMenu.vue'
         ),
+        './BlurLoader': resolve(
+          __dirname,
+          'src/components/loader/BlurLoader.vue'
+        ),
       },
       shared: {
         vue: {
