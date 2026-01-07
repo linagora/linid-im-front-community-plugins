@@ -73,6 +73,16 @@ The library organizes components by category. For each component, documentation 
 
 - Coming soon…
 
+### **Navigation Components**
+
+- Coming soon…
+
+### **Feedback & Utility Components**
+
+- ✨ **BlurLoader** — Skeleton loader for representing loading states
+  → Documentation is inside: [`BlurLoader.md`](./docs/components/loader/BlurLoader.md)
+ 
+
 > More categories and components will be added as the library evolves.
 
 ---
