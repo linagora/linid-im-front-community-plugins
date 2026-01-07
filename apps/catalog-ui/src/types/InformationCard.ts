@@ -24,6 +24,33 @@
  * LinID Identity Manager software.
  */
 
-export { default as BaseLayout } from './layouts/BaseLayout.vue';
-export { default as BlurLoader } from './components/loader/BlurLoader.vue';
-export { default as InformationCard } from './components/card/InformationCard.vue';
+import type { CommonComponentProps } from './common';
+
+/**
+ * Props definition for the InformationCard component.
+ *
+ * This interface describes the configuration used to display
+ * a labeled piece of information, optionally enhanced with
+ * an icon and a loading state.
+ */
+export interface InformationCardProps extends CommonComponentProps {
+  /**
+   * Text label describing the displayed information.
+   * @default '',
+   */
+  label?: string;
+
+  /**
+   * Value to display when the component is not in a loading state.
+   * Ignored if custom content is provided via the default slot.
+   * @default '',
+   */
+  value?: string;
+
+  /**
+   * Indicates whether the component is in a loading state.
+   * When true, the value is replaced by a loading placeholder.
+   * @default false
+   */
+  isLoading?: boolean;
+}
