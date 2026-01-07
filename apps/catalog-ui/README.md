@@ -64,6 +64,9 @@ The library organizes components by category. For each component, documentation 
 - ✨ **BlurLoader** — Skeleton loader for representing loading states
   → Documentation is inside: [`BlurLoader.md`](./docs/components/loader/BlurLoader.md)
 
+- ✨ **InformationCard** — Reusable card component for displaying labeled read-only information with optional loading states
+  → Documentation is inside: [`InformationCard.md`](./docs/components/card/InformationCard.md)
+
 ### **Forms Components**
 
 - Coming soon…
