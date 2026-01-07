@@ -24,7 +24,15 @@
  * LinID Identity Manager software.
  */
 
-import { BasicRemoteModule } from '@linagora/linid-im-front-corelib';
+import type {
+  ModuleHostConfig,
+  ModuleLifecycleResult,
+} from '@linagora/linid-im-front-corelib';
+import {
+  BasicRemoteModule,
+  getI18nInstance,
+  useLinidUiStore,
+} from '@linagora/linid-im-front-corelib';
 
 /**
  * Remote module responsible for user-related features.
@@ -50,6 +58,27 @@ class ModuleUsers extends BasicRemoteModule {
       '0.0.1',
       'Module to manage user entity.'
     );
+  }
+
+  /**
+   * Performs post-initialization tasks for the Users module:
+   * - add the module to the main navigation menu.
+   * @param config - The configuration object provided by the host application.
+   * @returns A promise that resolves to the result of the module lifecycle operation.
+   */
+  override async postInit(
+    config: ModuleHostConfig
+  ): Promise<ModuleLifecycleResult> {
+    const uiStore = useLinidUiStore();
+    const { t } = getI18nInstance().global;
+
+    uiStore.addMainNavigationMenuItems({
+      id: config.instanceId,
+      label: t(`${config.instanceId}.NavigationMenu.label`),
+      path: config.basePath || '/users',
+    });
+
+    return { success: true };
   }
 }
 
