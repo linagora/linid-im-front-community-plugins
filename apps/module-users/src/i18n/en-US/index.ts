@@ -25,5 +25,9 @@
  */
 
 export default {
-  '{{config.instanceId}}': {},
+  '{{config.instanceId}}': {
+    NavigationMenu: {
+      label: 'Users',
+    },
+  },
 };
