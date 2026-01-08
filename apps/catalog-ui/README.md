@@ -72,6 +72,9 @@ The library organizes components by category. For each component, documentation 
 - ✨ **InformationCard** — Reusable card component for displaying labeled read-only information with optional loading states
   → Documentation is inside: [`InformationCard.md`](./docs/components/card/InformationCard.md)
 
+- ✨ **EntityDetailsCard** — Composable container card for displaying multiple entity attributes using `InformationCard` components  
+  → Documentation is inside: [`EntityDetailsCard.md`](./docs/components/card/EntityDetailsCard.md)
+
 ### **Forms Components**
 
 - Coming soon…
@@ -84,7 +87,6 @@ The library organizes components by category. For each component, documentation 
 
 - ✨ **BlurLoader** — Skeleton loader for representing loading states
   → Documentation is inside: [`BlurLoader.md`](./docs/components/loader/BlurLoader.md)
- 
 
 > More categories and components will be added as the library evolves.
 

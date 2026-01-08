@@ -24,7 +24,43 @@
  * LinID Identity Manager software.
  */
 
-export { default as BaseLayout } from './layouts/BaseLayout.vue';
-export { default as BlurLoader } from './components/loader/BlurLoader.vue';
-export { default as InformationCard } from './components/card/InformationCard.vue';
-export { default as EntityDetailsCard } from './components/card/EntityDetailsCard.vue';
+import type { CommonComponentProps } from './common';
+
+/**
+ * Props definition for the EntityDetailsCard component.
+ *
+ * This interface describes the configuration used to render
+ * a list of entity attributes in a structured and ordered manner.
+ */
+export interface EntityDetailsCardProps extends CommonComponentProps {
+  /**
+   * Identifier of the instance used to scope translations and contextual data.
+   */
+  instanceId: string;
+
+  /**
+   * Entity object containing the attributes to display.
+   * Keys represent attribute names, values represent attribute values.
+   */
+  entity: Record<string, unknown>;
+
+  /**
+   * Ordered list of attribute names to display first.
+   * The order of this array defines the display order.
+   */
+  fieldOrder?: string[];
+
+  /**
+   * Indicates whether entity attributes not listed in `fieldOrder`
+   * should also be displayed after the ordered fields.
+   * @default false,
+   */
+  showRemainingFields?: boolean;
+
+  /**
+   * Indicates whether the component is in a loading state.
+   * When true, attribute values may be replaced with placeholders.
+   * @default false,
+   */
+  isLoading?: boolean;
+}
