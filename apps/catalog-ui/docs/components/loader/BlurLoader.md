@@ -43,9 +43,6 @@ can be easily customized.
 - `lg` → 2rem
 - `xl` → 2.5rem
 
-Below is the **Usage Example** section added in the same style and tone as the rest of the documentation.
-You can append it directly after the existing sections.
-
 ---
 
 ## **🧩 Usage Example**
