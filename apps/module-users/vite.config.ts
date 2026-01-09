@@ -5,8 +5,8 @@ import path, { resolve } from 'path';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  root: resolve(__dirname, './'),
   base: '',
+  root: resolve(__dirname, './'),
   cacheDir: '../../node_modules/.vite/apps/module-users',
   plugins: [
     vue(),
