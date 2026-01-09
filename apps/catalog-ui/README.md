@@ -11,10 +11,10 @@ It provides **reusable visual components** that can be consumed by multiple modu
 
 ## **✨ Features**
 
-* Shared Vue 3 components for building module UIs
-* Components categorized by function (Layout, Forms, Navigation…)
-* Designed for **reusability** across multiple modules
-* Fully compatible with Quasar and TypeScript
+- Shared Vue 3 components for building module UIs
+- Components categorized by function (Layout, Forms, Navigation…)
+- Designed for **reusability** across multiple modules
+- Fully compatible with Quasar and TypeScript
 
 ---
 
@@ -35,11 +35,11 @@ It provides **reusable visual components** that can be consumed by multiple modu
 
 Ensure the following requirements to use or develop catalogUI:
 
-* **Node.js** ≥ 20 (LTS)
-* **Package manager:** pnpm 10+ (managed via Corepack)
-* **Vue.js 3** project
-* **Quasar Framework** for UI components
-* A bundler supporting **Module Federation**
+- **Node.js** ≥ 20 (LTS)
+- **Package manager:** pnpm 10+ (managed via Corepack)
+- **Vue.js 3** project
+- **Quasar Framework** for UI components
+- A bundler supporting **Module Federation**
 
 ---
 
@@ -56,16 +56,22 @@ The library organizes components by category. For each component, documentation 
 
 ### **Layout Components**
 
-* 🏗️ **BaseLayout** — The core layout component for all module pages
+- 🏗️ **BaseLayout** — The core layout component for all module pages
   → Documentation is inside: [`BaseLayout.md`](./docs/layouts/BaseLayout.md)
-
-### **Forms Components**
-
-* Coming soon…
 
 ### **Navigation Components**
 
-* Coming soon…
+- **NavigationMenu** — Tab-based navigation menu for module pages
+  → Documentation is inside: [`NavigationMenu.md`](./docs/components/NavigationMenu.md)
+
+### **Table Components**
+
+- **GenericEntityTable** — Minimal QTable wrapper for simple entity lists
+  → Documentation is inside: [`GenericEntityTable.md`](./docs/components/GenericEntityTable.md)
+
+### **Forms Components**
+
+- Coming soon…
 
 > More categories and components will be added as the library evolves.
 
@@ -76,10 +82,10 @@ The library organizes components by category. For each component, documentation 
 We welcome contributions to improve and extend catalogUI.
 Please refer to the **[CONTRIBUTING.md](../../CONTRIBUTING.md)** file in the monorepo root for:
 
-* Development workflow
-* Code guidelines
-* Commit conventions
-* Pull request rules
+- Development workflow
+- Code guidelines
+- Commit conventions
+- Pull request rules
 
 ---
 
@@ -87,6 +93,6 @@ Please refer to the **[CONTRIBUTING.md](../../CONTRIBUTING.md)** file in the mon
 
 Additional documentation for the library is located in the `apps/catalogUI/docs/` folder:
 
-* Each component has a dedicated Markdown file describing its usage, props, events, and examples.
-* See `BaseLayout.md` as the first example of component documentation.
-* More docs will be added as new components are created.
+- Each component has a dedicated Markdown file describing its usage, props, events, and examples.
+- See `BaseLayout.md` as the first example of component documentation.
+- More docs will be added as new components are created.
