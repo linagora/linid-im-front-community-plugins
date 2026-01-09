@@ -41,20 +41,20 @@ The header contains two toolbars:
 
 The component uses hierarchical UI namespaces for styling:
 
-| Element         | Namespace                           | Component                  |
-| --------------- | ----------------------------------- | -------------------------- |
-| Header          | `base-layout.header`                | `q-header`                 |
-| Toolbar         | `base-layout.header.toolbar`        | `q-toolbar`                |
-| Avatar          | `base-layout.header.toolbar.avatar` | `q-avatar`                 |
-| Toolbar Title   | `base-layout.header.toolbar.title`  | `q-toolbar-title`          |
-| Badge           | `base-layout.header.toolbar.badge`  | `q-badge`                  |
-| Navigation Menu | `base-layout.header.toolbar`        | (passed to NavigationMenu) |
+| Element         | Namespace            | Component                  |
+| --------------- | -------------------- | -------------------------- |
+| Header          | `base-layout.header` | `q-header`                 |
+| Toolbar         | `base-layout.header` | `q-toolbar`                |
+| Avatar          | `base-layout.header` | `q-avatar`                 |
+| Toolbar Title   | `base-layout.header` | `q-toolbar-title`          |
+| Badge           | `base-layout.header` | `q-badge`                  |
+| Navigation Menu | `base-layout.header` | (passed to NavigationMenu) |
 
 Example customization:
 
 ```typescript
 ui('base-layout.header', 'q-header'); // Customize header
-ui('base-layout.header.toolbar.avatar', 'q-avatar'); // Customize logo
+ui('base-layout.header', 'q-avatar'); // Customize logo
 ```
 
 ---
