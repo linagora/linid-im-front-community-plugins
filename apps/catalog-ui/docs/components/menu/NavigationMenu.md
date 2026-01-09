@@ -51,16 +51,16 @@ export interface NavigationMenuItem {
 
 The component uses the LinID design system through `useUiDesign()`. You can customize:
 
-- **Tabs container**: `{uiNamespace}` → applies to `q-tabs`
-- **Individual routes**: `{uiNamespace}.navigationItems.route-{itemId}` → applies to each `q-route-tab`
+- **Tabs container**: `{uiNamespace}.navigation-menu` → applies to `q-tabs`
+- **Individual routes**: `{uiNamespace}.navigation-menu.route-{itemId}` → applies to each `q-route-tab`
 
 Example:
 
 ```typescript
-// For uiNamespace = 'main-navigation'
-// Tabs: ui('main-navigation', 'q-tabs')
-// Route 1: ui('main-navigation.navigationItems.route-1', 'q-route-tab')
-// Route 2: ui('main-navigation.navigationItems.route-2', 'q-route-tab')
+// For uiNamespace = 'header'
+// Tabs: ui('header.navigation-menu', 'q-tabs')
+// Route 1: ui('header.navigation-menu.route-1', 'q-route-tab')
+// Route 2: ui('header.navigation-menu.route-2', 'q-route-tab')
 ```
 
 ---
@@ -81,7 +81,7 @@ Example:
 
 ```vue
 <script setup lang="ts">
-import NavigationMenu from '@/components/NavigationMenu.vue';
+import NavigationMenu from '@/components/menu/NavigationMenu.vue';
 import type { NavigationMenuItem } from '@linagora/linid-im-front-corelib';
 
 const navigationItems: NavigationMenuItem[] = [
@@ -99,7 +99,7 @@ const handleItemChange = (item: NavigationMenuItem) => {
 <template>
   <NavigationMenu
     :items="navigationItems"
-    ui-namespace="main-navigation"
+    ui-namespace="header"
     @update:active-item="handleItemChange"
   />
 </template>

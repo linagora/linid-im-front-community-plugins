@@ -62,12 +62,14 @@ The library organizes components by category. For each component, documentation 
 ### **Navigation Components**
 
 - **NavigationMenu** — Tab-based navigation menu for module pages
-  → Documentation is inside: [`NavigationMenu.md`](docs/components/menu/NavigationMenu.md)
+  → Documentation is inside: [`NavigationMenu.md`](./docs/components/menu/NavigationMenu.md)
 
 ### **Table Components**
 
 - **GenericEntityTable** — Minimal QTable wrapper for simple entity lists
-  → Documentation is inside: [`GenericEntityTable.md`](docs/components/table/GenericEntityTable.md)
+  → Documentation is inside: [`GenericEntityTable.md`](./docs/components/table/GenericEntityTable.md)
+
+### **Card Components**
 
 - ✨ **InformationCard** — Reusable card component for displaying labeled read-only information with optional loading states
   → Documentation is inside: [`InformationCard.md`](./docs/components/card/InformationCard.md)
@@ -76,10 +78,6 @@ The library organizes components by category. For each component, documentation 
   → Documentation is inside: [`EntityDetailsCard.md`](./docs/components/card/EntityDetailsCard.md)
 
 ### **Forms Components**
-
-- Coming soon…
-
-### **Navigation Components**
 
 - Coming soon…
 

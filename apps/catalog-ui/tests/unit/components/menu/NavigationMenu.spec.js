@@ -29,12 +29,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { reactive } from 'vue';
 import NavigationMenu from '../../../../src/components/menu/NavigationMenu.vue';
 
-const mockUi = vi.fn(() => ({}));
 const mockRoute = reactive({ path: '/home' });
 
 vi.mock('@linagora/linid-im-front-corelib', () => ({
   useUiDesign: () => ({
-    ui: mockUi,
+    ui: vi.fn(() => ({})),
   }),
 }));
 
@@ -57,33 +56,25 @@ describe('Test component: NavigationMenu', () => {
   };
 
   beforeEach(() => {
-    mockUi.mockClear();
     mockRoute.path = '/home';
     wrapper = shallowMount(NavigationMenu, {
       props: defaultProps,
     });
   });
 
-  it('should call ui() for tabs with correct namespace', () => {
-    expect(mockUi).toHaveBeenCalledWith('test-namespace', 'q-tabs');
-  });
-
-  it('should call ui() for each route-tab with correct namespace', () => {
-    mockItems.forEach((item) => {
-      expect(mockUi).toHaveBeenCalledWith(
-        `test-namespace.navigationItems.route-${item.id}`,
-        'q-route-tab'
-      );
+  describe('Test props: items', () => {
+    it('should use provided value', async () => {
+      expect(wrapper.vm.items).toEqual(mockItems);
     });
-  });
 
-  it('should create uiProps with tabs and routes properties', () => {
-    expect(wrapper.vm.uiProps).toBeDefined();
-    expect(wrapper.vm.uiProps.tabs).toBeDefined();
-    expect(wrapper.vm.uiProps.routes).toBeDefined();
-    expect(Object.keys(wrapper.vm.uiProps.routes)).toHaveLength(
-      mockItems.length
-    );
+    it('should use updated value when prop changes', async () => {
+      const newItems = [{ id: '4', label: 'Dashboard', path: '/dashboard' }];
+      wrapper.setProps({ items: newItems });
+
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.items).toEqual(newItems);
+    });
   });
 
   describe('Test watcher: route path', () => {

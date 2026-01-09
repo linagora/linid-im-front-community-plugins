@@ -39,11 +39,6 @@ export interface NavigationMenuProps extends CommonComponentProps {
    * Navigation items to display in the menu.
    */
   items: NavigationMenuItem[];
-
-  /**
-   * Currently active panel identifier.
-   */
-  activeItem?: string | number;
 }
 
 /**

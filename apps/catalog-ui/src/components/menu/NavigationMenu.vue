@@ -28,6 +28,7 @@
   <!-- v8 ignore start -->
   <q-tabs
     v-bind="uiProps.tabs"
+    class="navigation-menu"
     data-cy="navigationMenu"
   >
     <q-route-tab
@@ -37,6 +38,7 @@
       :to="item.path"
       :label="item.label"
       :exact="true"
+      :class="`navigation-menu--${item.id}`"
       :data-cy="`item_${item.id}`"
     />
   </q-tabs>
@@ -64,13 +66,15 @@ const emit = defineEmits<NavigationMenuOutputs>();
 const { ui } = useUiDesign();
 const route = useRoute();
 
+const localUiNamespace = `${props.uiNamespace}.navigation-menu`;
+
 const uiProps: NavigationMenuUIProps = {
-  tabs: ui<LinidQTabsProps>(props.uiNamespace, 'q-tabs'),
+  tabs: ui<LinidQTabsProps>(localUiNamespace, 'q-tabs'),
   routes: props.items.reduce((acc, item) => {
     return {
       ...acc,
       [item.id]: ui<LinidQRouteTabProps>(
-        `${props.uiNamespace}.navigationItems.route-${item.id}`,
+        `${localUiNamespace}.route-${item.id}`,
         'q-route-tab'
       ),
     };

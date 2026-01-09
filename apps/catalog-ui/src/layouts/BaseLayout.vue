@@ -58,7 +58,7 @@
       >
         <NavigationMenu
           :items="uiStore.mainNavigationItems"
-          :ui-namespace="toolbarUiNamespace"
+          :ui-namespace="headerUiNamespace"
         />
       </q-toolbar>
     </q-header>
@@ -93,21 +93,16 @@ const { ui } = useUiDesign();
 const { t } = useScopedI18n('application');
 const uiStore = useLinidUiStore();
 
-const uiNamespace = 'base-layout';
-const headerUiNamespace = `${uiNamespace}.header`;
-const toolbarUiNamespace = `${headerUiNamespace}.toolbar`;
-const badgeUiNamespace = `${toolbarUiNamespace}.badge`;
-const avatarUiNamespace = `${toolbarUiNamespace}.avatar`;
-const titleUiNamespace = `${toolbarUiNamespace}.title`;
+const headerUiNamespace = `base-layout.header`;
 
 const uiProps = {
   header: ui<LinidQHeaderProps>(headerUiNamespace, 'q-header'),
-  toolbar: ui<LinidQToolbarProps>(toolbarUiNamespace, 'q-toolbar'),
-  avatar: ui<LinidQAvatarProps>(avatarUiNamespace, 'q-avatar'),
+  toolbar: ui<LinidQToolbarProps>(headerUiNamespace, 'q-toolbar'),
+  avatar: ui<LinidQAvatarProps>(headerUiNamespace, 'q-avatar'),
   toolbarTitle: ui<LinidQToolbarTitleProps>(
-    titleUiNamespace,
+    headerUiNamespace,
     'q-toolbar-title'
   ),
-  badge: ui<LinidQBadgeProps>(badgeUiNamespace, 'q-badge'),
+  badge: ui<LinidQBadgeProps>(headerUiNamespace, 'q-badge'),
 };
 </script>
