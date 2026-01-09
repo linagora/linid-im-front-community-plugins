@@ -43,5 +43,13 @@ export default {
         confirmLoading: 'Création...',
       },
     },
+    EditUserPage: {
+      title: "Modifier l'utilisateur",
+      ButtonsCard: {
+        cancel: 'Annuler',
+        confirm: 'Enregistrer',
+        confirmLoading: 'Enregistrement...',
+      },
+    },
   },
 };
