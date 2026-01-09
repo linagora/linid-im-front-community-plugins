@@ -31,7 +31,10 @@
     class="q-mt-md buttons-card"
     data-cy="buttons-card"
   >
-    <q-card-section class="row justify-start items-center q-pa-sm">
+    <q-card-section
+      v-if="te('title')"
+      class="row justify-start items-center q-pa-sm"
+    >
       <q-icon
         v-if="uiProps.icon.name"
         v-bind="uiProps.icon"
@@ -44,7 +47,7 @@
     </q-card-section>
     <q-card-actions
       v-bind="uiProps.cardActions"
-      class="q-mt-md buttons-card--actions"
+      class="buttons-card--actions"
     >
       <slot name="prepend-buttons" />
 
@@ -106,7 +109,7 @@ const props = withDefaults(defineProps<ButtonsCardProps>(), {
 const emit = defineEmits<ButtonsCardOutputs>();
 
 const localUiNamespace = `${props.uiNamespace}.buttons-card`;
-const { t } = useScopedI18n(`${props.i18nScope}.ButtonsCard`);
+const { t, te } = useScopedI18n(`${props.i18nScope}.ButtonsCard`);
 const { ui } = useUiDesign();
 
 const uiProps = {

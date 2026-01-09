@@ -50,6 +50,13 @@ export default [
           instanceId: '{{ config.instanceId }}',
         },
       },
+      {
+        path: ':id',
+        component: 'moduleUsers/UserDetailsPage',
+        meta: {
+          instanceId: '{{ config.instanceId }}',
+        },
+      },
     ],
   },
 ];

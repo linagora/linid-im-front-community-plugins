@@ -292,6 +292,9 @@ The component uses scoped i18n with the following translation keys:
 - `{i18nScope}.ButtonsCard.cancel` - Label for the cancel button
 - `{i18nScope}.ButtonsCard.confirmLoading` - Label shown during loading state for the confirm button
 
+**Note :**
+If the translation for the title is empty or missing, the title section will not be displayed in the card (see implementation: `v-if="t('title')"`).
+
 Example:
 
 ```json
