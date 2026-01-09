@@ -71,7 +71,7 @@ describe('Test component: NavigationMenu', () => {
   it('should call ui() for each route-tab with correct namespace', () => {
     mockItems.forEach((item) => {
       expect(mockUi).toHaveBeenCalledWith(
-        `test-namespace.navigationItems.route-${item.id}`,
+        `test-namespace.route-${item.id}`,
         'q-route-tab'
       );
     });

@@ -69,43 +69,26 @@ describe('Test layout: BaseLayout', () => {
     expect(mockUi).toHaveBeenCalledWith('base-layout.header', 'q-header');
     expect(wrapper.vm.uiProps).toHaveProperty('header');
 
-    expect(mockUi).toHaveBeenCalledWith(
-      'base-layout.header.toolbar',
-      'q-toolbar'
-    );
+    expect(mockUi).toHaveBeenCalledWith('base-layout.header', 'q-toolbar');
     expect(wrapper.vm.uiProps).toHaveProperty('toolbar');
 
-    expect(mockUi).toHaveBeenCalledWith(
-      'base-layout.header.toolbar.avatar',
-      'q-avatar'
-    );
+    expect(mockUi).toHaveBeenCalledWith('base-layout.header', 'q-avatar');
     expect(wrapper.vm.uiProps).toHaveProperty('avatar');
 
     expect(mockUi).toHaveBeenCalledWith(
-      'base-layout.header.toolbar.title',
+      'base-layout.header',
       'q-toolbar-title'
     );
     expect(wrapper.vm.uiProps).toHaveProperty('toolbarTitle');
 
-    expect(mockUi).toHaveBeenCalledWith(
-      'base-layout.header.toolbar.badge',
-      'q-badge'
-    );
+    expect(mockUi).toHaveBeenCalledWith('base-layout.header', 'q-badge');
     expect(wrapper.vm.uiProps).toHaveProperty('badge');
   });
 
   it('should define uiNamespace constants correctly', () => {
-    expect(wrapper.vm.uiNamespace).toBe('base-layout');
     expect(wrapper.vm.headerUiNamespace).toBe('base-layout.header');
-    expect(wrapper.vm.toolbarUiNamespace).toBe('base-layout.header.toolbar');
-    expect(wrapper.vm.badgeUiNamespace).toBe(
-      'base-layout.header.toolbar.badge'
-    );
-    expect(wrapper.vm.avatarUiNamespace).toBe(
-      'base-layout.header.toolbar.avatar'
-    );
-    expect(wrapper.vm.titleUiNamespace).toBe(
-      'base-layout.header.toolbar.title'
+    expect(wrapper.vm.navigationMenuUiNamespace).toBe(
+      'base-layout.header.navigation-menu'
     );
   });
 });

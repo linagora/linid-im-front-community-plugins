@@ -28,6 +28,7 @@
   <!-- v8 ignore start -->
   <q-tabs
     v-bind="uiProps.tabs"
+    class="navigation-menu"
     data-cy="navigationMenu"
   >
     <q-route-tab
@@ -37,6 +38,7 @@
       :to="item.path"
       :label="item.label"
       :exact="true"
+      :class="`navigation-menu--${item.id}`"
       :data-cy="`item_${item.id}`"
     />
   </q-tabs>
@@ -70,7 +72,7 @@ const uiProps: NavigationMenuUIProps = {
     return {
       ...acc,
       [item.id]: ui<LinidQRouteTabProps>(
-        `${props.uiNamespace}.navigationItems.route-${item.id}`,
+        `${props.uiNamespace}.route-${item.id}`,
         'q-route-tab'
       ),
     };
