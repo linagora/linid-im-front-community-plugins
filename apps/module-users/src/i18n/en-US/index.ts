@@ -35,5 +35,11 @@ export default {
       loading: 'Loading users...',
       error: 'Failed to load users...',
     },
+    UserDetailsPage: {
+      title: 'User Details:',
+      content: 'User Exists',
+      edit: 'Edit',
+      back: 'Back to Users List',
+    },
   },
 };
