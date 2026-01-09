@@ -24,17 +24,55 @@
  * LinID Identity Manager software.
  */
 
+import type {
+  LinidQBtnProps,
+  LinidQCardActionsProps,
+  LinidQCardProps,
+} from '@linagora/linid-im-front-corelib';
+import type { CommonComponentProps } from './common';
+
 /**
- * Base props that all UI components should extend.
- * Provides UI namespace for design system customization.
+ * Props for the NavigationMenu component.
  */
-export interface CommonComponentProps {
+export interface ButtonsCardProps extends CommonComponentProps {
   /**
-   * UI design namespace for styling the component.
+   * Indicates whether the confirm action is in progress.
    */
-  uiNamespace: string;
+  confirmLoading?: boolean;
+}
+
+/**
+ * Outputs (events) emitted by the ButtonsCard component.
+ */
+export interface ButtonsCardOutputs {
   /**
-   * I18n scope for localizing the component.
+   * Emitted when the confirm button is clicked.
    */
-  i18nScope?: string;
+  confirm: [];
+  /**
+   * Emitted when the cancel button is clicked.
+   */
+  cancel: [];
+}
+
+/**
+ * UI props for the ButtonsCard component.
+ */
+export interface ButtonsCardUIProps {
+  /**
+   * Card props.
+   */
+  card: LinidQCardProps;
+  /**
+   * Card actions props.
+   */
+  cardActions: LinidQCardActionsProps;
+  /**
+   * Confirm button props.
+   */
+  confirmButton: LinidQBtnProps;
+  /**
+   * Cancel button props.
+   */
+  cancelButton: LinidQBtnProps;
 }
