@@ -26,84 +26,68 @@
 
 <template>
   <!-- v8 ignore start -->
-  <q-layout view="hHh LpR fFf">
-    <q-header
-      v-bind="uiProps.header"
-      data-cy="header"
+  <q-card
+    v-bind="uiProps.card"
+    class="q-mt-md buttons-card"
+  >
+    <q-card-actions
+      v-bind="uiProps.cardActions"
+      class="q-mt-md buttons-card--actions"
     >
-      <q-toolbar
-        v-bind="uiProps.toolbar"
-        data-cy="toolbar"
+      <q-btn
+        v-bind="uiProps.cancelButton"
+        :label="t('cancel')"
+        data-cy="button_cancel"
+        class="buttons-card--cancel-button"
+        @click="emit('cancel')"
+      />
+      <q-btn
+        v-bind="uiProps.confirmButton"
+        :label="t('confirm')"
+        :loading="confirmLoading"
+        data-cy="button_confirm"
+        class="buttons-card--confirm-button"
+        @click="emit('confirm')"
       >
-        <q-avatar
-          v-bind="uiProps.avatar"
-          data-cy="application_logo"
-        />
-        <q-toolbar-title
-          v-bind="uiProps.toolbarTitle"
-          data-cy="application_title"
-        >
-          {{ t('title') }}
-        </q-toolbar-title>
-        <q-badge
-          v-bind="uiProps.badge"
-          :label="t('version')"
-          data-cy="application_version"
-        />
-      </q-toolbar>
-      <q-toolbar
-        v-bind="uiProps.toolbar"
-        class="block"
-        data-cy="navigation_toolbar"
-      >
-        <NavigationMenu
-          :items="uiStore.mainNavigationItems"
-          :ui-namespace="navigationMenuUiNamespace"
-        />
-      </q-toolbar>
-    </q-header>
-
-    <q-page-container>
-      <router-view />
-    </q-page-container>
-
-    <!-- zone dialog -->
-
-    <!-- zone footer -->
-  </q-layout>
+        <template #loading>
+          <q-spinner-hourglass
+            class="on-left buttons-card--confirm-button-loading"
+          />
+          {{ t('confirmLoading') }}
+        </template>
+      </q-btn>
+    </q-card-actions>
+  </q-card>
   <!-- v8 ignore stop -->
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import type {
-  LinidQAvatarProps,
-  LinidQBadgeProps,
-  LinidQHeaderProps,
-  LinidQToolbarProps,
-  LinidQToolbarTitleProps,
+  LinidQBtnProps,
+  LinidQCardActionsProps,
+  LinidQCardProps,
 } from '@linagora/linid-im-front-corelib';
-import {
-  useLinidUiStore,
-  useScopedI18n,
-  useUiDesign,
-} from '@linagora/linid-im-front-corelib';
-import NavigationMenu from '../components/NavigationMenu.vue';
+import { useScopedI18n, useUiDesign } from '@linagora/linid-im-front-corelib';
+import type {
+  ButtonsCardOutputs,
+  ButtonsCardProps,
+  ButtonsCardUIProps,
+} from '../types/buttonsCard';
 
+const props = withDefaults(defineProps<ButtonsCardProps>(), {
+  confirmLoading: false,
+});
+
+const emit = defineEmits<ButtonsCardOutputs>();
+
+const uiNamespace = `${props.uiNamespace}.buttons-card`;
+const { t } = useScopedI18n(`${props.i18nScope}.ButtonsCard`);
 const { ui } = useUiDesign();
-const { t } = useScopedI18n('application');
-const uiStore = useLinidUiStore();
 
-const headerUiNamespace = `base-layout.header`;
-const navigationMenuUiNamespace = `${headerUiNamespace}.navigation-menu`;
-
-const uiProps = {
-  header: ui<LinidQHeaderProps>(headerUiNamespace, 'q-header'),
-  toolbar: ui<LinidQToolbarProps>(headerUiNamespace, 'q-toolbar'),
-  avatar: ui<LinidQAvatarProps>(headerUiNamespace, 'q-avatar'),
-  toolbarTitle: ui<LinidQToolbarTitleProps>(
-    headerUiNamespace,
-    'q-toolbar-title'
-  ),
-  badge: ui<LinidQBadgeProps>(headerUiNamespace, 'q-badge'),
+const uiProps: ButtonsCardUIProps = {
+  card: ui<LinidQCardProps>(`${uiNamespace}`, 'q-card'),
+  cardActions: ui<LinidQCardActionsProps>(`${uiNamespace}`, 'q-card-actions'),
+  confirmButton: ui<LinidQBtnProps>(`${uiNamespace}.confirm-button`, 'q-btn'),
+  cancelButton: ui<LinidQBtnProps>(`${uiNamespace}.cancel-button`, 'q-btn'),
 };
 </script>

@@ -35,5 +35,21 @@ export default {
       loading: 'Chargement des utilisateurs...',
       error: 'Impossible de charger les utilisateurs...',
     },
+    NewUserPage: {
+      title: 'Créer un nouvel utilisateur',
+      ButtonsCard: {
+        cancel: 'Annuler',
+        confirm: 'Créer',
+        confirmLoading: 'Création...',
+      },
+    },
+    EditUserPage: {
+      title: "Modifier l'utilisateur",
+      ButtonsCard: {
+        cancel: 'Annuler',
+        confirm: 'Enregistrer',
+        confirmLoading: 'Enregistrement...',
+      },
+    },
   },
 };

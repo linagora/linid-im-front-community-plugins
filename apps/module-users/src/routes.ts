@@ -36,6 +36,20 @@ export default [
           instanceId: '{{ config.instanceId }}',
         },
       },
+      {
+        path: 'new',
+        component: 'moduleUsers/NewUserPage',
+        meta: {
+          instanceId: '{{ config.instanceId }}',
+        },
+      },
+      {
+        path: 'edit',
+        component: 'moduleUsers/EditUserPage',
+        meta: {
+          instanceId: '{{ config.instanceId }}',
+        },
+      },
     ],
   },
 ];

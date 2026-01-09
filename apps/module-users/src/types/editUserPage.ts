@@ -24,32 +24,29 @@
  * LinID Identity Manager software.
  */
 
-export default {
-  '{{config.instanceId}}': {
-    NavigationMenu: {
-      label: 'Users',
-    },
-    HomePage: {
-      title: 'Users Management',
-      content: 'Number of users: {count}',
-      loading: 'Loading users...',
-      error: 'Failed to load users...',
-    },
-    NewUserPage: {
-      title: 'Create New User',
-      ButtonsCard: {
-        cancel: 'Cancel',
-        confirm: 'Create',
-        confirmLoading: 'Creating...',
-      },
-    },
-    EditUserPage: {
-      title: 'Edit User',
-      ButtonsCard: {
-        cancel: 'Cancel',
-        confirm: 'Save',
-        confirmLoading: 'Saving...',
-      },
-    },
-  },
-};
+import type {
+  LinidQBtnProps,
+  LinidQCardProps,
+} from '@linagora/linid-im-front-corelib';
+
+/**
+ * UI props for the EditUserPage page.
+ */
+export interface EditUserPageUIProps {
+  /**
+   * Card props.
+   */
+  card: LinidQCardProps;
+  /**
+   * Card actions props.
+   */
+  cardActions?: LinidQCardProps;
+  /**
+   * Cancel button props.
+   */
+  cancelButton: LinidQBtnProps;
+  /**
+   * Save button props.
+   */
+  saveButton: LinidQBtnProps;
+}

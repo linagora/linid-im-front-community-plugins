@@ -33,4 +33,8 @@ export interface CommonComponentProps {
    * UI design namespace for styling the component.
    */
   uiNamespace: string;
+  /**
+   * I18n scope for localizing the component.
+   */
+  i18nScope?: string;
 }

@@ -26,84 +26,73 @@
 
 <template>
   <!-- v8 ignore start -->
-  <q-layout view="hHh LpR fFf">
-    <q-header
-      v-bind="uiProps.header"
-      data-cy="header"
-    >
-      <q-toolbar
-        v-bind="uiProps.toolbar"
-        data-cy="toolbar"
-      >
-        <q-avatar
-          v-bind="uiProps.avatar"
-          data-cy="application_logo"
-        />
-        <q-toolbar-title
-          v-bind="uiProps.toolbarTitle"
-          data-cy="application_title"
-        >
-          {{ t('title') }}
-        </q-toolbar-title>
-        <q-badge
-          v-bind="uiProps.badge"
-          :label="t('version')"
-          data-cy="application_version"
-        />
-      </q-toolbar>
-      <q-toolbar
-        v-bind="uiProps.toolbar"
-        class="block"
-        data-cy="navigation_toolbar"
-      >
-        <NavigationMenu
-          :items="uiStore.mainNavigationItems"
-          :ui-namespace="navigationMenuUiNamespace"
-        />
-      </q-toolbar>
-    </q-header>
-
-    <q-page-container>
-      <router-view />
-    </q-page-container>
-
-    <!-- zone dialog -->
-
-    <!-- zone footer -->
-  </q-layout>
+  <q-page
+    class="column items-start justify-start q-pa-md"
+    data-cy="newUserPage"
+  >
+    <h3 data-cy="title">
+      {{ t('title') }}
+    </h3>
+    <component
+      :is="buttonsCard"
+      v-if="buttonsCard"
+      :ui-namespace="`${instanceId}.new-user-page`"
+      :i18n-scope="i18nScope"
+      :confirm-loading="saving"
+      @confirm="save"
+      @cancel="cancel"
+    />
+  </q-page>
   <!-- v8 ignore stop -->
 </template>
-
 <script setup lang="ts">
-import type {
-  LinidQAvatarProps,
-  LinidQBadgeProps,
-  LinidQHeaderProps,
-  LinidQToolbarProps,
-  LinidQToolbarTitleProps,
-} from '@linagora/linid-im-front-corelib';
 import {
-  useLinidUiStore,
+  loadAsyncComponent,
+  saveEntity,
   useScopedI18n,
-  useUiDesign,
 } from '@linagora/linid-im-front-corelib';
-import NavigationMenu from '../components/NavigationMenu.vue';
+import type { Component } from 'vue';
+import { computed, ref, shallowRef } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
-const { ui } = useUiDesign();
-const { t } = useScopedI18n('application');
-const uiStore = useLinidUiStore();
+const router = useRouter();
+const route = useRoute();
 
-const headerUiNamespace = `base-layout.header`;
-const navigationMenuUiNamespace = `${headerUiNamespace}.navigation-menu`;
+const parentPath = computed(() => route.matched[0]?.path);
+const instanceId = computed<string>(() => route.meta.instanceId as string);
+const i18nScope = computed<string>(() => `${instanceId.value}.NewUserPage`);
 
-const uiProps = {
-  header: ui<LinidQHeaderProps>(headerUiNamespace, 'q-header'),
-  toolbar: ui<LinidQToolbarProps>(headerUiNamespace, 'q-toolbar'),
-  avatar: ui<LinidQAvatarProps>(headerUiNamespace, 'q-avatar'),
-  toolbarTitle: ui<LinidQToolbarTitleProps>(
-    headerUiNamespace,
-    'q-toolbar-title'
-  ),
-  badge: ui<LinidQBadgeProps>(headerUiNamespace, 'q-badge'),
-};
+const user = ref<Record<string, unknown>>({});
+const saving = ref(false);
+const buttonsCard = shallowRef<Component | null>(null);
+
+const { t } = useScopedI18n(i18nScope.value);
+
+buttonsCard.value = loadAsyncComponent('catalogUI/ButtonsCard');
+
+/**
+ * Save the new user and redirect to the user list page.
+ * @returns A promise that resolves when the user creation process is complete.
+ */
+function save(): Promise<void> {
+  saving.value = true;
+  return saveEntity<Record<string, unknown>, Record<string, unknown>>(
+    instanceId.value,
+    user.value
+  )
+    .then(() => {
+      router.push({ path: parentPath.value });
+    })
+    .catch(() => {})
+    .finally(() => {
+      saving.value = false;
+    });
+}
+
+/**
+ * Cancel the user creation and redirect to the user list page.
+ */
+function cancel() {
+  router.push({ path: parentPath.value });
+}
 </script>

@@ -24,89 +24,96 @@
  * LinID Identity Manager software.
  */
 
+import { saveEntity } from '@linagora/linid-im-front-corelib';
 import { shallowMount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { reactive } from 'vue';
-import NavigationMenu from '../../../src/components/NavigationMenu.vue';
+import NewUserPage from '../../../src/pages/NewUserPage.vue';
 
-const mockUi = vi.fn(() => ({}));
-const mockRoute = reactive({ path: '/home' });
+const mockT = vi.fn((key) => key);
+const mockPush = vi.fn();
+const mockRoute = {
+  meta: {
+    instanceId: 'test-instance-id',
+  },
+  matched: [
+    {
+      path: '/users',
+    },
+  ],
+};
 
-vi.mock('@linagora/linid-im-front-corelib', () => ({
-  useUiDesign: () => ({
-    ui: mockUi,
-  }),
-}));
+vi.mock('@linagora/linid-im-front-corelib', async () => {
+  const actual = await vi.importActual('@linagora/linid-im-front-corelib');
+  return {
+    ...actual,
+    saveEntity: vi.fn(() => Promise.resolve()),
+    useScopedI18n: () => ({
+      t: mockT,
+    }),
+  };
+});
 
 vi.mock('vue-router', () => ({
   useRoute: () => mockRoute,
+  useRouter: () => ({
+    push: mockPush,
+  }),
 }));
 
-describe('Test component: NavigationMenu', () => {
+describe('Test component: NewUserPage', () => {
   let wrapper;
 
-  const mockItems = [
-    { id: '1', label: 'Home', path: '/home' },
-    { id: '2', label: 'Users', path: '/users' },
-    { id: '3', label: 'Settings', path: '/settings' },
-  ];
-
-  const defaultProps = {
-    items: mockItems,
-    uiNamespace: 'test-namespace',
-  };
-
   beforeEach(() => {
-    mockUi.mockClear();
-    mockRoute.path = '/home';
-    wrapper = shallowMount(NavigationMenu, {
-      props: defaultProps,
+    vi.clearAllMocks();
+    wrapper = shallowMount(NewUserPage);
+  });
+
+  it('should compute instanceId from route meta', () => {
+    expect(wrapper.vm.instanceId).toBe('test-instance-id');
+  });
+
+  it('should compute parentPath from route matched', () => {
+    expect(wrapper.vm.parentPath).toBe('/users');
+  });
+
+  it('should compute i18nScope correctly', () => {
+    expect(wrapper.vm.i18nScope).toBe('test-instance-id.NewUserPage');
+  });
+
+  it('should initialize buttonsCard component', () => {
+    expect(wrapper.vm.buttonsCard).toBeDefined();
+    expect(wrapper.vm.buttonsCard).not.toBeNull();
+  });
+
+  describe('Test function: save', () => {
+    it('should save user and redirect to parent path', async () => {
+      wrapper.vm.saving = false;
+
+      const savePromise = wrapper.vm.save();
+      expect(wrapper.vm.saving).toBe(true);
+      await savePromise;
+
+      expect(saveEntity).toHaveBeenCalledWith('test-instance-id', {});
+      expect(mockPush).toHaveBeenCalledWith({ path: '/users' });
+      expect(wrapper.vm.saving).toBe(false);
+    });
+
+    it('should not redirect if save fails', async () => {
+      saveEntity.mockImplementationOnce(() => Promise.reject());
+      mockPush.mockClear();
+
+      await wrapper.vm.save();
+
+      expect(mockPush).not.toHaveBeenCalled();
+      expect(wrapper.vm.saving).toBe(false);
     });
   });
 
-  it('should call ui() for tabs with correct namespace', () => {
-    expect(mockUi).toHaveBeenCalledWith('test-namespace', 'q-tabs');
-  });
+  describe('Test function: cancel', () => {
+    it('should redirect to parent path when called', () => {
+      wrapper.vm.cancel();
 
-  it('should call ui() for each route-tab with correct namespace', () => {
-    mockItems.forEach((item) => {
-      expect(mockUi).toHaveBeenCalledWith(
-        `test-namespace.route-${item.id}`,
-        'q-route-tab'
-      );
-    });
-  });
-
-  it('should create uiProps with tabs and routes properties', () => {
-    expect(wrapper.vm.uiProps).toBeDefined();
-    expect(wrapper.vm.uiProps.tabs).toBeDefined();
-    expect(wrapper.vm.uiProps.routes).toBeDefined();
-    expect(Object.keys(wrapper.vm.uiProps.routes)).toHaveLength(
-      mockItems.length
-    );
-  });
-
-  describe('Test watcher: route path', () => {
-    it('should emit "update:activeItem" with the selected item on mount when route matches', () => {
-      expect(wrapper.emitted('update:activeItem')).toBeTruthy();
-      expect(wrapper.emitted('update:activeItem')[0]).toEqual([mockItems[0]]);
-    });
-
-    it('should emit "update:activeItem" when route changes to a matching path', async () => {
-      mockRoute.path = '/users';
-
-      await wrapper.vm.$nextTick();
-
-      expect(wrapper.emitted('update:activeItem')).toBeTruthy();
-      expect(wrapper.emitted('update:activeItem')[1]).toEqual([mockItems[1]]);
-    });
-
-    it('should not emit "update:activeItem" when route changes to a non-matching path', async () => {
-      mockRoute.path = '/non-existent';
-
-      await wrapper.vm.$nextTick();
-
-      expect(wrapper.emitted('update:activeItem')[1]).toBeFalsy();
+      expect(mockPush).toHaveBeenCalledWith({ path: '/users' });
     });
   });
 });

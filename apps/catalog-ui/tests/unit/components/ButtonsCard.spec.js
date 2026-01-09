@@ -26,87 +26,76 @@
 
 import { shallowMount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { reactive } from 'vue';
-import NavigationMenu from '../../../src/components/NavigationMenu.vue';
+import ButtonsCard from '../../../src/components/ButtonsCard.vue';
 
 const mockUi = vi.fn(() => ({}));
-const mockRoute = reactive({ path: '/home' });
+const mockT = vi.fn((key) => key);
 
 vi.mock('@linagora/linid-im-front-corelib', () => ({
+  useScopedI18n: () => ({
+    t: mockT,
+  }),
   useUiDesign: () => ({
     ui: mockUi,
   }),
 }));
 
-vi.mock('vue-router', () => ({
-  useRoute: () => mockRoute,
-}));
-
-describe('Test component: NavigationMenu', () => {
+describe('Test component: ButtonsCard', () => {
   let wrapper;
 
-  const mockItems = [
-    { id: '1', label: 'Home', path: '/home' },
-    { id: '2', label: 'Users', path: '/users' },
-    { id: '3', label: 'Settings', path: '/settings' },
-  ];
-
   const defaultProps = {
-    items: mockItems,
     uiNamespace: 'test-namespace',
+    i18nScope: 'test-scope',
   };
 
   beforeEach(() => {
-    mockUi.mockClear();
-    mockRoute.path = '/home';
-    wrapper = shallowMount(NavigationMenu, {
+    vi.clearAllMocks();
+    wrapper = shallowMount(ButtonsCard, {
       props: defaultProps,
     });
   });
 
-  it('should call ui() for tabs with correct namespace', () => {
-    expect(mockUi).toHaveBeenCalledWith('test-namespace', 'q-tabs');
+  it('should have default confirmLoading as false', () => {
+    expect(wrapper.props('confirmLoading')).toBe(false);
   });
 
-  it('should call ui() for each route-tab with correct namespace', () => {
-    mockItems.forEach((item) => {
-      expect(mockUi).toHaveBeenCalledWith(
-        `test-namespace.route-${item.id}`,
-        'q-route-tab'
-      );
-    });
+  it('should compute uiNamespace correctly', () => {
+    expect(wrapper.vm.uiNamespace).toBe('test-namespace.buttons-card');
   });
 
-  it('should create uiProps with tabs and routes properties', () => {
+  it('should initialize uiProps with all required properties', () => {
     expect(wrapper.vm.uiProps).toBeDefined();
-    expect(wrapper.vm.uiProps.tabs).toBeDefined();
-    expect(wrapper.vm.uiProps.routes).toBeDefined();
-    expect(Object.keys(wrapper.vm.uiProps.routes)).toHaveLength(
-      mockItems.length
+    expect(wrapper.vm.uiProps.card).toBeDefined();
+    expect(wrapper.vm.uiProps.cardActions).toBeDefined();
+    expect(wrapper.vm.uiProps.confirmButton).toBeDefined();
+    expect(wrapper.vm.uiProps.cancelButton).toBeDefined();
+  });
+
+  it('should call ui() for card with correct namespace', () => {
+    expect(mockUi).toHaveBeenCalledWith(
+      'test-namespace.buttons-card',
+      'q-card'
     );
   });
 
-  describe('Test watcher: route path', () => {
-    it('should emit "update:activeItem" with the selected item on mount when route matches', () => {
-      expect(wrapper.emitted('update:activeItem')).toBeTruthy();
-      expect(wrapper.emitted('update:activeItem')[0]).toEqual([mockItems[0]]);
-    });
+  it('should call ui() for card actions with correct namespace', () => {
+    expect(mockUi).toHaveBeenCalledWith(
+      'test-namespace.buttons-card',
+      'q-card-actions'
+    );
+  });
 
-    it('should emit "update:activeItem" when route changes to a matching path', async () => {
-      mockRoute.path = '/users';
+  it('should call ui() for confirm button with correct namespace', () => {
+    expect(mockUi).toHaveBeenCalledWith(
+      'test-namespace.buttons-card.confirm-button',
+      'q-btn'
+    );
+  });
 
-      await wrapper.vm.$nextTick();
-
-      expect(wrapper.emitted('update:activeItem')).toBeTruthy();
-      expect(wrapper.emitted('update:activeItem')[1]).toEqual([mockItems[1]]);
-    });
-
-    it('should not emit "update:activeItem" when route changes to a non-matching path', async () => {
-      mockRoute.path = '/non-existent';
-
-      await wrapper.vm.$nextTick();
-
-      expect(wrapper.emitted('update:activeItem')[1]).toBeFalsy();
-    });
+  it('should call ui() for cancel button with correct namespace', () => {
+    expect(mockUi).toHaveBeenCalledWith(
+      'test-namespace.buttons-card.cancel-button',
+      'q-btn'
+    );
   });
 });

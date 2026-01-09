@@ -29,6 +29,7 @@ export default defineConfig({
           __dirname,
           'src/components/NavigationMenu.vue'
         ),
+        './ButtonsCard': resolve(__dirname, 'src/components/ButtonsCard.vue'),
       },
       shared: {
         vue: {
