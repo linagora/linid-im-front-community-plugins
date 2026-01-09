@@ -24,24 +24,29 @@
  * LinID Identity Manager software.
  */
 
-export default {
-  '{{config.instanceId}}': {
-    NavigationMenu: {
-      label: 'Utilisateurs',
-    },
-    HomePage: {
-      title: 'Gestion des utilisateurs',
-      content: "Nombre d'utilisateur(s): {count}",
-      loading: 'Chargement des utilisateurs...',
-      error: 'Impossible de charger les utilisateurs...',
-    },
-    NewUserPage: {
-      title: 'Créer un nouvel utilisateur',
-      ButtonsCard: {
-        cancel: 'Annuler',
-        confirm: 'Créer',
-        confirmLoading: 'Création...',
-      },
-    },
-  },
-};
+import type {
+  LinidQBtnProps,
+  LinidQCardProps,
+} from '@linagora/linid-im-front-corelib';
+
+/**
+ * UI props for the NewUserPage page.
+ */
+export interface NewUserPageUIProps {
+  /**
+   * Card props.
+   */
+  card: LinidQCardProps;
+  /**
+   * Card actions props.
+   */
+  cardActions?: LinidQCardProps;
+  /**
+   * Cancel button props.
+   */
+  cancelButton: LinidQBtnProps;
+  /**
+   * Save button props.
+   */
+  saveButton: LinidQBtnProps;
+}

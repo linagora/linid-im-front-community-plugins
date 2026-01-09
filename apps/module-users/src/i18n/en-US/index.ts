@@ -35,5 +35,13 @@ export default {
       loading: 'Loading users...',
       error: 'Failed to load users...',
     },
+    NewUserPage: {
+      title: 'Create New User',
+      ButtonsCard: {
+        cancel: 'Cancel',
+        confirm: 'Create',
+        confirmLoading: 'Creating...',
+      },
+    },
   },
 };
