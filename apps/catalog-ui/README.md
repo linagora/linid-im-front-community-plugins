@@ -77,6 +77,9 @@ The library organizes components by category. For each component, documentation 
 - ✨ **EntityDetailsCard** — Composable container card for displaying multiple entity attributes using `InformationCard` components  
   → Documentation is inside: [`EntityDetailsCard.md`](./docs/components/card/EntityDetailsCard.md)
 
+- ✨ **ButtonsCard** — A card component with action buttons
+  → Documentation is inside: [`ButtonsCard.md`](./docs/components/card/ButtonsCard.md)
+
 ### **Forms Components**
 
 - Coming soon…
