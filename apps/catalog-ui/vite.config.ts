@@ -29,6 +29,18 @@ export default defineConfig({
           __dirname,
           'src/components/NavigationMenu.vue'
         ),
+        './BlurLoader': resolve(
+          __dirname,
+          'src/components/loader/BlurLoader.vue'
+        ),
+        './InformationCard': resolve(
+          __dirname,
+          'src/components/card/InformationCard.vue'
+        ),
+        './EntityDetailsCard': resolve(
+          __dirname,
+          'src/components/card/EntityDetailsCard.vue'
+        ),
       },
       shared: {
         vue: {
