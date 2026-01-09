@@ -19,6 +19,7 @@ It renders a simple table from provided columns and rows, without slots, actions
 | ------------- | --------------------------- | -------- | ------- | -------------------------------------- |
 | `columns`     | `QTableColumn[]`            | Yes      | -       | Column definitions for Quasar QTable   |
 | `rows`        | `Record<string, unknown>[]` | Yes      | -       | Table row data                         |
+| `rowKey`      | `QTableProps['rowKey']`     | No       | `id`    | Row key for Quasar QTable              |
 | `uiNamespace` | `string`                    | Yes      | -       | UI design namespace for custom styling |
 
 ---
@@ -28,13 +29,13 @@ It renders a simple table from provided columns and rows, without slots, actions
 The component uses the LinID design system through `useUiDesign()` and applies
 props to Quasar's `QTable`:
 
-- **Table props**: `{uiNamespace}` → applies to `q-table`
+- **Table props**: `{uiNamespace}.generic-entity-table` → applies to `q-table`
 
 Example:
 
 ```typescript
-// For uiNamespace = 'catalogUI.table'
-// Table: ui('catalogUI.table', 'q-table')
+// For uiNamespace = 'catalogUI'
+// Table: ui('catalogUI.generic-entity-table', 'q-table')
 ```
 
 ---
@@ -81,5 +82,5 @@ remoteComponent.value = loadAsyncComponent('catalogUI/GenericEntityTable');
 
 ## **📌 Notes**
 
-- Uses `row-key="id"` for stable row identity
+- Uses `row-key="id"` by default (override with `rowKey`)
 - No custom cells, slots, actions, or events yet

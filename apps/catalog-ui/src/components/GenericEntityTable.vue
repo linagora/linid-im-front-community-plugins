@@ -26,10 +26,11 @@
 
 <template>
   <q-table
+    class="generic-entity-table"
     :columns="columns"
     :rows="rows"
-    row-key="id"
-    v-bind="uiProps.table"
+    :row-key="props.rowKey ?? 'id'"
+    v-bind="uiProps"
   />
 </template>
 
@@ -38,16 +39,14 @@ import {
   type LinidQTableProps,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
-import type {
-  GenericEntityTableProps,
-  GenericEntityTableUIProps,
-} from '../types/genericEntityTable';
+import type { GenericEntityTableProps } from '../types/genericEntityTable';
 
 const props = defineProps<GenericEntityTableProps>();
 
 const { ui } = useUiDesign();
 
-const uiProps: GenericEntityTableUIProps = {
-  table: ui<LinidQTableProps>(props.uiNamespace, 'q-table'),
-};
+const uiProps = ui<LinidQTableProps>(
+  `${props.uiNamespace}.generic-entity-table`,
+  'q-table'
+);
 </script>

@@ -39,14 +39,8 @@ export interface GenericEntityTableProps extends CommonComponentProps {
    * Array of entity objects to display as rows in the table.
    */
   rows: Record<string, unknown>[];
-}
-
-/**
- * UI props for the GenericEntityTable component.
- */
-export interface GenericEntityTableUIProps {
   /**
-   * QTable props from the design system.
+   * Row key for QTable.
    */
-  table: Partial<QTableProps>;
+  rowKey?: QTableProps['rowKey'];
 }

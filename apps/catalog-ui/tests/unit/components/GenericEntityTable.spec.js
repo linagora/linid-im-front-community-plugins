@@ -37,7 +37,7 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
   }),
 }));
 
-describe('Test component: GenericEntityTable', () => {
+describe('GenericEntityTable', () => {
   let wrapper;
 
   const columns = [
@@ -53,7 +53,7 @@ describe('Test component: GenericEntityTable', () => {
   const defaultProps = {
     columns,
     rows,
-    uiNamespace: 'catalog-ui.table',
+    uiNamespace: 'catalog-ui',
   };
 
   beforeEach(() => {
@@ -67,7 +67,7 @@ describe('Test component: GenericEntityTable', () => {
             props: {
               columns: { type: Array, default: () => [] },
               rows: { type: Array, default: () => [] },
-              rowKey: { type: String, default: 'id' },
+              rowKey: { type: [String, Function], default: 'id' },
             },
             template: '<div />',
           }),
@@ -77,12 +77,15 @@ describe('Test component: GenericEntityTable', () => {
   });
 
   it('should call ui() for q-table with correct namespace', () => {
-    expect(mockUi).toHaveBeenCalledWith('catalog-ui.table', 'q-table');
+    expect(mockUi).toHaveBeenCalledWith(
+      'catalog-ui.generic-entity-table',
+      'q-table'
+    );
   });
 
   it('should expose uiProps for table', () => {
     expect(wrapper.vm.uiProps).toBeDefined();
-    expect(wrapper.vm.uiProps.table).toEqual({ dense: true });
+    expect(wrapper.vm.uiProps).toEqual({ dense: true });
   });
 
   it('should pass columns, rows, and rowKey to q-table', () => {
