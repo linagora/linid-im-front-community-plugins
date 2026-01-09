@@ -21,6 +21,7 @@ export default defineConfig({
         './i18n': resolve(__dirname, 'src/i18n/index.ts'),
         './lifecycle': resolve(__dirname, 'src/module-lifecycle.ts'),
         './HomePage': resolve(__dirname, 'src/pages/HomePage.vue'),
+        './NewUserPage': resolve(__dirname, 'src/pages/NewUserPage.vue'),
       },
       shared: {
         vue: {
