@@ -25,6 +25,10 @@ export default defineConfig({
       manifest: true,
       exposes: {
         './BaseLayout': resolve(__dirname, 'src/layouts/BaseLayout.vue'),
+        './GenericEntityTable': resolve(
+          __dirname,
+          'src/components/GenericEntityTable.vue'
+        ),
         './NavigationMenu': resolve(
           __dirname,
           'src/components/NavigationMenu.vue'
