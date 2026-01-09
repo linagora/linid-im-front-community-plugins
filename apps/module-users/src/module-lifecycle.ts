@@ -33,6 +33,7 @@ import {
   getI18nInstance,
   useLinidUiStore,
 } from '@linagora/linid-im-front-corelib';
+import type { ModuleUsersOptions } from './types/moduleUsers';
 
 /**
  * Remote module responsible for user-related features.
@@ -42,7 +43,7 @@ import {
  * It extends {@link BasicRemoteModule} to inherit common metadata and
  * registration behavior for remote modules.
  */
-class ModuleUsers extends BasicRemoteModule<unknown> {
+class ModuleUsers extends BasicRemoteModule<ModuleUsersOptions> {
   /**
    * Creates a new instance of the Users remote module.
    *
@@ -67,7 +68,7 @@ class ModuleUsers extends BasicRemoteModule<unknown> {
    * @returns A promise that resolves to the result of the module lifecycle operation.
    */
   override async postInit(
-    config: ModuleHostConfig<unknown>
+    config: ModuleHostConfig<ModuleUsersOptions>
   ): Promise<ModuleLifecycleResult> {
     const uiStore = useLinidUiStore();
     const { t } = getI18nInstance().global;
