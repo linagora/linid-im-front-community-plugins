@@ -59,5 +59,13 @@ export default {
       editError: "Échec de l'enregistrement des modifications",
       editSuccess: "L'utilisateur a été mis à jour avec succès",
     },
+    UserDetailsPage: {
+      title: 'Détails de l’utilisateur :',
+      edit: 'Modifier',
+      error: "Échec du chargement des données de l'utilisateur",
+      ButtonsCard: {
+        cancel: 'Retour à la liste des utilisateurs',
+      },
+    },
   },
 };

@@ -59,5 +59,13 @@ export default {
       editError: 'Failed to save changes',
       editSuccess: 'User updated successfully',
     },
+    UserDetailsPage: {
+      title: 'User Details:',
+      edit: 'Edit',
+      error: 'Failed to load user data',
+      ButtonsCard: {
+        cancel: 'Back to Users List',
+      },
+    },
   },
 };
