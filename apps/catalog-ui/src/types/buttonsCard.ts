@@ -24,17 +24,41 @@
  * LinID Identity Manager software.
  */
 
+import type { CommonComponentProps } from './common';
+
 /**
- * Base props that all UI components should extend.
- * Provides UI namespace for design system customization.
+ * Props for the NavigationMenu component.
  */
-export interface CommonComponentProps {
+export interface ButtonsCardProps extends CommonComponentProps {
   /**
-   * UI design namespace for styling the component.
+   * Indicates whether the confirm action is in progress.
+   * @default false
    */
-  uiNamespace: string;
+  isLoading?: boolean;
+
   /**
-   * I18n scope for localizing the component.
+   * Whether to show the confirm button.
+   * @default true
    */
-  i18nScope?: string;
+  showConfirmButton?: boolean;
+
+  /**
+   * Whether to show the cancel button.
+   * @default true
+   */
+  showCancelButton?: boolean;
+}
+
+/**
+ * Outputs (events) emitted by the ButtonsCard component.
+ */
+export interface ButtonsCardOutputs {
+  /**
+   * Emitted when the confirm button is clicked.
+   */
+  confirm: [];
+  /**
+   * Emitted when the cancel button is clicked.
+   */
+  cancel: [];
 }
