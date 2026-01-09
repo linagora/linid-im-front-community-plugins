@@ -22,6 +22,7 @@ export default defineConfig({
         './lifecycle': resolve(__dirname, 'src/module-lifecycle.ts'),
         './HomePage': resolve(__dirname, 'src/pages/HomePage.vue'),
         './NewUserPage': resolve(__dirname, 'src/pages/NewUserPage.vue'),
+        './EditUserPage': resolve(__dirname, 'src/pages/EditUserPage.vue'),
       },
       shared: {
         vue: {

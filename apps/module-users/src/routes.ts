@@ -43,6 +43,13 @@ export default [
           instanceId: '{{ config.instanceId }}',
         },
       },
+      {
+        path: ':id/edit',
+        component: 'moduleUsers/EditUserPage',
+        meta: {
+          instanceId: '{{ config.instanceId }}',
+        },
+      },
     ],
   },
 ];

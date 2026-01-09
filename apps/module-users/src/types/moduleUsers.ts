@@ -24,39 +24,12 @@
  * LinID Identity Manager software.
  */
 
-export default {
-  '{{config.instanceId}}': {
-    NavigationMenu: {
-      label: 'Utilisateurs',
-    },
-    HomePage: {
-      title: 'Gestion des utilisateurs',
-      content: "Nombre d'utilisateur(s): {count}",
-      loading: 'Chargement des utilisateurs...',
-      error: 'Impossible de charger les utilisateurs...',
-    },
-    NewUserPage: {
-      title: 'Créer un nouvel utilisateur',
-      ButtonsCard: {
-        title: 'Créer un nouvel utilisateur',
-        cancel: 'Annuler',
-        confirm: 'Créer',
-        confirmLoading: 'Création...',
-      },
-      error: "Échec de la création de l'utilisateur",
-      success: "L'utilisateur a été créé avec succès",
-    },
-    EditUserPage: {
-      title: "Modifier l'utilisateur",
-      ButtonsCard: {
-        title: 'Sauvegarder les modifications',
-        cancel: 'Annuler',
-        confirm: 'Enregistrer',
-        confirmLoading: 'Enregistrement...',
-      },
-      loadError: "Échec du chargement des données de l'utilisateur",
-      editError: "Échec de l'enregistrement des modifications",
-      editSuccess: "L'utilisateur a été mis à jour avec succès",
-    },
-  },
-};
+/**
+ * Options for the ModuleUsers remote module.
+ */
+export interface ModuleUsersOptions {
+  /**
+   * The key used to identify users. Used for user detail route and edit route.
+   */
+  userIdKey: string;
+}

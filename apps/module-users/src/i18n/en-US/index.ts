@@ -46,5 +46,17 @@ export default {
       error: 'Failed to create user',
       success: 'User created successfully',
     },
+    EditUserPage: {
+      title: 'Edit User',
+      ButtonsCard: {
+        title: 'Save Changes',
+        cancel: 'Cancel',
+        confirm: 'Save',
+        confirmLoading: 'Saving...',
+      },
+      loadError: 'Failed to load user data',
+      editError: 'Failed to save changes',
+      editSuccess: 'User updated successfully',
+    },
   },
 };
