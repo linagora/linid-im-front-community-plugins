@@ -29,6 +29,7 @@ export { default as HelloWorld } from './components/HelloWorld.vue';
 
 // Export pages
 export { default as HomePage } from './pages/HomePage.vue';
+export { default as UserDetailsPage } from './pages/UserDetailsPage.vue';
 
 // Export lifecycle
 export { default as lifecycle } from './module-lifecycle';

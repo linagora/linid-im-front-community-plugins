@@ -35,5 +35,11 @@ export default {
       loading: 'Chargement des utilisateurs...',
       error: 'Impossible de charger les utilisateurs...',
     },
+    UserDetailsPage: {
+      title: 'Détails de l’utilisateur :',
+      content: 'L’utilisateur existe',
+      edit: 'Modifier',
+      back: 'Retour à la liste des utilisateurs',
+    },
   },
 };
