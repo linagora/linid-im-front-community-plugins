@@ -82,7 +82,17 @@ The library organizes components by category. For each component, documentation 
 
 ### **Forms Components**
 
-- Coming soon…
+- 🧩 **EntityAttributeField** — Dynamic attribute field resolver that selects and renders the correct input component
+  → Documentation is inside: [`EntityAttributeField.md`](./docs/components/field/EntityAttributeField.md)
+
+- 🔘 **EntityAttributeBooleanField** — Boolean attribute input based on a toggle switch (`QToggle`)
+  → Documentation is inside: [`EntityAttributeBooleanField.md`](./docs/components/field/EntityAttributeBooleanField.md)
+
+- ✏️ **EntityAttributeTextField** — Text attribute input with full i18n and UI customization support
+  → Documentation is inside: [`EntityAttributeTextField.md`](./docs/components/field/EntityAttributeTextField.md)
+
+- 🔢 **EntityAttributeNumberField** — Numeric attribute input with automatic number casting and scoped translations
+  → Documentation is inside: [`EntityAttributeNumberField.md`](./docs/components/field/EntityAttributeNumberField.md)
 
 ### **Feedback & Utility Components**
 
