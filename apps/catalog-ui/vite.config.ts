@@ -49,6 +49,22 @@ export default defineConfig({
           __dirname,
           'src/components/card/ButtonsCard.vue'
         ),
+        './EntityAttributeField': resolve(
+          __dirname,
+          'src/components/field/EntityAttributeField.vue'
+        ),
+        './EntityAttributeBooleanField': resolve(
+          __dirname,
+          'src/components/field/EntityAttributeBooleanField.vue'
+        ),
+        './EntityAttributeNumberField': resolve(
+          __dirname,
+          'src/components/field/EntityAttributeNumberField.vue'
+        ),
+        './EntityAttributeTextField': resolve(
+          __dirname,
+          'src/components/field/EntityAttributeTextField.vue'
+        ),
       },
       shared: {
         vue: {
