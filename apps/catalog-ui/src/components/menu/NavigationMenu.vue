@@ -25,30 +25,69 @@
 -->
 
 <template>
-  <q-table
-    class="generic-entity-table"
-    :columns="columns"
-    :rows="rows"
-    :row-key="props.rowKey"
-    v-bind="uiProps"
-  />
+  <!-- v8 ignore start -->
+  <q-tabs
+    v-bind="uiProps.tabs"
+    data-cy="navigationMenu"
+  >
+    <q-route-tab
+      v-for="item in props.items"
+      v-bind="uiProps.routes[item.id]"
+      :key="item.id"
+      :to="item.path"
+      :label="item.label"
+      :exact="true"
+      :data-cy="`item_${item.id}`"
+    />
+  </q-tabs>
+  <!-- v8 ignore stop -->
 </template>
 
 <script setup lang="ts">
-import {
-  type LinidQTableProps,
-  useUiDesign,
+import type {
+  LinidQRouteTabProps,
+  LinidQTabsProps,
 } from '@linagora/linid-im-front-corelib';
-import type { GenericEntityTableProps } from '../types/genericEntityTable';
+import { useUiDesign } from '@linagora/linid-im-front-corelib';
+import { watch } from 'vue';
+import { useRoute } from 'vue-router';
+import type {
+  NavigationMenuOutputs,
+  NavigationMenuProps,
+  NavigationMenuUIProps,
+} from '../../types/navigationMenu';
 
-const props = withDefaults(defineProps<GenericEntityTableProps>(), {
-  rowKey: 'id',
-});
+const props = defineProps<NavigationMenuProps>();
+
+const emit = defineEmits<NavigationMenuOutputs>();
 
 const { ui } = useUiDesign();
+const route = useRoute();
 
-const uiProps = ui<LinidQTableProps>(
-  `${props.uiNamespace}.generic-entity-table`,
-  'q-table'
+const uiProps: NavigationMenuUIProps = {
+  tabs: ui<LinidQTabsProps>(props.uiNamespace, 'q-tabs'),
+  routes: props.items.reduce((acc, item) => {
+    return {
+      ...acc,
+      [item.id]: ui<LinidQRouteTabProps>(
+        `${props.uiNamespace}.navigationItems.route-${item.id}`,
+        'q-route-tab'
+      ),
+    };
+  }, {}),
+};
+
+/**
+ * Watches for route changes and emits the active item.
+ */
+watch(
+  () => route.path,
+  (newPath) => {
+    const selectedItem = props.items.find((item) => item.path === newPath);
+    if (selectedItem) {
+      emit('update:activeItem', selectedItem);
+    }
+  },
+  { immediate: true }
 );
 </script>

@@ -27,7 +27,7 @@
 import { shallowMount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { reactive } from 'vue';
-import NavigationMenu from '../../../src/components/NavigationMenu.vue';
+import NavigationMenu from '../../../../src/components/menu/NavigationMenu.vue';
 
 const mockUi = vi.fn(() => ({}));
 const mockRoute = reactive({ path: '/home' });
