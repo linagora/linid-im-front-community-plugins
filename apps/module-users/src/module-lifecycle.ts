@@ -42,7 +42,7 @@ import {
  * It extends {@link BasicRemoteModule} to inherit common metadata and
  * registration behavior for remote modules.
  */
-class ModuleUsers extends BasicRemoteModule {
+class ModuleUsers extends BasicRemoteModule<unknown> {
   /**
    * Creates a new instance of the Users remote module.
    *
@@ -67,7 +67,7 @@ class ModuleUsers extends BasicRemoteModule {
    * @returns A promise that resolves to the result of the module lifecycle operation.
    */
   override async postInit(
-    config: ModuleHostConfig
+    config: ModuleHostConfig<unknown>
   ): Promise<ModuleLifecycleResult> {
     const uiStore = useLinidUiStore();
     const { t } = getI18nInstance().global;
