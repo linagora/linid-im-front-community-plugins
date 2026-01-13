@@ -87,7 +87,7 @@ import {
   useScopedI18n,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
-import NavigationMenu from '../components/NavigationMenu.vue';
+import NavigationMenu from '../components/menu/NavigationMenu.vue';
 
 const { ui } = useUiDesign();
 const { t } = useScopedI18n('application');

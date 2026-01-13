@@ -27,11 +27,11 @@ export default defineConfig({
         './BaseLayout': resolve(__dirname, 'src/layouts/BaseLayout.vue'),
         './GenericEntityTable': resolve(
           __dirname,
-          'src/components/GenericEntityTable.vue'
+          'src/components/table/GenericEntityTable.vue'
         ),
         './NavigationMenu': resolve(
           __dirname,
-          'src/components/NavigationMenu.vue'
+          'src/components/menu/NavigationMenu.vue'
         ),
         './BlurLoader': resolve(
           __dirname,
