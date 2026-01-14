@@ -35,6 +35,8 @@ const mockRoute = {
   },
   matched: [{ path: '/users' }],
 };
+
+const mockNotify = vi.fn();
 const mockRouterPush = vi.fn();
 
 vi.mock('@linagora/linid-im-front-corelib', () => ({
@@ -48,6 +50,9 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
   ),
   useScopedI18n: () => ({
     t: vi.fn((v) => v),
+  }),
+  useNotify: () => ({
+    Notify: mockNotify,
   }),
   getModuleHostConfiguration: () => ({
     options: {
@@ -103,10 +108,11 @@ describe('Test component: HomePage', () => {
 
       expect(wrapper.vm.loading).toEqual(false);
       expect(wrapper.vm.users).toEqual([{ id: 1 }]);
+      expect(mockNotify).not.toHaveBeenCalled();
       expect(wrapper.vm.pagination).toEqual('Updated pagination');
     });
 
-    it('should reset users on error', async () => {
+    it('should reset users on error and call Notify', async () => {
       getEntities.mockImplementation(() => Promise.reject());
       wrapper.vm.users = [{ id: 1 }];
       wrapper.vm.loading = true;
@@ -115,6 +121,10 @@ describe('Test component: HomePage', () => {
 
       expect(wrapper.vm.loading).toEqual(false);
       expect(wrapper.vm.users).toEqual([]);
+      expect(mockNotify).toHaveBeenCalledWith({
+        type: 'negative',
+        message: 'error',
+      });
     });
   });
 
