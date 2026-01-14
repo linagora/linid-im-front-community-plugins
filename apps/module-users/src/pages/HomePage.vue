@@ -69,6 +69,7 @@ import {
   usePagination,
   useScopedI18n,
   useUiDesign,
+  useNotify,
 } from '@linagora/linid-im-front-corelib';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -86,6 +87,8 @@ const options = getModuleHostConfiguration<ModuleUsersOptions>(
 const { t } = useScopedI18n(`${instanceId.value}.HomePage`);
 const users = ref<Record<string, unknown>[]>([]);
 const loading = ref<boolean>(false);
+const { Notify } = useNotify();
+
 const { toPagination, toQuasarPagination } = usePagination();
 const pagination = ref<QuasarPagination>({
   page: 1,
@@ -146,10 +149,10 @@ function loadData(): Promise<void> {
     })
     .catch(() => {
       users.value = [];
-      // TODO: uncomment when Notify is working
-      // Notify.create({
-      //   message: t('HomePage.error'),
-      // });
+      Notify({
+        type: 'negative',
+        message: t('error'),
+      });
     })
     .finally(() => {
       loading.value = false;
