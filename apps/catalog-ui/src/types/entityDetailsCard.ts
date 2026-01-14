@@ -34,11 +34,6 @@ import type { CommonComponentProps } from './common';
  */
 export interface EntityDetailsCardProps extends CommonComponentProps {
   /**
-   * Identifier of the instance used to scope translations and contextual data.
-   */
-  instanceId: string;
-
-  /**
    * Entity object containing the attributes to display.
    * Keys represent attribute names, values represent attribute values.
    */
