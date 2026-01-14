@@ -65,7 +65,7 @@ const props = withDefaults(defineProps<EntityDetailsCardProps>(), {
 });
 
 const { ui } = useUiDesign();
-const { t } = useScopedI18n(`${props.instanceId}.EntityDetailsCard`);
+const { t } = useScopedI18n(`${props.i18nScope}.EntityDetailsCard`);
 
 const fieldNames = computed<string[]>(() => {
   const entityFieldNames = Object.keys(props.entity);

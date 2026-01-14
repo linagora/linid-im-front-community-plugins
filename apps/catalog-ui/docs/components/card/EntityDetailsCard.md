@@ -28,7 +28,7 @@ and internationalization, making it well suited for entity detail and summary vi
 | `showRemainingFields` | `Boolean`                 | `false` | Whether to display entity fields not listed in `fieldOrder`      |
 | `isLoading`           | `Boolean`                 | `false` | Enables loading state for all child `InformationCard` components |
 | `uiNamespace`         | `String`                  | —       | Base UI namespace used for design system customization           |
-| `instanceId`          | `String`                  | —       | Identifier used to scope translations                            |
+| `i18nScope`           | `String`                  | —       | Identifier used to scope translations                            |
 
 ---
 
@@ -90,7 +90,7 @@ This allows full localization of entity metadata without hardcoding labels.
 Displays selected entity fields in a fixed order.
 
 ```vue
-<EntityDetailsCard :entity="user" :field-order="['username', 'email']" ui-namespace="users" instance-id="users" />
+<EntityDetailsCard :entity="user" :field-order="['username', 'email']" ui-namespace="users" i18n-scope="users" />
 ```
 
 ---
@@ -100,7 +100,7 @@ Displays selected entity fields in a fixed order.
 Displays ordered fields first, then automatically appends remaining attributes.
 
 ```vue
-<EntityDetailsCard :entity="user" :field-order="['username', 'email']" :show-remaining-fields="true" ui-namespace="users" instance-id="users" />
+<EntityDetailsCard :entity="user" :field-order="['username', 'email']" :show-remaining-fields="true" ui-namespace="users" i18n-scope="users" />
 ```
 
 ---
@@ -110,7 +110,7 @@ Displays ordered fields first, then automatically appends remaining attributes.
 Displays loading placeholders for all attributes.
 
 ```vue
-<EntityDetailsCard :entity="{}" :field-order="['username', 'email']" :is-loading="true" ui-namespace="users" instance-id="users" />
+<EntityDetailsCard :entity="{}" :field-order="['username', 'email']" :is-loading="true" ui-namespace="users" i18n-scope="users" />
 ```
 
 ---
