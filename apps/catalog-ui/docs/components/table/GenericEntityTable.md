@@ -82,6 +82,89 @@ remoteComponent.value = loadAsyncComponent('catalogUI/GenericEntityTable');
 
 ---
 
+## **📄 Pagination & Server-Side Data Handling**
+
+`GenericEntityTable` fully supports **Quasar pagination** by transparently forwarding pagination-related props and events to the underlying `QTable`.
+
+This allows the component to be used in **controlled pagination mode**, including server-side pagination, sorting, and filtering.
+
+---
+
+### **🔁 Controlled Pagination**
+
+Pagination is managed externally using Quasar’s `pagination` object and the `@request` event.
+
+Example:
+
+```vue
+<component v-model:pagination="pagination" v-if="table" :is="table" :columns="columns" :rows="rows" @request="onRequest" />
+```
+
+---
+
+### **🧠 Pagination State**
+
+```ts
+const pagination = ref<QuasarPagination>({
+  page: 1,
+  rowsPerPage: 1,
+  sortBy: 'id',
+  descending: false,
+  rowsNumber: 2,
+});
+```
+
+Key fields:
+
+- `page`: current page (1-based)
+- `rowsPerPage`: number of rows per page
+- `rowsNumber`: **total number of rows** (required for server-side pagination)
+- `sortBy` / `descending`: current sorting state
+
+---
+
+### **📡 Handling Data Requests**
+
+When pagination, sorting, or filtering changes, `QTable` emits a `request` event.
+This event is forwarded unchanged by `GenericEntityTable`.
+
+```ts
+function onRequest(props: QTableRequestEvent) {
+  console.log(props);
+}
+```
+
+`props` contains:
+
+- `pagination`: updated pagination state
+- `filter`: active filter (if any)
+- `getCellValue`: helper function from Quasar
+
+This is typically where you:
+
+1. Fetch new data from the backend
+2. Update `rows`
+3. Update `pagination.rowsNumber` with the total count from the API
+
+---
+
+### **📌 Important Notes**
+
+- `GenericEntityTable` does **not** manage pagination internally
+- All pagination logic (state, API calls, synchronization) is owned by the parent
+- This design keeps the component:
+  - predictable
+  - easy to test
+  - compatible with server-side data sources
+
+---
+
+### **✅ Recommended Use Cases**
+
+- Large datasets
+- Backend-driven pagination
+- Consistent pagination behavior across multiple entity tables
+
 ## **📌 Notes**
 
 - Uses `row-key="id"` by default (override with `rowKey`)
