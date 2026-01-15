@@ -34,6 +34,7 @@ export default {
       content: "Nombre d'utilisateur(s): {count}",
       loading: 'Chargement des utilisateurs...',
       error: 'Impossible de charger les utilisateurs...',
+      seeUserButton: "Voir l'utilisateur",
     },
     NewUserPage: {
       title: 'Créer un nouvel utilisateur',

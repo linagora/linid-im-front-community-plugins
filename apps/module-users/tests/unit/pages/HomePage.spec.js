@@ -33,17 +33,42 @@ const mockRoute = {
   meta: {
     instanceId: 'test-instance-id',
   },
+  matched: [{ path: '/users' }],
 };
+const mockRouterPush = vi.fn();
 
 vi.mock('@linagora/linid-im-front-corelib', () => ({
-  getEntities: vi.fn(() => Promise.resolve({ content: [{ id: 1 }] })),
+  getEntities: vi.fn(() =>
+    Promise.resolve({
+      content: [{ id: 1 }],
+      number: 0,
+      size: 50,
+      totalElements: 1,
+    })
+  ),
   useScopedI18n: () => ({
     t: vi.fn((v) => v),
   }),
+  getModuleHostConfiguration: () => ({
+    options: {
+      userIdKey: 'id',
+      userTableColumns: [
+        { name: 'id', label: 'ID', field: 'id' },
+        { name: 'name', label: 'Name', field: 'name' },
+      ],
+    },
+  }),
+  loadAsyncComponent: () => ({}),
+  usePagination: () => ({
+    toPagination: (p) => p,
+    toQuasarPagination: () => 'Updated pagination',
+  }),
+  useUiDesign: () => ({ ui: () => ({}) }),
 }));
 
 vi.mock('vue-router', () => ({
   useRoute: () => mockRoute,
+  useRouter: () => ({ push: mockRouterPush }),
 }));
 
 describe('Test component: HomePage', () => {
@@ -51,18 +76,34 @@ describe('Test component: HomePage', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    wrapper = shallowMount(HomePage);
+    wrapper = shallowMount(HomePage, {
+      global: {
+        stubs: ['GenericEntityTable'],
+      },
+    });
   });
 
-  describe('test function: loadData', () => {
+  describe('Test computed: columns', () => {
+    it('should translate label of each columns', () => {
+      const cols = wrapper.vm.columns;
+      expect(cols).toHaveLength(2);
+
+      expect(cols[0].label).toBe('ID');
+      expect(cols[1].label).toBe('Name');
+    });
+  });
+
+  describe('Test function: loadData', () => {
     it('should retrieve data', async () => {
       wrapper.vm.users = [];
+      wrapper.vm.pagination = {};
       wrapper.vm.loading = true;
 
       await wrapper.vm.loadData();
 
       expect(wrapper.vm.loading).toEqual(false);
       expect(wrapper.vm.users).toEqual([{ id: 1 }]);
+      expect(wrapper.vm.pagination).toEqual('Updated pagination');
     });
 
     it('should reset users on error', async () => {
@@ -74,6 +115,42 @@ describe('Test component: HomePage', () => {
 
       expect(wrapper.vm.loading).toEqual(false);
       expect(wrapper.vm.users).toEqual([]);
+    });
+  });
+
+  describe('Test function: goToUser', () => {
+    it('should redirect to user details page', async () => {
+      const user = { id: '42' };
+      wrapper.vm.goToUser(user);
+
+      expect(mockRouterPush).toHaveBeenCalledTimes(1);
+      expect(mockRouterPush).toHaveBeenCalledWith({
+        path: `/users/42`,
+      });
+    });
+  });
+
+  describe('Test function: onRequest', () => {
+    it('should call loadData with valid pagination', async () => {
+      vi.clearAllMocks();
+      const paginationEvent = {
+        pagination: {
+          page: 2,
+          rowsPerPage: 5,
+          sortBy: undefined,
+          descending: true,
+        },
+      };
+
+      await wrapper.vm.onRequest(paginationEvent);
+
+      expect(wrapper.vm.pagination).toEqual(paginationEvent.pagination);
+      expect(getEntities).toHaveBeenCalledTimes(1);
+      expect(getEntities).toHaveBeenCalledWith(
+        'test-instance-id',
+        {},
+        paginationEvent.pagination
+      );
     });
   });
 });

@@ -40,12 +40,43 @@ export interface ModuleUsersOptions {
    * The key used to identify users in routes and data.
    */
   userIdKey: string;
+  /**
+   * The columns configuration for the user table.
+   * Each column should follow Quasar's QTableColumn definition.
+   */
+  userTableColumns: QTableColumn[];
 }
 ```
 
-| Option      | Type     | Required | Description                                                                               |
-| ----------- | -------- | -------- | ----------------------------------------------------------------------------------------- |
-| `userIdKey` | `string` | ✅ Yes   | The property name used to identify users in your data model (e.g., 'userId', 'id', 'uid') |
+| Option             | Type             | Required | Description                                                                                                                                                               |
+| ------------------ | ---------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `userIdKey`        | `string`         | ✅ Yes   | The property name used to identify users in your data model (e.g., 'userId', 'id', 'uid')                                                                                 |
+| `userTableColumns` | `QTableColumn[]` | ✅ Yes   | An array of column definitions for the user table. Each column follows Quasar's `QTableColumn` interface and can define label, field, alignment, sorting, and formatting. |
+
+### Option - `userTableColumns`
+
+- Each column object allows customization of the table layout:
+  - `name`: internal column identifier
+  - `label`: displayed column header (can be translated via i18n)
+  - `field`: property in the user data to display
+  - `align`: alignment of the cell content (`left`, `right`, `center`)
+  - Other Quasar `QTableColumn` properties are also supported
+
+### **Special Column: `table_actions`**
+
+The **module-users** table can include a special **actions column** that is reserved for buttons or other row-level actions (e.g., “See User”, “Edit User”).
+
+#### **Column Definition Example**
+
+```json
+{
+  "name": "table_actions",
+  "field": "id",
+  "label": "column-action",
+  "style": "width: 200px",
+  "headerStyle": "width: 200px"
+}
+```
 
 ---
 
@@ -62,7 +93,20 @@ Create a `moduleUsers.json` file in your configuration directory:
   "apiEndpoint": "api/users",
   "basePath": "/users",
   "options": {
-    "userIdKey": "userId"
+    "userIdKey": "userId",
+    "userTableColumns": [
+      {
+        "name": "table_actions",
+        "field": "id",
+        "label": "column-action"
+      },
+      {
+        "name": "email",
+        "field": "email",
+        "label": "column-email",
+        "align": "left"
+      }
+    ]
   }
 }
 ```
@@ -79,7 +123,20 @@ Depending on your backend API, you might use different identifier keys:
   "apiEndpoint": "api/users",
   "basePath": "/users",
   "options": {
-    "userIdKey": "id"
+    "userIdKey": "id",
+    "userTableColumns": [
+      {
+        "name": "table_actions",
+        "field": "id",
+        "label": "column-action"
+      },
+      {
+        "name": "email",
+        "field": "email",
+        "label": "column-email",
+        "align": "left"
+      }
+    ]
   }
 }
 ```
@@ -92,7 +149,20 @@ Depending on your backend API, you might use different identifier keys:
   "apiEndpoint": "api/users",
   "basePath": "/users",
   "options": {
-    "userIdKey": "uid"
+    "userIdKey": "uid",
+    "userTableColumns": [
+      {
+        "name": "table_actions",
+        "field": "uid",
+        "label": "column-action"
+      },
+      {
+        "name": "email",
+        "field": "email",
+        "label": "column-email",
+        "align": "left"
+      }
+    ]
   }
 }
 ```
@@ -112,7 +182,20 @@ Create `moduleUsers.json` in your configuration directory:
   "apiEndpoint": "api/users",
   "basePath": "/users",
   "options": {
-    "userIdKey": "userId"
+    "userIdKey": "userId",
+    "userTableColumns": [
+      {
+        "name": "table_actions",
+        "field": "userId",
+        "label": "column-action"
+      },
+      {
+        "name": "email",
+        "field": "email",
+        "label": "column-email",
+        "align": "left"
+      }
+    ]
   }
 }
 ```

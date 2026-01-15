@@ -24,6 +24,8 @@
  * LinID Identity Manager software.
  */
 
+import type { QTableColumn } from 'quasar';
+
 /**
  * Options for the ModuleUsers remote module.
  */
@@ -32,4 +34,9 @@ export interface ModuleUsersOptions {
    * The key used to identify users. Used for user detail route and edit route.
    */
   userIdKey: string;
+  /**
+   * The columns configuration for the user table.
+   * Each column should follow Quasar's QTableColumn definition.
+   */
+  userTableColumns: QTableColumn[];
 }
