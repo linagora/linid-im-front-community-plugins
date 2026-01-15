@@ -24,6 +24,54 @@ It renders a simple table from provided columns and rows, without slots, actions
 
 ---
 
+## **🔗 Slot Forwarding**
+
+The `GenericEntityTable` supports **forwarding slots from the parent component to the underlying Quasar `QTable`**.
+
+- Any slots passed to `GenericEntityTable` will be automatically forwarded to the `QTable`.
+- This allows customizing **cells, headers, or any other part of the table** without modifying the wrapper component.
+
+[Link to q-table documentation](https://quasar.dev/vue-components/table)
+
+### **How it works**
+
+```vue
+<q-table class="generic-entity-table" :columns="columns" :rows="rows" :row-key="props.rowKey" v-bind="uiProps">
+  <template
+    v-for="(_slotFn, name) in $slots"
+    #[name]="slotProps"
+  >
+    <slot
+      :name="name"
+      v-bind="slotProps"
+    />
+  </template>
+</q-table>
+```
+
+- `v-for` iterates over all slots passed to `GenericEntityTable`.
+- `#[name]="slotProps"` dynamically binds each slot to the `QTable` slot with the same name.
+- The `<slot>` element ensures that the content provided by the parent is rendered correctly inside the table.
+
+### **Example Usage**
+
+```vue
+<GenericEntityTable :columns="columns" :rows="rows" ui-namespace="catalogUI">
+  <!-- Custom cell template for the "name" column -->
+  <template #body-cell-name="props">
+    <strong>{{ props.row.name }}</strong>
+  </template>
+</GenericEntityTable>
+```
+
+✅ Advantages:
+
+- Parent components can **customize cell rendering** easily.
+- No need to modify the wrapper for every custom slot.
+- Keeps the `GenericEntityTable` **flexible and reusable** while maintaining its minimal design.
+
+---
+
 ## **🎨 UI Customization**
 
 The component uses the LinID design system through `useUiDesign()` and applies
