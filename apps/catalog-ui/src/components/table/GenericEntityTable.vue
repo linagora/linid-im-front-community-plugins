@@ -31,7 +31,17 @@
     :rows="rows"
     :row-key="props.rowKey"
     v-bind="uiProps"
-  />
+  >
+    <template
+      v-for="(_slotFn, name) in $slots"
+      #[name]="slotProps"
+    >
+      <slot
+        :name="name"
+        v-bind="slotProps"
+      />
+    </template>
+  </q-table>
 </template>
 
 <script setup lang="ts">
