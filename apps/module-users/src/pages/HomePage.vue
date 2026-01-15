@@ -26,25 +26,107 @@
 
 <template>
   <!-- v8 ignore start -->
-  <q-page>
+  <q-page class="q-pa-md">
     <h4>{{ t('title') }}</h4>
-    <p v-if="!loading">{{ t('content', { count: users.length }) }}</p>
-    <p v-else>{{ t('loading') }}</p>
+    <component
+      :is="tableComponent"
+      v-if="tableComponent"
+      v-model:pagination="pagination"
+      :ui-namespace="uiNamespace"
+      :rows="users"
+      :columns="columns"
+      :loading="loading"
+      :row-key="options.userIdKey"
+      @request="onRequest"
+    >
+      <template #body-cell-table_actions="props">
+        <q-td :props="props">
+          <div class="flex justify-center">
+            <q-btn
+              :label="t('seeUserButton')"
+              :data-cy="`see-user-button_${props.row[options.userIdKey]}`"
+              v-bind="uiProps"
+              @click="goToUser(props.row)"
+            />
+          </div>
+        </q-td>
+      </template>
+    </component>
   </q-page>
   <!-- v8 ignore stop -->
 </template>
 
 <script setup lang="ts">
-import { getEntities, useScopedI18n } from '@linagora/linid-im-front-corelib';
+import type {
+  LinidQBtnProps,
+  QTableRequestEvent,
+} from '@linagora/linid-im-front-corelib';
+import {
+  getEntities,
+  getModuleHostConfiguration,
+  loadAsyncComponent,
+  type QuasarPagination,
+  usePagination,
+  useScopedI18n,
+  useUiDesign,
+} from '@linagora/linid-im-front-corelib';
 import { computed, onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
+import type { QTableColumn } from 'quasar';
+import type { ModuleUsersOptions } from '../types/moduleUsers';
 
+const router = useRouter();
 const route = useRoute();
 const instanceId = computed<string>(() => route.meta.instanceId as string);
+const parentPath = computed(() => route.matched[0]?.path);
+const options = getModuleHostConfiguration<ModuleUsersOptions>(
+  instanceId.value
+)!.options;
 
 const { t } = useScopedI18n(`${instanceId.value}.HomePage`);
 const users = ref<Record<string, unknown>[]>([]);
 const loading = ref<boolean>(false);
+const { toPagination, toQuasarPagination } = usePagination();
+const pagination = ref<QuasarPagination>({
+  page: 1,
+  rowsNumber: 0,
+  sortBy: undefined,
+  rowsPerPage: 10,
+  descending: true,
+});
+const columns = computed<QTableColumn[]>(() => [
+  ...options.userTableColumns.map((column) => ({
+    ...column,
+    label: t(column.label),
+  })),
+]);
+
+const { ui } = useUiDesign();
+const uiNamespace = `${instanceId.value}.homepage`;
+const uiProps = ui<LinidQBtnProps>(`${uiNamespace}.see-button`, 'q-btn');
+const tableComponent = loadAsyncComponent('catalogUI/GenericEntityTable');
+
+/**
+ * Navigate to the detail page of a given user.
+ * @param user - The user object. The property defined by `options.userIdKey` will be used to build the route.
+ * @returns A Promise that resolves when the navigation is complete.
+ */
+function goToUser(user: Record<string, unknown>) {
+  return router.push({
+    path: `${parentPath.value}/${user[options.userIdKey] as string}`,
+  });
+}
+
+/**
+ * Updates pagination state when the table page or rows-per-page change
+ * and reloads the users data accordingly.
+ * @param props - Event object containing the new pagination info.
+ * @returns A promise that resolves when the data has been loaded and the loading state has been updated.
+ */
+async function onRequest(props: QTableRequestEvent) {
+  pagination.value = props.pagination;
+  return loadData();
+}
 
 /**
  * Loads a paginated list of entities and updates the reactive users state.
@@ -56,13 +138,11 @@ function loadData(): Promise<void> {
   return getEntities<Record<string, unknown>>(
     instanceId.value,
     {},
-    {
-      page: 0,
-      size: 20,
-    }
+    toPagination(pagination.value)
   )
     .then((data) => {
       users.value = data.content;
+      pagination.value = toQuasarPagination(data);
     })
     .catch(() => {
       users.value = [];

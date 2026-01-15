@@ -34,6 +34,7 @@ export default {
       content: 'Number of users: {count}',
       loading: 'Loading users...',
       error: 'Failed to load users...',
+      seeUserButton: 'See user',
     },
     NewUserPage: {
       title: 'Create New User',
