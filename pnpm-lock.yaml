@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@linagora/linid-im-front-corelib':
-        specifier: 0.0.25
-        version: 0.0.25(axios@1.13.2)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.25(typescript@5.9.3)))(quasar@2.18.6)(rxjs@7.8.2)(vue@3.5.25(typescript@5.9.3))
+        specifier: 0.0.30
+        version: 0.0.30(axios@1.13.2)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.25(typescript@5.9.3)))(quasar@2.18.6)(rxjs@7.8.2)(vue@3.5.25(typescript@5.9.3))
       pinia:
         specifier: 3.0.4
         version: 3.0.4(typescript@5.9.3)(vue@3.5.25(typescript@5.9.3))
@@ -163,8 +163,8 @@ importers:
   apps/catalog-ui:
     dependencies:
       '@linagora/linid-im-front-corelib':
-        specifier: 0.0.25
-        version: 0.0.25(axios@1.13.2)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.25(typescript@5.9.3)))(quasar@2.18.6)(rxjs@7.8.2)(vue@3.5.25(typescript@5.9.3))
+        specifier: 0.0.30
+        version: 0.0.30(axios@1.13.2)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.25(typescript@5.9.3)))(quasar@2.18.6)(rxjs@7.8.2)(vue@3.5.25(typescript@5.9.3))
       quasar:
         specifier: 2.18.6
         version: 2.18.6
@@ -175,8 +175,8 @@ importers:
   apps/module-users:
     dependencies:
       '@linagora/linid-im-front-corelib':
-        specifier: 0.0.25
-        version: 0.0.25(axios@1.13.2)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.25(typescript@5.9.3)))(quasar@2.18.6)(rxjs@7.8.2)(vue@3.5.25(typescript@5.9.3))
+        specifier: 0.0.30
+        version: 0.0.30(axios@1.13.2)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.25(typescript@5.9.3)))(quasar@2.18.6)(rxjs@7.8.2)(vue@3.5.25(typescript@5.9.3))
       quasar:
         specifier: 2.18.6
         version: 2.18.6
@@ -1221,8 +1221,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@linagora/linid-im-front-corelib@0.0.25':
-    resolution: {integrity: sha512-TI8xd9Z6/ba1yz4CdER9B7wUeLIjvGfPd9jXxg1XyIh5yIzfGKWLXwihbE/IBiFxPHhByQVz2bBIVZHV7+cz1A==}
+  '@linagora/linid-im-front-corelib@0.0.30':
+    resolution: {integrity: sha512-OaMh3XZ9qb+LGGiUbNRPSt3fEUKwJAh4Xt2AvS0pCL8uuvZl+/cYer1kEQ8wcs1KfdBRlc11AP2WAfwvy8zuHQ==}
     peerDependencies:
       '@module-federation/enhanced': 0.21.6
       axios: 1.13.2
@@ -6396,7 +6396,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@linagora/linid-im-front-corelib@0.0.25(axios@1.13.2)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.25(typescript@5.9.3)))(quasar@2.18.6)(rxjs@7.8.2)(vue@3.5.25(typescript@5.9.3))':
+  '@linagora/linid-im-front-corelib@0.0.30(axios@1.13.2)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.25(typescript@5.9.3)))(quasar@2.18.6)(rxjs@7.8.2)(vue@3.5.25(typescript@5.9.3))':
     dependencies:
       axios: 1.13.2
       pinia: 3.0.4(typescript@5.9.3)(vue@3.5.25(typescript@5.9.3))
