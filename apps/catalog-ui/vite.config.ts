@@ -65,6 +65,10 @@ export default defineConfig({
           __dirname,
           'src/components/field/EntityAttributeTextField.vue'
         ),
+        './EntityAttributeDateField': resolve(
+          __dirname,
+          'src/components/field/EntityAttributeDateField.vue'
+        ),
       },
       shared: {
         vue: {

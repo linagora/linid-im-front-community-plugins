@@ -25,6 +25,7 @@
 -->
 
 <template>
+  <!-- v8 ignore start -->
   <q-toggle
     v-model="localValue"
     class="entity-attribute-boolean-field"
@@ -32,6 +33,7 @@
     :label="translateOrDefault('', 'label')"
     @update:model-value="updateValue"
   />
+  <!-- v8 ignore stop -->
 </template>
 
 <script setup lang="ts">

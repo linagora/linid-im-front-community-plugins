@@ -94,6 +94,9 @@ The library organizes components by category. For each component, documentation 
 - 🔢 **EntityAttributeNumberField** — Numeric attribute input with automatic number casting and scoped translations
   → Documentation is inside: [`EntityAttributeNumberField.md`](./docs/components/field/EntityAttributeNumberField.md)
 
+- 🔢 **EntityAttributeDateField** — Date attribute input with automatic date casting and scoped translations
+  → Documentation is inside: [`EntityAttributeDateField.md`](./docs/components/field/EntityAttributeDateField.md)
+
 ### **Feedback & Utility Components**
 
 - ✨ **BlurLoader** — Skeleton loader for representing loading states
