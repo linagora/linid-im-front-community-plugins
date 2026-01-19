@@ -25,6 +25,7 @@
 -->
 
 <template>
+  <!-- v8 ignore start -->
   <q-input
     v-model="localValue"
     class="entity-attribute-text-field"
@@ -36,6 +37,7 @@
     :suffix="translateOrDefault('', 'suffix')"
     @update:model-value="updateValue"
   />
+  <!-- v8 ignore stop -->
 </template>
 
 <script setup lang="ts">

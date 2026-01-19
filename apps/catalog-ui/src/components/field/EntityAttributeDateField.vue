@@ -26,53 +26,98 @@
 
 <template>
   <!-- v8 ignore start -->
-  <component
-    :is="field"
-    v-if="field"
-    class="entity-attribute-field"
-    :ui-namespace="`${uiNamespace}.EntityAttributeField`"
-    :instance-id="instanceId"
-    :definition="definition"
-    :entity="entity"
-    @update:entity="updateEntity"
-  />
+  <q-input
+    v-model="localValue"
+    class="entity-attribute-date-field"
+    type="text"
+    v-bind="uiProps.input"
+    :label="translateOrDefault('', 'label')"
+    :hint="translateOrDefault('', 'hint')"
+    :prefix="translateOrDefault('', 'prefix')"
+    :suffix="translateOrDefault('', 'suffix')"
+    @update:model-value="updateValue"
+  >
+    <template #append>
+      <q-icon
+        name="event"
+        class="cursor-pointer"
+        v-bind="uiProps.icon"
+      >
+        <q-popup-proxy
+          cover
+          transition-show="scale"
+          transition-hide="scale"
+        >
+          <q-date
+            v-model="localValue"
+            v-bind="uiProps.date"
+          >
+            <div class="row items-center justify-end">
+              <q-btn
+                v-close-popup
+                :label="t('close')"
+                v-bind="uiProps.btn"
+              />
+            </div>
+          </q-date>
+        </q-popup-proxy>
+      </q-icon>
+    </template>
+  </q-input>
   <!-- v8 ignore stop -->
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import type {
   AttributeFieldProps,
   EntityAttributeFieldOutputs,
 } from '../../types/field';
-import type { Component } from 'vue';
-import { computed, defineAsyncComponent } from 'vue';
+import type {
+  LinidQBtnProps,
+  LinidQDateProps,
+  LinidQInputProps,
+} from '@linagora/linid-im-front-corelib';
+import { useScopedI18n, useUiDesign } from '@linagora/linid-im-front-corelib';
 
 const props = defineProps<AttributeFieldProps>();
 const emits = defineEmits<EntityAttributeFieldOutputs>();
 
-const fieldTypes: Record<string, Component> = {
-  Boolean: defineAsyncComponent(
-    () => import('./EntityAttributeBooleanField.vue')
+const { ui } = useUiDesign();
+
+const localValue = ref(props.entity[props.definition.name] ?? null);
+
+const uiProps = {
+  input: ui<LinidQInputProps>(
+    `${props.uiNamespace}.${props.definition.name}`,
+    'q-input'
   ),
-  Number: defineAsyncComponent(
-    () => import('./EntityAttributeNumberField.vue')
+  icon: ui<LinidQInputProps>(
+    `${props.uiNamespace}.${props.definition.name}`,
+    'q-icon'
   ),
-  Text: defineAsyncComponent(() => import('./EntityAttributeTextField.vue')),
-  Date: defineAsyncComponent(() => import('./EntityAttributeDateField.vue')),
+  btn: ui<LinidQBtnProps>(
+    `${props.uiNamespace}.${props.definition.name}`,
+    'q-btn'
+  ),
+  date: ui<LinidQDateProps>(
+    `${props.uiNamespace}.${props.definition.name}`,
+    'q-date'
+  ),
 };
 
-const field = computed<Component | undefined>(
-  () => fieldTypes[props.definition.input]
+const { t, translateOrDefault } = useScopedI18n(
+  `${props.instanceId}.fields.${props.definition.name}`
 );
 
 /**
  * Emits an 'update:entity' event with the updated entity object when the toggle changes.
  * Updates the value of the attribute in the entity using the local reactive value.
- * @param entity - The updated entity object containing the new attribute values.
  */
-function updateEntity(entity: Record<string, unknown>) {
-  emits('update:entity', entity);
+function updateValue() {
+  emits('update:entity', {
+    ...props.entity,
+    [props.definition.name]: localValue.value,
+  });
 }
 </script>
-
-<style scoped></style>
