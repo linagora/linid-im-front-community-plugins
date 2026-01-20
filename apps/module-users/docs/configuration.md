@@ -45,13 +45,26 @@ export interface ModuleUsersOptions {
    * Each column should follow Quasar's QTableColumn definition.
    */
   userTableColumns: QTableColumn[];
+  /**
+   * Ordered list of user attribute names to display first in the details card.
+   * The order of this array defines the display order.
+   */
+  fieldOrder: string[];
+  /**
+   * Indicates whether user attributes not listed in `fieldOrder`
+   * should also be displayed after the ordered fields in the details card.
+   * @default false
+   */
+  showRemainingFields?: boolean;
 }
 ```
 
-| Option             | Type             | Required | Description                                                                                                                                                               |
-| ------------------ | ---------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `userIdKey`        | `string`         | ✅ Yes   | The property name used to identify users in your data model (e.g., 'userId', 'id', 'uid')                                                                                 |
-| `userTableColumns` | `QTableColumn[]` | ✅ Yes   | An array of column definitions for the user table. Each column follows Quasar's `QTableColumn` interface and can define label, field, alignment, sorting, and formatting. |
+| Option                | Type             | Required | Description                                                                                                                                                               |
+| --------------------- | ---------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `userIdKey`           | `string`         | ✅ Yes   | The property name used to identify users in your data model (e.g., 'userId', 'id', 'uid')                                                                                 |
+| `userTableColumns`    | `QTableColumn[]` | ✅ Yes   | An array of column definitions for the user table. Each column follows Quasar's `QTableColumn` interface and can define label, field, alignment, sorting, and formatting. |
+| `fieldOrder`          | `string[]`       | ✅ Yes   | Ordered list of user attribute names to display first in the user details card. The order defines display priority.                                                       |
+| `showRemainingFields` | `boolean`        | ⬜ No    | If true, displays all user attributes not in `fieldOrder` after the ordered fields in the details card. Default: `false`                                                  |
 
 ### Option - `userTableColumns`
 
@@ -94,6 +107,8 @@ Create a `moduleUsers.json` file in your configuration directory:
   "basePath": "/users",
   "options": {
     "userIdKey": "userId",
+    "fieldOrder": ["email", "username", "createdAt"],
+    "showRemainingFields": false,
     "userTableColumns": [
       {
         "name": "table_actions",
@@ -124,6 +139,8 @@ Depending on your backend API, you might use different identifier keys:
   "basePath": "/users",
   "options": {
     "userIdKey": "id",
+    "fieldOrder": ["email", "username"],
+    "showRemainingFields": true,
     "userTableColumns": [
       {
         "name": "table_actions",
@@ -150,6 +167,8 @@ Depending on your backend API, you might use different identifier keys:
   "basePath": "/users",
   "options": {
     "userIdKey": "uid",
+    "fieldOrder": ["email", "username", "uid"],
+    "showRemainingFields": false,
     "userTableColumns": [
       {
         "name": "table_actions",
@@ -183,6 +202,8 @@ Create `moduleUsers.json` in your configuration directory:
   "basePath": "/users",
   "options": {
     "userIdKey": "userId",
+    "fieldOrder": ["email", "username", "createdAt"],
+    "showRemainingFields": false,
     "userTableColumns": [
       {
         "name": "table_actions",

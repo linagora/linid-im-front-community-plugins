@@ -66,6 +66,9 @@ export default {
       ButtonsCard: {
         cancel: 'Retour à la liste des utilisateurs',
       },
+      EntityDetailsCard: {
+        title: "Informations de l'utilisateur",
+      },
     },
   },
 };
