@@ -33,6 +33,19 @@
     <h3 class="user-details-page--title">{{ t('title') }}</h3>
 
     <component
+      :is="entityDetailsCard"
+      v-if="entityDetailsCard"
+      :entity="user || {}"
+      :field-order="options.fieldOrder"
+      :show-remaining-fields="options.showRemainingFields || false"
+      :is-loading="isLoading"
+      :ui-namespace="localUiNamespace"
+      :i18n-scope="i18nScope"
+      class="q-mb-md"
+      data-cy="user-details-card"
+    />
+
+    <component
       :is="buttonsCard"
       v-if="buttonsCard"
       :ui-namespace="localUiNamespace"
@@ -58,6 +71,7 @@
 import type { LinidQBtnProps } from '@linagora/linid-im-front-corelib';
 import {
   getEntityById,
+  getModuleHostConfiguration,
   loadAsyncComponent,
   useScopedI18n,
   useNotify,
@@ -66,6 +80,7 @@ import type { Component } from 'vue';
 import { ref, onMounted, computed, shallowRef } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useUiDesign } from '@linagora/linid-im-front-corelib';
+import type { ModuleUsersOptions } from '../types/moduleUsers';
 
 const route = useRoute();
 const router = useRouter();
@@ -76,9 +91,16 @@ const i18nScope = computed<string>(() => `${instanceId.value}.UserDetailsPage`);
 const { t } = useScopedI18n(i18nScope.value);
 const { Notify } = useNotify();
 
+const options = getModuleHostConfiguration<ModuleUsersOptions>(
+  instanceId.value
+)!.options;
+
 const user = ref<Record<string, unknown> | null>(null);
+const isLoading = ref<boolean>(false);
+const entityDetailsCard = shallowRef<Component | null>(null);
 const buttonsCard = shallowRef<Component | null>(null);
 
+entityDetailsCard.value = loadAsyncComponent('catalogUI/EntityDetailsCard');
 buttonsCard.value = loadAsyncComponent('catalogUI/ButtonsCard');
 
 const localUiNamespace = `${instanceId.value}.user-details-page`;
@@ -91,6 +113,7 @@ const uiProps = {
  * Loads the user data based on the userId.
  */
 async function loadData() {
+  isLoading.value = true;
   try {
     user.value = await getEntityById<Record<string, unknown>>(
       instanceId.value,
@@ -102,6 +125,8 @@ async function loadData() {
       message: t('error'),
     });
     goBack();
+  } finally {
+    isLoading.value = false;
   }
 }
 

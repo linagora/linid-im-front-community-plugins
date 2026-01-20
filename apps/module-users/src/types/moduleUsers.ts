@@ -39,4 +39,15 @@ export interface ModuleUsersOptions {
    * Each column should follow Quasar's QTableColumn definition.
    */
   userTableColumns: QTableColumn[];
+  /**
+   * Ordered list of user attribute names to display first in the details card.
+   * The order of this array defines the display order.
+   */
+  fieldOrder: string[];
+  /**
+   * Indicates whether user attributes not listed in `fieldOrder`
+   * should also be displayed after the ordered fields in the details card.
+   * @default false
+   */
+  showRemainingFields?: boolean;
 }

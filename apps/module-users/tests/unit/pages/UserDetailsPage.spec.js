@@ -57,6 +57,12 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
       name: 'Test User',
     })
   ),
+  getModuleHostConfiguration: vi.fn(() => ({
+    options: {
+      fieldOrder: ['name', 'email'],
+      showRemainingFields: false,
+    },
+  })),
   useScopedI18n: () => ({
     t: vi.fn((v) => v),
   }),
@@ -100,6 +106,20 @@ describe('Test component: UserDetailsPage', () => {
       );
     });
 
+    it('should set isLoading to true during data load and false after', async () => {
+      wrapper = shallowMount(UserDetailsPage);
+      // Wait for onMounted to complete
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.isLoading).toBe(false);
+
+      const loadPromise = wrapper.vm.loadData();
+      expect(wrapper.vm.isLoading).toBe(true);
+
+      await loadPromise;
+      expect(wrapper.vm.isLoading).toBe(false);
+    });
+
     it('should call loadData on mount', async () => {
       wrapper = shallowMount(UserDetailsPage);
       await wrapper.vm.$nextTick();
@@ -119,6 +139,16 @@ describe('Test component: UserDetailsPage', () => {
         message: 'error',
       });
       expect(mockRouter.push).toHaveBeenCalledWith('/users');
+    });
+
+    it('should set isLoading to false even when an error occurs', async () => {
+      mockedGetEntityById.mockRejectedValueOnce(new Error('API Error'));
+
+      wrapper = shallowMount(UserDetailsPage);
+
+      await wrapper.vm.loadData();
+
+      expect(wrapper.vm.isLoading).toBe(false);
     });
   });
 
