@@ -163,4 +163,64 @@ describe('Test component: HomePage', () => {
       );
     });
   });
+
+  describe('Test function: onFiltersChange', () => {
+    it('should update filters and reset pagination to page 1', async () => {
+      vi.clearAllMocks();
+      wrapper.vm.pagination = { page: 3, rowsPerPage: 10 };
+      wrapper.vm.filters = {};
+
+      const newFilters = { email: 'test@example.com', firstName: 'John' };
+      await wrapper.vm.onFiltersChange(newFilters);
+
+      expect(wrapper.vm.filters).toEqual(newFilters);
+      expect(wrapper.vm.pagination.page).toBe(1);
+      expect(getEntities).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('Test function: buildQueryParams', () => {
+    it('should filter out empty values', () => {
+      wrapper.vm.filters = {
+        email: 'test@example.com',
+        firstName: '',
+        lastName: null,
+        active: undefined,
+        role: 'admin',
+      };
+
+      const result = wrapper.vm.buildQueryParams();
+
+      expect(result).toEqual({
+        email: 'test@example.com',
+        role: 'admin',
+      });
+    });
+
+    it('should return empty object when all filters are empty', () => {
+      wrapper.vm.filters = {
+        email: '',
+        firstName: null,
+        lastName: undefined,
+      };
+
+      const result = wrapper.vm.buildQueryParams();
+
+      expect(result).toEqual({});
+    });
+
+    it('should keep boolean false values', () => {
+      wrapper.vm.filters = {
+        active: false,
+        email: 'test@example.com',
+      };
+
+      const result = wrapper.vm.buildQueryParams();
+
+      expect(result).toEqual({
+        active: false,
+        email: 'test@example.com',
+      });
+    });
+  });
 });

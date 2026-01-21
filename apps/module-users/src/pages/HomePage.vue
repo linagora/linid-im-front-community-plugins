@@ -29,6 +29,19 @@
   <q-page class="q-pa-md">
     <h4>{{ t('title') }}</h4>
     <component
+      :is="advancedSearchComponent"
+      v-if="advancedSearchComponent && options.advancedSearch"
+      v-model:filters="filters"
+      :ui-namespace="uiNamespace"
+      :i18n-scope="`${instanceId}.HomePage`"
+      :instance-id="instanceId"
+      :fields="options.advancedSearch.fields"
+      :default-fields-names="options.advancedSearch.defaultFieldsNames"
+      :advanced-fields-names="options.advancedSearch.advancedFieldsNames"
+      class="q-mb-md"
+      @update:filters="onFiltersChange"
+    />
+    <component
       :is="tableComponent"
       v-if="tableComponent"
       v-model:pagination="pagination"
@@ -60,6 +73,7 @@
 import type {
   LinidQBtnProps,
   QTableRequestEvent,
+  QueryFilter,
 } from '@linagora/linid-im-front-corelib';
 import {
   getEntities,
@@ -104,10 +118,15 @@ const columns = computed<QTableColumn[]>(() => [
   })),
 ]);
 
+const filters = ref<QueryFilter>({});
+
 const { ui } = useUiDesign();
 const uiNamespace = `${instanceId.value}.homepage`;
 const uiProps = ui<LinidQBtnProps>(`${uiNamespace}.see-button`, 'q-btn');
 const tableComponent = loadAsyncComponent('catalogUI/GenericEntityTable');
+const advancedSearchComponent = loadAsyncComponent(
+  'catalogUI/AdvancedSearchCard'
+);
 
 /**
  * Navigate to the detail page of a given user.
@@ -132,6 +151,31 @@ async function onRequest(props: QTableRequestEvent) {
 }
 
 /**
+ * Handles filter changes from the AdvancedSearchCard component.
+ * Resets pagination to the first page and reloads data with new filters.
+ * @param newFilters - The updated filters object.
+ * @returns A promise that resolves when the data has been loaded.
+ */
+function onFiltersChange(newFilters: Record<string, unknown>): Promise<void> {
+  filters.value = newFilters as QueryFilter;
+  pagination.value.page = 1;
+  return loadData();
+}
+
+/**
+ * Builds the query parameters from the current filters.
+ * Filters out empty values to avoid sending unnecessary parameters.
+ * @returns A record of non-empty filter values.
+ */
+function buildQueryParams(): QueryFilter {
+  return Object.fromEntries(
+    Object.entries(filters.value).filter(
+      ([, value]) => value !== undefined && value !== null && value !== ''
+    )
+  ) as QueryFilter;
+}
+
+/**
  * Loads a paginated list of entities and updates the reactive users state.
  * @returns A promise that resolves when the data has been loaded and the loading state has been updated.
  */
@@ -140,7 +184,7 @@ function loadData(): Promise<void> {
 
   return getEntities<Record<string, unknown>>(
     instanceId.value,
-    {},
+    buildQueryParams(),
     toPagination(pagination.value)
   )
     .then((data) => {
