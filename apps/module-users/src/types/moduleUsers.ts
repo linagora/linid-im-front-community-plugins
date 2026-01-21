@@ -25,6 +25,26 @@
  */
 
 import type { QTableColumn } from 'quasar';
+import type { LinidAttributeConfiguration } from '@linagora/linid-im-front-corelib';
+
+/**
+ * Configuration for the advanced search feature in the Users module.
+ */
+export interface AdvancedSearchConfiguration {
+  /**
+   * List of field definitions available for filtering.
+   * Each field follows the LinidAttributeConfiguration interface.
+   */
+  fields: LinidAttributeConfiguration[];
+  /**
+   * Names of fields to display in the default (always visible) section.
+   */
+  defaultFieldsNames: string[];
+  /**
+   * Names of fields to display in the advanced (expandable) section.
+   */
+  advancedFieldsNames: string[];
+}
 
 /**
  * Options for the ModuleUsers remote module.
@@ -50,4 +70,9 @@ export interface ModuleUsersOptions {
    * @default false
    */
   showRemainingFields?: boolean;
+  /**
+   * Configuration for the advanced search feature.
+   * Enables the AdvancedSearchCard on the HomePage.
+   */
+  advancedSearch: AdvancedSearchConfiguration;
 }
