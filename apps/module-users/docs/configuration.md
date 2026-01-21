@@ -56,15 +56,36 @@ export interface ModuleUsersOptions {
    * @default false
    */
   showRemainingFields?: boolean;
+  /**
+   * Configuration for the advanced search feature.
+   * Enables the AdvancedSearchCard on the HomePage.
+   */
+  advancedSearch: AdvancedSearchConfiguration;
+}
+
+export interface AdvancedSearchConfiguration {
+  /**
+   * List of field definitions available for filtering.
+   */
+  fields: LinidAttributeConfiguration[];
+  /**
+   * Names of fields to display in the default (always visible) section.
+   */
+  defaultFieldsNames: string[];
+  /**
+   * Names of fields to display in the advanced (expandable) section.
+   */
+  advancedFieldsNames: string[];
 }
 ```
 
-| Option                | Type             | Required | Description                                                                                                                                                               |
-| --------------------- | ---------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `userIdKey`           | `string`         | ✅ Yes   | The property name used to identify users in your data model (e.g., 'userId', 'id', 'uid')                                                                                 |
-| `userTableColumns`    | `QTableColumn[]` | ✅ Yes   | An array of column definitions for the user table. Each column follows Quasar's `QTableColumn` interface and can define label, field, alignment, sorting, and formatting. |
-| `fieldOrder`          | `string[]`       | ✅ Yes   | Ordered list of user attribute names to display first in the user details card. The order defines display priority.                                                       |
-| `showRemainingFields` | `boolean`        | ⬜ No    | If true, displays all user attributes not in `fieldOrder` after the ordered fields in the details card. Default: `false`                                                  |
+| Option                | Type                          | Required | Description                                                                                                                                                               |
+| --------------------- | ----------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `userIdKey`           | `string`                      | ✅ Yes   | The property name used to identify users in your data model (e.g., 'userId', 'id', 'uid')                                                                                 |
+| `userTableColumns`    | `QTableColumn[]`              | ✅ Yes   | An array of column definitions for the user table. Each column follows Quasar's `QTableColumn` interface and can define label, field, alignment, sorting, and formatting. |
+| `fieldOrder`          | `string[]`                    | ✅ Yes   | Ordered list of user attribute names to display first in the user details card. The order defines display priority.                                                       |
+| `showRemainingFields` | `boolean`                     | ⬜ No    | If true, displays all user attributes not in `fieldOrder` after the ordered fields in the details card. Default: `false`                                                  |
+| `advancedSearch`      | `AdvancedSearchConfiguration` | ✅ Yes   | Configuration for the advanced search feature. Enables the AdvancedSearchCard on the HomePage.                                                                            |
 
 ### Option - `userTableColumns`
 
@@ -85,11 +106,88 @@ The **module-users** table can include a special **actions column** that is rese
 {
   "name": "table_actions",
   "field": "id",
-  "label": "column-action",
+  "label": "columnAction",
   "style": "width: 200px",
   "headerStyle": "width: 200px"
 }
 ```
+
+### **Option - `advancedSearch`**
+
+The `advancedSearch` option enables the `AdvancedSearchCard` component on the HomePage, allowing users to filter the user list based on configurable criteria.
+
+#### **Configuration Structure**
+
+| Property              | Type                            | Description                                                        |
+| --------------------- | ------------------------------- | ------------------------------------------------------------------ |
+| `fields`              | `LinidAttributeConfiguration[]` | List of field definitions available for filtering                  |
+| `defaultFieldsNames`  | `string[]`                      | Names of fields to display in the default (always visible) section |
+| `advancedFieldsNames` | `string[]`                      | Names of fields to display in the advanced (expandable) section    |
+
+#### **Field Definition (`LinidAttributeConfiguration`)**
+
+Each field in the `fields` array follows the `LinidAttributeConfiguration` interface:
+
+```typescript
+interface LinidAttributeConfiguration {
+  name: string; // Field identifier (e.g., "email")
+  type: string; // Backend type (e.g., "String", "Integer", "Boolean")
+  required: boolean; // Whether the field is required
+  hasValidations: boolean; // Whether the field has validation rules
+  input: string; // UI input type: "Text", "Number", "Boolean", "Date"
+  inputSettings: object; // Additional settings for the input
+}
+```
+
+#### **Example Configuration**
+
+```json
+{
+  "advancedSearch": {
+    "fields": [
+      {
+        "name": "email",
+        "type": "String",
+        "required": false,
+        "hasValidations": false,
+        "input": "Text",
+        "inputSettings": {}
+      },
+      {
+        "name": "firstName",
+        "type": "String",
+        "required": false,
+        "hasValidations": false,
+        "input": "Text",
+        "inputSettings": {}
+      },
+      {
+        "name": "lastName",
+        "type": "String",
+        "required": false,
+        "hasValidations": false,
+        "input": "Text",
+        "inputSettings": {}
+      },
+      {
+        "name": "active",
+        "type": "Boolean",
+        "required": false,
+        "hasValidations": false,
+        "input": "Boolean",
+        "inputSettings": {}
+      }
+    ],
+    "defaultFieldsNames": ["email", "firstName"],
+    "advancedFieldsNames": ["lastName", "active"]
+  }
+}
+```
+
+In this example:
+
+- The `email` and `firstName` fields are always visible in the search card
+- The `lastName` and `active` fields are hidden under an expandable "More filters" section
 
 ---
 
@@ -113,15 +211,37 @@ Create a `moduleUsers.json` file in your configuration directory:
       {
         "name": "table_actions",
         "field": "id",
-        "label": "column-action"
+        "label": "columnAction"
       },
       {
         "name": "email",
         "field": "email",
-        "label": "column-email",
+        "label": "columnEmail",
         "align": "left"
       }
-    ]
+    ],
+    "advancedSearch": {
+      "fields": [
+        {
+          "name": "email",
+          "type": "String",
+          "required": false,
+          "hasValidations": false,
+          "input": "Text",
+          "inputSettings": {}
+        },
+        {
+          "name": "firstName",
+          "type": "String",
+          "required": false,
+          "hasValidations": false,
+          "input": "Text",
+          "inputSettings": {}
+        }
+      ],
+      "defaultFieldsNames": ["email"],
+      "advancedFieldsNames": ["firstName"]
+    }
   }
 }
 ```
@@ -145,12 +265,12 @@ Depending on your backend API, you might use different identifier keys:
       {
         "name": "table_actions",
         "field": "id",
-        "label": "column-action"
+        "label": "columnAction"
       },
       {
         "name": "email",
         "field": "email",
-        "label": "column-email",
+        "label": "columnEmail",
         "align": "left"
       }
     ]
@@ -173,12 +293,12 @@ Depending on your backend API, you might use different identifier keys:
       {
         "name": "table_actions",
         "field": "uid",
-        "label": "column-action"
+        "label": "columnAction"
       },
       {
         "name": "email",
         "field": "email",
-        "label": "column-email",
+        "label": "columnEmail",
         "align": "left"
       }
     ]
@@ -208,12 +328,12 @@ Create `moduleUsers.json` in your configuration directory:
       {
         "name": "table_actions",
         "field": "userId",
-        "label": "column-action"
+        "label": "columnAction"
       },
       {
         "name": "email",
         "field": "email",
-        "label": "column-email",
+        "label": "columnEmail",
         "align": "left"
       }
     ]

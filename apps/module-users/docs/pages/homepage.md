@@ -12,6 +12,7 @@ The page supports i18n, dynamic table columns, row-level actions, and reactive p
 
 - Displays a **paginated table** of users using the `GenericEntityTable` wrapper around Quasar's `QTable`.
 - Supports **customizable table columns** via the `userTableColumns` configuration.
+- **Optional advanced search** with configurable filters via `AdvancedSearchCard`.
 - Handles **row-level actions**, such as navigating to the user detail page.
 - Reactive **pagination** with server-side data loading using `getEntities`.
 - Uses **i18n** for all user-facing text.
@@ -22,18 +23,20 @@ The page supports i18n, dynamic table columns, row-level actions, and reactive p
 
 ## Props and Data
 
-| Name             | Type                             | Description                                                                               |
-| ---------------- | -------------------------------- | ----------------------------------------------------------------------------------------- |
-| `users`          | `Ref<Record<string, unknown>[]>` | Reactive array holding the list of users loaded from the backend.                         |
-| `loading`        | `Ref<boolean>`                   | Boolean indicating if a data load is in progress.                                         |
-| `columns`        | `ComputedRef<QTableColumn[]>`    | Computed table columns, translated via i18n.                                              |
-| `pagination`     | `Ref<QuasarPagination>`          | Reactive pagination object for the table (`page`, `rowsPerPage`, `sortBy`, `descending`). |
-| `tableComponent` | `Ref<Component \| null>`         | Asynchronously loaded `GenericEntityTable` component.                                     |
-| `uiNamespace`    | `string`                         | Namespace for UI design props and i18n.                                                   |
-| `uiProps`        | `LinidQBtnProps`                 | UI props for row-level buttons.                                                           |
-| `instanceId`     | `ComputedRef<string>`            | Computed from the route meta, used for i18n and module configuration.                     |
-| `parentPath`     | `ComputedRef<string>`            | Computed path for routing to user detail pages.                                           |
-| `options`        | `ModuleUsersOptions`             | Configuration options for the module, including `userIdKey` and `userTableColumns`.       |
+| Name                      | Type                             | Description                                                                                            |
+| ------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `users`                   | `Ref<Record<string, unknown>[]>` | Reactive array holding the list of users loaded from the backend.                                      |
+| `loading`                 | `Ref<boolean>`                   | Boolean indicating if a data load is in progress.                                                      |
+| `filters`                 | `Ref<Record<string, unknown>>`   | Reactive object holding the current search filters.                                                    |
+| `columns`                 | `ComputedRef<QTableColumn[]>`    | Computed table columns, translated via i18n.                                                           |
+| `pagination`              | `Ref<QuasarPagination>`          | Reactive pagination object for the table (`page`, `rowsPerPage`, `sortBy`, `descending`).              |
+| `tableComponent`          | `Ref<Component \| null>`         | Asynchronously loaded `GenericEntityTable` component.                                                  |
+| `advancedSearchComponent` | `Ref<Component \| null>`         | Asynchronously loaded `AdvancedSearchCard` component.                                                  |
+| `uiNamespace`             | `string`                         | Namespace for UI design props and i18n.                                                                |
+| `uiProps`                 | `LinidQBtnProps`                 | UI props for row-level buttons.                                                                        |
+| `instanceId`              | `ComputedRef<string>`            | Computed from the route meta, used for i18n and module configuration.                                  |
+| `parentPath`              | `ComputedRef<string>`            | Computed path for routing to user detail pages.                                                        |
+| `options`                 | `ModuleUsersOptions`             | Configuration options for the module, including `userIdKey`, `userTableColumns`, and `advancedSearch`. |
 
 ---
 
@@ -71,6 +74,64 @@ Example:
 ```ts
 goToUser(user); // Navigates to /users/:id
 ```
+
+---
+
+### `onFiltersChange(newFilters: Record<string, unknown>)`
+
+Handles filter changes from the `AdvancedSearchCard` component.
+
+- Updates `filters.value` with the new filters.
+- Resets `pagination.value.page` to `1` to show results from the first page.
+- Calls `loadData()` to fetch updated user data with the new filters.
+
+---
+
+### `buildQueryParams()`
+
+Builds the query parameters from the current filters for the API request.
+
+- Filters out empty values (`undefined`, `null`, `''`) to avoid sending unnecessary parameters.
+- Returns a record of non-empty filter values.
+
+---
+
+## Advanced Search
+
+When the `advancedSearch` option is configured in the module options, the page displays an `AdvancedSearchCard` component above the user table.
+
+### Features
+
+- **Default filters**: Always visible fields for common search criteria.
+- **Advanced filters**: Expandable section for additional search fields.
+- **Two-way binding**: Filter values are synchronized with the page state.
+- **Automatic data refresh**: Changing filters triggers a new data fetch with updated query parameters.
+
+### Configuration
+
+The advanced search is configured via the `advancedSearch` option in `moduleUsers.json`. See [configuration.md](../configuration.md) for details.
+
+### Required i18n Keys
+
+When using advanced search, add the following translation keys:
+
+```json
+{
+  "HomePage": {
+    "AdvancedSearchCard": {
+      "title": "Search",
+      "moreFilters": "More filters",
+      "lessFilters": "Less filters",
+      "fields": {
+        "email": "Email",
+        "firstName": "First Name"
+      }
+    }
+  }
+}
+```
+
+> Add a translation key for each field defined in `advancedSearch.fields`.
 
 ---
 
@@ -160,12 +221,13 @@ Example:
 
 - `@linagora/linid-im-front-corelib` for:
   - `getEntities` (fetching user data)
-  - `loadAsyncComponent` (loading `GenericEntityTable`)
+  - `loadAsyncComponent` (loading `GenericEntityTable` and `AdvancedSearchCard`)
   - `usePagination` (table pagination)
   - `useScopedI18n` and `useUiDesign`
 
 - `vue-router` for route and navigation handling.
 - `GenericEntityTable` (Catalog UI component).
+- `AdvancedSearchCard` (Catalog UI component, optional).
 
 ---
 
