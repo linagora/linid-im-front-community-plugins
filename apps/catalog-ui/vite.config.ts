@@ -69,6 +69,10 @@ export default defineConfig({
           __dirname,
           'src/components/field/EntityAttributeDateField.vue'
         ),
+        './AdvancedSearchCard': resolve(
+          __dirname,
+          'src/components/card/AdvancedSearchCard.vue'
+        ),
       },
       shared: {
         vue: {

@@ -24,8 +24,41 @@
  * LinID Identity Manager software.
  */
 
-export { default as BaseLayout } from './layouts/BaseLayout.vue';
-export { default as BlurLoader } from './components/loader/BlurLoader.vue';
-export { default as InformationCard } from './components/card/InformationCard.vue';
-export { default as EntityDetailsCard } from './components/card/EntityDetailsCard.vue';
-export { default as AdvancedSearchCard } from './components/card/AdvancedSearchCard.vue';
+import type { CommonComponentProps } from './common';
+import type { LinidAttributeConfiguration } from '@linagora/linid-im-front-corelib';
+
+/**
+ * Props for the AdvancedSearchCard component.
+ */
+export interface AdvancedSearchCardProps extends CommonComponentProps {
+  /**
+   * Identifier of the instance used to scope translations and contextual data.
+   */
+  instanceId: string;
+  /**
+   * List of field definitions available for filtering.
+   */
+  fields: LinidAttributeConfiguration[];
+  /**
+   * Names of fields to display in the default (always visible) section.
+   */
+  defaultFieldsNames: string[];
+  /**
+   * Names of fields to display in the advanced (expandable) section.
+   */
+  advancedFieldsNames: string[];
+  /**
+   * Current filter values.
+   */
+  filters: Record<string, unknown>;
+}
+
+/**
+ * Outputs (events) emitted by the AdvancedSearchCard component.
+ */
+export interface AdvancedSearchCardOutputs {
+  /**
+   * Emitted when filters are updated.
+   */
+  'update:filters': [Record<string, unknown>];
+}
