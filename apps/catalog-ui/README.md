@@ -80,6 +80,9 @@ The library organizes components by category. For each component, documentation 
 - ✨ **ButtonsCard** — A card component with action buttons
   → Documentation is inside: [`ButtonsCard.md`](./docs/components/card/ButtonsCard.md)
 
+- 🔍 **AdvancedSearchCard** — Generic search card with default and expandable advanced filters sections
+  → Documentation is inside: [`AdvancedSearchCard.md`](./docs/components/card/AdvancedSearchCard.md)
+
 ### **Forms Components**
 
 - 🧩 **EntityAttributeField** — Dynamic attribute field resolver that selects and renders the correct input component
