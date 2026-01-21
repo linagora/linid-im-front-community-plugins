@@ -36,14 +36,23 @@
         data-cy="toolbar"
       >
         <q-avatar
+          class="cursor-pointer"
           v-bind="uiProps.avatar"
           data-cy="application_logo"
-        />
+          @click="goHome"
+        >
+          <q-img v-bind="uiProps.img"> </q-img>
+        </q-avatar>
         <q-toolbar-title
           v-bind="uiProps.toolbarTitle"
           data-cy="application_title"
         >
-          {{ t('title') }}
+          <div
+            class="cursor-pointer row inline"
+            @click="goHome"
+          >
+            {{ t('title') }}
+          </div>
         </q-toolbar-title>
         <q-badge
           v-bind="uiProps.badge"
@@ -79,6 +88,7 @@ import type {
   LinidQAvatarProps,
   LinidQBadgeProps,
   LinidQHeaderProps,
+  LinidQImgProps,
   LinidQToolbarProps,
   LinidQToolbarTitleProps,
 } from '@linagora/linid-im-front-corelib';
@@ -88,10 +98,12 @@ import {
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
 import NavigationMenu from '../components/menu/NavigationMenu.vue';
+import { useRouter } from 'vue-router';
 
 const { ui } = useUiDesign();
 const { t } = useScopedI18n('application');
 const uiStore = useLinidUiStore();
+const router = useRouter();
 
 const headerUiNamespace = `base-layout.header`;
 
@@ -104,5 +116,13 @@ const uiProps = {
     'q-toolbar-title'
   ),
   badge: ui<LinidQBadgeProps>(headerUiNamespace, 'q-badge'),
+  img: ui<LinidQImgProps>(headerUiNamespace, 'q-img'),
 };
+
+/**
+ * Navigate to home page.
+ */
+function goHome() {
+  router.push('/');
+}
 </script>
