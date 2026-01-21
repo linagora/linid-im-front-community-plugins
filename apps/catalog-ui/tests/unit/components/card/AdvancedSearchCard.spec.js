@@ -36,6 +36,7 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
   useUiDesign: () => ({
     ui: vi.fn(() => ({})),
   }),
+  loadAsyncComponent: vi.fn(() => null),
 }));
 
 describe('Test component: AdvancedSearchCard', () => {
