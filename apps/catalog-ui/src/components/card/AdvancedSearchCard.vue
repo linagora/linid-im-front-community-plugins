@@ -111,13 +111,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, defineAsyncComponent, computed } from 'vue';
+import { ref, watch, computed } from 'vue';
 import type {
   LinidQCardProps,
   LinidQBtnProps,
   LinidQIconProps,
 } from '@linagora/linid-im-front-corelib';
-import { useScopedI18n, useUiDesign } from '@linagora/linid-im-front-corelib';
+import {
+  useScopedI18n,
+  useUiDesign,
+  loadAsyncComponent,
+} from '@linagora/linid-im-front-corelib';
 import type {
   AdvancedSearchCardProps,
   AdvancedSearchCardOutputs,
@@ -139,9 +143,7 @@ const uiProps = {
   ),
 };
 
-const fieldComponent = defineAsyncComponent(
-  () => import('../field/EntityAttributeField.vue')
-);
+const fieldComponent = loadAsyncComponent('catalogUI/EntityAttributeField');
 
 const isExpanded = ref(false);
 const localFilters = ref<Record<string, unknown>>({ ...props.filters });
