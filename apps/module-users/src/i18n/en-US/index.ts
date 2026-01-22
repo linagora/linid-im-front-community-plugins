@@ -31,8 +31,6 @@ export default {
     },
     HomePage: {
       title: 'Users Management',
-      content: 'Number of users: {count}',
-      loading: 'Loading users...',
       error: 'Failed to load users...',
       seeUserButton: 'See user',
     },
