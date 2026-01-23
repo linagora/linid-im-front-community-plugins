@@ -123,8 +123,14 @@ Please refer to the **[CONTRIBUTING.md](../../CONTRIBUTING.md)** file in the mon
 
 ## **📘 Documentation**
 
-Additional documentation for the library is located in the `apps/catalogUI/docs/` folder:
+Additional documentation for the library is located in the `apps/catalog-ui/docs/` folder:
 
 - Each component has a dedicated Markdown file describing its usage, props, events, and examples.
 - See `BaseLayout.md` as the first example of component documentation.
 - More docs will be added as new components are created.
+
+### **Design Configuration**
+
+For information on how to customize the visual appearance of CatalogUI components using the `design.json` configuration system, see:
+
+→ **[Design Configuration Guide](./docs/design.md)**
