@@ -37,6 +37,15 @@ Planned enhancements focus on delivering a full user-management experience throu
 
 ---
 
+## 📘 Documentation
+
+Documentation for the Users Module is located in the `apps/module-users/docs/` folder:
+
+- **[Configuration Guide](./docs/configuration.md)** — Module configuration options (userIdKey, columns, advanced search, etc.)
+- **[Design Configuration](./docs/design.md)** — Visual customization via `design.json`
+
+---
+
 ## 📄 License
 
 This module is released under the **GNU Affero General Public License (AGPL)** and maintained by **Linagora**.
