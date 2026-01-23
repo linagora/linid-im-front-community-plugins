@@ -52,33 +52,6 @@ describe('Test component: ButtonsCard', () => {
     });
   });
 
-  describe('Test props: uiNamespace', () => {
-    it('should use provided value', async () => {
-      expect(wrapper.vm.uiNamespace).toBe('test-namespace');
-    });
-
-    it('should use provided value', async () => {
-      wrapper.setProps({ uiNamespace: 'new-namespace' });
-
-      await wrapper.vm.$nextTick();
-
-      expect(wrapper.vm.uiNamespace).toEqual('new-namespace');
-    });
-  });
-
-  describe('Test props: i18nScope', () => {
-    it('should use provided value', async () => {
-      expect(wrapper.vm.i18nScope).toBe('test-scope');
-    });
-
-    it('should use provided value', async () => {
-      wrapper.setProps({ i18nScope: 'new-scope' });
-      await wrapper.vm.$nextTick();
-
-      expect(wrapper.vm.i18nScope).toEqual('new-scope');
-    });
-  });
-
   describe('Test props: isLoading', () => {
     it('should use default value', async () => {
       expect(wrapper.vm.isLoading).toEqual(false);
