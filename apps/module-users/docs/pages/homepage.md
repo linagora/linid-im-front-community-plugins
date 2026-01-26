@@ -26,7 +26,7 @@ The page supports i18n, dynamic table columns, row-level actions, and reactive p
 | Name                      | Type                             | Description                                                                                            |
 | ------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------ |
 | `users`                   | `Ref<Record<string, unknown>[]>` | Reactive array holding the list of users loaded from the backend.                                      |
-| `loading`                 | `Ref<boolean>`                   | Boolean indicating if a data load is in progress.                                                      |
+| `isLoading`               | `Ref<boolean>`                   | Boolean indicating if a data load is in progress.                                                      |
 | `filters`                 | `Ref<Record<string, unknown>>`   | Reactive object holding the current search filters.                                                    |
 | `columns`                 | `ComputedRef<QTableColumn[]>`    | Computed table columns, translated via i18n.                                                           |
 | `pagination`              | `Ref<QuasarPagination>`          | Reactive pagination object for the table (`page`, `rowsPerPage`, `sortBy`, `descending`).              |
@@ -46,9 +46,9 @@ The page supports i18n, dynamic table columns, row-level actions, and reactive p
 
 Loads a paginated list of users from the backend using `getEntities` and updates the `users` state.
 
-- Sets `loading` to `true` while the request is in progress.
+- Sets `isLoading` to `true` while the request is in progress.
 - Updates `users.value` with the fetched data.
-- Sets `loading` to `false` when done.
+- Sets `isLoading` to `false` when done.
 - On error, clears the user list and optionally shows a notification.
 
 ---
