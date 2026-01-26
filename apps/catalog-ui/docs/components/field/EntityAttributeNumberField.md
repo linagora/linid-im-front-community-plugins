@@ -21,14 +21,41 @@ scoped i18n to provide a consistent, localized, and customizable number field.
 
 ## **⚙️ Props**
 
-The component uses the shared `AttributeFieldProps` interface.
+The component uses the shared `AttributeFieldProps` interface with `FieldNumberSettings`.
 
-| Prop          | Type                          | Required | Description                                               |
-| ------------- | ----------------------------- | -------- | --------------------------------------------------------- |
-| `instanceId`  | `string`                      | Yes      | Identifier used to scope translations and contextual data |
-| `uiNamespace` | `string`                      | Yes      | Base UI design namespace for styling                      |
-| `definition`  | `LinidAttributeConfiguration` | Yes      | Attribute definition (name, type, input configuration)    |
-| `entity`      | `Record<string, unknown>`     | Yes      | Entity object containing the numeric attribute value      |
+| Prop          | Type                                               | Required | Description                                               |
+| ------------- | -------------------------------------------------- | -------- | --------------------------------------------------------- |
+| `instanceId`  | `string`                                           | Yes      | Identifier used to scope translations and contextual data |
+| `uiNamespace` | `string`                                           | Yes      | Base UI design namespace for styling                      |
+| `definition`  | `LinidAttributeConfiguration<FieldNumberSettings>` | Yes      | Attribute definition (name, type, input configuration)    |
+| `entity`      | `Record<string, unknown>`                          | Yes      | Entity object containing the numeric attribute value      |
+
+### AttributeFieldProps Interface
+
+```ts
+export interface AttributeFieldProps<T = Record<string, unknown>> extends CommonComponentProps {
+  /** Identifier of the instance used to scope translations and contextual data. */
+  instanceId: string;
+
+  /** Attribute configuration describing how the field should be rendered. */
+  definition: LinidAttributeConfiguration<T>;
+
+  /** Entity object holding the attribute value. */
+  entity: Record<string, unknown>;
+}
+```
+
+### FieldNumberSettings
+
+```ts
+export interface FieldNumberSettings extends FieldSettings {
+  /** Minimum value allowed for the input. */
+  min?: number;
+
+  /** Maximum value allowed for the input. */
+  max?: number;
+}
+```
 
 ---
 
@@ -106,6 +133,52 @@ This allows precise styling and behavior customization per numeric attribute.
 
 ---
 
+## **✅ Validation**
+
+The component implements automatic validation based on the attribute's `inputSettings`, the `definition.required` property, and the `definition.hasValidations` property.
+
+### Validation Rules
+
+Validation rules are generated automatically using `useQuasarRules`:
+
+```ts
+const rules = computed(() => useQuasarRules(props.instanceId, props.definition, ['min', 'max']));
+```
+
+### Validation Execution Order
+
+The validation rules are executed in a specific order to ensure proper validation flow:
+
+1. **Required validation** (if applicable)
+   - Depends on the `definition.required` property
+   - If `definition.required` is `true`, this validation is automatically added as the **first rule** in the validation chain
+   - Ensures that the field is not empty before proceeding to other validations
+
+2. **Specific validation rules** (in order)
+   - The rules specified in the `useQuasarRules` parameters (currently `['min', 'max']` for number fields)
+   - These rules are executed **in the order specified** in the array
+   - Execute **after** the required validation (if present)
+
+3. **Backend API validations** (if applicable)
+   - Depends on the `definition.hasValidations` property
+   - If `definition.hasValidations` is `true`, backend validation rules are added
+   - These validations are executed **last**, after all client-side validations pass
+   - Used for server-side validation logic (e.g., checking uniqueness, business rules)
+
+### Supported Validation Types
+
+| Setting    | Description                                                                          | Example          |
+| ---------- | ------------------------------------------------------------------------------------ | ---------------- |
+| `required` | Marks the field as mandatory. Setting comes from the `definition.required` property. | `required: true` |
+| `min`      | Minimum value allowed                                                                | `min: 0`         |
+| `max`      | Maximum value allowed                                                                | `max: 100`       |
+
+### Validation Behavior
+
+- Validation messages are automatically translated using the instance's i18n scope
+
+---
+
 ## **🔁 Data Flow**
 
 1. Initial value is read from `entity[definition.name]`
@@ -146,8 +219,11 @@ const definition = {
   input: 'Number',
   type: 'Integer',
   required: true,
-  hasValidations: false,
-  inputSettings: {},
+  hasValidations: true,
+  inputSettings: {
+    min: 18,
+    max: 120,
+  },
 };
 
 const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
@@ -191,7 +267,8 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 ## **📌 Notes**
 
 - The component assumes `definition.input === 'Number'`
-- Validation rules (min, max, required) should be handled externally
+- Uses `FieldNumberSettings` type for `inputSettings`, which supports `min` and `max`
+- Validation is handled internally using `useQuasarRules` and can be configured via `inputSettings`
 - Missing translations gracefully fall back to default values
 - Intended for use via `EntityAttributeField` in most scenarios
 

@@ -35,6 +35,7 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
     ui: mockUi,
   }),
   useScopedI18n: () => ({ translateOrDefault: vi.fn() }),
+  useQuasarRules: () => [vi.fn(), vi.fn(), vi.fn(), vi.fn()],
 }));
 
 describe('Test component: EntityAttributeNumberField', () => {
@@ -71,6 +72,22 @@ describe('Test component: EntityAttributeNumberField', () => {
           },
         },
       },
+    });
+  });
+
+  describe('Test computed: rules', async () => {
+    it('should return rules', async () => {
+      wrapper.setProps({
+        definition: {
+          hasValidations: true,
+          required: true,
+          inputSettings: { min: 0, max: 100 },
+        },
+      });
+
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.rules.length).toEqual(4);
     });
   });
 

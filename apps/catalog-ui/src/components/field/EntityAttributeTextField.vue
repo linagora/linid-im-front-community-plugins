@@ -35,21 +35,27 @@
     :hint="translateOrDefault('', 'hint')"
     :prefix="translateOrDefault('', 'prefix')"
     :suffix="translateOrDefault('', 'suffix')"
+    :rules="rules"
     @update:model-value="updateValue"
   />
   <!-- v8 ignore stop -->
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import type { LinidQInputProps } from '@linagora/linid-im-front-corelib';
+import {
+  useQuasarRules,
+  useScopedI18n,
+  useUiDesign,
+} from '@linagora/linid-im-front-corelib';
+import { computed, ref } from 'vue';
 import type {
   AttributeFieldProps,
   EntityAttributeFieldOutputs,
+  FieldTextSettings,
 } from '../../types/field';
-import type { LinidQInputProps } from '@linagora/linid-im-front-corelib';
-import { useScopedI18n, useUiDesign } from '@linagora/linid-im-front-corelib';
 
-const props = defineProps<AttributeFieldProps>();
+const props = defineProps<AttributeFieldProps<FieldTextSettings>>();
 const emits = defineEmits<EntityAttributeFieldOutputs>();
 
 const { ui } = useUiDesign();
@@ -62,6 +68,14 @@ const uiProps = ui<LinidQInputProps>(
 );
 const { translateOrDefault } = useScopedI18n(
   `${props.instanceId}.fields.${props.definition.name}`
+);
+
+const rules = computed(() =>
+  useQuasarRules(props.instanceId, props.definition, [
+        'minLength',
+        'maxLength',
+        'pattern',
+      ]
 );
 
 /**
