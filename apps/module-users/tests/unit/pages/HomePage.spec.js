@@ -102,11 +102,11 @@ describe('Test component: HomePage', () => {
     it('should retrieve data', async () => {
       wrapper.vm.users = [];
       wrapper.vm.pagination = {};
-      wrapper.vm.loading = true;
+      wrapper.vm.isLoading = true;
 
       await wrapper.vm.loadData();
 
-      expect(wrapper.vm.loading).toEqual(false);
+      expect(wrapper.vm.isLoading).toEqual(false);
       expect(wrapper.vm.users).toEqual([{ id: 1 }]);
       expect(mockNotify).not.toHaveBeenCalled();
       expect(wrapper.vm.pagination).toEqual('Updated pagination');
@@ -115,11 +115,11 @@ describe('Test component: HomePage', () => {
     it('should reset users on error and call Notify', async () => {
       getEntities.mockImplementation(() => Promise.reject());
       wrapper.vm.users = [{ id: 1 }];
-      wrapper.vm.loading = true;
+      wrapper.vm.isLoading = true;
 
       await wrapper.vm.loadData();
 
-      expect(wrapper.vm.loading).toEqual(false);
+      expect(wrapper.vm.isLoading).toEqual(false);
       expect(wrapper.vm.users).toEqual([]);
       expect(mockNotify).toHaveBeenCalledWith({
         type: 'negative',
