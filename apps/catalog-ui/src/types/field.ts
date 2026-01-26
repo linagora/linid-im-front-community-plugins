@@ -24,14 +24,16 @@
  * LinID Identity Manager software.
  */
 
-import type { CommonComponentProps } from './common';
 import type { LinidAttributeConfiguration } from '@linagora/linid-im-front-corelib';
+import type { CommonComponentProps } from './common';
 
 /**
  * Props for the AttributeField component.
  * Extends common component props with additional properties specific to entity attributes.
  */
-export interface AttributeFieldProps extends CommonComponentProps {
+export interface AttributeFieldProps<
+  T = Record<string, unknown>,
+> extends CommonComponentProps {
   /**
    * Identifier of the instance used to scope translations and contextual data.
    */
@@ -39,7 +41,7 @@ export interface AttributeFieldProps extends CommonComponentProps {
   /**
    * Configuration object defining the attribute.
    */
-  definition: LinidAttributeConfiguration;
+  definition: LinidAttributeConfiguration<T>;
   /**
    * The entity object containing current attribute values.
    * Used for binding and updating the form fields.
@@ -57,4 +59,36 @@ export interface EntityAttributeFieldOutputs {
    * Payload: the updated entity object.
    */
   'update:entity': [Record<string, unknown>];
+}
+
+/**
+ * Settings for input number fields.
+ */
+export interface FieldNumberSettings {
+  /**
+   * Minimum value allowed for the input.
+   */
+  min?: number;
+  /**
+   * Maximum value allowed for the input.
+   */
+  max?: number;
+}
+
+/**
+ * Settings for input text fields.
+ */
+export interface FieldTextSettings {
+  /**
+   * Minimum length allowed for the input.
+   */
+  minLength?: number;
+  /**
+   * Maximum length allowed for the input.
+   */
+  maxLength?: number;
+  /**
+   * Pattern that the input value must match.
+   */
+  pattern?: string;
 }

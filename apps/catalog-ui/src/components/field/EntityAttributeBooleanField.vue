@@ -37,13 +37,13 @@
 </template>
 
 <script setup lang="ts">
+import type { LinidQToggleProps } from '@linagora/linid-im-front-corelib';
+import { useScopedI18n, useUiDesign } from '@linagora/linid-im-front-corelib';
 import { ref } from 'vue';
 import type {
   AttributeFieldProps,
   EntityAttributeFieldOutputs,
 } from '../../types/field';
-import type { LinidQToggleProps } from '@linagora/linid-im-front-corelib';
-import { useScopedI18n, useUiDesign } from '@linagora/linid-im-front-corelib';
 
 const props = defineProps<AttributeFieldProps>();
 const emits = defineEmits<EntityAttributeFieldOutputs>();

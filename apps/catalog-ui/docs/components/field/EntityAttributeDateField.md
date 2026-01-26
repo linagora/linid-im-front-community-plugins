@@ -108,6 +108,50 @@ This allows full control over appearance, validation rules, and behavior per att
 
 ---
 
+## **✅ Validation**
+
+The component implements automatic validation based on the attribute's `inputSettings`, the `definition.required` property, and the `definition.hasValidations` property.
+
+### Validation Rules
+
+Validation rules are generated automatically using `useQuasarRules`:
+
+```ts
+const rules = computed(() => useQuasarRules(props.instanceId, props.definition, []));
+```
+
+### Validation Execution Order
+
+The validation rules are executed in a specific order to ensure proper validation flow:
+
+1. **Required validation** (if applicable)
+   - Depends on the `definition.required` property
+   - If `definition.required` is `true`, this validation is automatically added as the **first rule** in the validation chain
+   - Ensures that the field is not empty before proceeding to other validations
+
+2. **Specific validation rules** (in order)
+   - The rules specified in the `useQuasarRules` parameters (currently an empty array `[]` for date fields)
+   - These rules are executed **in the order specified** in the array
+   - Execute **after** the required validation (if present)
+
+3. **Backend API validations** (if applicable)
+   - Depends on the `definition.hasValidations` property
+   - If `definition.hasValidations` is `true`, backend validation rules are added
+   - These validations are executed **last**, after all client-side validations pass
+   - Used for server-side validation logic (e.g., checking uniqueness, business rules)
+
+### Supported Validation Types
+
+| Setting    | Description                                                                          | Example          |
+| ---------- | ------------------------------------------------------------------------------------ | ---------------- |
+| `required` | Marks the field as mandatory. Setting comes from the `definition.required` property. | `required: true` |
+
+### Validation Behavior
+
+- Validation messages are automatically translated using the instance's i18n scope
+
+---
+
 ## **🔁 Data Flow**
 
 1. Initial value is read from `entity[definition.name]`
@@ -139,7 +183,7 @@ const localValue = ref(props.entity[props.definition.name] ?? null);
 import EntityAttributeDateField from '@/components/field/EntityAttributeDateField.vue';
 
 const entity = reactive({
-  username: '1990/01/30',
+  birthdate: '1990/01/30',
 });
 
 const definition = {
@@ -147,7 +191,7 @@ const definition = {
   input: 'Date',
   type: 'Date',
   required: true,
-  hasValidations: false,
+  hasValidations: true,
   inputSettings: {},
 };
 
@@ -192,7 +236,7 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 ## **📌 Notes**
 
 - The component assumes `definition.input === 'Date'`
-- Validation rules are expected to be handled externally
+- Validation is handled internally using `useQuasarRules` with support for `required` date constraints
 - Missing translations safely fall back to default values
 - Intended for use via `EntityAttributeField`, not directly in most cases
 

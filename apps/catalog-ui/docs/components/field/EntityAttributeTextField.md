@@ -20,14 +20,44 @@ customizable, localized, and reactive text input.
 
 ## **⚙️ Props**
 
-The component uses the shared `AttributeFieldProps` interface.
+The component uses the shared `AttributeFieldProps` interface with `FieldTextSettings`.
 
-| Prop          | Type                          | Required | Description                                               |
-| ------------- | ----------------------------- | -------- | --------------------------------------------------------- |
-| `instanceId`  | `string`                      | Yes      | Identifier used to scope translations and contextual data |
-| `uiNamespace` | `string`                      | Yes      | Base UI design namespace for styling                      |
-| `definition`  | `LinidAttributeConfiguration` | Yes      | Attribute definition (name, type, input configuration)    |
-| `entity`      | `Record<string, unknown>`     | Yes      | Entity object containing the text attribute value         |
+| Prop          | Type                                             | Required | Description                                               |
+| ------------- | ------------------------------------------------ | -------- | --------------------------------------------------------- |
+| `instanceId`  | `string`                                         | Yes      | Identifier used to scope translations and contextual data |
+| `uiNamespace` | `string`                                         | Yes      | Base UI design namespace for styling                      |
+| `definition`  | `LinidAttributeConfiguration<FieldTextSettings>` | Yes      | Attribute definition (name, type, input configuration)    |
+| `entity`      | `Record<string, unknown>`                        | Yes      | Entity object containing the text attribute value         |
+
+### AttributeFieldProps Interface
+
+```ts
+export interface AttributeFieldProps<T = Record<string, unknown>> extends CommonComponentProps {
+  /** Identifier of the instance used to scope translations and contextual data. */
+  instanceId: string;
+
+  /** Attribute configuration describing how the field should be rendered. */
+  definition: LinidAttributeConfiguration<T>;
+
+  /** Entity object holding the attribute value. */
+  entity: Record<string, unknown>;
+}
+```
+
+### FieldTextSettings
+
+```ts
+export interface FieldTextSettings extends FieldSettings {
+  /** Minimum length allowed for the input. */
+  minLength?: number;
+
+  /** Maximum length allowed for the input. */
+  maxLength?: number;
+
+  /** Pattern that the input value must match. */
+  pattern?: string;
+}
+```
 
 ---
 
@@ -104,6 +134,53 @@ This allows full control over appearance, validation rules, and behavior per att
 
 ---
 
+## **✅ Validation**
+
+The component implements automatic validation based on the attribute's `inputSettings`, the `definition.required` property, and the `definition.hasValidations` property.
+
+### Validation Rules
+
+Validation rules are generated automatically using `useQuasarRules`:
+
+```ts
+const rules = computed(() => useQuasarRules(props.instanceId, props.definition, ['minLength', 'maxLength', 'pattern']));
+```
+
+### Validation Execution Order
+
+The validation rules are executed in a specific order to ensure proper validation flow:
+
+1. **Required validation** (if applicable)
+   - Depends on the `definition.required` property
+   - If `definition.required` is `true`, this validation is automatically added as the **first rule** in the validation chain
+   - Ensures that the field is not empty before proceeding to other validations
+
+2. **Specific validation rules** (in order)
+   - The rules specified in the `useQuasarRules` parameters (currently `['minLength', 'maxLength', 'pattern']` for text fields)
+   - These rules are executed **in the order specified** in the array
+   - Execute **after** the required validation (if present)
+
+3. **Backend API validations** (if applicable)
+   - Depends on the `definition.hasValidations` property
+   - If `definition.hasValidations` is `true`, backend validation rules are added
+   - These validations are executed **last**, after all client-side validations pass
+   - Used for server-side validation logic (e.g., checking uniqueness, business rules)
+
+### Supported Validation Types
+
+| Setting     | Description                                                                          | Example                      |
+| ----------- | ------------------------------------------------------------------------------------ | ---------------------------- |
+| `required`  | Marks the field as mandatory. Setting comes from the `definition.required` property. | `required: true`             |
+| `minLength` | Minimum number of characters required                                                | `minLength: 3`               |
+| `maxLength` | Maximum number of characters allowed                                                 | `maxLength: 50`              |
+| `pattern`   | Regular expression the value must match                                              | `pattern: '^[a-zA-Z0-9_]+$'` |
+
+### Validation Behavior
+
+- Validation messages are automatically translated using the instance's i18n scope
+
+---
+
 ## **🔁 Data Flow**
 
 1. Initial value is read from `entity[definition.name]`
@@ -143,8 +220,12 @@ const definition = {
   input: 'Text',
   type: 'String',
   required: true,
-  hasValidations: false,
-  inputSettings: {},
+  hasValidations: true,
+  inputSettings: {
+    minLength: 3,
+    maxLength: 20,
+    pattern: '^[a-zA-Z0-9_]+$',
+  },
 };
 
 const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
@@ -188,7 +269,8 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 ## **📌 Notes**
 
 - The component assumes `definition.input === 'Text'`
-- Validation rules are expected to be handled externally
+- Uses `FieldTextSettings` type for `inputSettings`, which supports `minLength`, `maxLength` and `pattern`
+- Validation is handled internally using `useQuasarRules` and can be configured via `inputSettings`
 - Missing translations safely fall back to default values
 - Intended for use via `EntityAttributeField`, not directly in most cases
 

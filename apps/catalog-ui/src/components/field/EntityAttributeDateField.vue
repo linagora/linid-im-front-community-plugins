@@ -35,6 +35,7 @@
     :hint="translateOrDefault('', 'hint')"
     :prefix="translateOrDefault('', 'prefix')"
     :suffix="translateOrDefault('', 'suffix')"
+    :rules="rules"
     @update:model-value="updateValue"
   >
     <template #append>
@@ -68,17 +69,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import type {
-  AttributeFieldProps,
-  EntityAttributeFieldOutputs,
-} from '../../types/field';
 import type {
   LinidQBtnProps,
   LinidQDateProps,
   LinidQInputProps,
 } from '@linagora/linid-im-front-corelib';
-import { useScopedI18n, useUiDesign } from '@linagora/linid-im-front-corelib';
+import {
+  useQuasarRules,
+  useScopedI18n,
+  useUiDesign,
+} from '@linagora/linid-im-front-corelib';
+import { computed, ref } from 'vue';
+import type {
+  AttributeFieldProps,
+  EntityAttributeFieldOutputs,
+} from '../../types/field';
 
 const props = defineProps<AttributeFieldProps>();
 const emits = defineEmits<EntityAttributeFieldOutputs>();
@@ -108,6 +113,10 @@ const uiProps = {
 
 const { t, translateOrDefault } = useScopedI18n(
   `${props.instanceId}.fields.${props.definition.name}`
+);
+
+const rules = computed(() =>
+  useQuasarRules(props.instanceId, props.definition, [])
 );
 
 /**
