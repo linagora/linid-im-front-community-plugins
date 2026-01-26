@@ -83,9 +83,15 @@ import { computed, ref } from 'vue';
 import type {
   AttributeFieldProps,
   EntityAttributeFieldOutputs,
+  FieldDateSettings,
 } from '../../types/field';
 
-const props = defineProps<AttributeFieldProps>();
+const props = withDefaults(
+  defineProps<AttributeFieldProps<FieldDateSettings>>(),
+  {
+    ignoreRules: false,
+  }
+);
 const emits = defineEmits<EntityAttributeFieldOutputs>();
 
 const { ui } = useUiDesign();
@@ -116,7 +122,9 @@ const { t, translateOrDefault } = useScopedI18n(
 );
 
 const rules = computed(() =>
-  useQuasarRules(props.instanceId, props.definition, [])
+  !props.ignoreRules && !props.definition.inputSettings?.ignoreRules
+    ? useQuasarRules(props.instanceId, props.definition, [])
+    : []
 );
 
 /**

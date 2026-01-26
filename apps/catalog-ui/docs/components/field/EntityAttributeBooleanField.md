@@ -20,14 +20,46 @@ consistent, configurable, and localized boolean input.
 
 ## **⚙️ Props**
 
-The component relies on the shared `AttributeFieldProps` interface.
+The component relies on the shared `AttributeFieldProps` interface with `FieldBooleanSettings`.
 
-| Prop          | Type                          | Required | Description                                               |
-| ------------- | ----------------------------- | -------- | --------------------------------------------------------- |
-| `instanceId`  | `string`                      | Yes      | Identifier used to scope translations and contextual data |
-| `uiNamespace` | `string`                      | Yes      | Base UI design namespace for styling                      |
-| `definition`  | `LinidAttributeConfiguration` | Yes      | Attribute definition (name, type, input configuration)    |
-| `entity`      | `Record<string, unknown>`     | Yes      | Entity object containing the boolean attribute value      |
+| Prop          | Type                                                | Required | Description                                                                  |
+| ------------- | --------------------------------------------------- | -------- | ---------------------------------------------------------------------------- |
+| `instanceId`  | `string`                                            | Yes      | Identifier used to scope translations and contextual data                    |
+| `uiNamespace` | `string`                                            | Yes      | Base UI design namespace for styling                                         |
+| `definition`  | `LinidAttributeConfiguration<FieldBooleanSettings>` | Yes      | Attribute definition (name, type, input configuration)                       |
+| `entity`      | `Record<string, unknown>`                           | Yes      | Entity object containing the boolean attribute value                         |
+| `ignoreRules` | `boolean`                                           | No       | Indicates whether to bypass validation rules for this field (default: false) |
+
+### AttributeFieldProps Interface
+
+```ts
+export interface AttributeFieldProps<T = Record<string, unknown>> extends CommonComponentProps {
+  /** Identifier of the instance used to scope translations and contextual data. */
+  instanceId: string;
+
+  /** Attribute configuration describing how the field should be rendered. */
+  definition: LinidAttributeConfiguration<T>;
+
+  /** Entity object holding the attribute value. */
+  entity: Record<string, unknown>;
+
+  /**
+   * Indicates whether to bypass validation rules for this field.
+   * When set to true, validation rules will not be applied.
+   * @default false
+   */
+  ignoreRules?: boolean;
+}
+```
+
+### FieldBooleanSettings
+
+```ts
+export interface FieldBooleanSettings extends FieldSettings {
+  /** Indicates whether to bypass validation rules for this field. */
+  ignoreRules?: boolean;
+}
+```
 
 ---
 
@@ -135,7 +167,9 @@ const definition = {
   type: 'Boolean',
   required: false,
   hasValidations: false,
-  inputSettings: {},
+  inputSettings: {
+    ignoreRules: false,
+  },
 };
 
 const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
@@ -179,7 +213,8 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 ## **📌 Notes**
 
 - The component assumes `definition.input === 'Boolean'`
-- Validation logic (required, constraints) is handled externally
+- Uses `FieldBooleanSettings` type for `inputSettings`, which supports the `ignoreRules` property
+- Boolean fields typically don't require validation rules, but validation can be bypassed via the `ignoreRules` prop or `definition.inputSettings.ignoreRules` if needed
 - Translation keys are optional and safely fallback
 - Designed to be used exclusively through `EntityAttributeField`
 

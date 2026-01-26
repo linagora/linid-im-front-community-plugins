@@ -43,9 +43,15 @@ import { ref } from 'vue';
 import type {
   AttributeFieldProps,
   EntityAttributeFieldOutputs,
+  FieldBooleanSettings,
 } from '../../types/field';
 
-const props = defineProps<AttributeFieldProps>();
+const props = withDefaults(
+  defineProps<AttributeFieldProps<FieldBooleanSettings>>(),
+  {
+    ignoreRules: false,
+  }
+);
 const emits = defineEmits<EntityAttributeFieldOutputs>();
 
 const { ui } = useUiDesign();

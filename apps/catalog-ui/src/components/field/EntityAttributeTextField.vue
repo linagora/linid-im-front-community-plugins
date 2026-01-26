@@ -55,7 +55,12 @@ import type {
   FieldTextSettings,
 } from '../../types/field';
 
-const props = defineProps<AttributeFieldProps<FieldTextSettings>>();
+const props = withDefaults(
+  defineProps<AttributeFieldProps<FieldTextSettings>>(),
+  {
+    ignoreRules: false,
+  }
+);
 const emits = defineEmits<EntityAttributeFieldOutputs>();
 
 const { ui } = useUiDesign();
@@ -71,11 +76,13 @@ const { translateOrDefault } = useScopedI18n(
 );
 
 const rules = computed(() =>
-  useQuasarRules(props.instanceId, props.definition, [
+  !props.ignoreRules && !props.definition.inputSettings?.ignoreRules
+    ? useQuasarRules(props.instanceId, props.definition, [
         'minLength',
         'maxLength',
         'pattern',
-      ]
+      ])
+    : []
 );
 
 /**

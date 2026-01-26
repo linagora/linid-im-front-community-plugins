@@ -55,7 +55,12 @@ import type {
   FieldNumberSettings,
 } from '../../types/field';
 
-const props = defineProps<AttributeFieldProps<FieldNumberSettings>>();
+const props = withDefaults(
+  defineProps<AttributeFieldProps<FieldNumberSettings>>(),
+  {
+    ignoreRules: false,
+  }
+);
 const emits = defineEmits<EntityAttributeFieldOutputs>();
 
 const { ui } = useUiDesign();
@@ -71,7 +76,9 @@ const { translateOrDefault } = useScopedI18n(
 );
 
 const rules = computed(() =>
-  useQuasarRules(props.instanceId, props.definition, ['min', 'max'])
+  !props.ignoreRules && !props.definition.inputSettings?.ignoreRules
+    ? useQuasarRules(props.instanceId, props.definition, ['min', 'max'])
+    : []
 );
 
 /**

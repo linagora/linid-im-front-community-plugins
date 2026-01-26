@@ -60,6 +60,7 @@
             :instance-id="instanceId"
             :definition="field"
             :entity="localFilters"
+            :ignore-rules="true"
             @update:entity="onFilterChange"
           />
         </div>
@@ -99,6 +100,7 @@
                 :instance-id="instanceId"
                 :definition="field"
                 :entity="localFilters"
+                :ignore-rules="true"
                 @update:entity="onFilterChange"
               />
             </div>
@@ -111,20 +113,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue';
 import type {
-  LinidQCardProps,
   LinidQBtnProps,
+  LinidQCardProps,
   LinidQIconProps,
 } from '@linagora/linid-im-front-corelib';
 import {
+  loadAsyncComponent,
   useScopedI18n,
   useUiDesign,
-  loadAsyncComponent,
 } from '@linagora/linid-im-front-corelib';
+import { computed, ref, watch } from 'vue';
 import type {
-  AdvancedSearchCardProps,
   AdvancedSearchCardOutputs,
+  AdvancedSearchCardProps,
 } from '../../types/advancedSearchCard';
 
 const props = defineProps<AdvancedSearchCardProps>();
