@@ -74,8 +74,78 @@ describe('Test component: EntityAttributeTextField', () => {
     });
   });
 
+  describe('Test props: ignoreRules', () => {
+    it('should use default value', async () => {
+      expect(wrapper.vm.ignoreRules).toEqual(false);
+    });
+
+    it('should use provided value', async () => {
+      wrapper.setProps({ ignoreRules: true });
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.ignoreRules).toEqual(true);
+    });
+  });
+
   describe('Test computed: rules', async () => {
-    it('should return rules', async () => {
+    it('should return empty array if ignoreRules property is true', async () => {
+      wrapper.setProps({
+        ignoreRules: true,
+        definition: {
+          hasValidations: true,
+          required: true,
+          inputSettings: {
+            minLength: 5,
+            maxLength: 10,
+            pattern: '^[a-zA-Z]+$',
+          },
+        },
+      });
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.rules).toEqual([]);
+    });
+
+    it('should return empty array if ignoreRules field from inputSettings is true', async () => {
+      wrapper.setProps({
+        ignoreRules: false,
+        definition: {
+          hasValidations: true,
+          required: true,
+          inputSettings: {
+            ignoreRules: true,
+            minLength: 5,
+            maxLength: 10,
+            pattern: '^[a-zA-Z]+$',
+          },
+        },
+      });
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.rules).toEqual([]);
+    });
+
+    it('should return rules if ignoreRules is false', async () => {
+      wrapper.setProps({
+        ignoreRules: false,
+        definition: {
+          hasValidations: true,
+          required: true,
+          inputSettings: {
+            ignoreRules: false,
+            minLength: 5,
+            maxLength: 10,
+            pattern: '^[a-zA-Z]+$',
+          },
+        },
+      });
+
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.rules.length).toEqual(5);
+    });
+
+    it('should return rules if ignoreRules is unset', async () => {
       wrapper.setProps({
         definition: {
           hasValidations: true,

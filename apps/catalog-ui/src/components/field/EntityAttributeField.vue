@@ -34,20 +34,23 @@
     :instance-id="instanceId"
     :definition="definition"
     :entity="entity"
+    :ignore-rules="ignoreRules"
     @update:entity="updateEntity"
   />
   <!-- v8 ignore stop -->
 </template>
 
 <script setup lang="ts">
+import type { Component } from 'vue';
+import { computed, defineAsyncComponent } from 'vue';
 import type {
   AttributeFieldProps,
   EntityAttributeFieldOutputs,
 } from '../../types/field';
-import type { Component } from 'vue';
-import { computed, defineAsyncComponent } from 'vue';
 
-const props = defineProps<AttributeFieldProps>();
+const props = withDefaults(defineProps<AttributeFieldProps>(), {
+  ignoreRules: false,
+});
 const emits = defineEmits<EntityAttributeFieldOutputs>();
 
 const fieldTypes: Record<string, Component> = {

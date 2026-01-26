@@ -22,12 +22,13 @@ customizable, localized, and reactive text input.
 
 The component uses the shared `AttributeFieldProps` interface with `FieldTextSettings`.
 
-| Prop          | Type                                             | Required | Description                                               |
-| ------------- | ------------------------------------------------ | -------- | --------------------------------------------------------- |
-| `instanceId`  | `string`                                         | Yes      | Identifier used to scope translations and contextual data |
-| `uiNamespace` | `string`                                         | Yes      | Base UI design namespace for styling                      |
-| `definition`  | `LinidAttributeConfiguration<FieldTextSettings>` | Yes      | Attribute definition (name, type, input configuration)    |
-| `entity`      | `Record<string, unknown>`                        | Yes      | Entity object containing the text attribute value         |
+| Prop          | Type                                             | Required | Description                                                                  |
+| ------------- | ------------------------------------------------ | -------- | ---------------------------------------------------------------------------- |
+| `instanceId`  | `string`                                         | Yes      | Identifier used to scope translations and contextual data                    |
+| `uiNamespace` | `string`                                         | Yes      | Base UI design namespace for styling                                         |
+| `definition`  | `LinidAttributeConfiguration<FieldTextSettings>` | Yes      | Attribute definition (name, type, input configuration)                       |
+| `entity`      | `Record<string, unknown>`                        | Yes      | Entity object containing the text attribute value                            |
+| `ignoreRules` | `boolean`                                        | No       | Indicates whether to bypass validation rules for this field (default: false) |
 
 ### AttributeFieldProps Interface
 
@@ -41,6 +42,13 @@ export interface AttributeFieldProps<T = Record<string, unknown>> extends Common
 
   /** Entity object holding the attribute value. */
   entity: Record<string, unknown>;
+
+  /**
+   * Indicates whether to bypass validation rules for this field.
+   * When set to true, validation rules will not be applied.
+   * @default false
+   */
+  ignoreRules?: boolean;
 }
 ```
 
@@ -56,6 +64,9 @@ export interface FieldTextSettings extends FieldSettings {
 
   /** Pattern that the input value must match. */
   pattern?: string;
+
+  /** Indicates whether to bypass validation rules for this field. */
+  ignoreRules?: boolean;
 }
 ```
 
@@ -143,7 +154,7 @@ The component implements automatic validation based on the attribute's `inputSet
 Validation rules are generated automatically using `useQuasarRules`:
 
 ```ts
-const rules = computed(() => useQuasarRules(props.instanceId, props.definition, ['minLength', 'maxLength', 'pattern']));
+const rules = computed(() => (!props.ignoreRules && !props.definition.inputSettings?.ignoreRules ? useQuasarRules(props.instanceId, props.definition, ['minLength', 'maxLength', 'pattern']) : []));
 ```
 
 ### Validation Execution Order
@@ -168,15 +179,18 @@ The validation rules are executed in a specific order to ensure proper validatio
 
 ### Supported Validation Types
 
-| Setting     | Description                                                                          | Example                      |
-| ----------- | ------------------------------------------------------------------------------------ | ---------------------------- |
-| `required`  | Marks the field as mandatory. Setting comes from the `definition.required` property. | `required: true`             |
-| `minLength` | Minimum number of characters required                                                | `minLength: 3`               |
-| `maxLength` | Maximum number of characters allowed                                                 | `maxLength: 50`              |
-| `pattern`   | Regular expression the value must match                                              | `pattern: '^[a-zA-Z0-9_]+$'` |
+| Setting       | Description                                                                          | Example                      |
+| ------------- | ------------------------------------------------------------------------------------ | ---------------------------- |
+| `required`    | Marks the field as mandatory. Setting comes from the `definition.required` property. | `required: true`             |
+| `minLength`   | Minimum number of characters required                                                | `minLength: 3`               |
+| `maxLength`   | Maximum number of characters allowed                                                 | `maxLength: 50`              |
+| `pattern`     | Regular expression the value must match                                              | `pattern: '^[a-zA-Z0-9_]+$'` |
+| `ignoreRules` | Bypass validation when set to `true`                                                 | `ignoreRules: true`          |
 
 ### Validation Behavior
 
+- If `ignoreRules` (prop) and `definition.inputSettings.ignoreRules` are both `false` or undefined, validation rules are applied
+- If `ignoreRules` (prop) or `definition.inputSettings.ignoreRules` est `true`, no validation is performed
 - Validation messages are automatically translated using the instance's i18n scope
 
 ---
@@ -225,6 +239,7 @@ const definition = {
     minLength: 3,
     maxLength: 20,
     pattern: '^[a-zA-Z0-9_]+$',
+    ignoreRules: false,
   },
 };
 
@@ -269,7 +284,7 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 ## **📌 Notes**
 
 - The component assumes `definition.input === 'Text'`
-- Uses `FieldTextSettings` type for `inputSettings`, which supports `minLength`, `maxLength` and `pattern`
+- Uses `FieldTextSettings` type for `inputSettings`, which supports `minLength`, `maxLength`, `pattern`, and `ignoreRules`
 - Validation is handled internally using `useQuasarRules` and can be configured via `inputSettings`
 - Missing translations safely fall back to default values
 - Intended for use via `EntityAttributeField`, not directly in most cases

@@ -47,6 +47,12 @@ export interface AttributeFieldProps<
    * Used for binding and updating the form fields.
    */
   entity: Record<string, unknown>;
+  /**
+   * Indicates whether to bypass validation rules for this field.
+   * When set to true, validation rules will not be applied.
+   * @default false
+   */
+  ignoreRules?: boolean;
 }
 
 /**
@@ -62,9 +68,20 @@ export interface EntityAttributeFieldOutputs {
 }
 
 /**
+ * Settings related to attribute validation.
+ */
+export interface FieldSettings extends Record<string, unknown> {
+  /**
+   * Indicates whether to bypass validation rules for this field.
+   * When set to true, validation rules will not be applied.
+   */
+  ignoreRules?: boolean;
+}
+
+/**
  * Settings for input number fields.
  */
-export interface FieldNumberSettings {
+export interface FieldNumberSettings extends FieldSettings {
   /**
    * Minimum value allowed for the input.
    */
@@ -78,7 +95,7 @@ export interface FieldNumberSettings {
 /**
  * Settings for input text fields.
  */
-export interface FieldTextSettings {
+export interface FieldTextSettings extends FieldSettings {
   /**
    * Minimum length allowed for the input.
    */
@@ -92,3 +109,13 @@ export interface FieldTextSettings {
    */
   pattern?: string;
 }
+
+/**
+ * Settings for input date fields.
+ */
+export type FieldDateSettings = FieldSettings;
+
+/**
+ * Settings for input boolean fields.
+ */
+export type FieldBooleanSettings = FieldSettings;

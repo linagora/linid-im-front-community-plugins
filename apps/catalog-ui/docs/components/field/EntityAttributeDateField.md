@@ -20,14 +20,46 @@ customizable, localized, and reactive date input.
 
 ## **⚙️ Props**
 
-The component uses the shared `AttributeFieldProps` interface.
+The component uses the shared `AttributeFieldProps` interface with `FieldDateSettings`.
 
-| Prop          | Type                          | Required | Description                                               |
-| ------------- | ----------------------------- | -------- | --------------------------------------------------------- |
-| `instanceId`  | `string`                      | Yes      | Identifier used to scope translations and contextual data |
-| `uiNamespace` | `string`                      | Yes      | Base UI design namespace for styling                      |
-| `definition`  | `LinidAttributeConfiguration` | Yes      | Attribute definition (name, type, input configuration)    |
-| `entity`      | `Record<string, unknown>`     | Yes      | Entity object containing the date attribute value         |
+| Prop          | Type                                             | Required | Description                                                                  |
+| ------------- | ------------------------------------------------ | -------- | ---------------------------------------------------------------------------- |
+| `instanceId`  | `string`                                         | Yes      | Identifier used to scope translations and contextual data                    |
+| `uiNamespace` | `string`                                         | Yes      | Base UI design namespace for styling                                         |
+| `definition`  | `LinidAttributeConfiguration<FieldDateSettings>` | Yes      | Attribute definition (name, type, input configuration)                       |
+| `entity`      | `Record<string, unknown>`                        | Yes      | Entity object containing the date attribute value                            |
+| `ignoreRules` | `boolean`                                        | No       | Indicates whether to bypass validation rules for this field (default: false) |
+
+### AttributeFieldProps Interface
+
+```ts
+export interface AttributeFieldProps<T = Record<string, unknown>> extends CommonComponentProps {
+  /** Identifier of the instance used to scope translations and contextual data. */
+  instanceId: string;
+
+  /** Attribute configuration describing how the field should be rendered. */
+  definition: LinidAttributeConfiguration<T>;
+
+  /** Entity object holding the attribute value. */
+  entity: Record<string, unknown>;
+
+  /**
+   * Indicates whether to bypass validation rules for this field.
+   * When set to true, validation rules will not be applied.
+   * @default false
+   */
+  ignoreRules?: boolean;
+}
+```
+
+### FieldDateSettings
+
+```ts
+export interface FieldDateSettings extends FieldSettings {
+  /** Indicates whether to bypass validation rules for this field. */
+  ignoreRules?: boolean;
+}
+```
 
 ---
 
@@ -117,7 +149,7 @@ The component implements automatic validation based on the attribute's `inputSet
 Validation rules are generated automatically using `useQuasarRules`:
 
 ```ts
-const rules = computed(() => useQuasarRules(props.instanceId, props.definition, []));
+const rules = computed(() => (!props.ignoreRules && !props.definition.inputSettings?.ignoreRules ? useQuasarRules(props.instanceId, props.definition, []) : []));
 ```
 
 ### Validation Execution Order
@@ -142,12 +174,15 @@ The validation rules are executed in a specific order to ensure proper validatio
 
 ### Supported Validation Types
 
-| Setting    | Description                                                                          | Example          |
-| ---------- | ------------------------------------------------------------------------------------ | ---------------- |
-| `required` | Marks the field as mandatory. Setting comes from the `definition.required` property. | `required: true` |
+| Setting       | Description                                                                          | Example             |
+| ------------- | ------------------------------------------------------------------------------------ | ------------------- |
+| `required`    | Marks the field as mandatory. Setting comes from the `definition.required` property. | `required: true`    |
+| `ignoreRules` | Bypass validation when set to `true`                                                 | `ignoreRules: true` |
 
 ### Validation Behavior
 
+- If `ignoreRules` (prop) and `definition.inputSettings.ignoreRules` are both `false` or undefined, validation rules are applied
+- If `ignoreRules` (prop) or `definition.inputSettings.ignoreRules` est `true`, no validation is performed
 - Validation messages are automatically translated using the instance's i18n scope
 
 ---
@@ -192,7 +227,9 @@ const definition = {
   type: 'Date',
   required: true,
   hasValidations: true,
-  inputSettings: {},
+  inputSettings: {
+    ignoreRules: false,
+  },
 };
 
 const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
@@ -236,6 +273,7 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 ## **📌 Notes**
 
 - The component assumes `definition.input === 'Date'`
+- Uses `FieldDateSettings` type for `inputSettings`, which supports `ignoreRules`
 - Validation is handled internally using `useQuasarRules` with support for `required` date constraints
 - Missing translations safely fall back to default values
 - Intended for use via `EntityAttributeField`, not directly in most cases

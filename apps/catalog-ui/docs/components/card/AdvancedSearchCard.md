@@ -143,7 +143,8 @@ Example:
 - **Animated:** Smooth expand/collapse transitions for advanced section
 - **i18n ready:** Fully internationalized with scoped translations
 - **Test-friendly:** Includes `data-cy` attributes for E2E testing
-- **Lazy loading:** Field components are loaded asynchronously for better performance
+- **Lazy loading:** Field components are loaded asynchronously using `loadAsyncComponent` for better performance
+- **Smart validation:** All filter fields (default and advanced) automatically ignore validation rules since they're used for searching, not data entry
 
 ---
 
@@ -235,7 +236,8 @@ watch(
 
 - **Field resolution:** Fields are matched by name from the `fields` array. If a field name in `defaultFieldsNames` or `advancedFieldsNames` doesn't exist in `fields`, it will be silently skipped
 - **Empty advanced section:** If `advancedFieldsNames` is empty, the toggle button is not displayed
-- **Lazy loading:** The `EntityAttributeField` component is loaded asynchronously to improve initial load time
+- **Lazy loading:** The `EntityAttributeField` component is loaded using `loadAsyncComponent('catalogUI/EntityAttributeField')` to improve initial load time
+- **Validation rules:** All filter fields (both default and advanced) automatically ignore validation rules because the prop `:ignore-rules="true"` is passed to each field component. This ensures that no validation is performed on filter fields, since they are used for searching, not data entry
 - **Two-way binding:** The component maintains a local copy of filters and syncs with the parent through props and events
 - **External changes:** The component watches for external changes to the `filters` prop and updates its local state accordingly
 - **UI namespacing:** Each field has its own UI namespace for granular styling control

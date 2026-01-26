@@ -64,6 +64,19 @@ describe('Test component: EntityAttributeBooleanField', () => {
     });
   });
 
+  describe('Test props: ignoreRules', () => {
+    it('should use default value', async () => {
+      expect(wrapper.vm.ignoreRules).toEqual(false);
+    });
+
+    it('should use provided value', async () => {
+      wrapper.setProps({ ignoreRules: true });
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.ignoreRules).toEqual(true);
+    });
+  });
+
   describe('Test function: updateEntity', () => {
     it('should emit event', () => {
       wrapper.vm.localValue = true;

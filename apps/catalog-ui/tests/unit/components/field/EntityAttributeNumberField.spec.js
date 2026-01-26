@@ -75,8 +75,64 @@ describe('Test component: EntityAttributeNumberField', () => {
     });
   });
 
+  describe('Test props: ignoreRules', () => {
+    it('should use default value', async () => {
+      expect(wrapper.vm.ignoreRules).toEqual(false);
+    });
+
+    it('should use provided value', async () => {
+      wrapper.setProps({ ignoreRules: true });
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.ignoreRules).toEqual(true);
+    });
+  });
+
   describe('Test computed: rules', async () => {
-    it('should return rules', async () => {
+    it('should return empty array if ignoreRules property is true', async () => {
+      wrapper.setProps({
+        ignoreRules: true,
+        definition: {
+          hasValidations: true,
+          required: true,
+          inputSettings: { min: 0, max: 100 },
+        },
+      });
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.rules).toEqual([]);
+    });
+
+    it('should return empty array if ignoreRules field from inputSettings is true', async () => {
+      wrapper.setProps({
+        ignoreRules: false,
+        definition: {
+          hasValidations: true,
+          required: true,
+          inputSettings: { ignoreRules: true, min: 0, max: 100 },
+        },
+      });
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.rules).toEqual([]);
+    });
+
+    it('should return rules if ignoreRules is false', async () => {
+      wrapper.setProps({
+        ignoreRules: false,
+        definition: {
+          hasValidations: true,
+          required: true,
+          inputSettings: { min: 0, max: 100 },
+        },
+      });
+
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.rules.length).toEqual(4);
+    });
+
+    it('should return rules if ignoreRules is unset', async () => {
       wrapper.setProps({
         definition: {
           hasValidations: true,
