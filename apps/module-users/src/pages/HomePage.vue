@@ -48,7 +48,7 @@
       :ui-namespace="uiNamespace"
       :rows="users"
       :columns="columns"
-      :loading="loading"
+      :loading="isLoading"
       :row-key="options.userIdKey"
       @request="onRequest"
     >
@@ -100,7 +100,7 @@ const options = getModuleHostConfiguration<ModuleUsersOptions>(
 
 const { t } = useScopedI18n(`${instanceId.value}.HomePage`);
 const users = ref<Record<string, unknown>[]>([]);
-const loading = ref<boolean>(false);
+const isLoading = ref<boolean>(false);
 const { Notify } = useNotify();
 
 const { toPagination, toQuasarPagination } = usePagination();
@@ -180,7 +180,7 @@ function buildQueryParams(): QueryFilter {
  * @returns A promise that resolves when the data has been loaded and the loading state has been updated.
  */
 function loadData(): Promise<void> {
-  loading.value = true;
+  isLoading.value = true;
 
   return getEntities<Record<string, unknown>>(
     instanceId.value,
@@ -199,7 +199,7 @@ function loadData(): Promise<void> {
       });
     })
     .finally(() => {
-      loading.value = false;
+      isLoading.value = false;
     });
 }
 
