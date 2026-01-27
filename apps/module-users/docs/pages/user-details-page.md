@@ -1,76 +1,78 @@
-# **UserDetailsPage 👤**
+# UserDetailsPage.vue
 
-The **UserDetailsPage** component displays detailed information about a specific user using the `EntityDetailsCard` component from the catalog. It provides navigation options to edit the user or return to the user list.
+## Overview
 
----
+`UserDetailsPage.vue` is a page component responsible for displaying detailed information about a specific user in the LinID Identity Manager. It loads user data by ID, renders it using the `EntityDetailsCard` component, and provides navigation options to edit the user or return to the user list. The component handles loading states, errors, and uses configurable field ordering from the module configuration.
 
-## **🎯 Purpose**
+## Features
 
-- Display comprehensive user details in a structured card format
-- Manage loading states during data fetching
-- Provide navigation controls (back to list, edit user)
-- Use configurable field ordering and display options from module configuration
+- Loads user data by ID when the page is mounted.
+- Displays user attributes in a structured card format using the `EntityDetailsCard` component (loaded asynchronously).
+- Supports configurable field ordering via `fieldOrder` and `showRemainingFields` options from module configuration.
+- Provides navigation controls (back to list, edit user).
+- Displays notifications for success and error cases using the notification system.
+- Uses i18n for all user-facing text.
 
----
+## Props and Data
 
-## **📋 Features**
+- **user**: Reactive object holding the user's data (populated on load).
+- **isLoading**: Boolean indicating if a load operation is in progress.
+- **entityDetailsCard**: Asynchronously loaded reference to the `EntityDetailsCard` component.
+- **buttonsCard**: Asynchronously loaded reference to the `ButtonsCard` component.
+- **instanceId**: Computed from the route meta, used for configuration and i18n scope.
+- **userId**: Computed from the route params, used to fetch the user.
+- **options**: Module configuration options including `userIdKey`, `fieldOrder`, and `showRemainingFields`.
+- **uiNamespace**: String namespace for UI design props and i18n.
 
-### **User Details Display**
+## Methods
 
-- Uses `EntityDetailsCard` from the catalog to display user attributes
-- Supports configurable field ordering via `fieldOrder` option
-- Can show all remaining fields or only selected ones via `showRemainingFields` option
-- Handles loading states with skeleton placeholders
+- **loadData()**: Loads the user entity by ID and updates the `user` state. On error, shows a notification and redirects to the user list page.
+- **goToEdit()**: Navigates to the edit page for the current user.
+- **goBack()**: Navigates back to the user list page.
 
-### **Navigation Controls**
+## Notifications
 
-- **Back Button**: Returns to the user list page
-- **Edit Button**: Navigates to the edit page for the current user
+- On load error: Shows a negative notification with an error message and redirects to the user list page.
 
-### **Error Handling**
+## Routing
 
-- Displays notification on data fetch errors
-- Automatically redirects to user list on error
+- On load error: Redirects to the user list page.
+- On edit button click: Navigates to `/users/:id/edit`.
+- On back button click: Navigates to the user list page.
 
----
+## Usage Example
 
-## **⚙️ Configuration**
+This page is typically registered in the module's routes as follows:
 
-The page behavior is controlled by the module configuration. See [configuration.md](../configuration.md) for details.
+```js
+{
+	path: ':id',
+	component: 'moduleUsers/UserDetailsPage',
+	meta: {
+		instanceId: 'users',
+	},
+}
+```
 
-### **Key Configuration Options**
+## Dependencies
 
-| Option                | Type       | Description                                                                 |
-| --------------------- | ---------- | --------------------------------------------------------------------------- |
-| `userIdKey`           | `string`   | The property name used to identify users (e.g., 'userId', 'id', 'uid')      |
-| `fieldOrder`          | `string[]` | Ordered list of user attributes to display first in the details card        |
-| `showRemainingFields` | `boolean`  | If true, displays all attributes not in `fieldOrder` after the ordered ones |
+- `@linagora/linid-im-front-corelib` for core utilities, notification, async component loading, and entity loading.
+- `vue-router` for navigation and route information.
+- `EntityDetailsCard` component from the catalog UI (loaded asynchronously).
+- `ButtonsCard` component from the catalog UI (loaded asynchronously).
 
----
+## Internationalization
 
-## **🌍 Internationalization**
+All user-facing text is translated using the i18n scope `${instanceId}.UserDetailsPage`.
 
-The page uses scoped translations under `{instanceId}.UserDetailsPage`:
-
-### **Required Translation Keys**
+Required translation keys:
 
 ```json
 {
   "UserDetailsPage": {
     "title": "User Details",
     "edit": "Edit",
-    "error": "Failed to load user details"
-  }
-}
-```
-
-### **EntityDetailsCard Translations**
-
-The `EntityDetailsCard` component requires translations under `{instanceId}.UserDetailsPage.EntityDetailsCard`:
-
-```json
-{
-  "UserDetailsPage": {
+    "error": "Failed to load user details",
     "EntityDetailsCard": {
       "title": "User informations",
       "attributes": {
@@ -87,175 +89,11 @@ The `EntityDetailsCard` component requires translations under `{instanceId}.User
 
 **Note**: Add translation keys for each field that will be displayed based on your `fieldOrder` and user data structure.
 
----
+## Example Workflow
 
-## **📊 Data Flow**
-
-### **Component Lifecycle**
-
-1. **Mount**: Component loads user data via `loadData()` on mount
-2. **Loading**: `isLoading` is set to `true` during data fetch
-3. **Success**: User data is stored in `user` ref, `isLoading` set to `false`
-4. **Error**: Notification shown, user redirected to list page
-
-### **Loading State Management**
-
-The loading state is owned and managed by the page:
-
-```typescript
-// Owned by UserDetailsPage
-const isLoading = ref<boolean>(false);
-
-// Passed to EntityDetailsCard
-<component
-  :is="entityDetailsCard"
-  :is-loading="isLoading"
-  ...
-/>
-```
-
----
-
-## **🧩 Configuration Examples**
-
-### **Example 1: Display Only Selected Fields**
-
-```json
-{
-  "options": {
-    "userIdKey": "userId",
-    "fieldOrder": ["email", "username", "createdAt"],
-    "showRemainingFields": false
-  }
-}
-```
-
-**Result**: Only `email`, `username`, and `createdAt` are displayed in that order.
-
-### **Example 2: Display All Fields with Priority Order**
-
-```json
-{
-  "options": {
-    "userIdKey": "userId",
-    "fieldOrder": ["email", "username"],
-    "showRemainingFields": true
-  }
-}
-```
-
-**Result**: `email` and `username` are shown first, followed by all other user attributes.
-
-### **Example 3: Display All Fields (No Priority)**
-
-```json
-{
-  "options": {
-    "userIdKey": "userId",
-    "fieldOrder": [],
-    "showRemainingFields": true
-  }
-}
-```
-
-**Result**: All user attributes are displayed in their natural order from the data object.
-
----
-
-## **🛣️ Route Parameters**
-
-The page uses the `:id` route parameter to identify which user to load:
-
-```
-/users/:id  → User details page
-```
-
-The value from `route.params.id` is used to fetch the user data via `getEntityById()`.
-
----
-
-## **🎨 UI Customization**
-
-The page uses the UI design system for customization. All design properties can be configured via the UI namespace.
-
-### **UI Namespaces**
-
-| Element             | Namespace                                                   |
-| ------------------- | ----------------------------------------------------------- |
-| Entity Details Card | `{instanceId}.user-details-page.entity-details-card`        |
-| Edit Button         | `{instanceId}.user-details-page.edit-button`                |
-| Buttons Card        | `{instanceId}.user-details-page` (inherited by ButtonsCard) |
-
-### **Customization Example**
-
-```json
-{
-  "moduleUsers": {
-    "user-details-page": {
-      "edit-button": {
-        "color": "primary",
-        "icon": "edit",
-        "flat": true
-      },
-      "entity-details-card": {
-        "flat": true,
-        "bordered": true
-      }
-    }
-  }
-}
-```
-
----
-
-## **🧪 Testing**
-
-The component includes comprehensive unit tests covering:
-
-- User data loading
-- Loading state management
-- Error handling and notifications
-- Navigation functions (edit, back)
-
-See [UserDetailsPage.spec.js](../../tests/unit/pages/UserDetailsPage.spec.js) for test implementation.
-
----
-
-## **✅ Best Practices**
-
-### **1. Field Ordering**
-
-- Order fields by importance (most important first)
-- Consider user workflows when ordering fields
-- Use `showRemainingFields: true` for admin/debug views
-
-### **2. Translations**
-
-- Provide translations for all fields that might appear
-- Use meaningful, user-friendly labels
-- Keep translations consistent across pages
-
-### **3. Error Handling**
-
-- Customize error messages per locale
-- Provide clear guidance when errors occur
-- Log errors for debugging (when appropriate)
-
----
-
-## **🐛 Troubleshooting**
-
-### **Issue**: Fields not displaying
-
-- **Check**: Verify field names in `fieldOrder` match property names in user data
-- **Check**: Ensure translations exist for each field under `EntityDetailsCard.attributes`
-
-### **Issue**: Incorrect user loaded
-
-- **Check**: Verify `userIdKey` matches the identifier property in your data
-- **Check**: Confirm route parameter is being passed correctly
-
-### **Issue**: Loading state stuck
-
-- **Check**: Verify API endpoint returns data successfully
-- **Check**: Review network errors in browser console
+1. On mount, the page loads the user data by ID using `getEntityById`.
+2. User data is displayed in the `EntityDetailsCard` with fields ordered according to module configuration.
+3. Loading state is displayed while fetching data.
+4. On load error, a notification is shown and the user is redirected to the user list page.
+5. If the user clicks "Edit", they are navigated to the edit page for that user.
+6. If the user clicks the back button, they are navigated back to the user list page.
