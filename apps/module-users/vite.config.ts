@@ -13,7 +13,6 @@ export default defineConfig({
     quasar(),
     federation({
       name: 'moduleUsers',
-      publicPath: 'http://localhost:5002/',
       filename: 'remoteEntry.js',
       manifest: true,
       exposes: {
