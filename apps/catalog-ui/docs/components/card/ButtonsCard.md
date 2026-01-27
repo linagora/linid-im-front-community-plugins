@@ -332,7 +332,7 @@ Example:
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import ButtonsCard from '@/components/card/ButtonsCard.vue';
-import { saveEntity } from '@linagora/card/linid-im-front-corelib';
+import { saveEntity } from '@linagora/linid-im-front-corelib';
 
 const router = useRouter();
 const isLoading = ref(false);
