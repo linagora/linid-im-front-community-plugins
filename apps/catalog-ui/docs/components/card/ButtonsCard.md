@@ -18,13 +18,15 @@ It leverages Quasar's `QCard` and `QBtn` components to offer a consistent action
 
 ## **⚙️ Props**
 
-| Prop                | Type      | Required | Default | Description                            |
-| ------------------- | --------- | -------- | ------- | -------------------------------------- |
-| `uiNamespace`       | `string`  | Yes      | -       | UI design namespace for custom styling |
-| `i18nScope`         | `string`  | Yes      | -       | i18n scope for translations            |
-| `isLoading`         | `boolean` | No       | `false` | Loading state for the confirm button   |
-| `showConfirmButton` | `boolean` | No       | `true`  | Whether to show the confirm button     |
-| `showCancelButton`  | `boolean` | No       | `true`  | Whether to show the cancel button      |
+| Prop                | Type      | Required | Default  | Description                                       |
+| ------------------- | --------- | -------- | -------- | ------------------------------------------------- |
+| `uiNamespace`       | `string`  | Yes      | -        | UI design namespace for custom styling            |
+| `i18nScope`         | `string`  | Yes      | -        | i18n scope for translations                       |
+| `isLoading`         | `boolean` | No       | `false`  | Loading state for the confirm button              |
+| `showConfirmButton` | `boolean` | No       | `true`   | Whether to show the confirm button                |
+| `showCancelButton`  | `boolean` | No       | `true`   | Whether to show the cancel button                 |
+| `isDisabled`        | `boolean` | No       | `false`  | Whether to disable the confirm button             |
+| `confirmBtnType`    | `string`  | No       | `button` | Type of the confirm button (`button` or `submit`) |
 
 ### ButtonsCardProps Interface
 
@@ -40,6 +42,10 @@ export interface ButtonsCardProps {
   showConfirmButton?: boolean;
   /** Whether to show the cancel button. */
   showCancelButton?: boolean;
+  /** Whether to disable the confirm button. */
+  isDisabled?: boolean;
+  /** Type of the confirm button (`button` or `submit`). */
+  confirmBtnType?: string;
 }
 ```
 
@@ -90,7 +96,7 @@ Replace the default cancel and confirm buttons completely with your own buttons:
 **Important:** When using the default slot:
 
 - The `@confirm` and `@cancel` events will **never be emitted**
-- The `isLoading`, `showCancelButton`, and `showConfirmButton` props have **no effect**
+- The `isLoading`, `showCancelButton`, `showConfirmButton`, `isDisabled`, and `confirmBtnType` props have **no effect**
 - You must handle all button actions directly via `@click` handlers on your custom buttons
 
 ---
@@ -290,7 +296,7 @@ The component uses scoped i18n with the following translation keys:
 - `{i18nScope}.ButtonsCard.title` - Title displayed in the card header
 - `{i18nScope}.ButtonsCard.confirm` - Label for the confirm button
 - `{i18nScope}.ButtonsCard.cancel` - Label for the cancel button
-- `{i18nScope}.ButtonsCard.confirmLoading` - Label shown during loading state for the confirm button
+- `{i18nScope}.ButtonsCard.confirmLoading` - Label shown during loading state (displayed with hourglass spinner)
 
 **Note :**
 If the translation for the title is empty or missing, the title section will not be displayed in the card (see implementation: `v-if="t('title')"`).
@@ -356,13 +362,17 @@ function handleCancel() {
 </script>
 
 <template>
-  <ButtonsCard
-    ui-namespace="edit-user-page"
-    i18n-scope="moduleUsers.EditUserPage"
-    :is-loading="isLoading"
-    @confirm="handleConfirm"
-    @cancel="handleCancel"
-  />
+  <q-form @submit="handleConfirm">
+    <!-- Form fields here -->
+
+    <ButtonsCard
+      ui-namespace="edit-user-page"
+      i18n-scope="moduleUsers.EditUserPage"
+      :is-loading="isLoading"
+      confirm-btn-type="submit"
+      @cancel="handleCancel"
+    />
+  </q-form>
 </template>
 ```
 
@@ -472,9 +482,11 @@ async function handleDelete(id: string) {
 - **Button visibility:** Use `showCancelButton` and `showConfirmButton` props to control which default buttons are displayed. Both default to `true`
 - **Default slot behavior:** When using the default slot, you completely replace the cancel and confirm buttons. The `confirm` and `cancel` events will not be emitted, and the `showCancelButton`/`showConfirmButton` props have no effect
 - **Loading state management:** The parent is responsible for managing and passing the `isLoading` state (only applies to default confirm button)
+- **Disabled state:** The `isDisabled` prop disables the confirm button (e.g., when data hasn't changed). The button is also disabled when `isLoading` is true
+- **Button type:** Use `confirmBtnType="submit"` when used within a `q-form` to trigger form submission. Both the `@confirm` event and the form's `@submit` event will be emitted. Use `confirmBtnType="button"` (default) to only emit the `@confirm` event without triggering form submission
 - **No internal state:** The component does not manage any internal state for loading or form data
 - **Scoped translations:** Use the `i18nScope` prop to namespace your translations properly
-- **Loading UI:** When `isLoading` is true, the default confirm button shows a spinner and changes its label
+- **Loading UI:** When `isLoading` is true, the confirm button displays an hourglass spinner (`q-spinner-hourglass`) alongside the `confirmLoading` translation text
 - **Template coverage:** The template section is ignored from code coverage (`v8 ignore`) as it contains only presentation logic
 - **Flexibility:** Ideal for forms, dialogs, and any action-requiring interfaces. Use named slots for additions, visibility props for hiding buttons, or the default slot for complete replacement
 - **Slot positioning:** Use slots strategically to maintain a logical button order and user experience
