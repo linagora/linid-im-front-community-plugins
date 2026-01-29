@@ -29,7 +29,7 @@ import { shallowMount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import EditUserPage from '../../../src/pages/EditUserPage.vue';
 
-const mockT = vi.fn((key) => key);
+const mockT = vi.fn((key) => `translated_${key}`);
 const mockPush = vi.fn();
 const mockNotify = vi.fn();
 const mockRoute = {
@@ -59,6 +59,58 @@ vi.mock('@linagora/linid-im-front-corelib', async () => {
     }),
     useNotify: () => ({
       Notify: mockNotify,
+    }),
+    useUiDesign: () => ({
+      ui: () => ({}),
+    }),
+    getEntityConfiguration: vi.fn(async () => ({
+      attributes: [
+        {
+          name: 'enabled',
+          type: 'Boolean',
+          required: true,
+          hasValidations: false,
+          input: 'Boolean',
+        },
+        {
+          name: 'email',
+          type: 'String',
+          required: true,
+          hasValidations: true,
+          input: 'Text',
+          inputSettings: {
+            maxLength: 255,
+          },
+        },
+        {
+          name: 'firstName',
+          type: 'String',
+          required: true,
+          hasValidations: true,
+          input: 'Text',
+          inputSettings: {
+            maxLength: 100,
+          },
+        },
+      ],
+    })),
+    getModuleHostConfiguration: () => ({
+      entity: 'user',
+      options: {
+        userIdKey: 'id',
+        formSections: [
+          {
+            id: 'secondary',
+            order: 2,
+            fieldsOrder: ['enabled'],
+          },
+          {
+            id: 'main',
+            order: 1,
+            fieldsOrder: ['firstName', 'email'],
+          },
+        ],
+      },
     }),
   };
 });
@@ -108,16 +160,88 @@ describe('Test component: EditUserPage', () => {
     });
   });
 
+  describe('Test computed: uiNamespace', () => {
+    it('should retrieve valid uiNamespace', () => {
+      expect(wrapper.vm.uiNamespace).toBe('test-instance-id.edit-user-page');
+    });
+  });
+
+  describe('Test computed: moduleConfig', () => {
+    it('should retrieve module configuration from module host configuration', () => {
+      const moduleConfig = wrapper.vm.moduleConfig;
+      expect(moduleConfig).toBeDefined();
+      expect(moduleConfig.entity).toBe('user');
+      expect(moduleConfig.options.userIdKey).toBe('id');
+    });
+  });
+
+  describe('Test computed: options', () => {
+    it('should retrieve options from module host configuration', () => {
+      const options = wrapper.vm.options;
+      expect(options).toBeDefined();
+      expect(options.userIdKey).toBe('id');
+      expect(options.formSections).toHaveLength(2);
+    });
+  });
+
+  describe('Test computed: attributes', () => {
+    it('should retrieve attributes from entity configuration', async () => {
+      const attributes = wrapper.vm.attributes;
+      expect(attributes).toBeDefined();
+      expect(attributes).toHaveLength(3);
+      expect(attributes[0].name).toBe('enabled');
+      expect(attributes[1].name).toBe('email');
+      expect(attributes[2].name).toBe('firstName');
+    });
+  });
+
+  describe('Test computed: isDisabled', () => {
+    it('should be true when user data equals initial user data', () => {
+      wrapper.vm.user = { id: '123', name: 'John Doe' };
+      expect(wrapper.vm.isDisabled).toBe(true);
+    });
+
+    it('should be false when user data differs from initial data', () => {
+      expect(wrapper.vm.isDisabled).toBe(true);
+      wrapper.vm.user = { id: '123', name: 'David Williams' };
+      expect(wrapper.vm.isDisabled).toBe(false);
+    });
+  });
+
+  describe('Test computed: formSections', () => {
+    it('should retrieve form sections from module host configuration and sort them by order', () => {
+      const formSections = wrapper.vm.formSections;
+      expect(formSections).toHaveLength(2);
+      expect(formSections[0].id).toBe('main');
+      expect(formSections[1].id).toBe('secondary');
+      expect(formSections[0].fields).toHaveLength(2);
+      expect(formSections[0].fields[0].name).toBe('firstName');
+      expect(formSections[0].fields[1].name).toBe('email');
+      expect(formSections[1].fields).toHaveLength(1);
+      expect(formSections[1].fields[0].name).toBe('enabled');
+    });
+  });
+
+  describe('Test computed: uiProps', () => {
+    it('should retrieve uiProps with default values', () => {
+      const uiProps = wrapper.vm.uiProps;
+      expect(uiProps).toBeDefined();
+      expect(uiProps.card).toBeDefined();
+      expect(uiProps.card.main).toBeDefined();
+      expect(uiProps.card.secondary).toBeDefined();
+    });
+  });
+
   describe('Test function: loadData', () => {
     it('should load user data successfully', async () => {
       wrapper.vm.user = {};
-      wrapper.vm.isLoading = false;
+      wrapper.vm.isLoadingUser = false;
 
       const loadDataPromise = wrapper.vm.loadData();
-      expect(wrapper.vm.isLoading).toBe(true);
+      expect(wrapper.vm.isLoadingUser).toBe(true);
       await loadDataPromise;
 
-      expect(wrapper.vm.isLoading).toBe(false);
+      expect(wrapper.vm.isLoadingUser).toBe(false);
       expect(wrapper.vm.user).toEqual({ id: '123', name: 'John Doe' });
       expect(getEntityById).toHaveBeenCalledWith('test-instance-id', '123');
     });
@@ -130,9 +254,9 @@ describe('Test component: EditUserPage', () => {
 
       expect(mockNotify).toHaveBeenCalledWith({
         type: 'negative',
-        message: 'test-instance-id.EditUserPage.loadError',
+        message: 'translated_loadError',
       });
-      expect(wrapper.vm.isLoading).toBe(false);
+      expect(wrapper.vm.isLoadingUser).toBe(false);
       expect(mockPush).toHaveBeenCalledWith({ path: '/users' });
     });
   });
@@ -146,10 +270,13 @@ describe('Test component: EditUserPage', () => {
       expect(wrapper.vm.isLoading).toBe(true);
       await savePromise;
 
-      expect(updateEntity).toHaveBeenCalledWith('test-instance-id', '123', {});
+      expect(updateEntity).toHaveBeenCalledWith('test-instance-id', '123', {
+        id: '123',
+        name: 'John Doe',
+      });
       expect(mockNotify).toHaveBeenCalledWith({
         type: 'positive',
-        message: 'test-instance-id.EditUserPage.editSuccess',
+        message: 'translated_editSuccess',
       });
       expect(mockPush).toHaveBeenCalledWith({ path: '/users/123' });
       expect(wrapper.vm.isLoading).toBe(false);
@@ -164,7 +291,7 @@ describe('Test component: EditUserPage', () => {
 
       expect(mockNotify).toHaveBeenCalledWith({
         type: 'negative',
-        message: 'test-instance-id.EditUserPage.editError',
+        message: 'translated_editError',
       });
       expect(mockPush).not.toHaveBeenCalled();
       expect(wrapper.vm.isLoading).toBe(false);
