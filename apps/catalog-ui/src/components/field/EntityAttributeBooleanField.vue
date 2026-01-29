@@ -28,6 +28,7 @@
   <!-- v8 ignore start -->
   <q-toggle
     v-model="localValue"
+    :data-cy="`field_${definition.name}`"
     class="entity-attribute-boolean-field"
     v-bind="uiProps"
     :label="translateOrDefault('', 'label')"
