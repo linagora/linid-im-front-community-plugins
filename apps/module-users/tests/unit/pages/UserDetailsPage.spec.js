@@ -89,6 +89,64 @@ describe('Test component: UserDetailsPage', () => {
     mockNotify.mockClear();
   });
 
+  describe('Test computed: instanceId', () => {
+    it('should retrieve valid instanceId from route meta', () => {
+      wrapper = shallowMount(UserDetailsPage);
+
+      expect(wrapper.vm.instanceId).toBe('test-instance-id');
+    });
+  });
+
+  describe('Test computed: parentPath', () => {
+    it('should retrieve valid parentPath from route matched', () => {
+      wrapper = shallowMount(UserDetailsPage);
+
+      expect(wrapper.vm.parentPath).toBe('/users');
+    });
+  });
+
+  describe('Test computed: userId', () => {
+    it('should retrieve valid user id from route params', () => {
+      wrapper = shallowMount(UserDetailsPage);
+
+      expect(wrapper.vm.userId).toBe('test-user-id');
+    });
+  });
+
+  describe('Test computed: i18nScope', () => {
+    it('should retrieve valid i18nScope', () => {
+      wrapper = shallowMount(UserDetailsPage);
+
+      expect(wrapper.vm.i18nScope).toBe('test-instance-id.UserDetailsPage');
+    });
+  });
+
+  describe('Test computed: uiNamespace', () => {
+    it('should retrieve valid uiNamespace', () => {
+      wrapper = shallowMount(UserDetailsPage);
+
+      expect(wrapper.vm.uiNamespace).toBe('test-instance-id.user-details-page');
+    });
+  });
+
+  describe('Test computed: options', () => {
+    it('should retrieve options from module host configuration', () => {
+      wrapper = shallowMount(UserDetailsPage);
+
+      expect(wrapper.vm.options).toBeDefined();
+      expect(wrapper.vm.options.fieldOrder).toEqual(['name', 'email']);
+      expect(wrapper.vm.options.showRemainingFields).toBe(false);
+    });
+  });
+
+  describe('Test computed: uiProps', () => {
+    it('should compute uiProps correctly', () => {
+      wrapper = shallowMount(UserDetailsPage);
+      expect(wrapper.vm.uiProps).toBeDefined();
+      expect(wrapper.vm.uiProps.editButton).toBeDefined();
+    });
+  });
+
   describe('test function: loadData', () => {
     it('should retrieve user data', async () => {
       wrapper = shallowMount(UserDetailsPage);
