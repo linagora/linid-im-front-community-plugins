@@ -11,7 +11,7 @@ The **module-users** module is a remote module that provides user management fun
 - **User listing and search** with optional advanced filters
 - **User detail view** with configurable field ordering
 - **User creation** with multi-section forms (accessible via a "Create" button on the HomePage)
-- **User editing**
+- **User editing** with multi-section forms and change detection
 
 To integrate this module into your application, you need to configure it in your host application's module configuration.
 
@@ -63,7 +63,7 @@ export interface ModuleUsersOptions {
    */
   advancedSearch: AdvancedSearchConfiguration;
   /**
-   * Configuration for create forms with sections and field ordering.
+   * Configuration for edit/create forms with sections and field ordering.
    * Defines how fields are grouped and ordered in the forms.
    */
   formSections: FormSection[];
@@ -108,7 +108,7 @@ export interface FormSection {
 | `fieldOrder`          | `string[]`                    | ✅ Yes   | Ordered list of user attribute names to display first in the user details card. The order defines display priority.                                                       |
 | `showRemainingFields` | `boolean`                     | ⬜ No    | If true, displays all user attributes not in `fieldOrder` after the ordered fields in the details card. Default: `false`                                                  |
 | `advancedSearch`      | `AdvancedSearchConfiguration` | ✅ Yes   | Configuration for the advanced search feature. Enables the AdvancedSearchCard on the HomePage.                                                                            |
-| `formSections`        | `FormSection[]`               | ✅ Yes   | Configuration for create form pages. Defines sections with ordered fields for user creation.                                                                              |
+| `formSections`        | `FormSection[]`               | ✅ Yes   | Configuration for the edit and create form pages. Defines sections with ordered fields for user creation and editing.                                                     |
 
 ### Option - `userTableColumns`
 
@@ -216,9 +216,9 @@ In this example:
 
 ### **Option - `formSections`**
 
-The `formSections` option configures the structure of the create user form. Forms are organized into sections, each containing an ordered list of field names that reference entity attributes loaded dynamically from `getEntityConfiguration`.
+The `formSections` option configures the structure of the create and edit user forms. Forms are organized into sections, each containing an ordered list of field names that reference entity attributes loaded dynamically from `getEntityConfiguration`.
 
-**Used by:** `NewUserPage` (user creation)
+**Used by:** `NewUserPage` (user creation) and `EditUserPage` (user editing)
 
 **Key Features:**
 
@@ -226,6 +226,7 @@ The `formSections` option configures the structure of the create user form. Form
 - Fields are resolved dynamically from entity configuration at runtime
 - Field order within each section is determined by the `fieldsOrder` array
 - Each section is displayed as a separate Quasar card
+- The EditUserPage includes automatic change detection (save button disabled when no changes)
 - Form validation is handled by Quasar's native form validation
 
 #### **Configuration Structure**
@@ -572,11 +573,12 @@ The module creates the following routes:
 
 ### **Page Components Overview**
 
-| Route        | Component       | Purpose                                   | Key Features                                      |
-| ------------ | --------------- | ----------------------------------------- | ------------------------------------------------- |
-| `/users`     | HomePage        | List all users with search and pagination | Advanced search, create button, row-level actions |
-| `/users/new` | NewUserPage     | Create a new user                         | Multi-section form, field validation              |
-| `/users/:id` | UserDetailsPage | Display user details                      | Configurable field order, edit button             |
+| Route             | Component       | Purpose                                   | Key Features                                           |
+| ----------------- | --------------- | ----------------------------------------- | ------------------------------------------------------ |
+| `/users`          | HomePage        | List all users with search and pagination | Advanced search, create button, row-level actions      |
+| `/users/new`      | NewUserPage     | Create a new user                         | Multi-section form, field validation                   |
+| `/users/:id`      | UserDetailsPage | Display user details                      | Configurable field order, edit button                  |
+| `/users/:id/edit` | EditUserPage    | Edit an existing user                     | Multi-section form, change detection, field validation |
 
 ### **How userIdKey Works**
 

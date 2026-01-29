@@ -140,20 +140,55 @@ Page displaying detailed information about a specific user.
 
 ### EditUserPage
 
-Page for editing an existing user.
+Page for editing an existing user with multi-section forms.
 
 **Namespace:** `{instanceId}.edit-user-page`
 
-**Module-specific keys:** None (uses CatalogUI components only)
+**Module-specific keys:**
+
+| Key                        | Quasar Component | Description                                                                     |
+| -------------------------- | ---------------- | ------------------------------------------------------------------------------- |
+| `form-section-{sectionId}` | q-card           | Card container for each form section. Replace `{sectionId}` with the section ID |
 
 **CatalogUI components used:**
 
 - `ButtonsCard` - configured via `{instanceId}.edit-user-page.buttons-card`
+- `EntityAttributeField` - configured via `{instanceId}.edit-user-page.form-section-{sectionId}.EntityAttributeField`
+
+**Notes:**
+
+- Each form section defined in `formSections` configuration can be styled individually using `form-section-{sectionId}`
+- Fields within sections use `EntityAttributeField` component which can be customized per field
 
 ```json
 {
   "moduleUsers": {
     "edit-user-page": {
+      "form-section-basicInfo": {
+        "q-card": { "flat": true, "bordered": true },
+        "EntityAttributeField": {
+          "firstName": {
+            "q-input": { "outlined": true, "dense": true }
+          },
+          "lastName": {
+            "q-input": { "outlined": true, "dense": true }
+          },
+          "email": {
+            "q-input": { "outlined": true, "dense": true }
+          }
+        }
+      },
+      "form-section-additionalInfo": {
+        "q-card": { "flat": true, "bordered": true },
+        "EntityAttributeField": {
+          "phoneNumber": {
+            "q-input": { "outlined": true, "dense": true }
+          },
+          "active": {
+            "q-checkbox": { "dense": true }
+          }
+        }
+      },
       "buttons-card": {
         "q-card": { "flat": true },
         "q-icon": { "name": "save", "color": "primary" },
@@ -315,6 +350,23 @@ A full example showing all Users module pages configured together:
       }
     },
     "edit-user-page": {
+      "form-section-basicInfo": {
+        "q-card": { "flat": true, "bordered": true },
+        "EntityAttributeField": {
+          "firstName": {
+            "q-input": { "outlined": true, "dense": true }
+          },
+          "lastName": {
+            "q-input": { "outlined": true, "dense": true }
+          },
+          "email": {
+            "q-input": { "outlined": true, "dense": true }
+          }
+        }
+      },
+      "form-section-additionalInfo": {
+        "q-card": { "flat": true, "bordered": true }
+      },
       "buttons-card": {
         "q-card": { "flat": true },
         "q-icon": { "name": "save", "color": "primary" },
