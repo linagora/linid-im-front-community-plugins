@@ -28,7 +28,27 @@
   <!-- v8 ignore start -->
   <q-page class="row justify-center q-pa-md">
     <div class="col-12 col-md-10 col-lg-8">
-      <h3>{{ t('title') }}</h3>
+      <div class="row items-center justify-between q-mb-md">
+        <h3>{{ t('title') }}</h3>
+        <component
+          :is="buttonsCard"
+          v-if="buttonsCard"
+          :ui-namespace="uiNamespace"
+          :i18n-scope="i18nScope"
+          :show-confirm-button="false"
+          :show-cancel-button="false"
+        >
+          <template #append-buttons>
+            <q-btn
+              v-bind="uiProps.createButton"
+              :label="t('createButton')"
+              class="buttons-card--create-button"
+              data-cy="button_create"
+              @click="goToCreate"
+            />
+          </template>
+        </component>
+      </div>
       <component
         :is="advancedSearchComponent"
         v-if="advancedSearchComponent && options.advancedSearch"
@@ -128,6 +148,10 @@ const filters = ref<QueryFilter>({});
 const { ui } = useUiDesign();
 const uiProps = computed(() => ({
   seeButton: ui<LinidQBtnProps>(`${uiNamespace.value}.see-button`, 'q-btn'),
+  createButton: ui<LinidQBtnProps>(
+    `${uiNamespace.value}.create-button`,
+    'q-btn'
+  ),
 }));
 const tableComponent = loadAsyncComponent('catalogUI/GenericEntityTable');
 const advancedSearchComponent = loadAsyncComponent(
@@ -142,7 +166,17 @@ const buttonsCard = loadAsyncComponent('catalogUI/ButtonsCard');
  */
 function goToUser(user: Record<string, unknown>) {
   return router.push({
-    path: `${parentPath.value}/${user[options.userIdKey] as string}`,
+    path: `${parentPath.value}/${user[options.value.userIdKey] as string}`,
+  });
+}
+
+/**
+ * Navigate to the new user creation page.
+ * @returns A Promise that resolves when the navigation is complete.
+ */
+function goToCreate() {
+  return router.push({
+    path: `${parentPath.value}/new`,
   });
 }
 

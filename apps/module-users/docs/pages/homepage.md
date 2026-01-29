@@ -23,20 +23,21 @@ The page supports i18n, dynamic table columns, row-level actions, and reactive p
 
 ## Props and Data
 
-| Name                      | Type                                         | Description                                                                                            |
-| ------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------ | --- |
-| `users`                   | `Ref<Record<string, unknown>[]>`             | Reactive array holding the list of users loaded from the backend.                                      |
-| `isLoading`               | `Ref<boolean>`                               | Boolean indicating if a data load is in progress.                                                      |
-| `filters`                 | `Ref<Record<string, unknown>>`               | Reactive object holding the current search filters.                                                    |
-| `columns`                 | `ComputedRef<QTableColumn[]>`                | Computed table columns, translated via i18n.                                                           |
-| `pagination`              | `Ref<QuasarPagination>`                      | Reactive pagination object for the table (`page`, `rowsPerPage`, `sortBy`, `descending`).              |
-| `tableComponent`          | `Ref<Component \| null>`                     | Asynchronously loaded `GenericEntityTable` component.                                                  |
-| `advancedSearchComponent` | `Ref<Component \| null>`                     | Asynchronously loaded `AdvancedSearchCard` component.                                                  |     |
-| `uiNamespace`             | `ComputedRef<string>`                        | Namespace for UI design props and i18n.                                                                |
-| `uiProps`                 | `ComputedRef<{ seeButton: LinidQBtnProps }>` | UI props for row-level buttons.                                                                        |
-| `instanceId`              | `ComputedRef<string>`                        | Computed from the route meta, used for i18n and module configuration.                                  |
-| `parentPath`              | `ComputedRef<string>`                        | Computed path for routing to user detail pages.                                                        |
-| `options`                 | `ComputedRef<ModuleUsersOptions>`            | Configuration options for the module, including `userIdKey`, `userTableColumns`, and `advancedSearch`. |
+| Name                      | Type                                                                       | Description                                                                                            |
+| ------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `users`                   | `Ref<Record<string, unknown>[]>`                                           | Reactive array holding the list of users loaded from the backend.                                      |
+| `isLoading`               | `Ref<boolean>`                                                             | Boolean indicating if a data load is in progress.                                                      |
+| `filters`                 | `Ref<Record<string, unknown>>`                                             | Reactive object holding the current search filters.                                                    |
+| `columns`                 | `ComputedRef<QTableColumn[]>`                                              | Computed table columns, translated via i18n.                                                           |
+| `pagination`              | `Ref<QuasarPagination>`                                                    | Reactive pagination object for the table (`page`, `rowsPerPage`, `sortBy`, `descending`).              |
+| `tableComponent`          | `Ref<Component \| null>`                                                   | Asynchronously loaded `GenericEntityTable` component.                                                  |
+| `advancedSearchComponent` | `Ref<Component \| null>`                                                   | Asynchronously loaded `AdvancedSearchCard` component.                                                  |
+| `buttonsCard`             | `Ref<Component \| null>`                                                   | Asynchronously loaded `ButtonsCard` component.                                                         |
+| `uiNamespace`             | `ComputedRef<string>`                                                      | Namespace for UI design props and i18n.                                                                |
+| `uiProps`                 | `ComputedRef<{ seeButton: LinidQBtnProps, createButton: LinidQBtnProps }>` | UI props for row-level buttons and create button.                                                      |
+| `instanceId`              | `ComputedRef<string>`                                                      | Computed from the route meta, used for i18n and module configuration.                                  |
+| `parentPath`              | `ComputedRef<string>`                                                      | Computed path for routing to user detail pages.                                                        |
+| `options`                 | `ComputedRef<ModuleUsersOptions>`                                          | Configuration options for the module, including `userIdKey`, `userTableColumns`, and `advancedSearch`. |
 
 ---
 
@@ -77,6 +78,21 @@ goToUser(user); // Navigates to /users/:id
 
 ---
 
+### `goToCreate()`
+
+Navigates to the new user creation page.
+
+- Builds the route using `parentPath.value` and `/new`.
+- Called when the "Create" button is clicked.
+
+Example:
+
+```ts
+goToCreate(); // Navigates to /users/new
+```
+
+---
+
 ### `onFiltersChange(newFilters: Record<string, unknown>)`
 
 Handles filter changes from the `AdvancedSearchCard` component.
@@ -93,6 +109,36 @@ Builds the query parameters from the current filters for the API request.
 
 - Filters out empty values (`undefined`, `null`, `''`) to avoid sending unnecessary parameters.
 - Returns a record of non-empty filter values.
+
+---
+
+## Create Button
+
+The page includes a **Create** button in the header, displayed using the `ButtonsCard` component with only the confirm button visible (via the `#append-buttons` slot).
+
+### Features
+
+- Located in the page header, aligned to the right next to the title.
+- Navigates to the user creation page (`/users/new`) when clicked.
+- Styled via the UI design system using `{uiNamespace}.create-button`.
+- Labeled via i18n using the `createButton` translation key.
+
+### UI Customization
+
+The create button can be customized through the design system:
+
+```json
+{
+  "homepage": {
+    "create-button": {
+      "q-btn": {
+        "color": "primary",
+        "icon": "add"
+      }
+    }
+  }
+}
+```
 
 ---
 
@@ -185,6 +231,7 @@ The table can include a special **actions column** reserved for buttons or other
 
 ## Routing
 
+- Navigating to user creation: `/users/new` (via `goToCreate`).
 - Navigating to a user: `/users/:id` (via `goToUser`).
 - Pagination and table requests do **not** change the route; they update the table data only.
 
@@ -210,10 +257,11 @@ Example:
 ## Example Workflow
 
 1. On mount, `loadData()` fetches the first page of users.
-2. Users are displayed in a paginated table.
-3. Clicking a **See User** button in the `table_actions` column calls `goToUser()` and navigates to the user's detail page.
-4. Changing pagination or sorting triggers `onRequest()` to fetch the updated page.
-5. Loading state is displayed while fetching data.
+2. Users are displayed in a paginated table with a **Create** button in the header.
+3. Clicking the **Create** button calls `goToCreate()` and navigates to the user creation page.
+4. Clicking a **See User** button in the `table_actions` column calls `goToUser()` and navigates to the user's detail page.
+5. Changing pagination or sorting triggers `onRequest()` to fetch the updated page.
+6. Loading state is displayed while fetching data.
 
 ---
 
@@ -228,6 +276,7 @@ Example:
 - `vue-router` for route and navigation handling.
 - `GenericEntityTable` (Catalog UI component).
 - `AdvancedSearchCard` (Catalog UI component, optional).
+- `ButtonsCard` (Catalog UI component).
 
 ---
 

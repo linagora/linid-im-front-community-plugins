@@ -48,6 +48,10 @@ export default defineConfig({
           singleton: true,
           requiredVersion: '3.0.4',
         },
+        '@vueuse/core': {
+          singleton: true,
+          requiredVersion: '14.1.0',
+        },
       },
     }),
   ],

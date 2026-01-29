@@ -129,6 +129,7 @@ describe('Test component: HomePage', () => {
       const uiProps = wrapper.vm.uiProps;
       expect(uiProps).toBeDefined();
       expect(uiProps.seeButton).toBeDefined();
+      expect(uiProps.createButton).toBeDefined();
     });
   });
 
@@ -265,6 +266,15 @@ describe('Test component: HomePage', () => {
         active: false,
         email: 'test@example.com',
       });
+    });
+  });
+
+  describe('Test function: goToCreate', () => {
+    it('should redirect to new user page', async () => {
+      wrapper.vm.goToCreate();
+
+      expect(mockRouterPush).toHaveBeenCalledTimes(1);
+      expect(mockRouterPush).toHaveBeenCalledWith({ path: '/users/new' });
     });
   });
 });
