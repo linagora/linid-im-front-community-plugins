@@ -32,7 +32,7 @@ export default {
     HomePage: {
       title: 'Users Management',
       error: 'Failed to load users...',
-      seeUserButton: 'See user',
+      seeButton: 'See user',
     },
     NewUserPage: {
       title: 'Create New User',

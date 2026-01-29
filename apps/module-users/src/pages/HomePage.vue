@@ -26,45 +26,47 @@
 
 <template>
   <!-- v8 ignore start -->
-  <q-page class="q-pa-md">
-    <h4>{{ t('title') }}</h4>
-    <component
-      :is="advancedSearchComponent"
-      v-if="advancedSearchComponent && options.advancedSearch"
-      v-model:filters="filters"
-      :ui-namespace="uiNamespace"
-      :i18n-scope="`${instanceId}.HomePage`"
-      :instance-id="instanceId"
-      :fields="options.advancedSearch.fields"
-      :default-fields-names="options.advancedSearch.defaultFieldsNames"
-      :advanced-fields-names="options.advancedSearch.advancedFieldsNames"
-      class="q-mb-md"
-      @update:filters="onFiltersChange"
-    />
-    <component
-      :is="tableComponent"
-      v-if="tableComponent"
-      v-model:pagination="pagination"
-      :ui-namespace="uiNamespace"
-      :rows="users"
-      :columns="columns"
-      :loading="isLoading"
-      :row-key="options.userIdKey"
-      @request="onRequest"
-    >
-      <template #body-cell-table_actions="props">
-        <q-td :props="props">
-          <div class="flex justify-center">
-            <q-btn
-              :label="t('seeUserButton')"
-              :data-cy="`see-user-button_${props.row[options.userIdKey]}`"
-              v-bind="uiProps"
-              @click="goToUser(props.row)"
-            />
-          </div>
-        </q-td>
-      </template>
-    </component>
+  <q-page class="row justify-center q-pa-md">
+    <div class="col-12 col-md-10 col-lg-8">
+      <h3>{{ t('title') }}</h3>
+      <component
+        :is="advancedSearchComponent"
+        v-if="advancedSearchComponent && options.advancedSearch"
+        v-model:filters="filters"
+        :ui-namespace="uiNamespace"
+        :i18n-scope="i18nScope"
+        :instance-id="instanceId"
+        :fields="options.advancedSearch.fields"
+        :default-fields-names="options.advancedSearch.defaultFieldsNames"
+        :advanced-fields-names="options.advancedSearch.advancedFieldsNames"
+        class="q-mb-md"
+        @update:filters="onFiltersChange"
+      />
+      <component
+        :is="tableComponent"
+        v-if="tableComponent"
+        v-model:pagination="pagination"
+        :ui-namespace="uiNamespace"
+        :rows="users"
+        :columns="columns"
+        :loading="isLoading"
+        :row-key="options.userIdKey"
+        @request="onRequest"
+      >
+        <template #body-cell-table_actions="props">
+          <q-td :props="props">
+            <div class="flex justify-center">
+              <q-btn
+                :label="t('seeButton')"
+                :data-cy="`see-button_${props.row[options.userIdKey]}`"
+                v-bind="uiProps.seeButton"
+                @click="goToUser(props.row)"
+              />
+            </div>
+          </q-td>
+        </template>
+      </component>
+    </div>
   </q-page>
   <!-- v8 ignore stop -->
 </template>
@@ -80,25 +82,28 @@ import {
   getModuleHostConfiguration,
   loadAsyncComponent,
   type QuasarPagination,
+  useNotify,
   usePagination,
   useScopedI18n,
   useUiDesign,
-  useNotify,
 } from '@linagora/linid-im-front-corelib';
+import type { QTableColumn } from 'quasar';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import type { QTableColumn } from 'quasar';
 import type { ModuleUsersOptions } from '../types/moduleUsers';
 
 const router = useRouter();
 const route = useRoute();
 const instanceId = computed<string>(() => route.meta.instanceId as string);
 const parentPath = computed(() => route.matched[0]?.path);
-const options = getModuleHostConfiguration<ModuleUsersOptions>(
-  instanceId.value
-)!.options;
+const i18nScope = computed<string>(() => `${instanceId.value}.HomePage`);
+const uiNamespace = computed(() => `${instanceId.value}.homepage`);
+const options = computed(
+  () =>
+    getModuleHostConfiguration<ModuleUsersOptions>(instanceId.value)!.options
+);
 
-const { t } = useScopedI18n(`${instanceId.value}.HomePage`);
+const { t } = useScopedI18n(i18nScope.value);
 const users = ref<Record<string, unknown>[]>([]);
 const isLoading = ref<boolean>(false);
 const { Notify } = useNotify();
@@ -112,7 +117,7 @@ const pagination = ref<QuasarPagination>({
   descending: true,
 });
 const columns = computed<QTableColumn[]>(() => [
-  ...options.userTableColumns.map((column) => ({
+  ...options.value.userTableColumns.map((column) => ({
     ...column,
     label: t(column.label),
   })),
@@ -121,12 +126,14 @@ const columns = computed<QTableColumn[]>(() => [
 const filters = ref<QueryFilter>({});
 
 const { ui } = useUiDesign();
-const uiNamespace = `${instanceId.value}.homepage`;
-const uiProps = ui<LinidQBtnProps>(`${uiNamespace}.see-button`, 'q-btn');
+const uiProps = computed(() => ({
+  seeButton: ui<LinidQBtnProps>(`${uiNamespace.value}.see-button`, 'q-btn'),
+}));
 const tableComponent = loadAsyncComponent('catalogUI/GenericEntityTable');
 const advancedSearchComponent = loadAsyncComponent(
   'catalogUI/AdvancedSearchCard'
 );
+const buttonsCard = loadAsyncComponent('catalogUI/ButtonsCard');
 
 /**
  * Navigate to the detail page of a given user.

@@ -88,6 +88,50 @@ describe('Test component: HomePage', () => {
     });
   });
 
+  describe('Test computed: instanceId', () => {
+    it('should retrieve valid instanceId from route meta', () => {
+      expect(wrapper.vm.instanceId).toBe('test-instance-id');
+    });
+  });
+
+  describe('Test computed: parentPath', () => {
+    it('should retrieve valid parentPath from route matched', () => {
+      expect(wrapper.vm.parentPath).toBe('/users');
+    });
+  });
+
+  describe('Test computed: i18nScope', () => {
+    it('should retrieve valid i18nScope', () => {
+      expect(wrapper.vm.i18nScope).toBe('test-instance-id.HomePage');
+    });
+  });
+
+  describe('Test computed: uiNamespace', () => {
+    it('should retrieve valid uiNamespace', () => {
+      expect(wrapper.vm.uiNamespace).toBe('test-instance-id.homepage');
+    });
+  });
+
+  describe('Test computed: options', () => {
+    it('should retrieve valid options from module host configuration', () => {
+      expect(wrapper.vm.options).toEqual({
+        userIdKey: 'id',
+        userTableColumns: [
+          { name: 'id', label: 'ID', field: 'id' },
+          { name: 'name', label: 'Name', field: 'name' },
+        ],
+      });
+    });
+  });
+
+  describe('Test computed: uiProps', () => {
+    it('should retrieve valid uiProps', () => {
+      const uiProps = wrapper.vm.uiProps;
+      expect(uiProps).toBeDefined();
+      expect(uiProps.seeButton).toBeDefined();
+    });
+  });
+
   describe('Test computed: columns', () => {
     it('should translate label of each columns', () => {
       const cols = wrapper.vm.columns;
