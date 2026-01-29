@@ -28,6 +28,7 @@
   <!-- v8 ignore start -->
   <q-input
     v-model.number="localValue"
+    :data-cy="`field_${definition.name}`"
     class="entity-attribute-number-field"
     type="number"
     v-bind="uiProps"

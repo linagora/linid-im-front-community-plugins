@@ -28,6 +28,7 @@
   <!-- v8 ignore start -->
   <q-input
     v-model="localValue"
+    :data-cy="`field_${definition.name}`"
     class="entity-attribute-date-field"
     type="text"
     v-bind="uiProps.input"
