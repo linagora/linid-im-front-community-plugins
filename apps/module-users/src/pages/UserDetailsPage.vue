@@ -27,42 +27,44 @@
 <template>
   <!-- v8 ignore start -->
   <q-page
-    class="column items-start justify-start q-pa-md user-details-page"
-    data-cy="userDetailsPage"
+    class="row justify-center q-pa-md user-details-page"
+    data-cy="user-details-page"
   >
-    <h3 class="user-details-page--title">{{ t('title') }}</h3>
+    <div class="col-12 col-md-10 col-lg-8">
+      <h3 class="user-details-page--title">{{ t('title') }}</h3>
 
-    <component
-      :is="entityDetailsCard"
-      v-if="entityDetailsCard"
-      :entity="user || {}"
-      :field-order="options.fieldOrder"
-      :show-remaining-fields="options.showRemainingFields || false"
-      :is-loading="isLoading"
-      :ui-namespace="localUiNamespace"
-      :i18n-scope="i18nScope"
-      class="q-mb-md"
-      data-cy="user-details-card"
-    />
+      <component
+        :is="entityDetailsCard"
+        v-if="entityDetailsCard"
+        :entity="user || {}"
+        :field-order="options.fieldOrder"
+        :show-remaining-fields="options.showRemainingFields || false"
+        :is-loading="isLoading"
+        :ui-namespace="uiNamespace"
+        :i18n-scope="i18nScope"
+        class="q-mb-md"
+        data-cy="user-details-card"
+      />
 
-    <component
-      :is="buttonsCard"
-      v-if="buttonsCard"
-      :ui-namespace="localUiNamespace"
-      :i18n-scope="i18nScope"
-      :show-confirm-button="false"
-      @cancel="goBack"
-    >
-      <template #append-buttons>
-        <q-btn
-          v-bind="uiProps.editButton"
-          class="buttons-card--edit-button"
-          :label="t('edit')"
-          data-cy="button_edit"
-          @click="goToEdit"
-        />
-      </template>
-    </component>
+      <component
+        :is="buttonsCard"
+        v-if="buttonsCard"
+        :ui-namespace="uiNamespace"
+        :i18n-scope="i18nScope"
+        :show-confirm-button="false"
+        @cancel="goBack"
+      >
+        <template #append-buttons>
+          <q-btn
+            v-bind="uiProps.editButton"
+            class="buttons-card--edit-button"
+            :label="t('edit')"
+            data-cy="button_edit"
+            @click="goToEdit"
+          />
+        </template>
+      </component>
+    </div>
   </q-page>
   <!-- v8 ignore stop -->
 </template>
@@ -73,13 +75,12 @@ import {
   getEntityById,
   getModuleHostConfiguration,
   loadAsyncComponent,
-  useScopedI18n,
   useNotify,
+  useScopedI18n,
+  useUiDesign,
 } from '@linagora/linid-im-front-corelib';
-import type { Component } from 'vue';
-import { ref, onMounted, computed, shallowRef } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useUiDesign } from '@linagora/linid-im-front-corelib';
 import type { ModuleUsersOptions } from '../types/moduleUsers';
 
 const route = useRoute();
@@ -88,26 +89,24 @@ const parentPath = computed(() => route.matched[0]?.path);
 const instanceId = computed<string>(() => route.meta.instanceId as string);
 const userId = computed(() => route.params.id as string);
 const i18nScope = computed<string>(() => `${instanceId.value}.UserDetailsPage`);
+const uiNamespace = computed(() => `${instanceId.value}.user-details-page`);
+const options = computed(
+  () =>
+    getModuleHostConfiguration<ModuleUsersOptions>(instanceId.value)!.options
+);
+
 const { t } = useScopedI18n(i18nScope.value);
 const { Notify } = useNotify();
-
-const options = getModuleHostConfiguration<ModuleUsersOptions>(
-  instanceId.value
-)!.options;
+const { ui } = useUiDesign();
 
 const user = ref<Record<string, unknown> | null>(null);
 const isLoading = ref<boolean>(false);
-const entityDetailsCard = shallowRef<Component | null>(null);
-const buttonsCard = shallowRef<Component | null>(null);
+const entityDetailsCard = loadAsyncComponent('catalogUI/EntityDetailsCard');
+const buttonsCard = loadAsyncComponent('catalogUI/ButtonsCard');
 
-entityDetailsCard.value = loadAsyncComponent('catalogUI/EntityDetailsCard');
-buttonsCard.value = loadAsyncComponent('catalogUI/ButtonsCard');
-
-const localUiNamespace = `${instanceId.value}.user-details-page`;
-const { ui } = useUiDesign();
-const uiProps = {
-  editButton: ui<LinidQBtnProps>(`${localUiNamespace}.edit-button`, 'q-btn'),
-};
+const uiProps = computed(() => ({
+  editButton: ui<LinidQBtnProps>(`${uiNamespace.value}.edit-button`, 'q-btn'),
+}));
 
 /**
  * Loads the user data based on the userId.

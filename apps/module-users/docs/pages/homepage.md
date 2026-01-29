@@ -23,20 +23,20 @@ The page supports i18n, dynamic table columns, row-level actions, and reactive p
 
 ## Props and Data
 
-| Name                      | Type                             | Description                                                                                            |
-| ------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `users`                   | `Ref<Record<string, unknown>[]>` | Reactive array holding the list of users loaded from the backend.                                      |
-| `isLoading`               | `Ref<boolean>`                   | Boolean indicating if a data load is in progress.                                                      |
-| `filters`                 | `Ref<Record<string, unknown>>`   | Reactive object holding the current search filters.                                                    |
-| `columns`                 | `ComputedRef<QTableColumn[]>`    | Computed table columns, translated via i18n.                                                           |
-| `pagination`              | `Ref<QuasarPagination>`          | Reactive pagination object for the table (`page`, `rowsPerPage`, `sortBy`, `descending`).              |
-| `tableComponent`          | `Ref<Component \| null>`         | Asynchronously loaded `GenericEntityTable` component.                                                  |
-| `advancedSearchComponent` | `Ref<Component \| null>`         | Asynchronously loaded `AdvancedSearchCard` component.                                                  |
-| `uiNamespace`             | `string`                         | Namespace for UI design props and i18n.                                                                |
-| `uiProps`                 | `LinidQBtnProps`                 | UI props for row-level buttons.                                                                        |
-| `instanceId`              | `ComputedRef<string>`            | Computed from the route meta, used for i18n and module configuration.                                  |
-| `parentPath`              | `ComputedRef<string>`            | Computed path for routing to user detail pages.                                                        |
-| `options`                 | `ModuleUsersOptions`             | Configuration options for the module, including `userIdKey`, `userTableColumns`, and `advancedSearch`. |
+| Name                      | Type                                         | Description                                                                                            |
+| ------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------ | --- |
+| `users`                   | `Ref<Record<string, unknown>[]>`             | Reactive array holding the list of users loaded from the backend.                                      |
+| `isLoading`               | `Ref<boolean>`                               | Boolean indicating if a data load is in progress.                                                      |
+| `filters`                 | `Ref<Record<string, unknown>>`               | Reactive object holding the current search filters.                                                    |
+| `columns`                 | `ComputedRef<QTableColumn[]>`                | Computed table columns, translated via i18n.                                                           |
+| `pagination`              | `Ref<QuasarPagination>`                      | Reactive pagination object for the table (`page`, `rowsPerPage`, `sortBy`, `descending`).              |
+| `tableComponent`          | `Ref<Component \| null>`                     | Asynchronously loaded `GenericEntityTable` component.                                                  |
+| `advancedSearchComponent` | `Ref<Component \| null>`                     | Asynchronously loaded `AdvancedSearchCard` component.                                                  |     |
+| `uiNamespace`             | `ComputedRef<string>`                        | Namespace for UI design props and i18n.                                                                |
+| `uiProps`                 | `ComputedRef<{ seeButton: LinidQBtnProps }>` | UI props for row-level buttons.                                                                        |
+| `instanceId`              | `ComputedRef<string>`                        | Computed from the route meta, used for i18n and module configuration.                                  |
+| `parentPath`              | `ComputedRef<string>`                        | Computed path for routing to user detail pages.                                                        |
+| `options`                 | `ComputedRef<ModuleUsersOptions>`            | Configuration options for the module, including `userIdKey`, `userTableColumns`, and `advancedSearch`. |
 
 ---
 
