@@ -47,6 +47,18 @@ export interface ButtonsCardProps extends CommonComponentProps {
    * @default true
    */
   showCancelButton?: boolean;
+
+  /**
+   * Type of the confirm button.
+   * @default 'button'
+   */
+  confirmBtnType?: 'submit' | 'button';
+
+  /**
+   * Indicates whether the confirm button is disabled.
+   * @default false
+   */
+  isDisabled?: boolean;
 }
 
 /**

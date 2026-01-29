@@ -93,4 +93,30 @@ describe('Test component: ButtonsCard', () => {
       expect(wrapper.vm.showCancelButton).toEqual(false);
     });
   });
+
+  describe('Test props: isDisabled', () => {
+    it('should use default value', async () => {
+      expect(wrapper.vm.isDisabled).toEqual(false);
+    });
+
+    it('should use provided value', async () => {
+      wrapper.setProps({ isDisabled: true });
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.isDisabled).toEqual(true);
+    });
+  });
+
+  describe('Test props: confirmBtnType', () => {
+    it('should use default value', async () => {
+      expect(wrapper.vm.confirmBtnType).toEqual('button');
+    });
+
+    it('should use provided value', async () => {
+      wrapper.setProps({ confirmBtnType: 'submit' });
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.confirmBtnType).toEqual('submit');
+    });
+  });
 });

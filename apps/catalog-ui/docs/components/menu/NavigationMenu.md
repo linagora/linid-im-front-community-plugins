@@ -125,7 +125,7 @@ const handleItemChange = (item: NavigationMenuItem) => {
 
 The component includes `data-cy` attributes for Cypress testing:
 
-- Main container: `data-cy="navigationMenu"`
+- Main container: `data-cy="navigation-menu"`
 - Individual tabs: `data-cy="item_{itemId}"`
 
 ---
