@@ -56,6 +56,12 @@ export interface ModuleUsersOptions {
    * Enables the AdvancedSearchCard on the HomePage.
    */
   advancedSearch: AdvancedSearchConfiguration;
+
+  /**
+   * Configuration for edit/create forms with sections and field ordering.
+   * Defines how fields are grouped and ordered in the forms.
+   */
+  formSections: FormSection[];
 }
 
 /**
@@ -75,4 +81,35 @@ export interface AdvancedSearchConfiguration {
    * Names of fields to display in the advanced (expandable) section.
    */
   advancedFieldsNames: string[];
+}
+
+/**
+ * Configuration for a section in edit/create forms.
+ */
+export interface FormSection {
+  /**
+   * Unique identifier for the section.
+   */
+  id: string;
+  /**
+   * Display order (lower appears first).
+   */
+  order: number;
+  /**
+   * Fields in this section, with their configuration.
+   * The order of fields is determined by their own configuration.
+   */
+  fields: EditableFieldConfiguration[];
+}
+
+/**
+ * Extended configuration for editable fields with presentation metadata.
+ */
+export interface EditableFieldConfiguration<
+  T = Record<string, unknown>,
+> extends LinidAttributeConfiguration<T> {
+  /**
+   * Display order (lower numbers appear first).
+   */
+  order: number;
 }

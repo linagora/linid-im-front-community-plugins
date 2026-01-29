@@ -33,6 +33,7 @@ export default {
       title: 'Users Management',
       error: 'Failed to load users...',
       seeButton: 'See user',
+      createButton: 'Create New User',
     },
     NewUserPage: {
       title: 'Create New User',

@@ -29,7 +29,7 @@ import { shallowMount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import NewUserPage from '../../../src/pages/NewUserPage.vue';
 
-const mockT = vi.fn((key) => key);
+const mockT = vi.fn((key) => `translated_${key}`);
 const mockPush = vi.fn();
 const mockNotify = vi.fn();
 const mockRoute = {
@@ -48,12 +48,60 @@ vi.mock('@linagora/linid-im-front-corelib', async () => {
   return {
     ...actual,
     saveEntity: vi.fn(() => Promise.resolve({ id: '123' })),
-    getModuleHostConfiguration: vi.fn(() => ({ options: { userIdKey: 'id' } })),
+    getModuleHostConfiguration: () => ({
+      options: {
+        userIdKey: 'id',
+        formSections: [
+          {
+            id: 'secondary',
+            order: 2,
+            fields: [
+              {
+                name: 'enabled',
+                type: 'Boolean',
+                required: true,
+                hasValidations: false,
+                input: 'Boolean',
+              },
+            ],
+          },
+          {
+            id: 'main',
+            order: 1,
+            fields: [
+              {
+                name: 'email',
+                type: 'String',
+                required: true,
+                hasValidations: true,
+                input: 'Text',
+                inputSettings: {
+                  maxLength: 255,
+                },
+              },
+              {
+                name: 'firstName',
+                type: 'String',
+                required: true,
+                hasValidations: true,
+                input: 'Text',
+                inputSettings: {
+                  maxLength: 100,
+                },
+              },
+            ],
+          },
+        ],
+      },
+    }),
     useScopedI18n: () => ({
       t: mockT,
     }),
     useNotify: () => ({
       Notify: mockNotify,
+    }),
+    useUiDesign: () => ({
+      ui: () => ({}),
     }),
   };
 });
@@ -91,6 +139,40 @@ describe('Test component: NewUserPage', () => {
     });
   });
 
+  describe('Test computed: uiNamespace', () => {
+    it('should retrieve valid uiNamespace', () => {
+      expect(wrapper.vm.uiNamespace).toBe('test-instance-id.new-user-page');
+    });
+  });
+
+  describe('Test computed: options', () => {
+    it('should retrieve options from module host configuration', () => {
+      const options = wrapper.vm.options;
+      expect(options).toBeDefined();
+      expect(options.userIdKey).toBe('id');
+      expect(options.formSections).toHaveLength(2);
+    });
+  });
+
+  describe('Test computed: formSections', () => {
+    it('should retrieve form sections from module host configuration and sort them by order', () => {
+      const formSections = wrapper.vm.formSections;
+      expect(formSections).toHaveLength(2);
+      expect(formSections[0].id).toBe('main');
+      expect(formSections[1].id).toBe('secondary');
+    });
+  });
+
+  describe('Test computed: uiProps', () => {
+    it('should retrieve uiProps with default values', () => {
+      const uiProps = wrapper.vm.uiProps;
+      expect(uiProps).toBeDefined();
+      expect(uiProps.card).toBeDefined();
+      expect(uiProps.card.main).toBeDefined();
+      expect(uiProps.card.secondary).toBeDefined();
+    });
+  });
+
   describe('Test function: save', () => {
     it('should save user and redirect to user detail', async () => {
       wrapper.vm.isLoading = false;
@@ -102,7 +184,7 @@ describe('Test component: NewUserPage', () => {
       expect(saveEntity).toHaveBeenCalledWith('test-instance-id', {});
       expect(mockNotify).toHaveBeenCalledWith({
         type: 'positive',
-        message: 'test-instance-id.NewUserPage.success',
+        message: 'translated_success',
       });
       expect(mockPush).toHaveBeenCalledWith({ path: '/users/123' });
       expect(wrapper.vm.isLoading).toBe(false);
@@ -117,7 +199,7 @@ describe('Test component: NewUserPage', () => {
 
       expect(mockNotify).toHaveBeenCalledWith({
         type: 'negative',
-        message: 'test-instance-id.NewUserPage.error',
+        message: 'translated_error',
       });
       expect(mockPush).not.toHaveBeenCalled();
       expect(wrapper.vm.isLoading).toBe(false);
@@ -129,6 +211,15 @@ describe('Test component: NewUserPage', () => {
       wrapper.vm.cancel();
 
       expect(mockPush).toHaveBeenCalledWith({ path: '/users' });
+    });
+  });
+
+  describe('Test function: onFieldValueChange', () => {
+    it('should update the user object when field values change', () => {
+      wrapper.vm.user = {};
+      const updatedFields = { name: 'John Doe', email: 'john.doe@example.com' };
+      wrapper.vm.onFieldValueChange(updatedFields);
+      expect(wrapper.vm.user).toEqual(updatedFields);
     });
   });
 });

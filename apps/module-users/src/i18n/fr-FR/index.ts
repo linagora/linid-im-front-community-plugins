@@ -33,6 +33,7 @@ export default {
       title: 'Gestion des utilisateurs',
       error: 'Impossible de charger les utilisateurs...',
       seeButton: "Voir l'utilisateur",
+      createButton: 'Créer un nouvel utilisateur',
     },
     NewUserPage: {
       title: 'Créer un nouvel utilisateur',
