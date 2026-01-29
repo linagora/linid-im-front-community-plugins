@@ -28,14 +28,16 @@ The main page displaying the users list in a table.
 
 **Module-specific keys:**
 
-| Key          | Quasar Component | Description                              |
-| ------------ | ---------------- | ---------------------------------------- |
-| `see-button` | q-btn            | Button to navigate to user details page. |
+| Key             | Quasar Component | Description                              |
+| --------------- | ---------------- | ---------------------------------------- |
+| `see-button`    | q-btn            | Button to navigate to user details page. |
+| `create-button` | q-btn            | Button to navigate to user creation page |
 
 **CatalogUI components used:**
 
 - `GenericEntityTable` - configured via `{instanceId}.homepage.generic-entity-table`
 - `AdvancedSearchCard` - configured via `{instanceId}.homepage.advanced-search-card`
+- `ButtonsCard` - configured via `{instanceId}.homepage.buttons-card`
 
 ```json
 {
@@ -43,6 +45,9 @@ The main page displaying the users list in a table.
     "homepage": {
       "see-button": {
         "q-btn": { "color": "primary", "flat": true, "dense": true }
+      },
+      "create-button": {
+        "q-btn": { "color": "positive", "unelevated": true }
       },
       "generic-entity-table": {
         "q-table": { "dense": true, "bordered": true }
@@ -168,20 +173,55 @@ Page for editing an existing user.
 
 ### NewUserPage
 
-Page for creating a new user.
+Page for creating a new user with multi-section forms.
 
 **Namespace:** `{instanceId}.new-user-page`
 
-**Module-specific keys:** None (uses CatalogUI components only)
+**Module-specific keys:**
+
+| Key                        | Quasar Component | Description                                                                     |
+| -------------------------- | ---------------- | ------------------------------------------------------------------------------- |
+| `form-section-{sectionId}` | q-card           | Card container for each form section. Replace `{sectionId}` with the section ID |
 
 **CatalogUI components used:**
 
 - `ButtonsCard` - configured via `{instanceId}.new-user-page.buttons-card`
+- `EntityAttributeField` - configured via `{instanceId}.new-user-page.form-section-{sectionId}.EntityAttributeField`
+
+**Notes:**
+
+- Each form section defined in `formSections` configuration can be styled individually using `form-section-{sectionId}`
+- Fields within sections use `EntityAttributeField` component which can be customized per field
 
 ```json
 {
   "moduleUsers": {
     "new-user-page": {
+      "form-section-basicInfo": {
+        "q-card": { "flat": true, "bordered": true },
+        "EntityAttributeField": {
+          "firstName": {
+            "q-input": { "outlined": true, "dense": true }
+          },
+          "lastName": {
+            "q-input": { "outlined": true, "dense": true }
+          },
+          "email": {
+            "q-input": { "outlined": true, "dense": true }
+          }
+        }
+      },
+      "form-section-additionalInfo": {
+        "q-card": { "flat": true, "bordered": true },
+        "EntityAttributeField": {
+          "phoneNumber": {
+            "q-input": { "outlined": true, "dense": true }
+          },
+          "active": {
+            "q-checkbox": { "dense": true }
+          }
+        }
+      },
       "buttons-card": {
         "q-card": { "flat": true },
         "q-icon": { "name": "add", "color": "positive" },
@@ -207,8 +247,12 @@ A full example showing all Users module pages configured together:
 {
   "moduleUsers": {
     "homepage": {
-      "see-button": {
-        "q-btn": { "color": "primary", "flat": true, "dense": true }
+      "buttons-card": {
+        "q-card": { "flat": true },
+        "q-icon": { "name": "add", "color": "positive" }
+      },
+      "create-button": {
+        "q-btn": { "color": "positive", "unelevated": true }
       },
       "generic-entity-table": {
         "q-table": { "dense": true, "bordered": true, "flat": true }
@@ -241,6 +285,9 @@ A full example showing all Users module pages configured together:
             }
           }
         }
+      },
+      "see-button": {
+        "q-btn": { "color": "primary", "flat": true, "dense": true }
       }
     },
     "user-details-page": {
@@ -280,6 +327,23 @@ A full example showing all Users module pages configured together:
       }
     },
     "new-user-page": {
+      "form-section-basicInfo": {
+        "q-card": { "flat": true, "bordered": true },
+        "EntityAttributeField": {
+          "firstName": {
+            "q-input": { "outlined": true, "dense": true }
+          },
+          "lastName": {
+            "q-input": { "outlined": true, "dense": true }
+          },
+          "email": {
+            "q-input": { "outlined": true, "dense": true }
+          }
+        }
+      },
+      "form-section-additionalInfo": {
+        "q-card": { "flat": true, "bordered": true }
+      },
       "buttons-card": {
         "q-card": { "flat": true },
         "q-icon": { "name": "add", "color": "positive" },

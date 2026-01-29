@@ -27,34 +27,84 @@
 <template>
   <!-- v8 ignore start -->
   <q-page
-    class="column items-start justify-start q-pa-md"
-    data-cy="newUserPage"
+    class="row justify-center q-pa-md"
+    data-cy="new-user-page"
   >
-    <h3 data-cy="title">
-      {{ t('title') }}
-    </h3>
-    <component
-      :is="buttonsCard"
-      v-if="buttonsCard"
-      :ui-namespace="`${instanceId}.new-user-page`"
-      :i18n-scope="i18nScope"
-      :is-loading="isLoading"
-      @confirm="save"
-      @cancel="cancel"
-    />
+    <div class="col-12 col-md-10 col-lg-8">
+      <h3 data-cy="title">
+        {{ t('title') }}
+      </h3>
+
+      <q-form
+        class="new-user-page--form"
+        @submit="save"
+      >
+        <q-card
+          v-for="formSection in formSections"
+          v-bind="uiProps.card[formSection.id]"
+          :key="formSection.id"
+          class="q-mb-md new-user-page--form-section"
+        >
+          <q-card-section
+            v-if="te(`formSections.${formSection.id}.title`)"
+            class="new-user-page--form-section--header"
+          >
+            <h4
+              class="text-subtitle1 text-weight-medium q-mb-xs new-user-page--form-section--title"
+            >
+              {{ t(`formSections.${formSection.id}.title`) }}
+            </h4>
+            <p
+              v-if="te(`formSections.${formSection.id}.description`)"
+              class="text-caption text-grey-7 q-ma-none new-user-page--form-section--description"
+            >
+              {{ t(`formSections.${formSection.id}.description`) }}
+            </p>
+          </q-card-section>
+
+          <q-card-section
+            v-for="field in formSection.fields"
+            :key="field.name"
+            class="new-user-page--form-section--field"
+          >
+            <component
+              :is="fieldComponent"
+              v-if="fieldComponent"
+              v-model:entity="user"
+              :ui-namespace="`${uiNamespace}.form-section-${formSection.id}`"
+              :instance-id="instanceId"
+              :definition="field"
+            />
+          </q-card-section>
+        </q-card>
+
+        <component
+          :is="buttonsCard"
+          v-if="buttonsCard"
+          :ui-namespace="uiNamespace"
+          :i18n-scope="i18nScope"
+          :is-loading="isLoading"
+          confirm-btn-type="submit"
+          @cancel="cancel"
+        />
+      </q-form>
+    </div>
   </q-page>
   <!-- v8 ignore stop -->
 </template>
 <script setup lang="ts">
+import type { LinidQCardProps } from '@linagora/linid-im-front-corelib';
 import {
+  getEntityConfiguration,
   getModuleHostConfiguration,
   loadAsyncComponent,
   saveEntity,
   useNotify,
   useScopedI18n,
+  useUiDesign,
 } from '@linagora/linid-im-front-corelib';
-import type { Component } from 'vue';
-import { computed, ref, shallowRef } from 'vue';
+import { computedAsync } from '@vueuse/core';
+import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import type { ModuleUsersOptions } from '../types/moduleUsers';
 
@@ -64,15 +114,53 @@ const route = useRoute();
 const parentPath = computed(() => route.matched[0]?.path);
 const instanceId = computed<string>(() => route.meta.instanceId as string);
 const i18nScope = computed<string>(() => `${instanceId.value}.NewUserPage`);
+const uiNamespace = computed<string>(() => `${instanceId.value}.new-user-page`);
+const moduleConfig = computed(() =>
+  getModuleHostConfiguration<ModuleUsersOptions>(instanceId.value)
+);
+const options = computed(() => moduleConfig.value.options);
+const attributes = computedAsync(
+  async () =>
+    (await getEntityConfiguration(moduleConfig.value.entity)).attributes,
+  []
+);
+
+const formSections = computed(() =>
+  [...options.value.formSections]
+    .sort((a, b) => a.order - b.order)
+    .map((section) => ({
+      id: section.id,
+      fields: section.fieldsOrder
+        .map((fieldName) =>
+          attributes.value.find((attr) => attr.name === fieldName)
+        )
+        .filter((field) => field != null),
+    }))
+);
 
 const user = ref<Record<string, unknown>>({});
 const isLoading = ref(false);
-const buttonsCard = shallowRef<Component | null>(null);
+const buttonsCard = loadAsyncComponent('catalogUI/ButtonsCard');
+const fieldComponent = loadAsyncComponent('catalogUI/EntityAttributeField');
 
-const { t } = useScopedI18n(i18nScope.value);
+const { t, te } = useScopedI18n(i18nScope.value);
 const { Notify } = useNotify();
+const { ui } = useUiDesign();
 
-buttonsCard.value = loadAsyncComponent('catalogUI/ButtonsCard');
+const uiProps = computed(() => ({
+  card: formSections.value.reduce<Record<string, LinidQCardProps>>(
+    (acc, item) => {
+      return {
+        ...acc,
+        [item.id]: ui<LinidQCardProps>(
+          `${uiNamespace.value}.form-section-${item.id}`,
+          'q-card'
+        ),
+      };
+    },
+    {}
+  ),
+}));
 
 /**
  * Save the new user and redirect to the user list page.
@@ -85,19 +173,18 @@ function save(): Promise<void> {
     user.value
   )
     .then((user) => {
-      const userIdKey = getModuleHostConfiguration<ModuleUsersOptions>(
-        instanceId.value
-      )!.options!.userIdKey;
       Notify({
         type: 'positive',
-        message: t(`${i18nScope.value}.success`),
+        message: t(`success`),
       });
-      router.push({ path: `${parentPath.value}/${user[userIdKey] as string}` });
+      router.push({
+        path: `${parentPath.value}/${user[options.value.userIdKey] as string}`,
+      });
     })
     .catch(() => {
       Notify({
         type: 'negative',
-        message: t(`${i18nScope.value}.error`),
+        message: t(`error`),
       });
     })
     .finally(() => {
