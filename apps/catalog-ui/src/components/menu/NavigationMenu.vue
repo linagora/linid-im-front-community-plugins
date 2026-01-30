@@ -29,7 +29,7 @@
   <q-tabs
     v-bind="uiProps.tabs"
     class="navigation-menu"
-    data-cy="navigationMenu"
+    data-cy="navigation-menu"
   >
     <q-route-tab
       v-for="item in props.items"

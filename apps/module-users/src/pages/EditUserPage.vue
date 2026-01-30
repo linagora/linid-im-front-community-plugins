@@ -27,41 +27,96 @@
 <template>
   <!-- v8 ignore start -->
   <q-page
-    class="column items-start justify-start q-pa-md"
-    data-cy="editUserPage"
+    class="row justify-center q-pa-md"
+    data-cy="edit-user-page"
   >
     <q-linear-progress
-      v-if="isLoading"
+      v-if="isLoadingUser"
       indeterminate
     />
-    <h3 data-cy="title">
-      {{ t('title') }}
-    </h3>
+    <div
+      v-else
+      class="col-12 col-md-10 col-lg-8"
+    >
+      <h3 data-cy="title">
+        {{ t('title') }}
+      </h3>
 
-    <component
-      :is="buttonsCard"
-      v-if="buttonsCard"
-      :ui-namespace="`${instanceId}.edit-user-page`"
-      :i18n-scope="i18nScope"
-      :is-loading="isLoading"
-      @confirm="save"
-      @cancel="cancel"
-    />
+      <q-form
+        class="edit-user-page--form"
+        @submit="save"
+      >
+        <q-card
+          v-for="formSection in formSections"
+          v-bind="uiProps.card[formSection.id]"
+          :key="formSection.id"
+          class="edit-user-page--form-section"
+        >
+          <q-card-section
+            v-if="te(`formSections.${formSection.id}.title`)"
+            class="q-mb-md edit-user-page--form-section--header"
+          >
+            <h4
+              class="text-subtitle1 text-weight-medium q-mb-xs edit-user-page--form-section--title"
+            >
+              {{ t(`formSections.${formSection.id}.title`) }}
+            </h4>
+            <p
+              v-if="te(`formSections.${formSection.id}.description`)"
+              class="text-caption text-grey-7 q-ma-none edit-user-page--form-section--description"
+            >
+              {{ t(`formSections.${formSection.id}.description`) }}
+            </p>
+          </q-card-section>
+
+          <q-card-section
+            v-for="field in formSection.fields"
+            :key="field.name"
+            class="q-mb-md edit-user-page--form-section--field"
+          >
+            <component
+              :is="fieldComponent"
+              v-if="fieldComponent"
+              :ui-namespace="`${uiNamespace}.form-section-${formSection.id}`"
+              :instance-id="instanceId"
+              :definition="field"
+              :entity="user"
+              @update:entity="onFieldValueChange"
+            />
+          </q-card-section>
+        </q-card>
+
+        <component
+          :is="buttonsCard"
+          v-if="buttonsCard"
+          :ui-namespace="uiNamespace"
+          :i18n-scope="i18nScope"
+          :is-loading="isLoading"
+          :is-disabled="isDisabled"
+          confirm-btn-type="submit"
+          @cancel="cancel"
+        />
+      </q-form>
+    </div>
   </q-page>
   <!-- v8 ignore stop -->
 </template>
 
 <script lang="ts" setup>
+import type { LinidQCardProps } from '@linagora/linid-im-front-corelib';
 import {
+  deepEqual,
   getEntityById,
+  getModuleHostConfiguration,
   loadAsyncComponent,
   updateEntity,
   useNotify,
   useScopedI18n,
+  useUiDesign,
 } from '@linagora/linid-im-front-corelib';
-import type { Component } from 'vue';
-import { computed, onMounted, ref, shallowRef } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import type { ModuleUsersOptions } from '../types/moduleUsers';
 
 const router = useRouter();
 const route = useRoute();
@@ -71,37 +126,75 @@ const userId = computed<string>(() => route.params.id as string);
 const userDetailPath = computed(() => `${parentPath.value}/${userId.value}`);
 const instanceId = computed<string>(() => route.meta.instanceId as string);
 const i18nScope = computed<string>(() => `${instanceId.value}.EditUserPage`);
+const uiNamespace = computed<string>(
+  () => `${instanceId.value}.edit-user-page`
+);
+const options = computed(
+  () =>
+    getModuleHostConfiguration<ModuleUsersOptions>(instanceId.value)!.options
+);
+const isDisabled = computed<boolean>(() =>
+  deepEqual(user.value, initialUser.value)
+);
 
+const formSections = computed(() =>
+  [...options.value.formSections]
+    .sort((a, b) => a.order - b.order)
+    .map((section) => ({
+      ...section,
+      fields: [...section.fields].sort((a, b) => a.order - b.order),
+    }))
+);
+
+const initialUser = ref<Record<string, unknown>>({});
 const user = ref<Record<string, unknown>>({});
+const isLoadingUser = ref(false);
 const isLoading = ref(false);
-const buttonsCard = shallowRef<Component | null>(null);
+const buttonsCard = loadAsyncComponent('catalogUI/ButtonsCard');
+const fieldComponent = loadAsyncComponent('catalogUI/EntityAttributeField');
 
-const { t } = useScopedI18n(i18nScope.value);
+const { t, te } = useScopedI18n(i18nScope.value);
 const { Notify } = useNotify();
+const { ui } = useUiDesign();
 
-buttonsCard.value = loadAsyncComponent('catalogUI/ButtonsCard');
+const uiProps = computed(() => ({
+  card: formSections.value.reduce<Record<string, LinidQCardProps>>(
+    (acc, item) => {
+      return {
+        ...acc,
+        [item.id]: ui<LinidQCardProps>(
+          `${uiNamespace.value}.form-section-${item.id}`,
+          'q-card'
+        ),
+      };
+    },
+    {}
+  ),
+}));
 
 /**
  * Loads the user entity by ID and updates the reactive user state.
  * @returns A promise that resolves when the data has been loaded and the loading state has been updated.
  */
-function loadData(): Promise<void> {
-  isLoading.value = true;
+async function loadData(): Promise<void> {
+  isLoadingUser.value = true;
 
-  return getEntityById<Record<string, unknown>>(instanceId.value, userId.value)
-    .then((data) => {
-      user.value = data;
-    })
-    .catch(() => {
-      Notify({
-        type: 'negative',
-        message: t(`${i18nScope.value}.loadError`),
-      });
-      router.push({ path: parentPath.value });
-    })
-    .finally(() => {
-      isLoading.value = false;
+  try {
+    const data = await getEntityById<Record<string, unknown>>(
+      instanceId.value,
+      userId.value
+    );
+    user.value = data;
+    initialUser.value = { ...data };
+  } catch {
+    Notify({
+      type: 'negative',
+      message: t(`loadError`),
     });
+    router.push({ path: parentPath.value });
+  } finally {
+    isLoadingUser.value = false;
+  }
 }
 
 /**
@@ -113,19 +206,19 @@ function save(): Promise<void> {
   return updateEntity<Record<string, unknown>, Record<string, unknown>>(
     instanceId.value,
     userId.value,
-    {}
+    user.value
   )
     .then(() => {
       Notify({
         type: 'positive',
-        message: t(`${i18nScope.value}.editSuccess`),
+        message: t(`editSuccess`),
       });
       router.push({ path: userDetailPath.value });
     })
     .catch(() => {
       Notify({
         type: 'negative',
-        message: t(`${i18nScope.value}.editError`),
+        message: t(`editError`),
       });
     })
     .finally(() => {
@@ -138,6 +231,14 @@ function save(): Promise<void> {
  */
 function cancel() {
   router.push({ path: userDetailPath.value });
+}
+
+/**
+ * Handle field value changes from field components.
+ * @param updatedFields - The updated user object from the field component.
+ */
+function onFieldValueChange(updatedFields: Record<string, unknown>): void {
+  user.value = updatedFields;
 }
 
 onMounted(async () => {

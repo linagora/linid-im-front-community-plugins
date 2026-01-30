@@ -68,6 +68,8 @@
           v-bind="uiProps.confirmButton"
           :label="t('confirm')"
           :loading="isLoading"
+          :type="confirmBtnType"
+          :disabled="isDisabled"
           data-cy="button_confirm"
           class="buttons-card--confirm-button"
           @click="emit('confirm')"
@@ -104,6 +106,8 @@ const props = withDefaults(defineProps<ButtonsCardProps>(), {
   isLoading: false,
   showConfirmButton: true,
   showCancelButton: true,
+  confirmBtnType: 'button',
+  isDisabled: false,
 });
 
 const emit = defineEmits<ButtonsCardOutputs>();
