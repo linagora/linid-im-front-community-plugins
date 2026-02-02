@@ -47,7 +47,7 @@
     </q-card-section>
 
     <q-card-section class="advanced-search-card--default-filters q-pb-md">
-      <div class="row q-gutter-md items-baseline">
+      <div class="row q-gutter-md">
         <div
           v-for="field in defaultFieldsDefinitions"
           :key="field.name"
@@ -87,7 +87,7 @@
           class="advanced-search-card--advanced-filters q-pt-md"
           data-cy="advanced-search-card--advanced-section"
         >
-          <div class="row q-gutter-md items-baseline">
+          <div class="row q-gutter-md">
             <div
               v-for="field in advancedFieldsDefinitions"
               :key="field.name"
