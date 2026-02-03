@@ -29,7 +29,7 @@
   <q-page class="row justify-center q-pa-md">
     <div class="col-12 col-md-10 col-lg-8">
       <div class="row items-center justify-between q-mb-md">
-        <h3>{{ t('title') }}</h3>
+        <h3 data-cy="module-user-title">{{ t('title') }}</h3>
         <component
           :is="buttonsCard"
           v-if="buttonsCard"
@@ -73,17 +73,32 @@
         :row-key="options.userIdKey"
         @request="onRequest"
       >
-        <template #body-cell-table_actions="props">
-          <q-td :props="props">
-            <div class="flex justify-center">
-              <q-btn
-                :label="t('seeButton')"
-                :data-cy="`see-button_${props.row[options.userIdKey]}`"
-                v-bind="uiProps.seeButton"
-                @click="goToUser(props.row)"
-              />
-            </div>
-          </q-td>
+        <template #body="props">
+          <q-tr
+            :props="props"
+            data-cy="user-row"
+          >
+            <q-td
+              v-for="col in props.cols"
+              :key="col.name"
+              :props="props"
+              :data-cy="`cell-${col.name}_${props.row[options.userIdKey]}`"
+            >
+              <template v-if="col.name === 'table_actions'">
+                <div class="flex justify-center">
+                  <q-btn
+                    :label="t('seeButton')"
+                    :data-cy="`see-button_${props.row[options.userIdKey]}`"
+                    v-bind="uiProps.seeButton"
+                    @click="goToUser(props.row)"
+                  />
+                </div>
+              </template>
+              <template v-else>
+                {{ col.value }}
+              </template>
+            </q-td>
+          </q-tr>
         </template>
       </component>
     </div>
