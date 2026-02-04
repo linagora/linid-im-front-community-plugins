@@ -5,6 +5,7 @@ COPY . .
 ENV CI=true
 RUN rm -rf node_modules
 RUN pnpm install --frozen-lockfile
+RUN pnpm nx reset
 RUN pnpm nx build module-users
 
 FROM nginx:stable-alpine
