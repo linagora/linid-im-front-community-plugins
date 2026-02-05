@@ -31,7 +31,12 @@
     data-cy="user-details-page"
   >
     <div class="col-12 col-md-10 col-lg-8">
-      <h3 class="user-details-page--title">{{ t('title') }}</h3>
+      <h3
+        class="user-details-page--title"
+        data-cy="user-details-page_title"
+      >
+        {{ t('title') }}
+      </h3>
 
       <component
         :is="entityDetailsCard"
