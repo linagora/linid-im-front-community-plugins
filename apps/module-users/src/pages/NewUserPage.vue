@@ -66,6 +66,7 @@
             v-for="field in formSection.fields"
             :key="field.name"
             class="new-user-page--form-section--field"
+            :data-cy="`field-container_${field.name}`"
           >
             <component
               :is="fieldComponent"
