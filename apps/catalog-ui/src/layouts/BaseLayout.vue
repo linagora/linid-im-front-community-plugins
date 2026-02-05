@@ -43,11 +43,9 @@
         >
           <q-img v-bind="uiProps.img"> </q-img>
         </q-avatar>
-        <q-toolbar-title
-          v-bind="uiProps.toolbarTitle"
-          data-cy="application_title"
-        >
+        <q-toolbar-title v-bind="uiProps.toolbarTitle">
           <div
+            data-cy="application_title"
             class="cursor-pointer row inline"
             @click="goHome"
           >
