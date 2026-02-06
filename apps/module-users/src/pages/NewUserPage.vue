@@ -43,6 +43,7 @@
           v-for="formSection in formSections"
           v-bind="uiProps.card[formSection.id]"
           :key="formSection.id"
+          :data-cy="`form-section-card_${formSection.id}`"
           class="q-mb-md new-user-page--form-section"
         >
           <q-card-section
@@ -50,12 +51,14 @@
             class="new-user-page--form-section--header"
           >
             <h4
+              :data-cy="`form-section-title_${formSection.id}`"
               class="text-subtitle1 text-weight-medium q-mb-xs new-user-page--form-section--title"
             >
               {{ t(`formSections.${formSection.id}.title`) }}
             </h4>
             <p
               v-if="te(`formSections.${formSection.id}.description`)"
+              :data-cy="`form-section-description_${formSection.id}`"
               class="text-caption text-grey-7 q-ma-none new-user-page--form-section--description"
             >
               {{ t(`formSections.${formSection.id}.description`) }}
