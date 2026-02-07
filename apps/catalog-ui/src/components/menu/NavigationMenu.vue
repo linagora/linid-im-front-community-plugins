@@ -37,7 +37,7 @@
       :key="item.id"
       :to="item.path"
       :label="item.label"
-      :exact="true"
+      :exact="false"
       :class="`navigation-menu--${item.id}`"
       :data-cy="`item_${item.id}`"
     />
