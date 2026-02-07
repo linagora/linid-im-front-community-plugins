@@ -27,16 +27,38 @@
 <template>
   <!-- v8 ignore start -->
   <q-page
-    class="row justify-center q-pa-md user-details-page"
+    class="justify-center q-pa-md user-details-page"
     data-cy="user-details-page"
   >
-    <div class="col-12 col-md-10 col-lg-8">
-      <h3
-        class="user-details-page--title"
-        data-cy="user-details-page_title"
-      >
-        {{ t('title') }}
-      </h3>
+    <div class="col-12 col-md-10 col-lg-10">
+      <div class="user-details-page--header">
+        <h1
+          class="user-details-page--title"
+          data-cy="user-details-page_title"
+        >
+          {{ t('title') }}
+        </h1>
+        <div class="user-details-page--actions">
+          <component
+            :is="buttonsCard"
+            v-if="buttonsCard"
+            :ui-namespace="uiNamespace"
+            :i18n-scope="i18nScope"
+            :show-confirm-button="false"
+            @cancel="goBack"
+          >
+            <template #append-buttons>
+              <q-btn
+                v-bind="uiProps.editButton"
+                class="buttons-card--edit-button"
+                :label="t('edit')"
+                data-cy="button_edit"
+                @click="goToEdit"
+              />
+            </template>
+          </component>
+        </div>
+      </div>
 
       <component
         :is="entityDetailsCard"
@@ -47,28 +69,9 @@
         :is-loading="isLoading"
         :ui-namespace="uiNamespace"
         :i18n-scope="i18nScope"
-        class="q-mb-md"
+        class="q-mb-md q-px-md"
         data-cy="user-details-card"
       />
-
-      <component
-        :is="buttonsCard"
-        v-if="buttonsCard"
-        :ui-namespace="uiNamespace"
-        :i18n-scope="i18nScope"
-        :show-confirm-button="false"
-        @cancel="goBack"
-      >
-        <template #append-buttons>
-          <q-btn
-            v-bind="uiProps.editButton"
-            class="buttons-card--edit-button"
-            :label="t('edit')"
-            data-cy="button_edit"
-            @click="goToEdit"
-          />
-        </template>
-      </component>
     </div>
   </q-page>
   <!-- v8 ignore stop -->
