@@ -30,8 +30,10 @@
     class="entity-details-card"
     v-bind="uiCardProps"
   >
-    <q-card-section class="text-subtitle1 entity-details-card--title">
-      {{ t('title') }}
+    <q-card-section class="entity-details-card--title">
+      <h4 class="text-subtitle1">
+        {{ t('title') }}
+      </h4>
     </q-card-section>
     <q-card-section>
       <div class="flex entity-details-card--container">
