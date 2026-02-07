@@ -27,13 +27,16 @@
 <template>
   <!-- v8 ignore start -->
   <q-page
-    class="row justify-center q-pa-md"
+    class="justify-center q-pa-md"
     data-cy="new-user-page"
   >
-    <div class="col-12 col-md-10 col-lg-8">
-      <h3 data-cy="title">
+    <div class="col-12 col-md-10 col-lg-10">
+      <h1
+        class="new-user-page--title"
+        data-cy="title"
+      >
         {{ t('title') }}
-      </h3>
+      </h1>
 
       <q-form
         class="new-user-page--form"
@@ -44,7 +47,7 @@
           v-bind="uiProps.card[formSection.id]"
           :key="formSection.id"
           :data-cy="`form-section-card_${formSection.id}`"
-          class="q-mb-md new-user-page--form-section"
+          class="q-mb-md new-user-page--form-section form-fields-grid"
         >
           <q-card-section
             v-if="te(`formSections.${formSection.id}.title`)"

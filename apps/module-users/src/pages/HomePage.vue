@@ -26,28 +26,35 @@
 
 <template>
   <!-- v8 ignore start -->
-  <q-page class="row justify-center q-pa-md">
-    <div class="col-12 col-md-10 col-lg-8">
-      <div class="row items-center justify-between q-mb-md">
-        <h3 data-cy="module-user-title">{{ t('title') }}</h3>
-        <component
-          :is="buttonsCard"
-          v-if="buttonsCard"
-          :ui-namespace="uiNamespace"
-          :i18n-scope="i18nScope"
-          :show-confirm-button="false"
-          :show-cancel-button="false"
+  <q-page class="justify-center q-pa-md">
+    <div class="col-12 col-md-10 col-lg-10">
+      <div class="homepage--header">
+        <h1
+          class="homepage--title"
+          data-cy="module-user-title"
         >
-          <template #append-buttons>
-            <q-btn
-              v-bind="uiProps.createButton"
-              :label="t('createButton')"
-              class="buttons-card--create-button"
-              data-cy="button_create"
-              @click="goToCreate"
-            />
-          </template>
-        </component>
+          {{ t('title') }}
+        </h1>
+        <div class="homepage--actions">
+          <component
+            :is="buttonsCard"
+            v-if="buttonsCard"
+            :ui-namespace="uiNamespace"
+            :i18n-scope="i18nScope"
+            :show-confirm-button="false"
+            :show-cancel-button="false"
+          >
+            <template #append-buttons>
+              <q-btn
+                v-bind="uiProps.createButton"
+                :label="t('createButton')"
+                class="buttons-card--create-button"
+                data-cy="button_create"
+                @click="goToCreate"
+              />
+            </template>
+          </component>
+        </div>
       </div>
       <component
         :is="advancedSearchComponent"
@@ -85,7 +92,7 @@
               :data-cy="`cell-${col.name}_${props.row[options.userIdKey]}`"
             >
               <template v-if="col.name === 'table_actions'">
-                <div class="flex justify-center">
+                <div class="flex justify-end">
                   <q-btn
                     :label="t('seeButton')"
                     :data-cy="`see-button_${props.row[options.userIdKey]}`"
