@@ -73,6 +73,10 @@ export default defineConfig({
           __dirname,
           'src/components/card/AdvancedSearchCard.vue'
         ),
+        './ConfirmationDialog': resolve(
+          __dirname,
+          'src/components/dialog/ConfirmationDialog.vue'
+        ),
       },
       shared: {
         vue: {
