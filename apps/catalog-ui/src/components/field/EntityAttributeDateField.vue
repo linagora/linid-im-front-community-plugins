@@ -52,6 +52,7 @@
         >
           <q-date
             v-model="localValue"
+            :data-cy="`field_${definition.name}_datepicker`"
             v-bind="uiProps.date"
             @update:model-value="updateValue"
           >
