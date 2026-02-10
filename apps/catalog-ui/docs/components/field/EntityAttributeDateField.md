@@ -65,9 +65,9 @@ export interface FieldDateSettings extends FieldSettings {
 
 ## **📤 Events**
 
-| Event           | Payload                   | Description                                                    |
-| --------------- | ------------------------- | -------------------------------------------------------------- |
-| `update:entity` | `Record<string, unknown>` | Emitted when the input value changes and the entity is updated |
+| Event           | Payload                   | Description                                                                      |
+| --------------- | ------------------------- | -------------------------------------------------------------------------------- |
+| `update:entity` | `Record<string, unknown>` | Emitted when the user edits the input field or selects a date in the date-picker |
 
 ### Event Semantics
 
@@ -122,7 +122,7 @@ UI customization is handled via the LinID design system using `useUiDesign()`.
 ### Applied Component
 
 - Quasar component: `q-input`, `q-btn`, `q-icon` and `q-date`
-- Props type: `LinidQInputProps`, `LinidQBtnProps`, `LinidQIconProps` and `LinidQIDateProps`
+- Props type: `LinidQInputProps`, `LinidQBtnProps`, `LinidQIconProps` and `LinidQDateProps`
 
 Example:
 
