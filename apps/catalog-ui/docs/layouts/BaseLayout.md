@@ -35,6 +35,11 @@ The header contains two toolbars:
 
 - Uses `router-view` to render module-specific content dynamically
 
+### **Zone Renderer**
+
+- **LinidZoneRenderer:** Renders components registered in the `base-layout.dialogComponent` zone
+- Used to display dialogs at the layout level, such as the confirmation dialog from `ConfirmationDialog.vue`
+
 ---
 
 ## **🎨 UI Customization**
@@ -64,6 +69,7 @@ ui('base-layout.header', 'q-avatar'); // Customize logo
 1. **UI Store:** `useLinidUiStore()` provides `mainNavigationItems` for navigation
 2. **i18n:** `useScopedI18n('application')` provides translated text for title and version
 3. **Navigation:** `NavigationMenu` receives items and namespace, handles routing
+4. **Zone Renderer:** `LinidZoneRenderer` allows dynamic component injection via the zone system
 
 ---
 

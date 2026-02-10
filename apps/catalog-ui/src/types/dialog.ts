@@ -24,9 +24,35 @@
  * LinID Identity Manager software.
  */
 
-export { default as BaseLayout } from './layouts/BaseLayout.vue';
-export { default as BlurLoader } from './components/loader/BlurLoader.vue';
-export { default as InformationCard } from './components/card/InformationCard.vue';
-export { default as EntityDetailsCard } from './components/card/EntityDetailsCard.vue';
-export { default as AdvancedSearchCard } from './components/card/AdvancedSearchCard.vue';
-export { default as ConfirmationDialog } from './components/dialog/ConfirmationDialog.vue';
+import type { DialogEvent } from '@linagora/linid-im-front-corelib';
+
+/**
+ * Enum used to identify the type of dialog.
+ */
+export enum DialogKey {
+  /**
+   * Represents a confirmation dialog.
+   */
+  Confirmation = 'confirmation',
+}
+
+/**
+ * Dialog event for user confirmations.
+ */
+export interface ConfirmationDialogEvent extends DialogEvent {
+  /**
+   * Title of the confirmation dialog.
+   */
+  title?: string;
+
+  /**
+   * Descriptive message shown in the confirmation dialog. (HTML supported).
+   */
+  content?: string;
+
+  /**
+   * Callback triggered when the user confirms.
+   * Must return a Promise (e.g., to handle async logic like API calls).
+   */
+  onConfirm?: () => Promise<void>;
+}

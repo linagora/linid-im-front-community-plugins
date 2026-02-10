@@ -74,7 +74,7 @@
       <router-view />
     </q-page-container>
 
-    <!-- zone dialog -->
+    <LinidZoneRenderer zone="base-layout.dialogComponent" />
 
     <!-- zone footer -->
   </q-layout>
@@ -91,12 +91,13 @@ import type {
   LinidQToolbarTitleProps,
 } from '@linagora/linid-im-front-corelib';
 import {
+  LinidZoneRenderer,
   useLinidUiStore,
   useScopedI18n,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
-import NavigationMenu from '../components/menu/NavigationMenu.vue';
 import { useRouter } from 'vue-router';
+import NavigationMenu from '../components/menu/NavigationMenu.vue';
 
 const { ui } = useUiDesign();
 const { t } = useScopedI18n('application');
