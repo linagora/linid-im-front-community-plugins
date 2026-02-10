@@ -53,6 +53,7 @@
           <q-date
             v-model="localValue"
             v-bind="uiProps.date"
+            @update:model-value="updateValue"
           >
             <div class="row items-center justify-end">
               <q-btn
