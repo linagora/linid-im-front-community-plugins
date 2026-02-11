@@ -25,26 +25,61 @@
 -->
 
 <template>
-  <!-- v8 ignore start -->
   <q-page class="row justify-center q-pa-md">
     <div class="col-12 col-md-10 col-lg-8">
       <div class="row items-center justify-between q-mb-md">
         <h3>{{ t('title') }}</h3>
       </div>
+
+      <q-card>
+        <q-card-section class="row items-start">
+          <load-files-card
+            outlined
+            :instance-id="instanceId"
+            :ui-namespace="`${instanceId}.ImportPage`"
+            @update:data="updateData"
+          />
+        </q-card-section>
+        <q-card-section>
+          <imported-data-table
+            :instance-id="instanceId"
+            :ui-namespace="`${instanceId}.ImportPage`"
+            :rows="fileItems"
+          />
+        </q-card-section>
+      </q-card>
     </div>
   </q-page>
-  <!-- v8 ignore stop -->
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useRoute } from 'vue-router';
-import { useScopedI18n } from '@linagora/linid-im-front-corelib';
+import { computed, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import {
+  getModuleHostConfiguration,
+  useScopedI18n,
+} from '@linagora/linid-im-front-corelib';
+import { ModuleImportOptions } from '../types/moduleImport';
+import LoadFilesCard from '../components/field/LoadFilesField.vue';
+import { ImportedData } from '../types/File';
+import ImportedDataTable from '../components/table/ImportedDataTable.vue';
 
+const router = useRouter();
 const route = useRoute();
 const instanceId = computed<string>(() => route.meta.instanceId as string);
+const parentPath = computed(() => route.matched[0]?.path);
+const options = getModuleHostConfiguration<ModuleImportOptions>(
+  instanceId.value
+)!.options;
 
 const { t } = useScopedI18n(`${instanceId.value}.ImportPage`);
+
+const fileItems = ref<ImportedData[]>([]);
+
+function updateData(items: ImportedData[]): void {
+  fileItems.value = items;
+  console.log(items);
+}
 </script>
 
 <style scoped></style>
