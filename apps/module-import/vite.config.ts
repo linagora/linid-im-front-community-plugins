@@ -1,0 +1,83 @@
+import { federation } from '@module-federation/vite';
+import vue from '@vitejs/plugin-vue';
+import path, { resolve } from 'path';
+import { defineConfig } from 'vite';
+import { quasar } from '@quasar/vite-plugin';
+
+export default defineConfig({
+  base: '',
+  root: resolve(__dirname, './'),
+  cacheDir: '../../node_modules/.vite/apps/module-import',
+  plugins: [
+    vue(),
+    quasar(),
+    federation({
+      name: 'moduleImport',
+      filename: 'remoteEntry.js',
+      manifest: true,
+      exposes: {
+        /**
+         * This section allows you to expose components, services, or modules that will be
+         * accessible by the host application or by other remote applications.
+         * @example
+         * ```typescript
+         *   './MyComponent': './src/components/MyComponent',
+         *   './MyService': './src/services/MyService',
+         * ```
+         */
+        './routes': resolve(__dirname, 'src/routes.ts'),
+        './lifecycle': resolve(__dirname, 'src/module-lifecycle.ts'),
+        './i18n': resolve(__dirname, 'src/i18n/index.ts'),
+        './ImportPage': resolve(__dirname, 'src/pages/ImportPage.vue'),
+      },
+      shared: {
+        vue: {
+          singleton: true,
+          requiredVersion: '3.5.25',
+        },
+        quasar: {
+          singleton: true,
+          requiredVersion: '2.18.6',
+        },
+        axios: {
+          singleton: true,
+          requiredVersion: '1.13.2',
+        },
+        '@linagora/linid-im-front-corelib': {
+          singleton: true,
+          strictVersion: true,
+        },
+        'vue-router': {
+          singleton: true,
+          requiredVersion: '4.6.4',
+        },
+        pinia: {
+          singleton: true,
+          requiredVersion: '3.0.4',
+        },
+      },
+    }),
+  ],
+  server: {
+    port: 5003,
+    strictPort: true,
+  },
+  preview: {
+    port: 5003,
+    strictPort: true,
+  },
+  build: {
+    target: 'esnext',
+    outDir: resolve(__dirname, '../../dist/apps/module-import'),
+    emptyOutDir: true,
+    rollupOptions: {
+      input: path.resolve(__dirname, 'src/index.ts'),
+      output: {
+        entryFileNames: '[name].js',
+        chunkFileNames: '[name].js',
+        assetFileNames: '[name].[ext]',
+      },
+    },
+    commonjsOptions: { transformMixedEsModules: true },
+  },
+});

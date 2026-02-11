@@ -64,9 +64,10 @@ Catalogs = **UI-oriented**, no business logic, reusable everywhere.
 
 ### **🧩 Modules**
 
-| Name           | Description                                                                        |
-| -------------- | ---------------------------------------------------------------------------------- |
-| `module-users` | User management module providing CRUD operations and user lifecycle functionality. |
+| Name            | Description                                                                        |
+| --------------- | ---------------------------------------------------------------------------------- |
+| `module-users`  | User management module providing CRUD operations and user lifecycle functionality. |
+| `module-import` | Module for importing data from CSV files into existing modules                     |
 
 ---
 
@@ -111,6 +112,9 @@ Each plugin (module or component catalog) contains its own documentation inside 
 
 - 👤 **Module Users** — User management module providing CRUD operations and user lifecycle functionality
   → Documentation is inside: [apps/module-users/README.md](apps/module-users/README.md)
+
+- 📥 **Module Import** — Module for importing data from CSV files into existing modules
+  → Documentation is inside: [apps/module-import/README.md](apps/module-import/README.md)
 
 These documents explain how developers can extend the community plugins ecosystem, create new modules, and integrate them with the host app:
 
