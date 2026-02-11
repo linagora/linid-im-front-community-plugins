@@ -1,6 +1,6 @@
 {
   "name": "@linid-im-front-community-plugins/catalog-ui",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": true,
   "dependencies": {
     "vue": "3.5.25",
