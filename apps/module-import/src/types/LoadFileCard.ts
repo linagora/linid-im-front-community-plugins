@@ -24,20 +24,25 @@
  * LinID Identity Manager software.
  */
 
+import type { CommonComponentProps } from './common';
+import type { ImportedData } from './File';
+
 /**
- * Options for the ModuleImport remote module.
+ * Props for the LoadFileCard component.
  */
-export interface ModuleImportOptions {
+export interface LoadFileCardProps extends CommonComponentProps {
   /**
-   * Parent module instance id.
+   * Identifier of the instance used to scope translations and contextual data.
    */
-  parentInstanceId: string;
+  instanceId: string;
+}
+
+/**
+ * Outputs (events) emitted by the LoadFileCard component.
+ */
+export interface LoadFileCardOutputs {
   /**
-   * Type of file to import.
+   * Emitted when rows are imported from files.
    */
-  type: 'CSV';
-  /**
-   * Mapping csv header to api properties.
-   */
-  csvHeadersMapping: Record<string, string>;
+  'update:data': [Array<ImportedData>];
 }
