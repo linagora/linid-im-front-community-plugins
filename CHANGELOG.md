@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.1](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.1.0...v0.1.1) (2026-02-12)
+
+
+### Features
+
+* **module-import:** create new module import ([e55d2cf](https://github.com/linagora/linid-im-front-community-plugins/commit/e55d2cf8fc1dfeb525a3a13263bffc6d3b5af802))
+
 ### [0.1.0](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.0.1...v0.1.0) (2026-02-11)
 
 
