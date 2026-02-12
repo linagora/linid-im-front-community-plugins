@@ -25,19 +25,37 @@
  */
 
 /**
- * Options for the ModuleImport remote module.
+ * Represents a single entry of imported data from a CSV or similar source.
  */
-export interface ModuleImportOptions {
+export interface ImportedData {
   /**
-   * Parent module instance id.
+   * Current processing status of the imported data.
+   *
+   * - `READY`: The data is prepared and ready to be imported.
+   * - `IMPORTING`: The import process is currently in progress.
+   * - `IMPORTED`: The data has been successfully imported.
+   * - `ERROR`: The import process failed.
    */
-  parentInstanceId: string;
+  __status: 'READY' | 'IMPORTING' | 'IMPORTED' | 'ERROR';
+
   /**
-   * Type of file to import.
+   * Unique identifier associated with this imported entry.
    */
-  type: 'CSV';
+  __id: number;
+
   /**
-   * Mapping csv header to api properties.
+   * Name or path of the source file from which the data was imported.
    */
-  csvHeadersMapping: Record<string, string>;
+  __file: string;
+
+  /**
+   * Optional error message describing why the import failed.
+   * Present only when `__status` is `ERROR`.
+   */
+  __error?: string;
+
+  /**
+   * Additional dynamic properties coming from the imported dataset.
+   */
+  [key: string]: unknown;
 }
