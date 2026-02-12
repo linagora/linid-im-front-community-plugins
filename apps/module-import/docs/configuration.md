@@ -1,6 +1,6 @@
 # **Module Configuration 🔧**
 
-This document provides a comprehensive guide for configuring the **module-import** remote module in your LinID application. It focuses on the options required to attach the import functionality to a parent module and configure CSV handling.
+This document provides a comprehensive guide for configuring the **module-import** remote module in your LinID application. It focuses on the options required to attach the import functionality to a parent module and configure CSV handling with templating.
 
 ---
 
@@ -10,7 +10,7 @@ The **module-import** module allows any parent module to support data import fro
 
 - An **Import button** that can be placed in a configurable zone of the parent module
 - A **page to upload and preview CSV files**
-- **Mapping of CSV columns to entity properties**
+- **Mapping of CSV rows to entity properties using Nunjucks templates**
 - Validation and submission of data to the parent module's API
 
 All behavior is controlled via the parent module configuration.
@@ -23,7 +23,7 @@ All behavior is controlled via the parent module configuration.
 
 The module expects options defined in the `ModuleImportOptions` interface:
 
-```typescript
+```ts
 export interface ModuleImportOptions {
   /**
    * Parent module instance id.
@@ -34,29 +34,19 @@ export interface ModuleImportOptions {
    */
   type: 'CSV';
   /**
-   * Indicates if the CSV has a header line.
-   */
-  hasHeaders: boolean;
-  /**
-   * List of all expected CSV header columns.
-   */
-  csvHeaders: string[];
-  /**
-   * Mapping of CSV headers to API property names.
-   * Key: CSV header name
-   * Value: API property name
+   * Mapping of final object keys to Nunjucks templates.
+   * Key: property name in the resulting object
+   * Value: Nunjucks template string using the CSV row as context
    */
   csvHeadersMapping: Record<string, string>;
 }
 ```
 
-| Option              | Type                    | Required | Description                                                                          |
-| ------------------- | ----------------------- | -------- | ------------------------------------------------------------------------------------ |
-| `parentInstanceId`  | `string`                | ✅ Yes   | The instance id of the parent module to which this import module is attached         |
-| `type`              | `'CSV'`                 | ✅ Yes   | Type of import supported. Currently, only CSV is supported                           |
-| `hasHeaders`        | `boolean`               | ✅ Yes   | Indicates whether the CSV file contains a header row                                 |
-| `csvHeaders`        | `string[]`              | ✅ Yes   | Array of expected CSV headers                                                        |
-| `csvHeadersMapping` | `Record<string,string>` | ✅ Yes   | Mapping from CSV headers to API properties. Example: `{ "First Name": "firstName" }` |
+| Option              | Type                    | Required | Description                                                                                                                                        |                                     |
+| ------------------- | ----------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| `parentInstanceId`  | `string`                | ✅ Yes   | The instance id of the parent module to which this import module is attached                                                                       |                                     |
+| `type`              | `'CSV'`                 | ✅ Yes   | Type of import supported. Currently, only CSV is supported                                                                                         |                                     |
+| `csvHeadersMapping` | `Record<string,string>` | ✅ Yes   | Mapping from **final object keys** to **Nunjucks templates**. Each template uses the CSV row as context. Example: `{ "firstName": "{{ 'First Name' | safe }}", "email": "{{ Email }}" }` |
 
 ---
 
@@ -71,13 +61,11 @@ export interface ModuleImportOptions {
   "options": {
     "parentInstanceId": "moduleUsers",
     "type": "CSV",
-    "hasHeaders": true,
-    "csvHeaders": ["First Name", "Last Name", "Email", "Active"],
     "csvHeadersMapping": {
-      "First Name": "firstName",
-      "Last Name": "lastName",
-      "Email": "email",
-      "Active": "active"
+      "firstName": "{{ 'First Name' }}",
+      "lastName": "{{ 'Last Name' }}",
+      "email": "{{ Email | lower }}",
+      "active": "{{ true if Active == 'yes' else false }}"
     }
   }
 }
@@ -86,14 +74,15 @@ export interface ModuleImportOptions {
 **Explanation:**
 
 - `parentInstanceId` links the import module to the **Users Module**
-- `csvHeaders` defines the columns expected in the CSV file
-- `csvHeadersMapping` maps the CSV headers to the backend entity fields
+- `csvHeadersMapping` defines how each property of the resulting object is generated from the CSV row using **Nunjucks templates**
+- You can use any field from the CSV row in the template, with basic logic or formatting (e.g., lowercase, conditional, concatenation)
 
 ---
 
 ## **✅ Best Practices**
 
 - Ensure `parentInstanceId` matches the exact instance id of the parent module.
-- Keep `csvHeaders` and `csvHeadersMapping` consistent with the backend API field names.
-- Validate CSV files for correct headers before import to prevent API errors.
-- Use meaningful CSV header names to improve user experience during preview.
+- Use meaningful final property names in `csvHeadersMapping`.
+- Validate CSV rows and headers before import to prevent API errors.
+- Leverage Nunjucks templating to transform CSV data into the exact structure expected by your backend API.
+- Test templates with sample CSV rows to ensure correct mapping before enabling import.
