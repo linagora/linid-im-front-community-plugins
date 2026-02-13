@@ -73,6 +73,10 @@ export default defineConfig({
           __dirname,
           'src/components/card/AdvancedSearchCard.vue'
         ),
+        './EntityAttributeListField': resolve(
+          __dirname,
+          'src/components/field/EntityAttributeListField.vue'
+        ),
       },
       shared: {
         vue: {
