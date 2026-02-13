@@ -309,5 +309,6 @@ The component supports all field types defined in `LinidAttributeConfiguration`:
 | `Number`   | `EntityAttributeNumberField`  | Numeric input field   |
 | `Boolean`  | `EntityAttributeBooleanField` | Checkbox/toggle field |
 | `Date`     | `EntityAttributeDateField`    | Date picker field     |
+| `List`     | `EntityAttributeListField`    | Dropdown select field |
 
 The `EntityAttributeField` component automatically delegates to the appropriate specialized field component based on the `input` property in the field definition.
