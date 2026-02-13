@@ -280,6 +280,24 @@ Date picker field for date attributes.
 
 ---
 
+### EntityAttributeListField
+
+Dropdown select field for list attributes.
+
+**Namespace:** `{uiNamespace}` (direct, no suffix)
+
+```json
+{
+  "[PARENT_NAMESPACE]": {
+    "[FIELD_NAME]": {
+      "q-select": { "outlined": true, "dense": true }
+    }
+  }
+}
+```
+
+---
+
 ## **💡 Complete Configuration Example**
 
 A full example showing all CatalogUI components configured together:

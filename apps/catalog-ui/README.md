@@ -100,6 +100,9 @@ The library organizes components by category. For each component, documentation 
 - 🔢 **EntityAttributeDateField** — Date attribute input with automatic date casting and scoped translations
   → Documentation is inside: [`EntityAttributeDateField.md`](./docs/components/field/EntityAttributeDateField.md)
 
+- 📋 **EntityAttributeListField** — Single-selection dropdown for list attributes with predefined values
+  → Documentation is inside: [`EntityAttributeListField.md`](./docs/components/field/EntityAttributeListField.md)
+
 ### **Feedback & Utility Components**
 
 - ✨ **BlurLoader** — Skeleton loader for representing loading states
