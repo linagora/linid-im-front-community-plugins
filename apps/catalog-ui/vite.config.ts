@@ -77,6 +77,10 @@ export default defineConfig({
           __dirname,
           'src/components/dialog/ConfirmationDialog.vue'
         ),
+        './EntityAttributeListField': resolve(
+          __dirname,
+          'src/components/field/EntityAttributeListField.vue'
+        ),
       },
       shared: {
         vue: {
