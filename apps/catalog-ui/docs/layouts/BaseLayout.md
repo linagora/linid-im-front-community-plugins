@@ -35,6 +35,11 @@ The header contains two toolbars:
 
 - Uses `router-view` to render module-specific content dynamically
 
+### **Zone Renderer**
+
+- **LinidZoneRenderer:** Renders components registered in the `base-layout.dialogComponent` zone
+- Used to display dialogs at the layout level, such as the confirmation dialog from `ConfirmationDialog.vue`
+
 ---
 
 ## **🎨 UI Customization**
