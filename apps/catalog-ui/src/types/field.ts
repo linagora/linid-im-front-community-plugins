@@ -119,3 +119,19 @@ export type FieldDateSettings = FieldSettings;
  * Settings for input boolean fields.
  */
 export type FieldBooleanSettings = FieldSettings;
+
+/**
+ * Settings for fields that allow selection from a predefined list of values.
+ */
+export interface FieldListSettings extends FieldSettings {
+  /**
+   * List of possible values for the field. The user must select one of these values.
+   */
+  values: string[];
+
+  /**
+   * Default value for the field. Must be one of the values defined in the `values` array.
+   * @default values[0] first value in the `values` array
+   */
+  defaultValue?: string;
+}

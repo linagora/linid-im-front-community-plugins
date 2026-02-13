@@ -26,57 +26,80 @@
 
 <template>
   <!-- v8 ignore start -->
-  <component
-    :is="field"
-    v-if="field"
-    class="entity-attribute-field"
-    :ui-namespace="`${uiNamespace}.EntityAttributeField`"
-    :instance-id="instanceId"
-    :definition="definition"
-    :entity="entity"
-    :ignore-rules="ignoreRules"
-    @update:entity="updateEntity"
+  <q-select
+    v-model="localValue"
+    :data-cy="`field_${definition.name}`"
+    class="entity-attribute-list-field"
+    v-bind="uiProps"
+    :label="translateOrDefault('', 'label')"
+    :hint="translateOrDefault('', 'hint')"
+    :prefix="translateOrDefault('', 'prefix')"
+    :suffix="translateOrDefault('', 'suffix')"
+    :options="options"
+    :rules="rules"
+    @update:model-value="updateValue"
   />
   <!-- v8 ignore stop -->
 </template>
 
 <script setup lang="ts">
-import type { Component } from 'vue';
-import { computed, defineAsyncComponent } from 'vue';
+import {
+  type LinidQSelectProps,
+  useQuasarRules,
+  useScopedI18n,
+  useUiDesign,
+} from '@linagora/linid-im-front-corelib';
+import { computed, ref } from 'vue';
 import type {
   AttributeFieldProps,
   EntityAttributeFieldOutputs,
+  FieldListSettings,
 } from '../../types/field';
 
-const props = withDefaults(defineProps<AttributeFieldProps>(), {
-  ignoreRules: false,
-});
+const props = withDefaults(
+  defineProps<AttributeFieldProps<FieldListSettings>>(),
+  {
+    ignoreRules: false,
+  }
+);
 const emits = defineEmits<EntityAttributeFieldOutputs>();
 
-const fieldTypes: Record<string, Component> = {
-  Boolean: defineAsyncComponent(
-    () => import('./EntityAttributeBooleanField.vue')
-  ),
-  Number: defineAsyncComponent(
-    () => import('./EntityAttributeNumberField.vue')
-  ),
-  Text: defineAsyncComponent(() => import('./EntityAttributeTextField.vue')),
-  Date: defineAsyncComponent(() => import('./EntityAttributeDateField.vue')),
-  List: defineAsyncComponent(() => import('./EntityAttributeListField.vue')),
-};
+const { ui } = useUiDesign();
 
-const field = computed<Component | undefined>(
-  () => fieldTypes[props.definition.input]
+const options = props.definition.inputSettings?.values || [];
+
+const defaultValue =
+  props.definition.inputSettings?.defaultValue &&
+  options.includes(props.definition.inputSettings.defaultValue)
+    ? props.definition.inputSettings.defaultValue
+    : options[0];
+
+const localValue = ref(
+  props.entity[props.definition.name] ?? defaultValue ?? null
+);
+
+const uiProps = ui<LinidQSelectProps>(
+  `${props.uiNamespace}.${props.definition.name}`,
+  'q-select'
+);
+const { translateOrDefault } = useScopedI18n(
+  `${props.instanceId}.fields.${props.definition.name}`
+);
+
+const rules = computed(() =>
+  !props.ignoreRules && !props.definition.inputSettings?.ignoreRules
+    ? useQuasarRules(props.instanceId, props.definition, [])
+    : []
 );
 
 /**
- * Emits an 'update:entity' event with the updated entity object when the toggle changes.
+ * Emits an 'update:entity' event with the updated entity object when the selection changes.
  * Updates the value of the attribute in the entity using the local reactive value.
- * @param entity - The updated entity object containing the new attribute values.
  */
-function updateEntity(entity: Record<string, unknown>) {
-  emits('update:entity', entity);
+function updateValue() {
+  emits('update:entity', {
+    ...props.entity,
+    [props.definition.name]: localValue.value,
+  });
 }
 </script>
-
-<style scoped></style>
