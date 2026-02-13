@@ -33,9 +33,9 @@
   >
     <q-card data-cy="confirmation_dialog_card_title">
       <q-card-section>
-        <h7 data-cy="confirmation_dialog_title">
+        <h4 data-cy="confirmation_dialog_title">
           {{ title }}
-        </h7>
+        </h4>
       </q-card-section>
 
       <!-- eslint-disable vue/no-v-text-v-html-on-component vue/no-v-html -->
@@ -67,10 +67,10 @@ import {
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
 import { computed, ref } from 'vue';
-import type { ConfirmationDialogEvent } from '../../types/confirmationDialog';
-import { DialogKey } from '../../types/confirmationDialog';
+import type { ConfirmationDialogEvent } from '../../types/dialog';
+import { DialogKey } from '../../types/dialog';
 
-const { show } = useDialog(DialogKey.dialog, onOpen);
+const { show } = useDialog(DialogKey.Confirmation, onOpen);
 const title = ref<string>('');
 const content = ref<string>('');
 const uiNamespace = ref<string>('');

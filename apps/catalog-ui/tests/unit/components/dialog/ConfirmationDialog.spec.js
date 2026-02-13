@@ -29,18 +29,19 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ref } from 'vue';
 import ConfirmationDialog from '../../../../src/components/dialog/ConfirmationDialog.vue';
 
-const mockOpenHandler = { handler: null };
 const mockShowRef = ref(false);
+const mockUi = vi.fn(() => ({
+  persistent: true,
+}));
 
 vi.mock('@linagora/linid-im-front-corelib', () => {
   return {
     loadAsyncComponent: () => 'div',
-    useDialog: (_key, onOpen) => {
-      mockOpenHandler.handler = onOpen;
+    useDialog: (_key) => {
       return { show: mockShowRef };
     },
     useUiDesign: () => ({
-      ui: vi.fn(() => ({})),
+      ui: mockUi,
     }),
   };
 });
@@ -50,77 +51,55 @@ describe('Test component: ConfirmationDialog', () => {
 
   beforeEach(async () => {
     mockShowRef.value = false;
-    mockOpenHandler.handler = null;
 
     wrapper = shallowMount(ConfirmationDialog, {
       global: {
         stubs: {
-          QCard: {},
-          QBtn: {},
-          QDialog: {},
-          QCardSection: {},
+          QCard: true,
+          QBtn: true,
+          QDialog: true,
+          QCardSection: true,
         },
       },
     });
   });
 
   describe('Test computed: uiProps', () => {
-    it('should return dialog props with correct namespace', async () => {
-      mockOpenHandler.handler({
-        title: 'Test Title',
-        content: 'Test Content',
-        uiNamespace: 'test-namespace',
-        i18nScope: 'test-scope',
-        onConfirm: vi.fn(() => Promise.resolve()),
-      });
-
-      await wrapper.vm.$nextTick();
-
+    it('should return dialog props with correct namespace', () => {
       expect(wrapper.vm.uiProps).toBeDefined();
       expect(wrapper.vm.uiProps.dialog).toBeDefined();
     });
   });
 
   describe('Test function: handleConfirm', () => {
-    it('should set show.value to false and call onConfirm when executed', async () => {
+    it('should set show.value to false and call onConfirm when executed', () => {
       const mockOnConfirm = vi.fn(() => Promise.resolve());
 
-      // Set up the component state directly
       mockShowRef.value = true;
       wrapper.vm.onConfirm = mockOnConfirm;
 
-      await wrapper.vm.$nextTick();
-
-      // Call handleConfirm directly
       wrapper.vm.handleConfirm();
 
-      await wrapper.vm.$nextTick();
-
-      // Verify show.value is false and onConfirm was called
       expect(wrapper.vm.show).toBe(false);
       expect(mockOnConfirm).toHaveBeenCalled();
     });
   });
 
   describe('Test function: onClose', () => {
-    it('should set show.value to false when executed', async () => {
+    it('should set show.value to false when executed', () => {
       mockShowRef.value = true;
 
-      await wrapper.vm.$nextTick();
-
       wrapper.vm.onClose();
-
-      await wrapper.vm.$nextTick();
 
       expect(wrapper.vm.show).toBe(false);
     });
   });
 
   describe('Test function: onOpen', () => {
-    it('should update title, content, uiNamespace, i18nScope, and onConfirm when called', async () => {
+    it('should update title, content, uiNamespace, i18nScope, and onConfirm when called', () => {
       const mockOnConfirm = vi.fn(() => Promise.resolve());
 
-      mockOpenHandler.handler({
+      wrapper.vm.onOpen({
         title: 'Test Title',
         content: 'Test Content',
         uiNamespace: 'test-namespace',
@@ -128,14 +107,24 @@ describe('Test component: ConfirmationDialog', () => {
         onConfirm: mockOnConfirm,
       });
 
-      await wrapper.vm.$nextTick();
-
-      // Verify all properties are updated
       expect(wrapper.vm.title).toBe('Test Title');
       expect(wrapper.vm.content).toBe('Test Content');
       expect(wrapper.vm.uiNamespace).toBe('test-namespace');
       expect(wrapper.vm.i18nScope).toBe('test-scope');
       expect(wrapper.vm.show).toBe(false);
+      expect(wrapper.vm.onConfirm).toBe(mockOnConfirm);
+      expect(wrapper.vm.uiProps.dialog).toEqual({
+        persistent: true,
+      });
+    });
+
+    it('should set default values for optional properties when not provided', () => {
+      wrapper.vm.onOpen({});
+
+      expect(wrapper.vm.title).toBe('');
+      expect(wrapper.vm.content).toBe('');
+      expect(wrapper.vm.uiNamespace).toBe('');
+      expect(wrapper.vm.i18nScope).toBe('');
     });
   });
 });

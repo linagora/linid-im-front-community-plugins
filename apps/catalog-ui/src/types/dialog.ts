@@ -27,10 +27,13 @@
 import type { DialogEvent } from '@linagora/linid-im-front-corelib';
 
 /**
- * Dialog key enum for confirmation dialogs.
+ * Enum used to identify the type of dialog.
  */
 export enum DialogKey {
-  dialog = 'dialog',
+  /**
+   * Represents a confirmation dialog.
+   */
+  Confirmation = 'confirmation',
 }
 
 /**
