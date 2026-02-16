@@ -19,7 +19,7 @@
   },
   "private": true,
   "dependencies": {
-    "@linagora/linid-im-front-corelib": "0.0.40",
+    "@linagora/linid-im-front-corelib": "0.0.42",
     "@vueuse/core": "14.1.0",
     "pinia": "3.0.4",
     "quasar": "2.18.6",
