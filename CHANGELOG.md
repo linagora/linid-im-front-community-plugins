@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.3](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.1.2...v0.1.3) (2026-02-16)
+
+
+### Features
+
+* **catalog-ui:** add dialog component ([4ec781e](https://github.com/linagora/linid-im-front-community-plugins/commit/4ec781e5847e6547ed366c0ef19d97f65eff1ea1))
+
 ### [0.1.2](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.1.1...v0.1.2) (2026-02-16)
 
 
