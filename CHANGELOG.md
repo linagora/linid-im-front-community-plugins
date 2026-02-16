@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.2](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.1.1...v0.1.2) (2026-02-16)
+
+
+### Features
+
+* add LoadFilesField component ([c3e2095](https://github.com/linagora/linid-im-front-community-plugins/commit/c3e209584c8b7283704967c3381a8288621c3c58))
+
+
+### Bug Fixes
+
+* error from File type ([0f4f017](https://github.com/linagora/linid-im-front-community-plugins/commit/0f4f01728d27d68ab221e23320ab88fecbe253f5))
+
 ### [0.1.1](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.1.0...v0.1.1) (2026-02-12)
 
 
