@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.5](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.1.4...v0.1.5) (2026-02-17)
+
+
+### Features
+
+* **module-import:** add ImportedDataTable to manage csv data ([42867bd](https://github.com/linagora/linid-im-front-community-plugins/commit/42867bd3f220dd5f5cee9237b410b8a430d00fc3))
+
 ### [0.1.4](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.1.3...v0.1.4) (2026-02-16)
 
 
