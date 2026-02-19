@@ -29,6 +29,10 @@ export default defineConfig({
         './lifecycle': resolve(__dirname, 'src/module-lifecycle.ts'),
         './i18n': resolve(__dirname, 'src/i18n/index.ts'),
         './ImportPage': resolve(__dirname, 'src/pages/ImportPage.vue'),
+        './ImportButton': resolve(
+          __dirname,
+          'src/components/button/ImportButton.vue'
+        ),
       },
       shared: {
         vue: {
