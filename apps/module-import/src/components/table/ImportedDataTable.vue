@@ -29,11 +29,15 @@
   <q-table
     :columns="columns"
     :rows="rows"
+    :loading="isLoading"
     v-bind="uiProps.table"
     class="imported-data-table"
   >
     <template #body="opt">
-      <q-tr :props="opt">
+      <q-tr
+        :props="opt"
+        :class="getRowClass(opt.row)"
+      >
         <template v-for="col in opt.cols">
           <q-td
             v-if="col.name === '__error'"
@@ -42,14 +46,14 @@
             auto-width
           >
             <q-btn
-              v-if="!opt.row.__expand"
-              :label="translateOrDefault('', 'expand-button-open')"
+              v-if="opt.row.__error && !opt.row.__expand"
+              :label="translateOrDefault('', 'ExpandButtonOpen')"
               v-bind="uiProps.expandBtnOpen"
               @click="opt.row.__expand = true"
             />
             <q-btn
-              v-else
-              :label="translateOrDefault('', 'expand-button-close')"
+              v-else-if="opt.row.__error"
+              :label="translateOrDefault('', 'ExpandButtonClose')"
               v-bind="uiProps.expandBtnClose"
               @click="opt.row.__expand = false"
             />
@@ -62,7 +66,7 @@
           >
             <q-btn
               v-bind="uiProps.deleteBtn"
-              :label="translateOrDefault('', 'delete-button')"
+              :label="translateOrDefault('', 'DeleteButton')"
               @click="emit('delete:item', opt.row.__id)"
             />
           </q-td>
@@ -81,7 +85,7 @@
               {{
                 translateOrDefault(
                   opt.row.__status,
-                  `${localI18NScope}.status.${opt.row.__status}`
+                  `status.${opt.row.__status}`
                 )
               }}
             </q-badge>
@@ -132,7 +136,9 @@ import type { ModuleImportOptions } from '../../types/moduleImport';
 import type { QTableColumn } from 'quasar';
 import type { ImportedData } from '../../types/File';
 
-const props = defineProps<ImportedDataTableProps>();
+const props = withDefaults(defineProps<ImportedDataTableProps>(), {
+  isLoading: false,
+});
 const emit = defineEmits<ImportedDataTableOutputs>();
 
 const localI18NScope = `${props.i18nScope}.ImportedDataTable`;
@@ -174,26 +180,48 @@ const columns: ComputedRef<QTableColumn[]> = computed(() => [
   {
     field: '__error',
     name: '__error',
-    label: translateOrDefault('', `${localI18NScope}.headers.__error`),
+    label: translateOrDefault('', `headers.__error`),
     sortable: false,
+    align: 'left' as const,
   },
   {
     field: '__id',
     name: '__delete',
-    label: translateOrDefault('', `${localI18NScope}.headers.__delete`),
+    label: translateOrDefault('', `headers.__delete`),
     sortable: false,
+    align: 'left' as const,
+  },
+  {
+    field: '__file',
+    name: '__file',
+    label: translateOrDefault('', `headers.__file`),
+    sortable: true,
+    align: 'left' as const,
   },
   {
     field: '__status',
     name: '__status',
-    label: translateOrDefault('', `${localI18NScope}.headers.__status`),
-    sortable: false,
+    label: translateOrDefault('', `headers.__status`),
+    sortable: true,
+    align: 'left' as const,
   },
   ...Object.keys(options.value.csvHeadersMapping).map((header) => ({
     field: header,
     name: header,
-    label: translateOrDefault('', `${localI18NScope}.headers.${header}`),
-    sortable: false,
+    label: translateOrDefault(header, `headers.${header}`),
+    sortable: true,
+    align: 'left' as const,
   })),
 ]);
+
+/**
+ * Computes the CSS class to apply to a rendered data row
+ * based on its processing status.
+ * @param row - The imported data row whose status determines the styling.
+ * @returns The CSS class name to apply to the row, or an empty string
+ *          if no specific styling is required.
+ */
+function getRowClass(row: ImportedData) {
+  return row.__status === 'ERROR' ? 'row-error' : '';
+}
 </script>

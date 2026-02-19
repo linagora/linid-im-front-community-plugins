@@ -39,6 +39,11 @@ export interface ImportedDataTableProps extends CommonComponentProps {
    * Array of data rows to be displayed in the table.
    */
   rows: ImportedData[];
+  /**
+   * Indicates whether the table is importing data.
+   * @default false
+   */
+  isLoading?: boolean;
 }
 
 /**
