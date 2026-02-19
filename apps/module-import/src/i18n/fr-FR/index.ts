@@ -26,6 +26,9 @@
 
 export default {
   '{{config.instanceId}}': {
+    ImportButton: {
+      label: 'Importer des utilisateurs',
+    },
     ImportPage: {
       title: 'Importation des données',
     },

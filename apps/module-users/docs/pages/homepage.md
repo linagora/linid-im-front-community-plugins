@@ -291,3 +291,50 @@ Example:
   },
 }
 ```
+
+## Dynamic Component Loading Zones
+
+`HomePage.vue` exposes a **dynamic extension zone** that allows additional components to be injected without modifying the page implementation.
+
+This zone is rendered using `LinidZoneRenderer`.
+
+### Available Zone
+
+#### `${instanceId}.HomePage.extraButtons`
+
+**Location:** in the page header, next to the **Create** button, inside the `ButtonsCard`.
+
+```vue
+<LinidZoneRenderer :zone="`${instanceId}.HomePage.extraButtons`" />
+```
+
+This zone allows adding custom actions to the header action area.
+
+---
+
+## Registering a Component in the Zone
+
+A module can dynamically register a component in this zone using `linidZoneStore`:
+
+```ts
+linidZoneStore.register(
+  `${ModuleInstanceId}.HomePage.extraButtons`,
+  {
+    plugin: 'remote/Component',
+    props: {
+      ...
+    },
+  }
+);
+```
+
+### Explanation
+
+- The zone key follows the pattern:
+
+  ```
+  ${instanceId}.HomePage.extraButtons
+  ```
+
+- `plugin` defines the dynamically loaded component.
+- `props` passes the required properties to the injected component.
