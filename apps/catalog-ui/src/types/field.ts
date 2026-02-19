@@ -35,7 +35,7 @@ export interface AttributeFieldProps<
   T = Record<string, unknown>,
 > extends CommonComponentProps {
   /**
-   * Identifier of the instance used to scope translations and contextual data.
+   * Identifier of the instance used for contextual data.
    */
   instanceId: string;
   /**

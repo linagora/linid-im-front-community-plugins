@@ -32,6 +32,7 @@
     class="entity-attribute-field"
     :ui-namespace="`${uiNamespace}.EntityAttributeField`"
     :instance-id="instanceId"
+    :i18n-scope="i18nScope"
     :definition="definition"
     :entity="entity"
     :ignore-rules="ignoreRules"
