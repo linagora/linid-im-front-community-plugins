@@ -36,6 +36,7 @@
     :prefix="translateOrDefault('', 'prefix')"
     :suffix="translateOrDefault('', 'suffix')"
     multiple
+    clearable
   />
   <!-- v8 ignore stop -->
 </template>
@@ -65,7 +66,7 @@ const emit = defineEmits<LoadFileCardOutputs>();
 
 const localUiNamespace = `${props.uiNamespace}.load-files-field`;
 const { t, translateOrDefault } = useScopedI18n(
-  `${props.i18nScope}.load-files-field`
+  `${props.i18nScope}.loadFilesField`
 );
 const { ui } = useUiDesign();
 const { Notify } = useNotify();
@@ -115,16 +116,51 @@ function loadFiles(files: File[]): Promise<void> {
   id = 0;
 
   return Promise.all(files.map(parseCsv))
-    .then((data: ImportedData[][]) => emit('update:data', data.flat()))
-    .catch(() =>
+    .then((data: ImportedData[][]) => {
+      const result = data.flat();
+
+      emit('update:data', result);
+
+      if (result.length === 0) {
+        return Notify({
+          type: 'warning',
+          message: t('loadEmpty'),
+        });
+      }
+
+      Notify({
+        type: 'positive',
+        message: t('loadSuccess'),
+      });
+    })
+    .catch(() => {
       Notify({
         type: 'negative',
         message: t('loadError'),
-      })
-    )
+      });
+    })
     .finally(() => {
       isLoading.value = false;
     });
+}
+
+/**
+ * Parses a CSV file using the strategy defined in module options.
+ *
+ * If `useColumnMapping` is enabled in `ModuleImportOptions`,
+ * the file is parsed using positional column mapping
+ * (`parseCsvWithColumnIndex`). Otherwise, header-based parsing
+ * (`parseCsvWithHeader`) is used.
+ * @param file - The CSV file to parse.
+ * @returns A Promise that resolves with an array of `ImportedData`
+ *          objects representing the parsed and normalized rows.
+ */
+function parseCsv(file: File): Promise<ImportedData[]> {
+  if (options.value.useColumnMapping) {
+    return parseCsvWithColumnIndex(file);
+  }
+
+  return parseCsvWithHeader(file);
 }
 
 /**
@@ -146,11 +182,59 @@ function loadFiles(files: File[]): Promise<void> {
  * @returns A Promise that resolves with an array of `ImportedData` objects
  *          for the parsed rows.
  */
-function parseCsv(file: File): Promise<ImportedData[]> {
+function parseCsvWithColumnIndex(file: File): Promise<ImportedData[]> {
+  return new Promise((resolve, reject) => {
+    Papa.parse(file, {
+      header: false,
+      skipEmptyLines: true,
+      skipFirstNLines: options.value.skipFirstCsvNLines,
+      complete: (results: ParseResult<string[]>) => {
+        if (results.errors && results.errors.length > 0) {
+          reject(results.errors);
+          return;
+        }
+
+        resolve(
+          results.data.map((item: string[]) => ({
+            __status: 'READY',
+            __id: ++id,
+            __file: file.name,
+            ...mapItem(mapItemByIndex(item)),
+          }))
+        );
+      },
+      error: (error: ParseError) => {
+        reject(error);
+      },
+    });
+  });
+}
+
+/**
+ * Parses a single CSV file using PapaParse and returns the rows
+ * as an array of `ImportedData` objects.
+ *
+ * The parser is configured to:
+ * - Treat the first row as headers (`header: true`)
+ * - Skip empty lines (`skipEmptyLines: true`).
+ *
+ * If any parsing errors occur, the returned Promise is rejected
+ * with a `ParseError` or an array of `ParseError`s.
+ *
+ * Each row is mapped using `mapItem()` and assigned:
+ * - `__status` = 'READY'
+ * - `__id` = unique incremental identifier
+ * - `__file` = original file name.
+ * @param file - The CSV file to parse.
+ * @returns A Promise that resolves with an array of `ImportedData` objects
+ *          for the parsed rows.
+ */
+function parseCsvWithHeader(file: File): Promise<ImportedData[]> {
   return new Promise((resolve, reject) => {
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
+      skipFirstNLines: options.value.skipFirstCsvNLines,
       complete: (results: ParseResult<Record<string, unknown>>) => {
         if (results.errors && results.errors.length > 0) {
           reject(results.errors);
@@ -197,5 +281,27 @@ function mapItem(item: Record<string, unknown>): Record<string, unknown> {
   });
 
   return result;
+}
+
+/**
+ * Maps a CSV row represented as a string array (column-based parsing)
+ * to an object keyed by the configured `expectedColumns`.
+ *
+ * Each column value is assigned to the corresponding property name
+ * defined in `ModuleImportOptions.expectedColumns`, based on its index.
+ * If `expectedColumns` is undefined, an empty object is returned.
+ * @param item - A single parsed CSV row represented as an array of string values.
+ * @returns An object mapping expected column names to their corresponding values.
+ */
+function mapItemByIndex(item: string[]): Record<string, unknown> {
+  return (
+    options.value.expectedColumns?.reduce(
+      (acc: Record<string, unknown>, name: string, index: number) => {
+        acc[name] = item[index];
+        return acc;
+      },
+      {}
+    ) || {}
+  );
 }
 </script>
