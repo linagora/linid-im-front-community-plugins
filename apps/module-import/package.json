@@ -8,7 +8,7 @@
     "nunjucks": "3.2.4",
     "papaparse": "5.5.3",
     "quasar": "2.18.6",
-    "@linagora/linid-im-front-corelib": "0.0.42",
+    "@linagora/linid-im-front-corelib": "0.0.44",
     "vue-router": "4.6.4"
   },
   "devDependencies": {
