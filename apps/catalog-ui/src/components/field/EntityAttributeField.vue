@@ -64,6 +64,9 @@ const fieldTypes: Record<string, Component> = {
   Text: defineAsyncComponent(() => import('./EntityAttributeTextField.vue')),
   Date: defineAsyncComponent(() => import('./EntityAttributeDateField.vue')),
   List: defineAsyncComponent(() => import('./EntityAttributeListField.vue')),
+  DynamicList: defineAsyncComponent(
+    () => import('./EntityAttributeDynamicListField.vue')
+  ),
 };
 
 const field = computed<Component | undefined>(
@@ -79,5 +82,3 @@ function updateEntity(entity: Record<string, unknown>) {
   emits('update:entity', entity);
 }
 </script>
-
-<style scoped></style>
