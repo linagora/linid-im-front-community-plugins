@@ -135,3 +135,25 @@ export interface FieldListSettings extends FieldSettings {
    */
   defaultValue?: string;
 }
+
+/**
+ * Settings for fields that fetch options dynamically from a backend endpoint.
+ */
+export interface FieldDynamicListSettings extends FieldSettings {
+  /**
+   * The backend route path to fetch the list values (e.g. "/api/types").
+   * Exposed by the DLVP route plugin.
+   */
+  route: string;
+
+  /**
+   * Number of items to fetch per page.
+   * @default 20
+   */
+  size?: number;
+
+  /**
+   * Default value for the field.
+   */
+  defaultValue?: string;
+}

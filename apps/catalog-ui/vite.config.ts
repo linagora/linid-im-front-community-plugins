@@ -81,6 +81,10 @@ export default defineConfig({
           __dirname,
           'src/components/field/EntityAttributeListField.vue'
         ),
+        './EntityAttributeDynamicListField': resolve(
+          __dirname,
+          'src/components/field/EntityAttributeDynamicListField.vue'
+        ),
       },
       shared: {
         vue: {
