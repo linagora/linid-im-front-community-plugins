@@ -298,6 +298,24 @@ Dropdown select field for list attributes.
 
 ---
 
+### EntityAttributeDynamicListField
+
+Dropdown select field for dynamic list attributes with lazy loading from a backend endpoint.
+
+**Namespace:** `{uiNamespace}` (direct, no suffix)
+
+```json
+{
+  "[PARENT_NAMESPACE]": {
+    "[FIELD_NAME]": {
+      "q-select": { "outlined": true, "dense": true }
+    }
+  }
+}
+```
+
+---
+
 ## **💡 Complete Configuration Example**
 
 A full example showing all CatalogUI components configured together:

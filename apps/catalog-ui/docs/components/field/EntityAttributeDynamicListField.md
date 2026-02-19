@@ -254,11 +254,11 @@ const pageSize = computed(() => props.definition.inputSettings?.size ?? 20);
 ### Loading and Error States
 
 ```ts
-const loading = ref(false);
+const isLoading = ref(false);
 const error = ref<string | null>(null);
 ```
 
-- `loading`: `true` while a page fetch is in progress; shows a loading spinner in the `q-select`
+- `isLoading`: `true` while a page fetch is in progress; shows a loading spinner in the `q-select`
 - `error`: Set to a translated error message when a fetch fails or the route is missing; displayed via the `#no-option` slot
 
 ### Fetch Logic
@@ -279,11 +279,11 @@ onMounted(async () => {
 
 ```ts
 async function fetchPage() {
-  if (!route.value || loading.value || !hasMore) {
+  if (!route.value || isLoading.value || !hasMore) {
     return;
   }
 
-  loading.value = true;
+  isLoading.value = true;
   error.value = null;
 
   try {
@@ -299,13 +299,13 @@ async function fetchPage() {
   } catch {
     error.value = t('validation.dynamicList.fetchError');
   } finally {
-    loading.value = false;
+    isLoading.value = false;
   }
 }
 ```
 
 - The `route` is a **computed** property, validated **once** in `onMounted`
-- Fetches are **guarded** against concurrent calls (`loading.value`) and exhausted data (`!hasMore`)
+- Fetches are **guarded** against concurrent calls (`isLoading.value`) and exhausted data (`!hasMore`)
 - `currentPage` and `hasMore` are plain `let` variables — they do not need reactivity since they are never used in the template
 - Uses `push(...page.content)` to append in-place instead of creating a new array each time
 - Skips the append when the page is empty to avoid unnecessary operations
