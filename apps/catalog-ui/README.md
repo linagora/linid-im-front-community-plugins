@@ -103,6 +103,9 @@ The library organizes components by category. For each component, documentation 
 - 📋 **EntityAttributeListField** — Single-selection dropdown for list attributes with predefined values
   → Documentation is inside: [`EntityAttributeListField.md`](./docs/components/field/EntityAttributeListField.md)
 
+- 📋 **EntityAttributeDynamicListField** — Single-selection dropdown for dynamic list attributes with lazy loading from a backend endpoint
+  → Documentation is inside: [`EntityAttributeDynamicListField.md`](./docs/components/field/EntityAttributeDynamicListField.md)
+
 ### **Feedback & Utility Components**
 
 - ✨ **BlurLoader** — Skeleton loader for representing loading states
