@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.6](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.1.5...v0.1.6) (2026-02-19)
+
+
+### Bug Fixes
+
+* **catalog-ui:** change instanceID to i18nScope for fields translations ([d1d1e7f](https://github.com/linagora/linid-im-front-community-plugins/commit/d1d1e7fd5926b40e80274274d5d8718836ff73bc))
+* **module-users:** put i18nScope in the props of EntityAttributeField ([4ff24f9](https://github.com/linagora/linid-im-front-community-plugins/commit/4ff24f900d3b1d79e7eaa858e3c9d05a75c4d90b))
+
 ### [0.1.5](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.1.4...v0.1.5) (2026-02-17)
 
 
