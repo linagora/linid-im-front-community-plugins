@@ -43,14 +43,16 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
   useUiDesign: () => ({
     ui: () => ({}),
   }),
-  getModuleHostConfiguration: () => ({
+  getModuleHostConfiguration: vi.fn(() => ({
     options: {
-      csvHeadersMapping: {
+      fieldMappingTemplates: {
         firstName: '{{ First Name }}',
         email: '{{ Email }}',
       },
+      validateCsvHeaders: false,
+      expectedCsvHeaders: ['firstName', 'email'],
     },
-  }),
+  })),
 }));
 
 vi.mock('nunjucks', () => ({
@@ -111,7 +113,7 @@ describe('Test component: LoadFilesField', () => {
     it('should retrieve options from module host configuration', () => {
       const options = wrapper.vm.options;
       expect(options).toBeDefined();
-      expect(options.csvHeadersMapping).toEqual({
+      expect(options.fieldMappingTemplates).toEqual({
         firstName: '{{ First Name }}',
         email: '{{ Email }}',
       });
@@ -135,7 +137,12 @@ describe('Test component: LoadFilesField', () => {
 
       expect(wrapper.emitted()['update:data']).toBeTruthy();
       expect(wrapper.emitted()['update:data'][0][0]).toHaveLength(1);
-      expect(notifyMock).not.toHaveBeenCalled();
+      expect(notifyMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'positive',
+          message: 'loadSuccess',
+        })
+      );
     });
 
     it('should show error notification on error', async () => {
@@ -204,6 +211,82 @@ describe('Test component: LoadFilesField', () => {
         firstName: 'mapped-value',
         email: 'mapped-value',
       });
+    });
+  });
+
+  describe('Test function: mapItemByIndex', () => {
+    it('should map CSV row array to object using expectedCsvHeaders', () => {
+      wrapper.vm.options.expectedCsvHeaders = ['firstName', 'email'];
+      const row = ['John', 'john@test.com'];
+
+      const result = wrapper.vm.mapItemByIndex(row);
+
+      expect(result).toEqual({
+        firstName: 'John',
+        email: 'john@test.com',
+      });
+    });
+
+    it('should return empty object if expectedCsvHeaders is undefined', () => {
+      wrapper.vm.options.expectedCsvHeaders = undefined;
+      const row = ['John', 'john@test.com'];
+
+      const result = wrapper.vm.mapItemByIndex(row);
+
+      expect(result).toEqual({});
+    });
+  });
+
+  describe('Test function: parseCsvWithColumnIndex', () => {
+    it('should parse CSV file using column index mapping', async () => {
+      wrapper.vm.options.validateCsvHeaders = true;
+      wrapper.vm.options.expectedCsvHeaders = ['firstName', 'email'];
+
+      const file = new File(['John,john@test.com'], 'test.csv');
+
+      Papa.parse.mockImplementation((_file, config) => {
+        config.complete({
+          data: [['John', 'john@test.com']],
+          errors: [],
+        });
+      });
+
+      renderStringMock.mockImplementation((template, context) => {
+        if (template.includes('First Name')) {
+          return context.firstName;
+        }
+        if (template.includes('Email')) {
+          return context.email;
+        }
+        return 'mapped';
+      });
+
+      const result = await wrapper.vm.parseCsvWithColumnIndex(file);
+
+      expect(result).toHaveLength(1);
+      expect(result[0].__status).toBe('READY');
+      expect(result[0].__id).toBe(1);
+      expect(result[0].__file).toBe('test.csv');
+      expect(result[0].firstName).toBe('John');
+      expect(result[0].email).toBe('john@test.com');
+    });
+
+    it('should reject if parse errors exist', async () => {
+      wrapper.vm.options.validateCsvHeaders = true;
+      wrapper.vm.options.expectedCsvHeaders = ['firstName', 'email'];
+
+      const file = new File(['John,john@test.com'], 'test.csv');
+
+      Papa.parse.mockImplementation((_file, config) => {
+        config.complete({
+          data: [],
+          errors: [{ message: 'error' }],
+        });
+      });
+
+      await expect(
+        wrapper.vm.parseCsvWithColumnIndex(file)
+      ).rejects.toBeDefined();
     });
   });
 });

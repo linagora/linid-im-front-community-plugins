@@ -30,7 +30,13 @@ export default {
       label: 'Import Data',
     },
     ImportPage: {
-      title: 'Data import',
+      title: 'Data Import',
+      LoadFilesField: {
+        label: 'Files to Import',
+        loadEmpty: 'No rows to import',
+        loadSuccess: 'File(s) successfully loaded',
+        loadError: 'Error while importing files',
+      },
     },
   },
 };

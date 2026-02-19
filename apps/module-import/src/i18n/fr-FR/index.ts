@@ -31,6 +31,12 @@ export default {
     },
     ImportPage: {
       title: 'Importation des données',
+      LoadFilesField: {
+        label: 'Fichiers à importer',
+        loadEmpty: 'Aucune ligne à importer',
+        loadSuccess: 'Fichier(s) chargé(s) avec succès',
+        loadError: "Erreur lors de d'importation des fichiers",
+      },
     },
   },
 };
