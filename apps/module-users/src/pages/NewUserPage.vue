@@ -78,6 +78,7 @@
               :is="fieldComponent"
               v-if="fieldComponent"
               v-model:entity="user"
+              :i18n-scope="i18nScope"
               :ui-namespace="`${uiNamespace}.form-section-${formSection.id}`"
               :instance-id="instanceId"
               :definition="field"
