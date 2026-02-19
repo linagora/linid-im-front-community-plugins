@@ -37,6 +37,24 @@ export default {
         loadSuccess: 'File(s) successfully loaded',
         loadError: 'Error while importing files',
       },
+      ImportedDataTable: {
+        expandButtonOpen: 'View errors',
+        expandButtonClose: 'Close',
+        deleteButton: 'Delete',
+        headers: {
+          __error: '',
+          __delete: 'Actions',
+          __status: 'Status',
+          __file: 'Source',
+          name: 'Name',
+        },
+        status: {
+          READY: 'Ready to import',
+          IMPORTING: 'Importing',
+          IMPORTED: 'Successfully imported',
+          ERROR: 'Error(s) during import',
+        },
+      },
     },
   },
 };
