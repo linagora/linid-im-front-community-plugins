@@ -24,7 +24,14 @@
  * LinID Identity Manager software.
  */
 
-import { BasicRemoteModule } from '@linagora/linid-im-front-corelib';
+import type {
+  ModuleHostConfig,
+  ModuleLifecycleResult,
+} from '@linagora/linid-im-front-corelib';
+import {
+  BasicRemoteModule,
+  useLinidZoneStore,
+} from '@linagora/linid-im-front-corelib';
 import type { ModuleImportOptions } from './types/moduleImport';
 
 /**
@@ -51,6 +58,29 @@ class ModuleImport extends BasicRemoteModule<ModuleImportOptions> {
       '0.0.1',
       'Module to import entity in system'
     );
+  }
+
+  /**
+   * Performs post-initialization tasks for the Import module:
+   * - add the module to the wanted zones.
+   * @param config - The configuration object provided by the host application.
+   * @returns A promise that resolves to the result of the module lifecycle operation.
+   */
+  override async postInit(
+    config: ModuleHostConfig<ModuleImportOptions>
+  ): Promise<ModuleLifecycleResult> {
+    const linidZoneStore = useLinidZoneStore();
+
+    config.options.zones.forEach((zone) =>
+      linidZoneStore.register(zone, {
+        plugin: 'moduleImport/ImportButton',
+        props: {
+          instanceId: config.instanceId,
+        },
+      })
+    );
+
+    return { success: true };
   }
 }
 

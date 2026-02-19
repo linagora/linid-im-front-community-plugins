@@ -26,6 +26,9 @@
 
 export default {
   '{{config.instanceId}}': {
+    ImportButton: {
+      label: 'Import Data',
+    },
     ImportPage: {
       title: 'Data import',
     },

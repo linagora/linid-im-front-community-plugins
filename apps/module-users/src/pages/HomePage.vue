@@ -45,6 +45,14 @@
             :show-cancel-button="false"
           >
             <template #append-buttons>
+              <LinidZoneRenderer
+                :zone="`${instanceId}.HomePage.extraButtons`"
+                :props="{
+                  instanceId,
+                  uiNamespace: `${uiNamespace}.buttons-card`,
+                  i18nScope: `${i18nScope}.ButtonsCard`,
+                }"
+              />
               <q-btn
                 v-bind="uiProps.createButton"
                 :label="t('createButton')"
@@ -119,6 +127,7 @@ import type {
   QTableRequestEvent,
   QueryFilter,
 } from '@linagora/linid-im-front-corelib';
+import { LinidZoneRenderer } from '@linagora/linid-im-front-corelib';
 import {
   getEntities,
   getModuleHostConfiguration,
