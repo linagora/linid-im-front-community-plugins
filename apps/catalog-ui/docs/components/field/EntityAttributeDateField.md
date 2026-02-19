@@ -24,7 +24,8 @@ The component uses the shared `AttributeFieldProps` interface with `FieldDateSet
 
 | Prop          | Type                                             | Required | Description                                                                  |
 | ------------- | ------------------------------------------------ | -------- | ---------------------------------------------------------------------------- |
-| `instanceId`  | `string`                                         | Yes      | Identifier used to scope translations and contextual data                    |
+| `instanceId`  | `string`                                         | Yes      | Identifier used for contextual data                                          |
+| `i18nScope`   | `string`                                         | Yes      | I18n scope for localizing the component                                      |
 | `uiNamespace` | `string`                                         | Yes      | Base UI design namespace for styling                                         |
 | `definition`  | `LinidAttributeConfiguration<FieldDateSettings>` | Yes      | Attribute definition (name, type, input configuration)                       |
 | `entity`      | `Record<string, unknown>`                        | Yes      | Entity object containing the date attribute value                            |
@@ -34,7 +35,7 @@ The component uses the shared `AttributeFieldProps` interface with `FieldDateSet
 
 ```ts
 export interface AttributeFieldProps<T = Record<string, unknown>> extends CommonComponentProps {
-  /** Identifier of the instance used to scope translations and contextual data. */
+  /** Identifier of the instance used for contextual data. */
   instanceId: string;
 
   /** Attribute configuration describing how the field should be rendered. */

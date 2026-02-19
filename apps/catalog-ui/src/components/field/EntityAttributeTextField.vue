@@ -73,7 +73,7 @@ const uiProps = ui<LinidQInputProps>(
   'q-input'
 );
 const { translateOrDefault } = useScopedI18n(
-  `${props.instanceId}.fields.${props.definition.name}`
+  `${props.i18nScope}.fields.${props.definition.name}`
 );
 
 const rules = computed(() =>

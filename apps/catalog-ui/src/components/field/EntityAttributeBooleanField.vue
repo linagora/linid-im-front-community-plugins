@@ -63,7 +63,7 @@ const uiProps = ui<LinidQToggleProps>(
   'q-toggle'
 );
 const { translateOrDefault } = useScopedI18n(
-  `${props.instanceId}.fields.${props.definition.name}`
+  `${props.i18nScope}.fields.${props.definition.name}`
 );
 
 /**
