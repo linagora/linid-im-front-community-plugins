@@ -29,15 +29,39 @@
  */
 export interface ModuleImportOptions {
   /**
-   * Parent module instance id.
+   * List of zone identifiers where the "Go to Import Page" button should be displayed.
+   *
+   * Each entry represents the name of a UI zone in which
+   * the import navigation action will be injected.
    */
-  parentInstanceId: string;
+  zones: string[];
   /**
-   * Type of file to import.
+   * Path to navigate back when the user clicks the "Cancel" or "Go Back" button.
+   * Typically points to the parent or previous page of the import module.
    */
-  type: 'CSV';
+  previousPath: string;
   /**
-   * Mapping csv header to api properties.
+   * Maps target object field names to Nunjucks templates. Each template is evaluated using the current CSV row
+   * as context and produces the final value assigned to the corresponding field.
    */
-  csvHeadersMapping: Record<string, string>;
+  fieldMappingTemplates: Record<string, string>;
+  /**
+   * When set to true, the importer validates that the CSV file contains the expected header
+   * before processing any rows.
+   */
+  validateCsvHeaders: boolean;
+  /**
+   * List of CSV header names that must be present in the file. Used only when validateCsvHeaders is true.
+   */
+  expectedCsvHeaders?: string[];
+  /**
+   * Number of lines to skip at the beginning of the CSV file.
+   * Useful when the CSV contains metadata or comments before the header row.
+   */
+  skipFirstCsvNLines?: number;
+  /**
+   * Maximum number of CSV rows to import concurrently.
+   * Limits parallel processing to prevent overloading the server.
+   */
+  numberOfParallelImports: number;
 }
