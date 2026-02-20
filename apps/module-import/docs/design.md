@@ -30,7 +30,77 @@ The main page for uploading and importing CSV files.
 ```json
 {
   "moduleImport": {
-    "import-page": {}
+    "import-page": {
+      "import-card": {
+        "q-card": {}
+      },
+      "load-files-field": {
+        "q-file": {}
+      },
+      "imported-data-table": {
+        "q-table": {},
+        "q-spinner": {},
+        "expand-button-open": {
+          "q-btn": {}
+        },
+        "expand-button-close": {
+          "q-btn": {}
+        },
+        "delete-button": {
+          "q-btn": {}
+        },
+        "READY": {
+          "q-badge": {}
+        },
+        "IMPORTING": {
+          "q-badge": {}
+        },
+        "IMPORTED": {
+          "q-badge": {}
+        },
+        "ERROR": {
+          "q-badge": {}
+        }
+      },
+      "buttons-card": {
+        "q-card": {},
+        "q-icon": {},
+        "q-card-actions": {},
+        "confirm-button": {
+          "q-btn": {}
+        },
+        "cancel-button": {
+          "q-btn": {}
+        },
+        "clear-button": {
+          "q-btn-dropdown": {},
+          "q-list": {},
+          "q-item": {},
+          "q-item-section": {},
+          "q-item-label": {}
+        }
+      }
+    }
+  }
+}
+```
+
+## **🧩 Components**
+
+### ImportButton
+
+The button to go to ImportPage
+
+**Namespace:** `{instanceId}.import-button`
+
+**Module-specific keys:** _(currently empty)_
+
+```json
+{
+  "moduleUsers": {
+    "import-button": {
+      "q-btn": {}
+    }
   }
 }
 ```

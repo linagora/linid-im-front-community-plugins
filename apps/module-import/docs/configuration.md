@@ -37,17 +37,15 @@ export interface ModuleImportOptions {
    * Key: property name in the resulting object
    * Value: Nunjucks template string using the CSV row as context
    */
-  csvHeadersMapping: Record<string, string>;
+  fieldMappingTemplates: Record<string, string>;
   /**
-   * Whether to validate the CSV headers against expectedColumns.
-   * If true, the import page will check the CSV columns before processing.
+   * When enabled, the importer ignores CSV header names and maps values based on predefined column indexes.
    */
-  useColumnMapping: boolean;
+  useColumnIndexParsing: boolean;
   /**
-   * Optional list of expected CSV columns.
-   * Used when `useColumnMapping` is true to validate the uploaded CSV.
+   * List of CSV header names that must be present in the file. Used only when useColumnIndexParsing is true.
    */
-  expectedColumns?: string[];
+  expectedCsvHeaders?: string[];
   /**
    * Number of initial CSV lines to skip before processing.
    * Useful if your CSV contains extra metadata or description rows at the top.
@@ -64,15 +62,15 @@ export interface ModuleImportOptions {
 }
 ```
 
-| Option                    | Type                    | Required | Description                                                                                                                                                                                  |
-|---------------------------|-------------------------| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `csvHeadersMapping`       | `Record<string,string>` | ✅ Yes   | Mapping from **final object keys** to **Nunjucks templates**. Each template uses the CSV row as context. Example: `{ "firstName": "{{ 'First Name'    \| safe }}", "email": "{{ Email }}" }` |
-| `useColumnMapping`        | `boolean`               | ✅ Yes   | Whether to validate CSV headers before import                                                                                                                                                |
-| `expectedColumns`         | `string[]`              | ❌ No    | List of expected CSV headers, used when `useColumnMapping` is true                                                                                                                           |
-| `skipFirstCsvNLines`      | `number`                | ❌ No    | Number of CSV lines to skip at the beginning of the file                                                                                                                                     |
-| `numberOfParallelImports` | `number`                | ✅ Yes   | Maximum number of import requests that can run in parallel                                                                                                                                   |
-| `previousPath`            | `string`                | ✅ Yes   | Path to navigate back when the user clicks "Cancel" or "Go Back"                                                                                                                             |
-| `zones`                   | `string[]`              | ✅ Yes   | List of zone identifiers where the "Go to Import Page" button should be displayed.                                                                                                           |
+| Option                    | Type                    | Required | Description                                                                                                                                                                             |
+| ------------------------- | ----------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `fieldMappingTemplates`   | `Record<string,string>` | ✅ Yes   | Maps target object field names to Nunjucks templates. Each template is evaluated using the current CSV row as context and produces the final value assigned to the corresponding field. |
+| `useColumnIndexParsing`   | `boolean`               | ✅ Yes   | When enabled, the importer ignores CSV header names and maps values based on predefined column indexes.                                                                                 |
+| `expectedCsvHeaders`      | `string[]`              | ❌ No    | List of CSV header names that must be present in the file. Used only when useColumnIndexParsing is true.                                                                                |
+| `skipFirstCsvNLines`      | `number`                | ❌ No    | Number of CSV lines to skip at the beginning of the file                                                                                                                                |
+| `numberOfParallelImports` | `number`                | ✅ Yes   | Maximum number of import requests that can run in parallel                                                                                                                              |
+| `previousPath`            | `string`                | ✅ Yes   | Path to navigate back when the user clicks "Cancel" or "Go Back"                                                                                                                        |
+| `zones`                   | `string[]`              | ✅ Yes   | List of zone identifiers where the "Go to Import Page" button should be displayed.                                                                                                      |
 
 ---
 
@@ -87,19 +85,14 @@ export interface ModuleImportOptions {
   "options": {
     "zones": ["moduleUsers.HomePage.extraButtons"],
     "type": "CSV",
-    "csvHeadersMapping": {
+    "fieldMappingTemplates": {
       "firstName": "{{ 'First Name' }}",
       "lastName": "{{ 'Last Name' }}",
       "email": "{{ Email | lower }}",
       "active": "{{ true if Active == 'yes' else false }}"
     },
-    "useColumnMapping": true,
-    "expectedColumns": [
-      "First Name",
-      "Last Name",
-      "Email",
-      "Active"
-    ],
+    "useColumnIndexParsing": true,
+    "expectedCsvHeaders": ["First Name", "Last Name", "Email", "Active"],
     "skipFirstCsvNLines": 1,
     "numberOfParallelImports": 5,
     "previousPath": "/users"
@@ -110,9 +103,9 @@ export interface ModuleImportOptions {
 **Explanation:**
 
 - `zones` links the import module to the **Users Module** homepage
-- `csvHeadersMapping` defines how each property of the resulting object is generated from the CSV row using **Nunjucks templates**
+- `fieldMappingTemplates` defines how each property of the resulting object is generated from the CSV row using **Nunjucks templates**
 - You can use any field from the CSV row in the template, with basic logic or formatting (e.g., lowercase, conditional, concatenation)
-- `useColumnMapping` enables validation of CSV headers against `expectedColumns`
+- `useColumnIndexParsing` When enabled, the importer ignores CSV header names and maps values based on predefined column indexes.
 - `skipFirstCsvNLines` skips the first line of the CSV (useful for descriptions or comments)
 - `numberOfParallelImports` allows multiple import requests to run concurrently for better performance
 - `previousPath` specifies where the user is redirected when cancelling the import
@@ -122,7 +115,7 @@ export interface ModuleImportOptions {
 ## **✅ Best Practices**
 
 - Ensure `zones` matches the exact instance id of the parent module and the zone name.
-- Use meaningful final property names in `csvHeadersMapping`.
+- Use meaningful final property names in `fieldMappingTemplates`.
 - Validate CSV rows and headers before import to prevent API errors.
 - Leverage Nunjucks templating to transform CSV data into the exact structure expected by your backend API.
 - Test templates with sample CSV rows to ensure correct mapping before enabling import.
