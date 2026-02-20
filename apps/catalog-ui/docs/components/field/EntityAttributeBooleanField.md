@@ -85,7 +85,7 @@ The component uses `useScopedI18n` to resolve translations for the attribute lab
 ### Translation Scope
 
 ```ts
-`${instanceId}.fields.${definition.name}`;
+`${i18nScope}.fields.${definition.name}`;
 ```
 
 ### Label Resolution

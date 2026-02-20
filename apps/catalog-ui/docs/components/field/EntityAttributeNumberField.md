@@ -92,7 +92,7 @@ The component uses `useScopedI18n` to resolve translations for UI text elements.
 ### Translation Scope
 
 ```ts
-`${instanceId}.fields.${definition.name}`;
+`${i18nScope}.fields.${definition.name}`;
 ```
 
 ### Supported Translation Keys
