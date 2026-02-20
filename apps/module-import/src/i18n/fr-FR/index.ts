@@ -37,6 +37,15 @@ export default {
         loadSuccess: 'Fichier(s) chargé(s) avec succès',
         loadError: "Error lors de d'importation des fichiers",
       },
+      ButtonsCard: {
+        cancel: 'Annuler',
+        confirm: 'Importer',
+        confirmLoading: 'Importation...',
+        clear: 'Effacer...',
+        clearAll: 'Toutes les lignes',
+        clearError: 'Les lignes en erreur',
+        clearImported: 'Les lignes importés',
+      },
       ImportedDataTable: {
         ExpandButtonOpen: 'Voir les erreurs',
         ExpandButtonClose: 'Fermer',
@@ -55,6 +64,10 @@ export default {
           ERROR: "Erreur(s) lors de l'importation",
         },
       },
+      importSuccess: 'Toutes les données ont été importer avec succès',
+      importWarning: "Une partie des données n'à pas pu être importée",
+      importError: "Aucune des données n'à pas pu être importée",
+      clearSuccess: 'Les lignes on été supprimées',
     },
   },
 };

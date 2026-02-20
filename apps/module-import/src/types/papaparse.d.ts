@@ -25,6 +25,8 @@
  */
 
 declare module 'papaparse' {
+  import type { unparse } from 'papaparse';
+
   /**
    * Result object returned after a parsing operation.
    * @template T - The inferred row type. When `header: true`, this is typically
@@ -95,6 +97,10 @@ declare module 'papaparse' {
      * @default false
      */
     skipEmptyLines?: boolean;
+    /**
+     * Skip the first N lines of the input.
+     */
+    skipFirstNLines?: number;
 
     /**
      * Callback executed when parsing completes successfully.
@@ -129,6 +135,46 @@ declare module 'papaparse' {
   ): void;
 
   /**
+   * Serializes data into a CSV string.
+   *
+   * Supports:
+   * - Array of objects
+   * - Array of arrays
+   * - Object with explicit `fields` and `data`.
+   * @template T - The row type to serialize.
+   * @param data - The data source to convert into CSV.
+   * @param config - Optional unparse configuration.
+   * @returns A CSV formatted string.
+   */
+  export function unparse<T = unknown>(
+    data:
+      | T[]
+      | readonly T[]
+      | {
+          /**
+           * Optional list of keys to determine column order in the CSV output.
+           */
+          fields?: readonly (keyof T & string)[];
+          /**
+           * Array of objects to serialize into CSV rows.
+           */
+          data: readonly T[];
+        }
+      | {
+          /**
+           * Explicit column headers to include in the CSV.
+           */
+          fields: readonly string[];
+          /**
+           * Array of arrays representing rows. Each inner array is a CSV row.
+           */
+          data: readonly (readonly unknown[])[];
+        }
+      | readonly (readonly unknown[])[],
+    config?: UnparseConfig
+  ): string;
+
+  /**
    * Default PapaParse export object.
    */
   const Papa: {
@@ -137,6 +183,11 @@ declare module 'papaparse' {
      * @see parse
      */
     parse: typeof parse;
+    /**
+     * Converts data to CSV string.
+     * @see `unparse`.
+     */
+    unparse: typeof unparse;
   };
 
   export default Papa;
