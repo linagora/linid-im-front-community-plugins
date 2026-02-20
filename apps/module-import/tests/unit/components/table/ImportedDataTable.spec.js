@@ -79,42 +79,71 @@ describe('Test component: ImportedDataTable', () => {
 
       expect(columns).toBeDefined();
       expect(Array.isArray(columns)).toBe(true);
-      expect(columns).toHaveLength(5);
+      expect(columns).toHaveLength(6);
 
       expect(columns[0]).toMatchObject({
         field: '__error',
         name: '__error',
-        label: 'i18n-scope.ImportedDataTable.headers.__error',
+        label: 'headers.__error',
         sortable: false,
       });
 
       expect(columns[1]).toMatchObject({
         field: '__id',
         name: '__delete',
-        label: 'i18n-scope.ImportedDataTable.headers.__delete',
+        label: 'headers.__delete',
         sortable: false,
       });
 
       expect(columns[2]).toMatchObject({
-        field: '__status',
-        name: '__status',
-        label: 'i18n-scope.ImportedDataTable.headers.__status',
-        sortable: false,
+        field: '__file',
+        name: '__file',
+        label: 'headers.__file',
+        sortable: true,
       });
 
       expect(columns[3]).toMatchObject({
-        field: 'firstName',
-        name: 'firstName',
-        label: 'i18n-scope.ImportedDataTable.headers.firstName',
-        sortable: false,
+        field: '__status',
+        name: '__status',
+        label: 'headers.__status',
+        sortable: true,
       });
 
       expect(columns[4]).toMatchObject({
+        field: 'firstName',
+        name: 'firstName',
+        label: 'headers.firstName',
+        sortable: true,
+      });
+
+      expect(columns[5]).toMatchObject({
         field: 'email',
         name: 'email',
-        label: 'i18n-scope.ImportedDataTable.headers.email',
-        sortable: false,
+        label: 'headers.email',
+        sortable: true,
       });
+    });
+  });
+
+  describe('Test function: getRowClass', () => {
+    it('should return "row-error" when row status is ERROR', () => {
+      const row = { __status: 'ERROR' };
+      expect(wrapper.vm.getRowClass(row)).toBe('row-error');
+    });
+
+    it('should return empty string when row status is READY', () => {
+      const row = { __status: 'READY' };
+      expect(wrapper.vm.getRowClass(row)).toBe('');
+    });
+
+    it('should return empty string when row status is undefined', () => {
+      const row = { __status: '' };
+      expect(wrapper.vm.getRowClass(row)).toBe('');
+    });
+
+    it('should ignore other properties and only check __status', () => {
+      const row = { __status: 'PENDING', firstName: 'John' };
+      expect(wrapper.vm.getRowClass(row)).toBe('');
     });
   });
 });

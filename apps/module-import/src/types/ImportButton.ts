@@ -25,43 +25,11 @@
  */
 
 /**
- * Options for the ModuleImport remote module.
+ * Props for the ImportButton component.
  */
-export interface ModuleImportOptions {
+export interface ImportButtonProps {
   /**
-   * List of zone identifiers where the "Go to Import Page" button should be displayed.
-   *
-   * Each entry represents the name of a UI zone in which
-   * the import navigation action will be injected.
+   * Identifier of the instance used to scope translations and contextual data.
    */
-  zones: string[];
-  /**
-   * Path to navigate back when the user clicks the "Cancel" or "Go Back" button.
-   * Typically points to the parent or previous page of the import module.
-   */
-  previousPath: string;
-  /**
-   * Mapping csv header to api properties.
-   */
-  csvHeadersMapping: Record<string, string>;
-  /**
-   * Whether to apply column mapping when parsing CSV files.
-   * When true, headers from the CSV are mapped to internal field names.
-   */
-  useColumnMapping: boolean;
-  /**
-   * Optional list of expected column names in the CSV.
-   * Can be used to validate that the CSV contains all required columns.
-   */
-  expectedColumns?: string[];
-  /**
-   * Number of lines to skip at the beginning of the CSV file.
-   * Useful when the CSV contains metadata or comments before the header row.
-   */
-  skipFirstCsvNLines?: number;
-  /**
-   * Maximum number of CSV rows to import concurrently.
-   * Limits parallel processing to prevent overloading the server.
-   */
-  numberOfParallelImports: number;
+  instanceId: string;
 }
