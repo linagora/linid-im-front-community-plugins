@@ -118,6 +118,13 @@ The component uses scoped i18n with the following translation keys:
 - `{i18nScope}.AdvancedSearchCard.title` - Title displayed in the card header
 - `{i18nScope}.AdvancedSearchCard.moreFilters` - Label for the expand button
 - `{i18nScope}.AdvancedSearchCard.lessFilters` - Label for the collapse button
+- `{i18nScope}.AdvancedSearchCard.fields.{FIELD_NAME}.label` - Label for each filter field
+- `{i18nScope}.AdvancedSearchCard.fields.{FIELD_NAME}.hint` - Helper text for each filter field
+- `{i18nScope}.AdvancedSearchCard.fields.{FIELD_NAME}.prefix` - Input prefix for each filter field
+- `{i18nScope}.AdvancedSearchCard.fields.{FIELD_NAME}.suffix` - Input suffix for each filter field
+- `{i18nScope}.AdvancedSearchCard.fields.{FIELD_NAME}.close` - Label for the date picker's close button when the field is of type Date
+- `{i18nScope}.AdvancedSearchCard.fields.{FIELD_NAME}.validation.dynamicList.missingRoute` - Validation message when a Dynamic List field is missing its data route
+- `{i18nScope}.AdvancedSearchCard.fields.{FIELD_NAME}.validation.dynamicList.fetchError` - Validation message when fetching options for a Dynamic List field fails
 
 Example:
 
@@ -126,7 +133,21 @@ Example:
   "moduleUsers.UsersPage.AdvancedSearchCard": {
     "title": "Search filters",
     "moreFilters": "More filters",
-    "lessFilters": "Less filters"
+    "lessFilters": "Less filters",
+    "fields": {
+      "email": {
+        "label": "Email Address",
+        "hint": "Enter a valid email address",
+        "prefix": "",
+        "suffix": ""
+      },
+      "age": {
+        "label": "Age",
+        "hint": "Enter the user's age",
+        "prefix": "",
+        "suffix": "years"
+      }
+    }
   }
 }
 ```
