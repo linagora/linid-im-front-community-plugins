@@ -37,6 +37,15 @@ export default {
         loadSuccess: 'File(s) successfully loaded',
         loadError: 'Error while importing files',
       },
+      ButtonsCard: {
+        cancel: 'Cancel',
+        confirm: 'Import',
+        confirmLoading: 'Importing...',
+        clear: 'Clear...',
+        clearAll: 'All rows',
+        clearError: 'Rows with errors',
+        clearImported: 'Imported rows',
+      },
       ImportedDataTable: {
         expandButtonOpen: 'View errors',
         expandButtonClose: 'Close',
@@ -55,6 +64,11 @@ export default {
           ERROR: 'Error(s) during import',
         },
       },
+      importSuccess: 'All data has been successfully imported',
+      importWarning: 'Some data could not be imported',
+      importError: 'No data could be imported',
+      clearSuccess: 'Rows have been successfully deleted',
+      clearWarning: 'No rows have been deleted',
     },
   },
 };

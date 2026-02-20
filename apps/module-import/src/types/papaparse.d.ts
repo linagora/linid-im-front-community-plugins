@@ -95,6 +95,10 @@ declare module 'papaparse' {
      * @default false
      */
     skipEmptyLines?: boolean;
+    /**
+     * Skip the first N lines of the input.
+     */
+    skipFirstNLines?: number;
 
     /**
      * Callback executed when parsing completes successfully.
