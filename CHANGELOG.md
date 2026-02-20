@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.7](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.1.6...v0.1.7) (2026-02-20)
+
+
+### Features
+
+* **catalog-ui:** add dynamic list field ([fe368e8](https://github.com/linagora/linid-im-front-community-plugins/commit/fe368e879c75256b5be21980c7e95a979e4cfa62))
+
 ### [0.1.6](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.1.5...v0.1.6) (2026-02-19)
 
 
