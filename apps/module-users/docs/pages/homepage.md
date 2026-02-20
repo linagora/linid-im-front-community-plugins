@@ -169,8 +169,18 @@ When using advanced search, add the following translation keys:
       "moreFilters": "More filters",
       "lessFilters": "Less filters",
       "fields": {
-        "email": "Email",
-        "firstName": "First Name"
+        "email": {
+          "label": "Email",
+          "hint": "Enter an email address",
+          "prefix": "",
+          "suffix": ""
+        },
+        "firstName": {
+          "label": "First Name",
+          "hint": "Enter a first name",
+          "prefix": "",
+          "suffix": ""
+        }
       }
     }
   }
