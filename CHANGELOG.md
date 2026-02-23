@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.8](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.1.7...v0.1.8) (2026-02-23)
+
+
+### Bug Fixes
+
+* i18n scope must be instance id for form fields ([4df52d9](https://github.com/linagora/linid-im-front-community-plugins/commit/4df52d9b93d6b4d699c71e7666497ee9356ab9d0))
+
 ### [0.1.7](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.1.6...v0.1.7) (2026-02-20)
 
 
