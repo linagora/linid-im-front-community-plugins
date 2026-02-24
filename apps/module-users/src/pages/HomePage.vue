@@ -55,7 +55,7 @@
               />
               <q-btn
                 v-bind="uiProps.createButton"
-                :label="t('createButton')"
+                :label="t('ButtonsCard.create')"
                 class="buttons-card--create-button"
                 data-cy="button_create"
                 @click="goToCreate"
@@ -180,7 +180,7 @@ const { ui } = useUiDesign();
 const uiProps = computed(() => ({
   seeButton: ui<LinidQBtnProps>(`${uiNamespace.value}.see-button`, 'q-btn'),
   createButton: ui<LinidQBtnProps>(
-    `${uiNamespace.value}.create-button`,
+    `${uiNamespace.value}.buttons-card.create-button`,
     'q-btn'
   ),
 }));

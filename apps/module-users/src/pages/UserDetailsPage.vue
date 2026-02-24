@@ -51,7 +51,7 @@
               <q-btn
                 v-bind="uiProps.editButton"
                 class="buttons-card--edit-button"
-                :label="t('edit')"
+                :label="t('ButtonsCard.edit')"
                 data-cy="button_edit"
                 @click="goToEdit"
               />
@@ -113,7 +113,10 @@ const entityDetailsCard = loadAsyncComponent('catalogUI/EntityDetailsCard');
 const buttonsCard = loadAsyncComponent('catalogUI/ButtonsCard');
 
 const uiProps = computed(() => ({
-  editButton: ui<LinidQBtnProps>(`${uiNamespace.value}.edit-button`, 'q-btn'),
+  editButton: ui<LinidQBtnProps>(
+    `${uiNamespace.value}.buttons-card.edit-button`,
+    'q-btn'
+  ),
 }));
 
 /**

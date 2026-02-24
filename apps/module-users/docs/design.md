@@ -46,8 +46,10 @@ The main page displaying the users list in a table.
       "see-button": {
         "q-btn": { "color": "primary", "flat": true, "dense": true }
       },
-      "create-button": {
-        "q-btn": { "color": "positive", "unelevated": true }
+      "buttons-card": {
+        "create-button": {
+          "q-btn": { "color": "positive", "unelevated": true }
+        }
       },
       "generic-entity-table": {
         "q-table": { "dense": true, "bordered": true }
@@ -109,9 +111,6 @@ Page displaying detailed information about a specific user.
 {
   "moduleUsers": {
     "user-details-page": {
-      "edit-button": {
-        "q-btn": { "color": "primary", "unelevated": true }
-      },
       "entity-details-card": {
         "q-card": { "flat": true, "bordered": true },
         "[FIELD_NAME]": {
@@ -129,6 +128,9 @@ Page displaying detailed information about a specific user.
         },
         "cancel-button": {
           "q-btn": { "color": "negative", "outline": true }
+        },
+        "edit-button": {
+          "q-btn": { "color": "primary", "unelevated": true }
         }
       }
     }
@@ -284,10 +286,10 @@ A full example showing all Users module pages configured together:
     "homepage": {
       "buttons-card": {
         "q-card": { "flat": true },
-        "q-icon": { "name": "add", "color": "positive" }
-      },
-      "create-button": {
-        "q-btn": { "color": "positive", "unelevated": true }
+        "q-icon": { "name": "add", "color": "positive" },
+        "create-button": {
+          "q-btn": { "color": "positive", "unelevated": true }
+        }
       },
       "generic-entity-table": {
         "q-table": { "dense": true, "bordered": true, "flat": true }
