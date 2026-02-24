@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.10](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.1.9...v0.1.10) (2026-02-24)
+
+
+### Features
+
+* add button to go to ImportPage ([069deb4](https://github.com/linagora/linid-im-front-community-plugins/commit/069deb4ef0b556bae9e59dfd7fafbec87f94c545))
+* add loading, columns and valid translations ([0d1fba3](https://github.com/linagora/linid-im-front-community-plugins/commit/0d1fba332371236243abd3c552f7f6202f61bb17))
+* improve LoadFilesField with new options ([32bd576](https://github.com/linagora/linid-im-front-community-plugins/commit/32bd57681e0017cb7a423ca482bffae88441c7d0))
+* integrate LoadFilesField and ImportedDataTable in ImportPage ([f47d4e5](https://github.com/linagora/linid-im-front-community-plugins/commit/f47d4e5f6fc04dcd3ef06aa8e6936c9d17240dbe))
+* register import button to users HomePage ([6576e11](https://github.com/linagora/linid-im-front-community-plugins/commit/6576e11f2cf7f06b73d1d400471968b6b15235f1))
+* update configuration ([4a00dd5](https://github.com/linagora/linid-im-front-community-plugins/commit/4a00dd50998af9f5f3873db6634c0b9e7c5838c6))
+
 ### [0.1.9](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.1.8...v0.1.9) (2026-02-23)
 
 ### [0.1.8](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.1.7...v0.1.8) (2026-02-23)
