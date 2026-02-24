@@ -33,7 +33,9 @@ export default {
       title: 'Users Management',
       error: 'Failed to load users...',
       seeButton: 'See user',
-      createButton: 'Create New User',
+      ButtonsCard: {
+        create: 'Create New User',
+      },
     },
     NewUserPage: {
       title: 'Create New User',
@@ -60,10 +62,10 @@ export default {
     },
     UserDetailsPage: {
       title: 'User Details:',
-      edit: 'Edit',
       error: 'Failed to load user data',
       ButtonsCard: {
         cancel: 'Back to Users List',
+        edit: 'Edit',
       },
       EntityDetailsCard: {
         title: 'User Information',

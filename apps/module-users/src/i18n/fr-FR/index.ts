@@ -33,7 +33,9 @@ export default {
       title: 'Gestion des utilisateurs',
       error: 'Impossible de charger les utilisateurs...',
       seeButton: "Voir l'utilisateur",
-      createButton: 'Créer un nouvel utilisateur',
+      ButtonsCard: {
+        create: 'Créer un nouvel utilisateur',
+      },
     },
     NewUserPage: {
       title: 'Créer un nouvel utilisateur',
@@ -60,10 +62,10 @@ export default {
     },
     UserDetailsPage: {
       title: 'Détails de l’utilisateur :',
-      edit: 'Modifier',
       error: "Échec du chargement des données de l'utilisateur",
       ButtonsCard: {
         cancel: 'Retour à la liste des utilisateurs',
+        edit: 'Modifier',
       },
       EntityDetailsCard: {
         title: "Informations de l'utilisateur",
