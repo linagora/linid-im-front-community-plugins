@@ -57,7 +57,7 @@
             :is="fieldComponent"
             v-if="fieldComponent"
             :ui-namespace="`${localUiNamespace}.default-filters.fields.${field.name}`"
-            :i18n-scope="i18nScope"
+            :i18n-scope="localI18n"
             :instance-id="instanceId"
             :definition="field"
             :entity="localFilters"
@@ -98,7 +98,7 @@
                 :is="fieldComponent"
                 v-if="fieldComponent"
                 :ui-namespace="`${localUiNamespace}.advanced-filters.fields.${field.name}`"
-                :i18n-scope="i18nScope"
+                :i18n-scope="localI18n"
                 :instance-id="instanceId"
                 :definition="field"
                 :entity="localFilters"
@@ -135,7 +135,8 @@ const props = defineProps<AdvancedSearchCardProps>();
 const emit = defineEmits<AdvancedSearchCardOutputs>();
 
 const localUiNamespace = `${props.uiNamespace}.advanced-search-card`;
-const { t, te } = useScopedI18n(`${props.i18nScope}.AdvancedSearchCard`);
+const localI18n = `${props.i18nScope}.AdvancedSearchCard`;
+const { t, te } = useScopedI18n(localI18n);
 const { ui } = useUiDesign();
 
 const uiProps = {
