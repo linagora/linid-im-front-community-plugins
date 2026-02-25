@@ -36,6 +36,10 @@
     :prefix="translateOrDefault('', 'prefix')"
     :suffix="translateOrDefault('', 'suffix')"
     :options="allOptions"
+    option-label="label"
+    option-value="value"
+    emit-value
+    map-options
     :rules="rules"
     :loading="isLoading"
     @virtual-scroll="onVirtualScroll"
@@ -66,6 +70,7 @@ import { computed, onMounted, ref } from 'vue';
 import { getDynamicListPage } from '../../services/dynamicListService';
 import type {
   AttributeFieldProps,
+  DynamicListElement,
   EntityAttributeFieldOutputs,
   FieldDynamicListSettings,
 } from '../../types/field';
@@ -91,7 +96,7 @@ const { translateOrDefault, t } = useScopedI18n(
   `${props.i18nScope}.fields.${props.definition.name}`
 );
 
-const allOptions = ref<string[]>([]);
+const allOptions = ref<DynamicListElement[]>([]);
 const isLoading = ref(false);
 const error = ref<string | null>(null);
 let currentPage = 0;
@@ -123,7 +128,7 @@ onMounted(async () => {
 });
 
 /**
- * Fetches the next page of options from the backend.
+ * Fetches the next page of elements from the backend.
  */
 async function fetchPage() {
   if (!route.value || isLoading.value || !hasMore) {

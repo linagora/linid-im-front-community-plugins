@@ -2,7 +2,7 @@
 
 The **EntityAttributeDynamicListField** component is a specialized attribute field designed to handle **dynamic list-based attributes** within an entity.
 
-It relies on Quasar's `QSelect` component with **lazy loading** (dynamic loading on virtual scroll) and integrates with the LinID design system and scoped i18n to provide a fully customizable, localized, and reactive select input for values fetched from a backend endpoint.
+It relies on Quasar's `QSelect` component with **lazy loading** (dynamic loading on virtual scroll) and integrates with the LinID design system and scoped i18n to provide a fully customizable, localized, and reactive select input for structured `{ label, value }` elements fetched from a backend endpoint. The dropdown displays **labels** while the entity stores only the **value**.
 
 Unlike `EntityAttributeListField`, which uses a static predefined list, this component fetches options **page by page** from a DLVP (Dynamic List Validation Plugin) route endpoint, loading more items as the user scrolls through the dropdown.
 
@@ -11,8 +11,10 @@ Unlike `EntityAttributeListField`, which uses a static predefined list, this com
 ## **🎯 Purpose**
 
 - Renders a dynamic list attribute using a dropdown/select field with lazy loading
-- Fetches options from a backend route endpoint (DLVP) using pagination
+- Fetches structured `{ label, value }` elements from a backend route endpoint (DLVP) using pagination
+- Displays **labels** in the dropdown while storing only **values** in the entity
 - Loads additional pages on virtual scroll (infinite scrolling pattern)
+- Resolves pre-filled entity values to their corresponding label via Quasar's `map-options`
 - Synchronizes the selected value with the entity model
 - Emits normalized entity updates on user selection
 - Supports scoped translations for labels, hints, prefixes, and suffixes
@@ -53,6 +55,17 @@ export interface AttributeFieldProps<T = Record<string, unknown>> extends Common
    * @default false
    */
   ignoreRules?: boolean;
+}
+```
+
+### DynamicListElement
+
+```ts
+export interface DynamicListElement {
+  /** The display label shown in the dropdown. */
+  label: string;
+  /** The stored value used for entity binding. */
+  value: string;
 }
 ```
 
@@ -212,18 +225,19 @@ The validation rules are executed in a specific order to ensure proper validatio
 ## **🔁 Data Flow**
 
 1. Initial value is resolved from:
-   - `entity[definition.name]` (existing value in entity)
+   - `entity[definition.name]` (existing value string in entity)
    - `null` (fallback if no entity value exists)
 
-2. On mount, the first page of options is fetched from the backend
+2. On mount, the first page of `{ label, value }` elements is fetched from the backend
 3. User scrolls through the dropdown → next page is fetched and appended
-4. User selects a value from the dropdown
-5. `localValue` is updated via `v-model`
-6. `updateValue()` emits `update:entity` with a new entity object
+4. Quasar's `map-options` resolves the stored value string to its corresponding label for display
+5. User selects an element from the dropdown → `emit-value` ensures only the `value` string is stored
+6. `localValue` is updated via `v-model` (always a string)
+7. `updateValue()` emits `update:entity` with a new entity object
 
 ```text
-Backend API → fetchPage() → allOptions → QSelect
-QSelect → localValue → updateValue → update:entity
+Backend API → fetchPage() → allOptions (DynamicListElement[]) → QSelect (displays labels)
+QSelect → localValue (value string) → updateValue → update:entity
 ```
 
 ---
@@ -233,12 +247,12 @@ QSelect → localValue → updateValue → update:entity
 ### Options Management (Lazy Loading)
 
 ```ts
-const allOptions = ref<string[]>([]);
+const allOptions = ref<DynamicListElement[]>([]);
 let currentPage = 0;
 let hasMore = true;
 ```
 
-- `allOptions`: Accumulates all fetched values across pages
+- `allOptions`: Accumulates all fetched `{ label, value }` elements across pages
 - `currentPage`: Tracks the next page to fetch (zero-based)
 - `hasMore`: Set to `false` when the backend returns `last: true`
 
@@ -334,8 +348,10 @@ const localValue = ref(props.entity[props.definition.name] ?? null);
 ```
 
 - Uses a local reactive reference to isolate UI interaction
+- Stores the **value string** (not the full `{ label, value }` object), thanks to Quasar's `emit-value` prop
 - Falls back to `null` if the entity has no existing value
 - Does not react to prop changes after initialization (stable props assumption)
+- Quasar's `map-options` resolves the stored value to its corresponding `{ label, value }` object for display
 
 ---
 
@@ -352,8 +368,8 @@ import { getDynamicListPage } from '../../services/dynamicListService';
 ### Service API
 
 ```ts
-export async function getDynamicListPage(route: string, pagination: Pagination): Promise<Page<string>> {
-  const response = await getHttpClient().get<Page<string>>(route, {
+export async function getDynamicListPage(route: string, pagination: Pagination): Promise<Page<DynamicListElement>> {
+  const response = await getHttpClient().get<Page<DynamicListElement>>(route, {
     params: pagination,
   });
   return response.data;
@@ -362,11 +378,15 @@ export async function getDynamicListPage(route: string, pagination: Pagination):
 
 ### Backend Response Format (Spring Page)
 
-The backend DLVP route plugin returns a standard Spring `Page<String>` response:
+The backend DLVP route plugin returns a standard Spring `Page<Map<String, String>>` response with structured elements:
 
 ```json
 {
-  "content": ["value1", "value2", "value3"],
+  "content": [
+    { "label": "Type A", "value": "1" },
+    { "label": "Type B", "value": "2" },
+    { "label": "Type C", "value": "3" }
+  ],
   "totalElements": 50,
   "totalPages": 5,
   "number": 0,
@@ -380,10 +400,10 @@ The backend DLVP route plugin returns a standard Spring `Page<String>` response:
 
 Key fields used by the component:
 
-| Field     | Usage                                        |
-| --------- | -------------------------------------------- |
-| `content` | Array of string values appended to options   |
-| `last`    | When `true`, stops fetching additional pages |
+| Field     | Usage                                                    |
+| --------- | -------------------------------------------------------- |
+| `content` | Array of `{ label, value }` elements appended to options |
+| `last`    | When `true`, stops fetching additional pages             |
 
 ---
 
@@ -448,7 +468,7 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 - Verify initial selected value matches the entity state
 - Assert `getDynamicListPage` is called on mount with `{ page: 0, size: configuredSize }`
 - Test default page size (20) when `size` is not configured
-- Verify options are populated after a successful fetch
+- Verify options are populated with `{ label, value }` objects after a successful fetch
 - Test error state when `route` is missing from `inputSettings`
 - Test error state on fetch failure
 - Verify fetching stops when the last page is reached
@@ -457,7 +477,7 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 - Test virtual scroll triggers next page fetch when reaching the end
 - Test virtual scroll does not fetch when not at the end of the list
 - Test virtual scroll does not fetch when `hasMore` is `false`
-- Assert `update:entity` emission on selection changes
+- Assert `update:entity` emission stores the `value` string (not the full object) on selection changes
 - Verify `ignoreRules` prop bypasses validation rules
 - Verify validation rules are applied when `ignoreRules` is `false`
 
@@ -473,8 +493,10 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 - Validation is handled internally using `useQuasarRules` and can be configured via `inputSettings`
 - Missing translations safely fall back to default values
 - Intended for use via `EntityAttributeField` dispatcher, not directly in most cases
-- The backend endpoint must return a Spring `Page<String>` response format
+- The backend endpoint must return a Spring `Page<Map<String, String>>` response with `{ label, value }` elements
 - Works in conjunction with the DLVP (Dynamic List Validation Plugin) on the backend
+- Quasar's `option-label`, `option-value`, `emit-value`, and `map-options` props handle the label/value mapping natively
+- Pre-filled entity values are resolved to their label once the matching option is loaded via lazy loading
 
 ---
 
@@ -484,8 +506,8 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 
 It is responsible only for:
 
-- Fetching options lazily from a backend DLVP route endpoint
-- Rendering the select dropdown with dynamically loaded values
+- Fetching `{ label, value }` elements lazily from a backend DLVP route endpoint
+- Rendering the select dropdown with labels while storing values in the entity
 - Managing local UI state (pagination, loading, error)
 - Emitting normalized entity updates
 

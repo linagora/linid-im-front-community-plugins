@@ -137,6 +137,16 @@ export interface FieldListSettings extends FieldSettings {
 }
 
 /**
+ * Represents a structured element returned by the DLVP route plugin.
+ */
+export interface DynamicListElement {
+  /** The display label shown in the dropdown. */
+  label: string;
+  /** The stored value used for entity binding. */
+  value: string;
+}
+
+/**
  * Settings for fields that fetch options dynamically from a backend endpoint.
  */
 export interface FieldDynamicListSettings extends FieldSettings {
