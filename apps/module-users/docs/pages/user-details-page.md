@@ -117,10 +117,10 @@ The page includes an **Edit** button in the footer, displayed using the `Buttons
 
 ### Features
 
-- Located in the page footer, aligned with the cancel/back button.
+- Located in the page header actions area, aligned with the title.
 - Navigates to the user edit page (`/users/:id/edit`) when clicked.
-- Styled via the UI design system using `{uiNamespace}.edit-button`.
-- Labeled via i18n using the `edit` translation key.
+- Styled via the UI design system using `{uiNamespace}.buttons-card.edit-button`.
+- Labeled via i18n using the `ButtonsCard.edit` translation key.
 
 ### UI Customization
 
@@ -129,10 +129,12 @@ The edit button can be customized through the design system:
 ```json
 {
   "user-details-page": {
-    "edit-button": {
-      "q-btn": {
-        "color": "primary",
-        "icon": "edit"
+    "buttons-card": {
+      "edit-button": {
+        "q-btn": {
+          "color": "primary",
+          "icon": "edit"
+        }
       }
     }
   }
@@ -166,10 +168,10 @@ All user-facing text is translated using the i18n scope:
 {
   "UserDetailsPage": {
     "title": "User Details",
-    "edit": "Edit",
     "error": "Failed to load user details",
     "ButtonsCard": {
-      "cancel": "Back"
+      "cancel": "Back",
+      "edit": "Edit"
     },
     "EntityDetailsCard": {
       "title": "User Information",
