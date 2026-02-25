@@ -15,6 +15,7 @@ The page supports i18n, configurable field ordering, automatic UI styling throug
 - Supports **configurable field ordering** via `fieldOrder` option.
 - Supports **optional display of remaining fields** via `showRemainingFields` option.
 - Provides **navigation controls** (back to list, edit user) via `ButtonsCard` component.
+- Supports **plugin zones** for extending the page with relationship forms and data displays.
 - Uses **i18n** for all user-facing text with scoped translations.
 - Integrates with the **LinID design system** for consistent styling.
 - Provides **loading states** for asynchronous data operations.
@@ -24,19 +25,20 @@ The page supports i18n, configurable field ordering, automatic UI styling throug
 
 ## Props and Data
 
-| Name                | Type                                   | Description                                                                             |
-| ------------------- | -------------------------------------- | --------------------------------------------------------------------------------------- |
-| `user`              | `Ref<Record<string, unknown> \| null>` | Reactive object holding the user's data (null until loaded).                            |
-| `isLoading`         | `Ref<boolean>`                         | Boolean indicating if a data load is in progress.                                       |
-| `entityDetailsCard` | `Ref<Component \| null>`               | Asynchronously loaded `EntityDetailsCard` component.                                    |
-| `buttonsCard`       | `Ref<Component \| null>`               | Asynchronously loaded `ButtonsCard` component.                                          |
-| `uiNamespace`       | `string`                               | Namespace for UI design props (`{instanceId}.user-details-page`).                       |
-| `i18nScope`         | `string`                               | Scope for i18n translations (`{instanceId}.UserDetailsPage`).                           |
-| `uiProps`           | `{ editButton: LinidQBtnProps }`       | UI props for the edit button.                                                           |
-| `instanceId`        | `ComputedRef<string>`                  | Computed from the route meta, used for i18n and module configuration.                   |
-| `userId`            | `ComputedRef<string>`                  | Computed from route params, identifies which user to load.                              |
-| `parentPath`        | `ComputedRef<string>`                  | Computed path for navigation (typically `/users`).                                      |
-| `options`           | `ModuleUsersOptions`                   | Configuration options for the module, including `fieldOrder` and `showRemainingFields`. |
+| Name                | Type                                          | Description                                                                             |
+| ------------------- | --------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `user`              | `Ref<Record<string, unknown> \| null>`        | Reactive object holding the user's data (null until loaded).                            |
+| `isLoading`         | `Ref<boolean>`                                | Boolean indicating if a data load is in progress.                                       |
+| `entityDetailsCard` | `Ref<Component \| null>`                      | Asynchronously loaded `EntityDetailsCard` component.                                    |
+| `buttonsCard`       | `Ref<Component \| null>`                      | Asynchronously loaded `ButtonsCard` component.                                          |
+| `pageName`          | `string`                                      | Constant page name (`UserDetailsPage`), used for zone names and i18n scope.             |
+| `uiNamespace`       | `ComputedRef<string>`                         | Computed namespace for UI design props (`{instanceId}.user-details-page`).              |
+| `i18nScope`         | `ComputedRef<string>`                         | Computed scope for i18n translations (`{instanceId}.UserDetailsPage`).                  |
+| `uiProps`           | `ComputedRef<{ editButton: LinidQBtnProps }>` | Computed UI props for the edit button.                                                  |
+| `instanceId`        | `ComputedRef<string>`                         | Computed from the route meta, used for i18n and module configuration.                   |
+| `userId`            | `ComputedRef<string>`                         | Computed from route params, identifies which user to load.                              |
+| `parentPath`        | `ComputedRef<string>`                         | Computed path for navigation (typically `/users`).                                      |
+| `options`           | `ModuleUsersOptions`                          | Configuration options for the module, including `fieldOrder` and `showRemainingFields`. |
 
 ---
 
@@ -108,6 +110,56 @@ Example configuration:
 - Fields in `fieldOrder` appear first, in the specified order.
 - If `showRemainingFields` is `true`, remaining user attributes appear after ordered fields.
 - If `showRemainingFields` is `false`, only fields in `fieldOrder` are displayed.
+
+---
+
+## Plugin Zones
+
+The page provides two plugin zones that allow other modules to extend functionality:
+
+### `{instanceId}.UserDetailsPage.relationshipForms`
+
+Zone for rendering forms related to user relationships (e.g., group membership forms, role assignment forms).
+
+- Rendered below the user details card.
+- Plugins can register components in this zone to add relationship management UI.
+- The `userId` of the current user is automatically forwarded to all registered components.
+
+### `{instanceId}.UserDetailsPage.relationshipData`
+
+Zone for displaying relationship data (e.g., list of groups, assigned roles).
+
+- Rendered below the relationship forms zone.
+- Plugins can register components in this zone to display related entities.
+- The `userId` of the current user is automatically forwarded to all registered components.
+
+### Props forwarded to zone components
+
+| Prop     | Type     | Description                         |
+| -------- | -------- | ----------------------------------- |
+| `userId` | `string` | The ID of the currently viewed user |
+
+**Example zone usage:**
+
+```ts
+const zoneStore = useLinidZoneStore();
+zoneStore.registerOnce('users.UserDetailsPage.relationshipForms', {
+  plugin: 'myModule/UserGroupsForm',
+});
+
+zoneStore.registerOnce('users.UserDetailsPage.relationshipData', {
+  plugin: 'myModule/UserGroupsList',
+});
+```
+
+**Example zone component receiving props:**
+
+```ts
+// myModule/UserGroupsForm.vue
+const props = defineProps<{
+  userId: string;
+}>();
+```
 
 ---
 
@@ -218,6 +270,7 @@ Alternatively, if loading fails:
   - `useScopedI18n` and `useUiDesign`
   - `useNotify` (user notifications)
   - `getModuleHostConfiguration` (module options)
+  - `LinidZoneRenderer` (plugin zone rendering)
 
 - `vue-router` for route and navigation handling.
 - `EntityDetailsCard` (Catalog UI component).

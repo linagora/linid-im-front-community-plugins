@@ -73,6 +73,17 @@
         data-cy="user-details-card"
       />
     </div>
+
+    <!-- eslint-disable vue/attribute-hyphenation -->
+    <LinidZoneRenderer
+      :zone="`${instanceId}.${pageName}.relationshipForms`"
+      :userId
+    />
+    <LinidZoneRenderer
+      :zone="`${instanceId}.${pageName}.relationshipData`"
+      :userId
+    />
+    <!-- eslint-enable vue/attribute-hyphenation -->
   </q-page>
   <!-- v8 ignore stop -->
 </template>
@@ -82,6 +93,7 @@ import type { LinidQBtnProps } from '@linagora/linid-im-front-corelib';
 import {
   getEntityById,
   getModuleHostConfiguration,
+  LinidZoneRenderer,
   loadAsyncComponent,
   useNotify,
   useScopedI18n,
@@ -96,7 +108,8 @@ const router = useRouter();
 const parentPath = computed(() => route.matched[0]?.path);
 const instanceId = computed<string>(() => route.meta.instanceId as string);
 const userId = computed(() => route.params.id as string);
-const i18nScope = computed<string>(() => `${instanceId.value}.UserDetailsPage`);
+const pageName = 'UserDetailsPage';
+const i18nScope = computed<string>(() => `${instanceId.value}.${pageName}`);
 const uiNamespace = computed(() => `${instanceId.value}.user-details-page`);
 const options = computed(
   () =>
