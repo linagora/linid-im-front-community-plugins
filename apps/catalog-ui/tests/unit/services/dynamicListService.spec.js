@@ -37,7 +37,11 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
 
 describe('Test service: dynamicListService', () => {
   const mockPage = {
-    content: ['value1', 'value2', 'value3'],
+    content: [
+      { label: 'Value 1', value: 'value1' },
+      { label: 'Value 2', value: 'value2' },
+      { label: 'Value 3', value: 'value3' },
+    ],
     totalElements: 50,
     totalPages: 5,
     number: 0,

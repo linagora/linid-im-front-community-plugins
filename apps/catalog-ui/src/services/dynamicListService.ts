@@ -26,18 +26,19 @@
 
 import type { Page, Pagination } from '@linagora/linid-im-front-corelib';
 import { getHttpClient } from '@linagora/linid-im-front-corelib';
+import type { DynamicListElement } from '../types/field';
 
 /**
- * Fetches a page of dynamic list values from a DLVP route plugin endpoint.
+ * Fetches a page of dynamic list elements from a DLVP route plugin endpoint.
  * @param route - The route path (e.g. "/api/types").
  * @param pagination - Pagination parameters (page, size).
- * @returns The paginated response.
+ * @returns The paginated response containing structured elements.
  */
 export async function getDynamicListPage(
   route: string,
   pagination: Pagination
-): Promise<Page<string>> {
-  const response = await getHttpClient().get<Page<string>>(route, {
+): Promise<Page<DynamicListElement>> {
+  const response = await getHttpClient().get<Page<DynamicListElement>>(route, {
     params: pagination,
   });
   return response.data;

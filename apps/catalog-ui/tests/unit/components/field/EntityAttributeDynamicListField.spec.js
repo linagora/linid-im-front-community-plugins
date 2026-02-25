@@ -52,7 +52,11 @@ vi.mock('../../../../src/services/dynamicListService', () => ({
 describe('Test component: EntityAttributeDynamicListField', () => {
   let wrapper;
   const mockPage = {
-    content: ['value1', 'value2', 'value3'],
+    content: [
+      { label: 'Value 1', value: 'value1' },
+      { label: 'Value 2', value: 'value2' },
+      { label: 'Value 3', value: 'value3' },
+    ],
     totalElements: 50,
     totalPages: 5,
     number: 0,
@@ -101,6 +105,10 @@ describe('Test component: EntityAttributeDynamicListField', () => {
             'prefix',
             'suffix',
             'options',
+            'optionLabel',
+            'optionValue',
+            'emitValue',
+            'mapOptions',
             'rules',
             'hint',
             'loading',
@@ -290,23 +298,36 @@ describe('Test component: EntityAttributeDynamicListField', () => {
         content: [],
       });
 
-      wrapper.vm.allOptions = ['value1', 'value2'];
+      wrapper.vm.allOptions = [
+        { label: 'Value 1', value: 'value1' },
+        { label: 'Value 2', value: 'value2' },
+      ];
       await wrapper.vm.fetchPage();
 
-      expect(wrapper.vm.allOptions).toEqual(['value1', 'value2']);
+      expect(wrapper.vm.allOptions).toEqual([
+        { label: 'Value 1', value: 'value1' },
+        { label: 'Value 2', value: 'value2' },
+      ]);
     });
 
     it('should populate options after successful fetch', async () => {
       wrapper.vm.allOptions = [];
       await wrapper.vm.fetchPage();
-      expect(wrapper.vm.allOptions).toEqual(['value1', 'value2', 'value3']);
+      expect(wrapper.vm.allOptions).toEqual([
+        { label: 'Value 1', value: 'value1' },
+        { label: 'Value 2', value: 'value2' },
+        { label: 'Value 3', value: 'value3' },
+      ]);
     });
 
     it('should increment page number after successful fetch', async () => {
       wrapper.vm.currentPage = 7;
       mockGetDynamicListPage.mockResolvedValue({
         ...mockPage,
-        content: ['value4', 'value5'],
+        content: [
+          { label: 'Value 4', value: 'value4' },
+          { label: 'Value 5', value: 'value5' },
+        ],
       });
 
       await wrapper.vm.fetchPage();
@@ -343,7 +364,10 @@ describe('Test component: EntityAttributeDynamicListField', () => {
     });
 
     it('should not fetch when not at the end of the list', async () => {
-      wrapper.vm.allOptions = ['value4', 'value5'];
+      wrapper.vm.allOptions = [
+        { label: 'Value 4', value: 'value4' },
+        { label: 'Value 5', value: 'value5' },
+      ];
       wrapper.vm.onVirtualScroll({ to: 0, ref: null });
       await nextTick();
 
@@ -351,7 +375,10 @@ describe('Test component: EntityAttributeDynamicListField', () => {
     });
 
     it('should fetch next page when scroll reaches end', async () => {
-      wrapper.vm.allOptions = ['value4', 'value5'];
+      wrapper.vm.allOptions = [
+        { label: 'Value 4', value: 'value4' },
+        { label: 'Value 5', value: 'value5' },
+      ];
       wrapper.vm.onVirtualScroll({ to: 2, ref: null });
       await nextTick();
 
