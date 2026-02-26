@@ -453,6 +453,68 @@ describe('Test component: EntityAttributeDynamicListField', () => {
     });
   });
 
+  describe('Test function: ensurePresetValueInOptions', () => {
+    it('should add placeholder when entity has preset value not in options', async () => {
+      mountingOptions.props.entity.type = 'unknown-value';
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+      await nextTick();
+
+      expect(wrapper.vm.allOptions[0]).toEqual({
+        label: 'unknown-value',
+        value: 'unknown-value',
+      });
+      expect(wrapper.vm.allOptions.length).toEqual(4);
+    });
+
+    it('should not add placeholder when entity value is found in options', async () => {
+      mountingOptions.props.entity.type = 'value2';
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+      await nextTick();
+
+      expect(wrapper.vm.allOptions.length).toEqual(3);
+      expect(wrapper.vm.allOptions.every((o) => o.label !== 'value2')).toBe(
+        true
+      );
+    });
+
+    it('should not add placeholder when entity has no value', async () => {
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+      await nextTick();
+
+      expect(wrapper.vm.allOptions.length).toEqual(3);
+    });
+  });
+
+  describe('Test function: removePlaceholderIfResolved', () => {
+    it('should remove placeholder when real option is loaded on subsequent page', async () => {
+      mountingOptions.props.entity.type = 'value-on-page2';
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+      await nextTick();
+
+      expect(wrapper.vm.allOptions[0]).toEqual({
+        label: 'value-on-page2',
+        value: 'value-on-page2',
+      });
+
+      mockGetDynamicListPage.mockResolvedValue({
+        ...mockPage,
+        content: [{ label: 'Real Label', value: 'value-on-page2' }],
+        last: true,
+      });
+      await wrapper.vm.fetchPage();
+
+      const matching = wrapper.vm.allOptions.filter(
+        (o) => o.value === 'value-on-page2'
+      );
+      expect(matching.length).toEqual(1);
+      expect(matching[0].label).toEqual('Real Label');
+    });
+  });
+
   describe('Test function: updateValue', () => {
     beforeEach(() => {
       wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
