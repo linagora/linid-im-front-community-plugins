@@ -30,6 +30,7 @@
     :model-value="show"
     v-bind="uiProps.dialog"
     data-cy="confirmation_dialog"
+    @hide="show = false"
   >
     <q-card data-cy="confirmation_dialog_card_title">
       <q-card-section>
@@ -82,7 +83,7 @@ let onConfirm: () => Promise<void>;
 const { ui } = useUiDesign();
 const uiProps = computed(() => ({
   dialog: ui<LinidQDialogProps>(
-    `${uiNamespace.value}.dialog-cancel-button`,
+    `${uiNamespace.value}.confirmation-dialog`,
     'q-dialog'
   ),
 }));
