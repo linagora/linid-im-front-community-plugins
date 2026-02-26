@@ -229,11 +229,12 @@ The validation rules are executed in a specific order to ensure proper validatio
    - `null` (fallback if no entity value exists)
 
 2. On mount, the first page of `{ label, value }` elements is fetched from the backend
-3. User scrolls through the dropdown → next page is fetched and appended
-4. Quasar's `map-options` resolves the stored value string to its corresponding label for display
-5. User selects an element from the dropdown → `emit-value` ensures only the `value` string is stored
-6. `localValue` is updated via `v-model` (always a string)
-7. `updateValue()` emits `update:entity` with a new entity object
+3. After the initial fetch, if the entity has a preset value not found in the loaded options, a placeholder entry `{ label: value, value: value }` is injected so that the field always displays something meaningful
+4. User scrolls through the dropdown → next page is fetched and appended; if the real option matching the preset value is loaded, the placeholder is automatically removed
+5. Quasar's `map-options` resolves the stored value string to its corresponding label for display
+6. User selects an element from the dropdown → `emit-value` ensures only the `value` string is stored
+7. `localValue` is updated via `v-model` (always a string)
+8. `updateValue()` emits `update:entity` with a new entity object
 
 ```text
 Backend API → fetchPage() → allOptions (DynamicListElement[]) → QSelect (displays labels)
@@ -324,6 +325,25 @@ async function fetchPage() {
 - Uses `push(...page.content)` to append in-place instead of creating a new array each time
 - Skips the append when the page is empty to avoid unnecessary operations
 - On failure, `error` is set to a user-facing translated message
+
+### Preset Value Resolution
+
+When editing an entity that already has a value stored, the corresponding option may not be in the first page of results. Two helper functions handle this:
+
+```ts
+function ensurePresetValueInOptions() {
+  // After initial fetch, if localValue is not found in allOptions,
+  // prepends a placeholder { label: value, value: value }
+}
+
+function removePlaceholderIfResolved() {
+  // After each page fetch, if the real option has been loaded,
+  // removes the placeholder to avoid duplicates
+}
+```
+
+- `ensurePresetValueInOptions()`: Called once after the initial `fetchPage()` in `onMounted`. Prepends a placeholder entry if the entity's preset value is not found in the loaded options.
+- `removePlaceholderIfResolved()`: Called after each successful `fetchPage()`. Detects and removes the placeholder when the real option (with its proper label) is loaded.
 
 ### Virtual Scroll Handler
 
@@ -477,6 +497,10 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 - Test virtual scroll triggers next page fetch when reaching the end
 - Test virtual scroll does not fetch when not at the end of the list
 - Test virtual scroll does not fetch when `hasMore` is `false`
+- Verify a placeholder is added when the entity's preset value is not in the loaded options
+- Verify no placeholder is added when the preset value is found in the options
+- Verify no placeholder is added when the entity has no value
+- Verify the placeholder is removed when the real option is loaded on a subsequent page
 - Assert `update:entity` emission stores the `value` string (not the full object) on selection changes
 - Verify `ignoreRules` prop bypasses validation rules
 - Verify validation rules are applied when `ignoreRules` is `false`
@@ -496,7 +520,7 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 - The backend endpoint must return a Spring `Page<Map<String, String>>` response with `{ label, value }` elements
 - Works in conjunction with the DLVP (Dynamic List Validation Plugin) on the backend
 - Quasar's `option-label`, `option-value`, `emit-value`, and `map-options` props handle the label/value mapping natively
-- Pre-filled entity values are resolved to their label once the matching option is loaded via lazy loading
+- Pre-filled entity values are displayed immediately via a placeholder if not found in the initial page; the placeholder is replaced with the real option (including its proper label) when it is loaded via lazy scrolling
 
 ---
 

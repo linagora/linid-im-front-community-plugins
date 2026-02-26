@@ -125,6 +125,7 @@ onMounted(async () => {
     return;
   }
   await fetchPage();
+  ensurePresetValueInOptions();
 });
 
 /**
@@ -145,6 +146,7 @@ async function fetchPage() {
     });
     if (page.content.length > 0) {
       allOptions.value.push(...page.content);
+      removePlaceholderIfResolved();
     }
     hasMore = !page.last;
     currentPage++;
@@ -152,6 +154,50 @@ async function fetchPage() {
     error.value = t('validation.dynamicList.fetchError');
   } finally {
     isLoading.value = false;
+  }
+}
+
+/**
+ * Ensures the entity's preset value is represented in the options list.
+ * If the value is not found among loaded options, a placeholder entry is
+ * prepended so that q-select can display the value instead of showing
+ * an empty or raw string.
+ */
+function ensurePresetValueInOptions() {
+  if (localValue.value == null) {
+    return;
+  }
+  const found = allOptions.value.some(
+    (option) => option.value === localValue.value
+  );
+  if (!found) {
+    allOptions.value.unshift({
+      label: String(localValue.value),
+      value: String(localValue.value),
+    });
+  }
+}
+
+/**
+ * Removes the placeholder entry once the real option has been loaded.
+ * A placeholder is identified as a duplicate entry where label equals value.
+ */
+function removePlaceholderIfResolved() {
+  if (localValue.value == null) {
+    return;
+  }
+  const matchingEntries = allOptions.value.filter(
+    (option) => option.value === localValue.value
+  );
+  if (matchingEntries.length > 1) {
+    const placeholderIndex = allOptions.value.findIndex(
+      (option) =>
+        option.value === localValue.value &&
+        option.label === String(localValue.value)
+    );
+    if (placeholderIndex !== -1) {
+      allOptions.value.splice(placeholderIndex, 1);
+    }
   }
 }
 
