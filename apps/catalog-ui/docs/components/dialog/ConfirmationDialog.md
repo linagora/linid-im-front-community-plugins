@@ -54,7 +54,7 @@ The dialog and its buttons can be customized using the `uiNamespace` and `i18nSc
 
 ### Dialog Customization
 
-- `${uiNamespace}.dialog-cancel-button` - Dialog container (type: `q-dialog`)
+- `${uiNamespace}.confirmation-dialog` - Dialog container (type: `q-dialog`)
 
 ### Button Customization
 
