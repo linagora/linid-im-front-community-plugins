@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.2.0](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.1.13...v0.2.0) (2026-02-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* The dynamic list service and component now expect
+Page<{ label, value }> responses instead of Page<string>.
+
+### Features
+
+* support label-value objects in dynamic list field ([780f991](https://github.com/linagora/linid-im-front-community-plugins/commit/780f991909122bb1c4913769305cdd80a623263d))
+
+
+### Bug Fixes
+
+* ensure preset entity value is visible in dynamic list field ([de9b030](https://github.com/linagora/linid-im-front-community-plugins/commit/de9b0302f727dadf9d66ff6f8b0f7839fb24ecb8))
+
 ### [0.1.13](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.1.12...v0.1.13) (2026-02-26)
 
 
