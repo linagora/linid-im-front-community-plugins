@@ -267,4 +267,61 @@ describe('Test component: EntityAttributeListField', () => {
       ]);
     });
   });
+
+  describe('Test watch: entity', () => {
+    beforeEach(() => {
+      mountingOptions.props.entity.role = 'user';
+      wrapper = shallowMount(EntityAttributeListField, mountingOptions);
+    });
+
+    it('should update localValue when entity prop changes', async () => {
+      expect(wrapper.vm.localValue).toEqual('user');
+
+      await wrapper.setProps({
+        entity: {
+          name: 'entity-name',
+          role: 'admin',
+        },
+      });
+
+      expect(wrapper.vm.localValue).toEqual('admin');
+    });
+
+    it('should set localValue to appropriate default when attribute is undefined', async () => {
+      expect(wrapper.vm.localValue).toEqual('user');
+
+      await wrapper.setProps({
+        entity: {
+          name: 'entity-name',
+        },
+      });
+
+      // Without values or defaultValue, it should be null
+      expect(wrapper.vm.localValue).toEqual(null);
+    });
+
+    it('should set localValue to null when attribute is null', async () => {
+      expect(wrapper.vm.localValue).toEqual('user');
+
+      await wrapper.setProps({
+        entity: {
+          name: 'entity-name',
+          role: null,
+        },
+      });
+
+      expect(wrapper.vm.localValue).toEqual(null);
+    });
+
+    it('should update localValue when entity reference changes', async () => {
+      const newEntity = {
+        name: 'updated-name',
+        role: 'moderator',
+      };
+
+      await wrapper.setProps({ entity: newEntity });
+
+      expect(wrapper.vm.localValue).toEqual('moderator');
+    });
+  });
 });

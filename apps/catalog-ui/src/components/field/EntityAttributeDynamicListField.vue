@@ -66,7 +66,7 @@ import {
   useScopedI18n,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { getDynamicListPage } from '../../services/dynamicListService';
 import type {
   AttributeFieldProps,
@@ -118,6 +118,13 @@ const rules = computed(() =>
 );
 
 const route = computed(() => props.definition.inputSettings?.route);
+
+watch(
+  () => props.entity,
+  (newValue) => {
+    localValue.value = newValue[props.definition.name] ?? null;
+  }
+);
 
 onMounted(async () => {
   if (!route.value) {

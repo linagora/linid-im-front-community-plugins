@@ -534,4 +534,60 @@ describe('Test component: EntityAttributeDynamicListField', () => {
       ]);
     });
   });
+
+  describe('Test watch: entity', () => {
+    beforeEach(() => {
+      mountingOptions.props.entity.type = 'standard';
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+    });
+
+    it('should update localValue when entity prop changes', async () => {
+      expect(wrapper.vm.localValue).toEqual('standard');
+
+      await wrapper.setProps({
+        entity: {
+          name: 'entity-name',
+          type: 'premium',
+        },
+      });
+
+      expect(wrapper.vm.localValue).toEqual('premium');
+    });
+
+    it('should set localValue to null when attribute is undefined', async () => {
+      expect(wrapper.vm.localValue).toEqual('standard');
+
+      await wrapper.setProps({
+        entity: {
+          name: 'entity-name',
+        },
+      });
+
+      expect(wrapper.vm.localValue).toEqual(null);
+    });
+
+    it('should set localValue to null when attribute is null', async () => {
+      expect(wrapper.vm.localValue).toEqual('standard');
+
+      await wrapper.setProps({
+        entity: {
+          name: 'entity-name',
+          type: null,
+        },
+      });
+
+      expect(wrapper.vm.localValue).toEqual(null);
+    });
+
+    it('should update localValue when entity reference changes', async () => {
+      const newEntity = {
+        name: 'updated-name',
+        type: 'enterprise',
+      };
+
+      await wrapper.setProps({ entity: newEntity });
+
+      expect(wrapper.vm.localValue).toEqual('enterprise');
+    });
+  });
 });
