@@ -45,14 +45,14 @@
             :show-cancel-button="false"
           >
             <template #append-buttons>
+              <!-- eslint-disable vue/attribute-hyphenation -->
               <LinidZoneRenderer
                 :zone="`${instanceId}.HomePage.extraButtons`"
-                :props="{
-                  instanceId,
-                  uiNamespace: `${uiNamespace}.buttons-card`,
-                  i18nScope: `${i18nScope}.ButtonsCard`,
-                }"
+                :uiNamespace="`${uiNamespace}.buttons-card`"
+                :i18nScope="`${i18nScope}.ButtonsCard`"
+                :instanceId
               />
+              <!-- eslint-enable vue/attribute-hyphenation -->
               <q-btn
                 v-bind="uiProps.createButton"
                 :label="t('ButtonsCard.create')"
@@ -125,14 +125,14 @@
 import type {
   LinidQBtnProps,
   QTableRequestEvent,
+  QuasarPagination,
   QueryFilter,
 } from '@linagora/linid-im-front-corelib';
-import { LinidZoneRenderer } from '@linagora/linid-im-front-corelib';
 import {
   getEntities,
   getModuleHostConfiguration,
+  LinidZoneRenderer,
   loadAsyncComponent,
-  type QuasarPagination,
   useNotify,
   usePagination,
   useScopedI18n,

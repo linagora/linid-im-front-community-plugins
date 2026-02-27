@@ -282,6 +282,7 @@ Example:
   - `loadAsyncComponent` (loading `GenericEntityTable` and `AdvancedSearchCard`)
   - `usePagination` (table pagination)
   - `useScopedI18n` and `useUiDesign`
+  - `LinidZoneRenderer` (plugin zone rendering)
 
 - `vue-router` for route and navigation handling.
 - `GenericEntityTable` (Catalog UI component).
@@ -315,10 +316,18 @@ This zone is rendered using `LinidZoneRenderer`.
 **Location:** in the page header, next to the **Create** button, inside the `ButtonsCard`.
 
 ```vue
-<LinidZoneRenderer :zone="`${instanceId}.HomePage.extraButtons`" />
+<LinidZoneRenderer :zone="`${instanceId}.HomePage.extraButtons`" :uiNamespace="`${uiNamespace}.buttons-card`" :i18nScope="`${i18nScope}.ButtonsCard`" :instanceId="instanceId" />
 ```
 
 This zone allows adding custom actions to the header action area.
+
+### Props forwarded to zone components
+
+| Prop          | Type     | Description                                                                    |
+| ------------- | -------- | ------------------------------------------------------------------------------ |
+| `uiNamespace` | `string` | UI namespace scoped to the buttons card (`{instanceId}.homepage.buttons-card`) |
+| `i18nScope`   | `string` | i18n scope scoped to the buttons card (`{instanceId}.HomePage.ButtonsCard`)    |
+| `instanceId`  | `string` | The module instance ID                                                         |
 
 ---
 
