@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.2](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.1...v0.2.2) (2026-02-27)
+
+
+### Bug Fixes
+
+* **catalog-ui:** change data-cy confirmation dialog ([2310d1f](https://github.com/linagora/linid-im-front-community-plugins/commit/2310d1f6b3768d8d9409329f25df95ad208f2ae8))
+
 ### [0.2.1](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.0...v0.2.1) (2026-02-27)
 
 
