@@ -166,4 +166,67 @@ describe('Test component: EntityAttributeDateField', () => {
       ]);
     });
   });
+
+  describe('Test watch: entity', () => {
+    it('should update localValue when entity prop changes', async () => {
+      expect(wrapper.vm.localValue).toEqual('1990/01/01');
+
+      await wrapper.setProps({
+        entity: {
+          name: 'entity-name',
+          description: 'entity-description',
+          type: 'entity-type',
+          isAdmin: false,
+          birthdate: '2000/12/31',
+        },
+      });
+
+      expect(wrapper.vm.localValue).toEqual('2000/12/31');
+    });
+
+    it('should set localValue to null when attribute is undefined', async () => {
+      expect(wrapper.vm.localValue).toEqual('1990/01/01');
+
+      await wrapper.setProps({
+        entity: {
+          name: 'entity-name',
+          description: 'entity-description',
+          type: 'entity-type',
+          isAdmin: false,
+        },
+      });
+
+      expect(wrapper.vm.localValue).toEqual(null);
+    });
+
+    it('should set localValue to null when attribute is null', async () => {
+      expect(wrapper.vm.localValue).toEqual('1990/01/01');
+
+      await wrapper.setProps({
+        entity: {
+          name: 'entity-name',
+          description: 'entity-description',
+          type: 'entity-type',
+          isAdmin: false,
+          birthdate: null,
+        },
+      });
+
+      expect(wrapper.vm.localValue).toEqual(null);
+    });
+
+    it('should update localValue when entity reference changes', async () => {
+      const newEntity = {
+        name: 'updated-name',
+        description: 'updated-description',
+        type: 'updated-type',
+        isAdmin: true,
+        birthdate: '1985/06/15',
+      };
+
+      await wrapper.setProps({ entity: newEntity });
+
+      expect(wrapper.vm.localValue).toEqual('1985/06/15');
+    });
+  });
 });

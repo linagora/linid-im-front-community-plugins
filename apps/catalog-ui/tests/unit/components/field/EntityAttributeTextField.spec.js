@@ -181,4 +181,63 @@ describe('Test component: EntityAttributeTextField', () => {
       ]);
     });
   });
+
+  describe('Test watch: entity', () => {
+    it('should update localValue when entity prop changes', async () => {
+      expect(wrapper.vm.localValue).toEqual('entity-name');
+
+      await wrapper.setProps({
+        entity: {
+          name: 'new-name',
+          description: 'entity-description',
+          type: 'entity-type',
+          isAdmin: false,
+        },
+      });
+
+      expect(wrapper.vm.localValue).toEqual('new-name');
+    });
+
+    it('should set localValue to null when attribute is undefined', async () => {
+      expect(wrapper.vm.localValue).toEqual('entity-name');
+
+      await wrapper.setProps({
+        entity: {
+          description: 'entity-description',
+          type: 'entity-type',
+          isAdmin: false,
+        },
+      });
+
+      expect(wrapper.vm.localValue).toEqual(null);
+    });
+
+    it('should set localValue to null when attribute is null', async () => {
+      expect(wrapper.vm.localValue).toEqual('entity-name');
+
+      await wrapper.setProps({
+        entity: {
+          name: null,
+          description: 'entity-description',
+          type: 'entity-type',
+          isAdmin: false,
+        },
+      });
+
+      expect(wrapper.vm.localValue).toEqual(null);
+    });
+
+    it('should update localValue when entity reference changes', async () => {
+      const newEntity = {
+        name: 'updated-name',
+        description: 'updated-description',
+        type: 'updated-type',
+        isAdmin: true,
+      };
+
+      await wrapper.setProps({ entity: newEntity });
+
+      expect(wrapper.vm.localValue).toEqual('updated-name');
+    });
+  });
 });

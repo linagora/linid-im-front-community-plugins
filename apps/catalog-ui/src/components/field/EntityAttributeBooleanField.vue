@@ -40,7 +40,7 @@
 <script setup lang="ts">
 import type { LinidQToggleProps } from '@linagora/linid-im-front-corelib';
 import { useScopedI18n, useUiDesign } from '@linagora/linid-im-front-corelib';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import type {
   AttributeFieldProps,
   EntityAttributeFieldOutputs,
@@ -64,6 +64,13 @@ const uiProps = ui<LinidQToggleProps>(
 );
 const { translateOrDefault } = useScopedI18n(
   `${props.i18nScope}.fields.${props.definition.name}`
+);
+
+watch(
+  () => props.entity,
+  (newValue) => {
+    localValue.value = newValue[props.definition.name] ?? null;
+  }
 );
 
 /**

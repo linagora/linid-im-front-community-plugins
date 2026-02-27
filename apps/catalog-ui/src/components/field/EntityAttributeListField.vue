@@ -49,7 +49,7 @@ import {
   useScopedI18n,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import type {
   AttributeFieldProps,
   EntityAttributeFieldOutputs,
@@ -90,6 +90,13 @@ const rules = computed(() =>
   !props.ignoreRules && !props.definition.inputSettings?.ignoreRules
     ? useQuasarRules(props.instanceId, props.definition, [])
     : []
+);
+
+watch(
+  () => props.entity,
+  (newValue) => {
+    localValue.value = newValue[props.definition.name] ?? defaultValue ?? null;
+  }
 );
 
 /**
