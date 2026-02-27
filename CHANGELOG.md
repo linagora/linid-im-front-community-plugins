@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.1](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.0...v0.2.1) (2026-02-27)
+
+
+### Features
+
+* **module-users:** add two zones to UserDetailsPage for relationships management ([9d17351](https://github.com/linagora/linid-im-front-community-plugins/commit/9d173518947c1aab2efe55d2c9fa22b96a2c073f)), closes [#111](https://github.com/linagora/linid-im-front-community-plugins/issues/111)
+
 ## [0.2.0](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.1.13...v0.2.0) (2026-02-26)
 
 
