@@ -32,7 +32,7 @@
     data-cy="confirmation_dialog"
     @hide="show = false"
   >
-    <q-card data-cy="confirmation_dialog_card_title">
+    <q-card data-cy="confirmation_dialog_card">
       <q-card-section>
         <h3
           class="q-my-none confirmation-dialog-title"
