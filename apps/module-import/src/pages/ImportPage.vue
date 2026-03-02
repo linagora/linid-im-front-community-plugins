@@ -253,7 +253,7 @@ function importAllData(): Promise<void> {
         });
       } else {
         Notify({
-          type: 'error',
+          type: 'negative',
           message: t(`importError`),
           attrs: {
             'data-cy': 'notify_import_error',
