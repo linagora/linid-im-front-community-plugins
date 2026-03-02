@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.3](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.2...v0.2.3) (2026-03-02)
+
+
+### Bug Fixes
+
+* **module-import:** bad color for notify ([73fef98](https://github.com/linagora/linid-im-front-community-plugins/commit/73fef98bd5972a9494ebe379594b9e29a536dd18))
+* **module-import:** skip line with header ([091b4b2](https://github.com/linagora/linid-im-front-community-plugins/commit/091b4b2dc5efdc041dab4c7cd0064ac6622bb8c8))
+
 ### [0.2.2](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.1...v0.2.2) (2026-02-27)
 
 
