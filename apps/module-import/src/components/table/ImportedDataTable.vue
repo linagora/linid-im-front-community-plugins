@@ -37,6 +37,7 @@
       <q-tr
         :props="opt"
         :class="getRowClass(opt.row)"
+        :data-cy="`file-row`"
       >
         <template v-for="col in opt.cols">
           <q-td
@@ -44,6 +45,7 @@
             :key="col.name"
             :props="opt"
             auto-width
+            :data-cy="`cell-${col.name}_${opt.row.__id}`"
           >
             <q-btn
               v-if="opt.row.__error && !opt.row.__expand"
@@ -63,10 +65,12 @@
             :key="col.name"
             :props="opt"
             auto-width
+            :data-cy="`cell-${col.name}_${opt.row.__id}`"
           >
             <q-btn
               v-bind="uiProps.deleteBtn"
               :label="translateOrDefault('', 'deleteButton')"
+              :data-cy="`button_delete${opt.row.__id}`"
               @click="emit('delete:item', opt.row.__id)"
             />
           </q-td>
@@ -75,6 +79,7 @@
             :key="col.name"
             :props="opt"
             auto-width
+            :data-cy="`cell-${col.name}_${opt.row.__id}`"
           >
             <q-badge v-bind="uiProps.badge[opt.row.__status as ImportStatus]">
               <q-spinner
@@ -94,6 +99,7 @@
             v-else
             :key="col.name"
             :props="opt"
+            :data-cy="`cell-${col.name}_${opt.row.__id}`"
           >
             {{ opt.row[col.field] }}
           </q-td>
