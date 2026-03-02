@@ -50,7 +50,7 @@ export interface ModuleImportOptions {
    * Number of initial CSV lines to skip before processing.
    * Useful if your CSV contains extra metadata or description rows at the top.
    */
-  skipFirstCsvNLines?: number;
+  skipFirstCsvNLines: number;
   /**
    * Maximum number of parallel import requests to the API.
    */
@@ -67,7 +67,7 @@ export interface ModuleImportOptions {
 | `fieldMappingTemplates`   | `Record<string,string>` | ✅ Yes   | Maps target object field names to Nunjucks templates. Each template is evaluated using the current CSV row as context and produces the final value assigned to the corresponding field. |
 | `useColumnIndexParsing`   | `boolean`               | ✅ Yes   | When enabled, the importer ignores CSV header names and maps values based on predefined column indexes.                                                                                 |
 | `expectedCsvHeaders`      | `string[]`              | ❌ No    | List of CSV header names that must be present in the file. Used only when useColumnIndexParsing is true.                                                                                |
-| `skipFirstCsvNLines`      | `number`                | ❌ No    | Number of CSV lines to skip at the beginning of the file                                                                                                                                |
+| `skipFirstCsvNLines`      | `number`                | ✅ Yes   | Number of CSV lines to skip at the beginning of the file                                                                                                                                |
 | `numberOfParallelImports` | `number`                | ✅ Yes   | Maximum number of import requests that can run in parallel                                                                                                                              |
 | `previousPath`            | `string`                | ✅ Yes   | Path to navigate back when the user clicks "Cancel" or "Go Back"                                                                                                                        |
 | `zones`                   | `string[]`              | ✅ Yes   | List of zone identifiers where the "Go to Import Page" button should be displayed.                                                                                                      |
