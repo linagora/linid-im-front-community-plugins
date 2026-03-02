@@ -125,7 +125,7 @@ describe('Test component: ImportPage', () => {
       postMock.mockRejectedValueOnce(new Error('fail'));
       await wrapper.vm.importAllData();
       expect(notifyMock).toHaveBeenCalledWith(
-        expect.objectContaining({ type: 'error' })
+        expect.objectContaining({ type: 'negative' })
       );
     });
   });
