@@ -58,7 +58,7 @@ export interface ModuleImportOptions {
    * Number of lines to skip at the beginning of the CSV file.
    * Useful when the CSV contains metadata or comments before the header row.
    */
-  skipFirstCsvNLines?: number;
+  skipFirstCsvNLines: number;
   /**
    * Maximum number of CSV rows to import concurrently.
    * Limits parallel processing to prevent overloading the server.

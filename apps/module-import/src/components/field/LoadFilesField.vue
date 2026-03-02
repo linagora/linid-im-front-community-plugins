@@ -244,7 +244,7 @@ function parseCsvWithHeader(file: File): Promise<ImportedData[]> {
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
-      skipFirstNLines: options.value.skipFirstCsvNLines,
+      skipFirstNLines: options.value.skipFirstCsvNLines - 1,
       complete: (results: ParseResult<Record<string, unknown>>) => {
         if (results.errors && results.errors.length > 0) {
           reject(results.errors);
