@@ -37,6 +37,7 @@
     :suffix="translateOrDefault('', 'suffix')"
     multiple
     clearable
+    data-cy="field_import_files"
   />
   <!-- v8 ignore stop -->
 </template>
@@ -125,18 +126,27 @@ function loadFiles(files: File[]): Promise<void> {
         return Notify({
           type: 'warning',
           message: t('loadEmpty'),
+          attrs: {
+            'data-cy': 'notify_load_warning',
+          },
         });
       }
 
       Notify({
         type: 'positive',
         message: t('loadSuccess'),
+        attrs: {
+          'data-cy': 'notify_load_success',
+        },
       });
     })
     .catch(() => {
       Notify({
         type: 'negative',
         message: t('loadError'),
+        attrs: {
+          'data-cy': 'notify_load_error',
+        },
       });
     })
     .finally(() => {

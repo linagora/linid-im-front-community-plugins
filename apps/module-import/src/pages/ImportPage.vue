@@ -75,12 +75,14 @@
             v-bind="uiProps.clearButton"
             :disable="isDisabled"
             :label="t('ButtonsCard.clear')"
+            data-cy="button_clear"
           >
             <q-list v-bind="uiProps.list">
               <q-item
                 v-close-popup
                 clickable
                 v-bind="uiProps.item"
+                data-cy="button_clear_all"
                 @click.prevent="
                   clear(['READY', 'IMPORTING', 'IMPORTED', 'ERROR'])
                 "
@@ -95,6 +97,7 @@
                 v-close-popup
                 clickable
                 v-bind="uiProps.item"
+                data-cy="button_clear_error"
                 @click.prevent="clear(['ERROR'])"
               >
                 <q-item-section v-bind="uiProps.itemSection">
@@ -107,6 +110,7 @@
                 v-close-popup
                 clickable
                 v-bind="uiProps.item"
+                data-cy="button_clear_success"
                 @click.prevent="clear(['IMPORTED'])"
               >
                 <q-item-section v-bind="uiProps.itemSection">
@@ -235,16 +239,25 @@ function importAllData(): Promise<void> {
         Notify({
           type: 'positive',
           message: t(`importSuccess`),
+          attrs: {
+            'data-cy': 'notify_import_success',
+          },
         });
       } else if (errorLengths !== data.length) {
         Notify({
           type: 'warning',
           message: t(`importWarning`),
+          attrs: {
+            'data-cy': 'notify_import_warning',
+          },
         });
       } else {
         Notify({
           type: 'error',
           message: t(`importError`),
+          attrs: {
+            'data-cy': 'notify_import_error',
+          },
         });
       }
     })
@@ -294,11 +307,17 @@ function clear(allStatus: string[]): void {
     Notify({
       type: 'positive',
       message: t('clearSuccess'),
+      attrs: {
+        'data-cy': 'notify_clear_success',
+      },
     });
   } else {
     Notify({
       type: 'warning',
       message: t('clearWarning'),
+      attrs: {
+        'data-cy': 'notify_clear_warning',
+      },
     });
   }
 }
