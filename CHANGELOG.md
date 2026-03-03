@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.4](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.3...v0.2.4) (2026-03-03)
+
+
+### Bug Fixes
+
+* **catalog-ui:** better binding entity of attributes fields ([dddf9b4](https://github.com/linagora/linid-im-front-community-plugins/commit/dddf9b4bc231c4d5049ba50247022a7dec92a35b))
+
 ### [0.2.3](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.2...v0.2.3) (2026-03-02)
 
 
