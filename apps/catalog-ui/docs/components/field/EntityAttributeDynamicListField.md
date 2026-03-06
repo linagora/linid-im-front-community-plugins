@@ -88,6 +88,16 @@ export interface FieldDynamicListSettings extends FieldSettings {
   /** Default value for the field. */
   defaultValue?: string;
 
+  /**
+   * Controls uniqueness validation for this field.
+   * - When `true`: uniqueness validation is enabled but no reference values are provided yet.
+   *   The parent component or page **must** replace this boolean with the actual array of
+   *   existing values against which uniqueness is checked before passing the definition
+   *   to this component.
+   * - When `false` or omitted: no uniqueness validation is performed.
+   */
+  unique?: boolean;
+
   /** Indicates whether to bypass validation rules for this field. */
   ignoreRules?: boolean;
 }
@@ -184,7 +194,7 @@ The component implements automatic validation based on the attribute's `inputSet
 Validation rules are generated automatically using `useQuasarRules`:
 
 ```ts
-const rules = computed(() => (!props.ignoreRules && !props.definition.inputSettings?.ignoreRules ? useQuasarRules(props.instanceId, props.definition, []) : []));
+const rules = computed(() => (!props.ignoreRules && !props.definition.inputSettings?.ignoreRules ? useQuasarRules(props.instanceId, props.definition, ['unique']) : []));
 ```
 
 ### Validation Execution Order
@@ -197,7 +207,7 @@ The validation rules are executed in a specific order to ensure proper validatio
    - Ensures that a value is selected before proceeding to other validations
 
 2. **Specific validation rules** (in order)
-   - The rules specified in the `useQuasarRules` parameters (currently an empty array `[]` for dynamic list fields)
+   - The rules specified in the `useQuasarRules` parameters (`['unique']` for dynamic list fields)
    - These rules are executed **in the order specified** in the array
    - Execute **after** the required validation (if present)
 
@@ -212,7 +222,42 @@ The validation rules are executed in a specific order to ensure proper validatio
 | Setting       | Description                                                                          | Example             |
 | ------------- | ------------------------------------------------------------------------------------ | ------------------- |
 | `required`    | Marks the field as mandatory. Setting comes from the `definition.required` property. | `required: true`    |
+| `unique`      | Enforces that the selected value is unique among a list of existing values           | `unique: true`      |
 | `ignoreRules` | Bypass validation when set to `true`                                                 | `ignoreRules: true` |
+
+### Unique Rule — Parent Responsibility
+
+The `unique` setting in `FieldDynamicListSettings` follows a **two-phase configuration** pattern:
+
+**Phase 1 — Static configuration (schema / definition file)**
+
+In the static attribute definition, `unique` is declared as a boolean to signal that uniqueness must be enforced:
+
+```ts
+definition.inputSettings = {
+  route: '/api/types',
+  unique: true, // signals intent, not yet the actual values
+};
+```
+
+**Phase 2 — Runtime injection (parent component or page)**
+
+Any Vue component or page that uses `EntityAttributeDynamicListField` directly, or uses it indirectly via `EntityAttributeField`, **must replace** `unique: true` with the actual array of existing values against which uniqueness should be checked:
+
+```ts
+// In the parent component, before passing the definition to the field:
+const enrichedDefinition = {
+  ...definition,
+  inputSettings: {
+    ...definition.inputSettings,
+    unique: existingEntities.map((e) => e[definition.name]),
+  },
+};
+```
+
+- If `unique` remains `true` (boolean), `useQuasarRules` will receive no values to compare against and the validation will not work as intended
+- The parent is responsible for knowing the context (e.g. the list of already-assigned values in a collection) and injecting the correct array
+- When `unique` is `false` or `undefined` no uniqueness validation is performed
 
 ### Validation Behavior
 
@@ -516,7 +561,7 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 - The `route` property is **mandatory** in `FieldDynamicListSettings` — without it, the component displays an error
 - Options are fetched lazily and accumulated across pages
 - The `entity` prop is reactive: changes to `entity[definition.name]` are reflected in `localValue` via a selective `watch`
-- Validation is handled internally using `useQuasarRules` and can be configured via `inputSettings`
+- Validation is handled internally using `useQuasarRules` with a `unique` rule and can be configured via `inputSettings`
 - Missing translations safely fall back to default values
 - Intended for use via `EntityAttributeField` dispatcher, not directly in most cases
 - The backend endpoint must return a Spring `Page<Map<String, String>>` response with `{ label, value }` elements
