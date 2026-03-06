@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.5](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.4...v0.2.5) (2026-03-06)
+
+
+### Features
+
+* **catalog-ui:** add "unique" rule for dynamic-list field ([07e88cf](https://github.com/linagora/linid-im-front-community-plugins/commit/07e88cfd3ed75edf04a86e07a5b08f7c32434b2f))
+* **module-import:** use nunjucks global shared instance ([64a28fd](https://github.com/linagora/linid-im-front-community-plugins/commit/64a28fd354200a3dcf7c9e674d3f0f9dc2c4bcaf))
+
+
+### Bug Fixes
+
+* **catalog-ui:** fields only watch changes to their related property ([dcbd3b7](https://github.com/linagora/linid-im-front-community-plugins/commit/dcbd3b741013f517f5aaca9ee332d113ac1d91fe))
+
 ### [0.2.4](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.3...v0.2.4) (2026-03-03)
 
 
