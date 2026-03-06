@@ -44,23 +44,23 @@
 
 <script setup lang="ts">
 import type { LinidQFileProps } from '@linagora/linid-im-front-corelib';
-import { useNotify } from '@linagora/linid-im-front-corelib';
 import {
   getModuleHostConfiguration,
+  getNunjucksEnv,
+  useNotify,
   useScopedI18n,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
+import type { ParseError, ParseResult } from 'papaparse';
+import Papa from 'papaparse';
+import type { ComputedRef } from 'vue';
+import { computed, ref, watch } from 'vue';
+import type { ImportedData } from '../../types/File';
 import type {
   LoadFileCardOutputs,
   LoadFileCardProps,
 } from '../../types/LoadFileCard';
-import type { ComputedRef } from 'vue';
-import { computed, ref, watch } from 'vue';
-import type { ParseResult, ParseError } from 'papaparse';
-import Papa from 'papaparse';
-import type { ImportedData } from '../../types/File';
 import type { ModuleImportOptions } from '../../types/moduleImport';
-import nunjucks from 'nunjucks';
 
 const props = defineProps<LoadFileCardProps>();
 const emit = defineEmits<LoadFileCardOutputs>();
@@ -80,11 +80,6 @@ const options: ComputedRef<ModuleImportOptions> = computed(
     getModuleHostConfiguration<ModuleImportOptions>(props.instanceId).options
 );
 
-// IMPORTANT:
-// autoescape is disabled because rendering targets data objects only.
-// If rendering context changes to HTML output, this MUST be set to true
-// to prevent XSS vulnerabilities.
-const nunjucksEnv = nunjucks.configure({ autoescape: false });
 let id = 0;
 
 watch(
@@ -284,7 +279,7 @@ function mapItem(item: Record<string, unknown>): Record<string, unknown> {
   const result: Record<string, unknown> = {};
 
   Object.keys(options.value.fieldMappingTemplates).forEach((key: string) => {
-    result[key] = nunjucksEnv.renderString(
+    result[key] = getNunjucksEnv().renderString(
       options.value.fieldMappingTemplates[key],
       item
     );
