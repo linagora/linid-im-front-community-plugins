@@ -43,6 +43,9 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
   useUiDesign: () => ({
     ui: () => ({}),
   }),
+  getNunjucksEnv: () => ({
+    renderString: renderStringMock,
+  }),
   getModuleHostConfiguration: vi.fn(() => ({
     options: {
       fieldMappingTemplates: {
@@ -53,14 +56,6 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
       expectedCsvHeaders: ['firstName', 'email'],
     },
   })),
-}));
-
-vi.mock('nunjucks', () => ({
-  default: {
-    configure: () => ({
-      renderString: renderStringMock,
-    }),
-  },
 }));
 
 vi.mock('papaparse', () => {
