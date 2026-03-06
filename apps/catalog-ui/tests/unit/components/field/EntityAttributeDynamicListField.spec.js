@@ -40,7 +40,7 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
     translateOrDefault: vi.fn(),
     t: mockT,
   }),
-  useQuasarRules: () => [vi.fn(), vi.fn()],
+  useQuasarRules: () => [vi.fn(), vi.fn(), vi.fn()],
 }));
 
 const mockGetDynamicListPage = vi.fn();
@@ -399,6 +399,7 @@ describe('Test component: EntityAttributeDynamicListField', () => {
           required: true,
           inputSettings: {
             route: '/api/types',
+            unique: true,
           },
         },
       });
@@ -414,6 +415,7 @@ describe('Test component: EntityAttributeDynamicListField', () => {
           required: true,
           inputSettings: {
             route: '/api/types',
+            unique: true,
             ignoreRules: true,
           },
         },
@@ -430,12 +432,13 @@ describe('Test component: EntityAttributeDynamicListField', () => {
           required: true,
           inputSettings: {
             route: '/api/types',
+            unique: true,
             ignoreRules: false,
           },
         },
       });
 
-      expect(wrapper.vm.rules.length).toEqual(2);
+      expect(wrapper.vm.rules.length).toEqual(3);
     });
 
     it('should return rules if ignoreRules is unset', async () => {
@@ -445,11 +448,12 @@ describe('Test component: EntityAttributeDynamicListField', () => {
           required: true,
           inputSettings: {
             route: '/api/types',
+            unique: true,
           },
         },
       });
 
-      expect(wrapper.vm.rules.length).toEqual(2);
+      expect(wrapper.vm.rules.length).toEqual(3);
     });
   });
 

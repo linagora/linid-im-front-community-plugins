@@ -113,7 +113,7 @@ const uiProps = ui<LinidQSelectProps>(
 
 const rules = computed(() =>
   !props.ignoreRules && !props.definition.inputSettings?.ignoreRules
-    ? useQuasarRules(props.instanceId, props.definition, [])
+    ? useQuasarRules(props.instanceId, props.definition, ['unique'])
     : []
 );
 

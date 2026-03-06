@@ -163,6 +163,16 @@ export interface FieldDynamicListSettings extends FieldSettings {
   size?: number;
 
   /**
+   * Controls uniqueness validation for this field.
+   * - When `true`: uniqueness validation is enabled but no reference values are provided yet.
+   *   The parent component or page **must** replace this boolean with the actual array of
+   *   existing values against which uniqueness is checked before passing the definition
+   *   to this component.
+   * - When `false` or omitted: no uniqueness validation is performed.
+   */
+  unique?: boolean;
+
+  /**
    * Default value for the field.
    */
   defaultValue?: string;
