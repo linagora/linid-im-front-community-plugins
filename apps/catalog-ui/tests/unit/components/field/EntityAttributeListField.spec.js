@@ -274,7 +274,7 @@ describe('Test component: EntityAttributeListField', () => {
       wrapper = shallowMount(EntityAttributeListField, mountingOptions);
     });
 
-    it('should update localValue when entity prop changes', async () => {
+    it('should update localValue when entity attribute value changes', async () => {
       expect(wrapper.vm.localValue).toEqual('user');
 
       await wrapper.setProps({
@@ -318,10 +318,24 @@ describe('Test component: EntityAttributeListField', () => {
         name: 'updated-name',
         role: 'moderator',
       };
+      expect(wrapper.vm.localValue).toEqual('user');
 
       await wrapper.setProps({ entity: newEntity });
 
       expect(wrapper.vm.localValue).toEqual('moderator');
+    });
+
+    it('should not update localValue when another entity attribute changes', async () => {
+      wrapper.vm.localValue = 'maintainer';
+
+      await wrapper.setProps({
+        entity: {
+          name: 'updated-name',
+          role: 'user',
+        },
+      });
+
+      expect(wrapper.vm.localValue).toEqual('maintainer');
     });
   });
 });

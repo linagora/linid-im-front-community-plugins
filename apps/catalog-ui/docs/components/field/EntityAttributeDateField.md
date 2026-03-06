@@ -209,6 +209,7 @@ const localValue = ref(props.entity[props.definition.name] ?? null);
 
 - Uses a local reactive reference to isolate UI interaction
 - Supports `null` as an initial value when the attribute is undefined
+- A `watch` on `() => props.entity[props.definition.name]` keeps `localValue` in sync when the parent updates the entity — it only triggers when the **specific attribute value** changes, not when other fields of the entity change
 
 ---
 
@@ -268,6 +269,8 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 - Assert `update:entity` emission on input changes
 - Mock `useScopedI18n` to control translation output
 - Shallow mount the component to isolate logic from UI rendering
+- Verify that `localValue` is updated when `entity[definition.name]` changes
+- Verify that `localValue` is **not** overwritten when only other entity attributes change (e.g. mutate `name` while keeping the date attribute value identical)
 
 ---
 

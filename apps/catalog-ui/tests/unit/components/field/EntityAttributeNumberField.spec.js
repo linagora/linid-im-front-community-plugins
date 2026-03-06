@@ -167,7 +167,7 @@ describe('Test component: EntityAttributeNumberField', () => {
   });
 
   describe('Test watch: entity', () => {
-    it('should update localValue when entity prop changes', async () => {
+    it('should update localValue when entity attribute value changes', async () => {
       expect(wrapper.vm.localValue).toEqual(18);
 
       await wrapper.setProps({
@@ -222,10 +222,27 @@ describe('Test component: EntityAttributeNumberField', () => {
         isAdmin: true,
         age: 42,
       };
+      expect(wrapper.vm.localValue).toEqual(18);
 
       await wrapper.setProps({ entity: newEntity });
 
       expect(wrapper.vm.localValue).toEqual(42);
+    });
+
+    it('should not update localValue when another entity attribute changes', async () => {
+      wrapper.vm.localValue = 99;
+
+      await wrapper.setProps({
+        entity: {
+          name: 'updated-name',
+          description: 'entity-description',
+          type: 'entity-type',
+          isAdmin: false,
+          age: 18,
+        },
+      });
+
+      expect(wrapper.vm.localValue).toEqual(99);
     });
   });
 });
