@@ -168,7 +168,7 @@ describe('Test component: EntityAttributeDateField', () => {
   });
 
   describe('Test watch: entity', () => {
-    it('should update localValue when entity prop changes', async () => {
+    it('should update localValue when entity attribute value changes', async () => {
       expect(wrapper.vm.localValue).toEqual('1990/01/01');
 
       await wrapper.setProps({
@@ -223,10 +223,27 @@ describe('Test component: EntityAttributeDateField', () => {
         isAdmin: true,
         birthdate: '1985/06/15',
       };
+      expect(wrapper.vm.localValue).toEqual('1990/01/01');
 
       await wrapper.setProps({ entity: newEntity });
 
       expect(wrapper.vm.localValue).toEqual('1985/06/15');
+    });
+
+    it('should not update localValue when another entity attribute changes', async () => {
+      wrapper.vm.localValue = '01/01/2026';
+
+      await wrapper.setProps({
+        entity: {
+          name: 'updated-name',
+          description: 'entity-description',
+          type: 'entity-type',
+          isAdmin: false,
+          birthdate: '1990/01/01',
+        },
+      });
+
+      expect(wrapper.vm.localValue).toEqual('01/01/2026');
     });
   });
 });

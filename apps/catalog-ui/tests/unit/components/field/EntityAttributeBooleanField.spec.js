@@ -96,7 +96,7 @@ describe('Test component: EntityAttributeBooleanField', () => {
   });
 
   describe('Test watch: entity', () => {
-    it('should update localValue when entity prop changes', async () => {
+    it('should update localValue when entity attribute value changes', async () => {
       expect(wrapper.vm.localValue).toEqual(false);
 
       await wrapper.setProps({
@@ -147,8 +147,24 @@ describe('Test component: EntityAttributeBooleanField', () => {
         type: 'updated-type',
         isAdmin: true,
       };
+      expect(wrapper.vm.localValue).toEqual(false);
 
       await wrapper.setProps({ entity: newEntity });
+
+      expect(wrapper.vm.localValue).toEqual(true);
+    });
+
+    it('should not update localValue when another entity attribute changes', async () => {
+      wrapper.vm.localValue = true;
+
+      await wrapper.setProps({
+        entity: {
+          name: 'updated-name',
+          description: 'entity-description',
+          type: 'entity-type',
+          isAdmin: false,
+        },
+      });
 
       expect(wrapper.vm.localValue).toEqual(true);
     });

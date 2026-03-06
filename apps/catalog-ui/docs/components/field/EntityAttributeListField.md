@@ -246,7 +246,8 @@ const localValue = ref(props.entity[props.definition.name] ?? defaultValue ?? nu
   1. Entity's existing value takes precedence
   2. Falls back to the validated `defaultValue` (or first option)
   3. Finally falls back to `null` if no default is available
-- Does not react to prop changes after initialization (stable props assumption)
+- A `watch` on `() => props.entity[props.definition.name]` keeps `localValue` in sync when the parent updates the entity — it only triggers when the **specific attribute value** changes, not when other fields of the entity change
+- When the watched value becomes `null` or `undefined`, the fallback cascade `newValue ?? defaultValue ?? null` is applied, restoring the default value if available
 
 ---
 
@@ -312,6 +313,9 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 - Mock `useScopedI18n` to control translation output
 - Shallow mount the component to isolate logic from UI rendering
 - Verify that the options list matches the `values` array from `inputSettings`
+- Verify that `localValue` is updated when `entity[definition.name]` changes
+- Verify that when `entity[definition.name]` is set to `null`, `localValue` falls back to `defaultValue` (or `options[0]`)
+- Verify that `localValue` is **not** overwritten when only other entity attributes change
 
 ---
 
@@ -323,7 +327,7 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 - Available options are stored in a local constant, not reactive, as they are expected to be static
 - Default value is validated to ensure it exists in the `values` array
 - Default value resolution follows a specific cascade: entity value → validated `defaultValue` → `options[0]` → `null`
-- Props are assumed to be **stable** (no changes after component mounting)
+- The `entity` prop is reactive: changes to `entity[definition.name]` are reflected in `localValue` via a selective `watch`; the default value cascade also applies when the watched value becomes `null` or `undefined`
 - Validation is handled internally using `useQuasarRules` and can be configured via `inputSettings`
 - Missing translations safely fall back to default values
 - Intended for use via `EntityAttributeField`, not directly in most cases

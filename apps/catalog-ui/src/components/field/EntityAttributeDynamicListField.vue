@@ -120,9 +120,9 @@ const rules = computed(() =>
 const route = computed(() => props.definition.inputSettings?.route);
 
 watch(
-  () => props.entity,
+  () => props.entity[props.definition.name],
   (newValue) => {
-    localValue.value = newValue[props.definition.name] ?? null;
+    localValue.value = newValue ?? null;
   }
 );
 

@@ -541,7 +541,7 @@ describe('Test component: EntityAttributeDynamicListField', () => {
       wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
     });
 
-    it('should update localValue when entity prop changes', async () => {
+    it('should update localValue when entity attribute value changes', async () => {
       expect(wrapper.vm.localValue).toEqual('standard');
 
       await wrapper.setProps({
@@ -584,10 +584,24 @@ describe('Test component: EntityAttributeDynamicListField', () => {
         name: 'updated-name',
         type: 'enterprise',
       };
+      expect(wrapper.vm.localValue).toEqual('standard');
 
       await wrapper.setProps({ entity: newEntity });
 
       expect(wrapper.vm.localValue).toEqual('enterprise');
+    });
+
+    it('should not update localValue when another entity attribute changes', async () => {
+      wrapper.vm.localValue = 'free';
+
+      await wrapper.setProps({
+        entity: {
+          name: 'updated-name',
+          type: 'standard',
+        },
+      });
+
+      expect(wrapper.vm.localValue).toEqual('free');
     });
   });
 });

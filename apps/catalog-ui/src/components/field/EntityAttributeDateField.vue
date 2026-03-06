@@ -131,9 +131,9 @@ const rules = computed(() =>
 );
 
 watch(
-  () => props.entity,
+  () => props.entity[props.definition.name],
   (newValue) => {
-    localValue.value = newValue[props.definition.name] ?? null;
+    localValue.value = newValue ?? null;
   }
 );
 

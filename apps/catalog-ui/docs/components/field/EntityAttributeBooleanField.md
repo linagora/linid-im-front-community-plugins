@@ -149,6 +149,7 @@ const localValue = ref(props.entity[props.definition.name] ?? null);
 
 - Uses a local reactive value to decouple UI interaction from the parent state
 - Supports `null` as an initial value when the attribute is undefined
+- A `watch` on `() => props.entity[props.definition.name]` keeps `localValue` in sync when the parent updates the entity — it only triggers when the **specific attribute value** changes, not when other fields of the entity change
 
 ---
 
@@ -208,6 +209,8 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 - Assert `update:entity` emission when the toggle changes
 - Mock `useScopedI18n` and `useUiDesign` for isolated unit tests
 - UI rendering can be shallow-mounted since behavior is event-driven
+- Verify that `localValue` is updated when `entity[definition.name]` changes
+- Verify that `localValue` is **not** overwritten when only other entity attributes change (e.g. mutate `name` while keeping the boolean attribute value identical)
 
 ---
 
