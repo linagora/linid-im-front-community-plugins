@@ -77,11 +77,21 @@
     <!-- eslint-disable vue/attribute-hyphenation -->
     <LinidZoneRenderer
       :zone="`${instanceId}.${pageName}.relationshipForms`"
+      :user
       :userId
+      :entity="moduleHostConfig.entity"
+      :instanceId
+      :uiNamespace
+      :i18nScope
     />
     <LinidZoneRenderer
       :zone="`${instanceId}.${pageName}.relationshipData`"
+      :user
       :userId
+      :entity="moduleHostConfig.entity"
+      :instanceId
+      :uiNamespace
+      :i18nScope
     />
     <!-- eslint-enable vue/attribute-hyphenation -->
   </q-page>
@@ -111,10 +121,10 @@ const userId = computed(() => route.params.id as string);
 const pageName = 'UserDetailsPage';
 const i18nScope = computed<string>(() => `${instanceId.value}.${pageName}`);
 const uiNamespace = computed(() => `${instanceId.value}.user-details-page`);
-const options = computed(
-  () =>
-    getModuleHostConfiguration<ModuleUsersOptions>(instanceId.value)!.options
+const moduleHostConfig = computed(() =>
+  getModuleHostConfiguration<ModuleUsersOptions>(instanceId.value)
 );
+const options = computed(() => moduleHostConfig.value!.options);
 
 const { t } = useScopedI18n(i18nScope.value);
 const { Notify } = useNotify();

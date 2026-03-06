@@ -58,7 +58,9 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
     })
   ),
   getModuleHostConfiguration: vi.fn(() => ({
+    entity: 'user',
     options: {
+      userIdKey: 'id',
       fieldOrder: ['name', 'email'],
       showRemainingFields: false,
     },
@@ -129,11 +131,22 @@ describe('Test component: UserDetailsPage', () => {
     });
   });
 
+  describe('Test computed: moduleHostConfig', () => {
+    it('should retrieve module configuration from module host configuration', () => {
+      wrapper = shallowMount(UserDetailsPage);
+
+      expect(wrapper.vm.moduleHostConfig).toBeDefined();
+      expect(wrapper.vm.moduleHostConfig.entity).toBe('user');
+      expect(wrapper.vm.moduleHostConfig.options.userIdKey).toBe('id');
+    });
+  });
+
   describe('Test computed: options', () => {
     it('should retrieve options from module host configuration', () => {
       wrapper = shallowMount(UserDetailsPage);
 
       expect(wrapper.vm.options).toBeDefined();
+      expect(wrapper.vm.options.userIdKey).toBe('id');
       expect(wrapper.vm.options.fieldOrder).toEqual(['name', 'email']);
       expect(wrapper.vm.options.showRemainingFields).toBe(false);
     });
