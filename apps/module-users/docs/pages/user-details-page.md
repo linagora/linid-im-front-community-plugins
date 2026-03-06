@@ -25,20 +25,21 @@ The page supports i18n, configurable field ordering, automatic UI styling throug
 
 ## Props and Data
 
-| Name                | Type                                          | Description                                                                             |
-| ------------------- | --------------------------------------------- | --------------------------------------------------------------------------------------- |
-| `user`              | `Ref<Record<string, unknown> \| null>`        | Reactive object holding the user's data (null until loaded).                            |
-| `isLoading`         | `Ref<boolean>`                                | Boolean indicating if a data load is in progress.                                       |
-| `entityDetailsCard` | `Ref<Component \| null>`                      | Asynchronously loaded `EntityDetailsCard` component.                                    |
-| `buttonsCard`       | `Ref<Component \| null>`                      | Asynchronously loaded `ButtonsCard` component.                                          |
-| `pageName`          | `string`                                      | Constant page name (`UserDetailsPage`), used for zone names and i18n scope.             |
-| `uiNamespace`       | `ComputedRef<string>`                         | Computed namespace for UI design props (`{instanceId}.user-details-page`).              |
-| `i18nScope`         | `ComputedRef<string>`                         | Computed scope for i18n translations (`{instanceId}.UserDetailsPage`).                  |
-| `uiProps`           | `ComputedRef<{ editButton: LinidQBtnProps }>` | Computed UI props for the edit button.                                                  |
-| `instanceId`        | `ComputedRef<string>`                         | Computed from the route meta, used for i18n and module configuration.                   |
-| `userId`            | `ComputedRef<string>`                         | Computed from route params, identifies which user to load.                              |
-| `parentPath`        | `ComputedRef<string>`                         | Computed path for navigation (typically `/users`).                                      |
-| `options`           | `ModuleUsersOptions`                          | Configuration options for the module, including `fieldOrder` and `showRemainingFields`. |
+| Name                | Type                                          | Description                                                                                         |
+| ------------------- | --------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `user`              | `Ref<Record<string, unknown> \| null>`        | Reactive object holding the user's data (null until loaded).                                        |
+| `isLoading`         | `Ref<boolean>`                                | Boolean indicating if a data load is in progress.                                                   |
+| `entityDetailsCard` | `Ref<Component \| null>`                      | Asynchronously loaded `EntityDetailsCard` component.                                                |
+| `buttonsCard`       | `Ref<Component \| null>`                      | Asynchronously loaded `ButtonsCard` component.                                                      |
+| `pageName`          | `string`                                      | Constant page name (`UserDetailsPage`), used for zone names and i18n scope.                         |
+| `uiNamespace`       | `ComputedRef<string>`                         | Computed namespace for UI design props (`{instanceId}.user-details-page`).                          |
+| `i18nScope`         | `ComputedRef<string>`                         | Computed scope for i18n translations (`{instanceId}.UserDetailsPage`).                              |
+| `uiProps`           | `ComputedRef<{ editButton: LinidQBtnProps }>` | Computed UI props for the edit button.                                                              |
+| `instanceId`        | `ComputedRef<string>`                         | Computed from the route meta, used for i18n and module configuration.                               |
+| `userId`            | `ComputedRef<string>`                         | Computed from route params, identifies which user to load.                                          |
+| `parentPath`        | `ComputedRef<string>`                         | Computed path for navigation (typically `/users`).                                                  |
+| `moduleHostConfig`  | `ComputedRef<ModuleHostConfiguration>`        | Computed module host configuration resolved from `instanceId`, providing entity config and options. |
+| `options`           | `ComputedRef<ModuleUsersOptions>`             | Computed configuration options for the module, including `fieldOrder` and `showRemainingFields`.    |
 
 ---
 
@@ -135,9 +136,14 @@ Zone for displaying relationship data (e.g., list of groups, assigned roles).
 
 ### Props forwarded to zone components
 
-| Prop     | Type     | Description                         |
-| -------- | -------- | ----------------------------------- |
-| `userId` | `string` | The ID of the currently viewed user |
+| Prop          | Type                      | Description                                        |
+| ------------- | ------------------------- | -------------------------------------------------- |
+| `user`        | `Record<string, unknown>` | The full user object currently loaded              |
+| `userId`      | `string`                  | The ID of the currently viewed user                |
+| `entity`      | `string`                  | The entity type from the module host configuration |
+| `instanceId`  | `string`                  | The module instance identifier                     |
+| `uiNamespace` | `string`                  | The UI design namespace for the current page       |
+| `i18nScope`   | `string`                  | The i18n scope for the current page                |
 
 **Example zone usage:**
 
@@ -157,7 +163,12 @@ zoneStore.registerOnce('users.UserDetailsPage.relationshipData', {
 ```ts
 // myModule/UserGroupsForm.vue
 const props = defineProps<{
+  user: Record<string, unknown>;
   userId: string;
+  entity: string;
+  instanceId: string;
+  uiNamespace: string;
+  i18nScope: string;
 }>();
 ```
 
