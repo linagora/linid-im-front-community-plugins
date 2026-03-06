@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.6](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.5...v0.2.6) (2026-03-06)
+
+
+### Features
+
+* enrich list of props shared with zones of the user details page ([7f6aad6](https://github.com/linagora/linid-im-front-community-plugins/commit/7f6aad62f02e8b3919613a55c244c22df462ab15))
+
 ### [0.2.5](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.4...v0.2.5) (2026-03-06)
 
 
