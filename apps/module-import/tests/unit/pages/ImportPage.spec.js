@@ -58,7 +58,7 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
       fieldMappingTemplates: {
         name: '{{name}}',
       },
-      validateCsvHeaders: false,
+      useColumnIndexParsing: false,
       numberOfParallelImports: 2,
     },
   })),
