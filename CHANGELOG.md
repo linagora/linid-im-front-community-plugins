@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.7](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.6...v0.2.7) (2026-03-10)
+
+
+### Bug Fixes
+
+* **module-import:** change bad configuration key validateCsvHeaders ([030e1df](https://github.com/linagora/linid-im-front-community-plugins/commit/030e1df8200eddf0eb582979339e381351b1f5bf))
+
 ### [0.2.6](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.5...v0.2.6) (2026-03-06)
 
 
