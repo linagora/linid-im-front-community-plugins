@@ -52,7 +52,7 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
         firstName: '{{ First Name }}',
         email: '{{ Email }}',
       },
-      validateCsvHeaders: false,
+      useColumnIndexParsing: false,
       expectedCsvHeaders: ['firstName', 'email'],
     },
   })),
@@ -234,7 +234,7 @@ describe('Test component: LoadFilesField', () => {
 
   describe('Test function: parseCsvWithColumnIndex', () => {
     it('should parse CSV file using column index mapping', async () => {
-      wrapper.vm.options.validateCsvHeaders = true;
+      wrapper.vm.options.useColumnIndexParsing = true;
       wrapper.vm.options.expectedCsvHeaders = ['firstName', 'email'];
 
       const file = new File(['John,john@test.com'], 'test.csv');
@@ -267,7 +267,7 @@ describe('Test component: LoadFilesField', () => {
     });
 
     it('should reject if parse errors exist', async () => {
-      wrapper.vm.options.validateCsvHeaders = true;
+      wrapper.vm.options.useColumnIndexParsing = true;
       wrapper.vm.options.expectedCsvHeaders = ['firstName', 'email'];
 
       const file = new File(['John,john@test.com'], 'test.csv');

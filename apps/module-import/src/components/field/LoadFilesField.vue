@@ -152,7 +152,7 @@ function loadFiles(files: File[]): Promise<void> {
 /**
  * Parses a CSV file using the strategy defined in module options.
  *
- * If `validateCsvHeaders` is enabled in `ModuleImportOptions`,
+ * If `useColumnIndexParsing` is enabled in `ModuleImportOptions`,
  * the file is parsed using positional column mapping
  * (`parseCsvWithColumnIndex`). Otherwise, header-based parsing
  * (`parseCsvWithHeader`) is used.
@@ -161,7 +161,7 @@ function loadFiles(files: File[]): Promise<void> {
  *          objects representing the parsed and normalized rows.
  */
 function parseCsv(file: File): Promise<ImportedData[]> {
-  if (options.value.validateCsvHeaders) {
+  if (options.value.useColumnIndexParsing) {
     return parseCsvWithColumnIndex(file);
   }
 

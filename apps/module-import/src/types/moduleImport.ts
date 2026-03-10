@@ -46,12 +46,11 @@ export interface ModuleImportOptions {
    */
   fieldMappingTemplates: Record<string, string>;
   /**
-   * When set to true, the importer validates that the CSV file contains the expected header
-   * before processing any rows.
+   * When enabled, the importer ignores CSV header names and maps values based on predefined column indexes.
    */
-  validateCsvHeaders: boolean;
+  useColumnIndexParsing: boolean;
   /**
-   * List of CSV header names that must be present in the file. Used only when validateCsvHeaders is true.
+   * List of CSV header names that must be present in the file. Used only when useColumnIndexParsing is true.
    */
   expectedCsvHeaders?: string[];
   /**
