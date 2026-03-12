@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.8](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.7...v0.2.8) (2026-03-12)
+
+
+### Features
+
+* **module-users:** support event-driven reload on user details page ([ae93409](https://github.com/linagora/linid-im-front-community-plugins/commit/ae93409d19dd189d75f98b5cc12b55d132adfb7f))
+
 ### [0.2.7](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.6...v0.2.7) (2026-03-10)
 
 
