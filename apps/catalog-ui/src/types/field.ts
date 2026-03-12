@@ -171,9 +171,4 @@ export interface FieldDynamicListSettings extends FieldSettings {
    * - When `false` or omitted: no uniqueness validation is performed.
    */
   unique?: boolean;
-
-  /**
-   * Default value for the field.
-   */
-  defaultValue?: string;
 }
