@@ -9,5 +9,8 @@
     "@linagora/linid-im-front-corelib": "0.0.51",
     "vue-router": "4.6.4",
     "@vueuse/core": "14.1.0"
+  },
+  "devDependencies": {
+    "rxjs": "7.8.2"
   }
 }

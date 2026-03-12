@@ -99,17 +99,19 @@
 </template>
 
 <script setup lang="ts">
-import type { LinidQBtnProps } from '@linagora/linid-im-front-corelib';
+import type { LinidQBtnProps, UiEvent } from '@linagora/linid-im-front-corelib';
 import {
   getEntityById,
   getModuleHostConfiguration,
   LinidZoneRenderer,
   loadAsyncComponent,
+  uiEventSubject,
   useNotify,
   useScopedI18n,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
-import { computed, onMounted, ref } from 'vue';
+import type { Subscription } from 'rxjs';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import type { ModuleUsersOptions } from '../types/moduleUsers';
 
@@ -132,6 +134,7 @@ const { ui } = useUiDesign();
 
 const user = ref<Record<string, unknown> | null>(null);
 const isLoading = ref<boolean>(false);
+let eventSubscription: Subscription;
 const entityDetailsCard = loadAsyncComponent('catalogUI/EntityDetailsCard');
 const buttonsCard = loadAsyncComponent('catalogUI/ButtonsCard');
 
@@ -177,8 +180,17 @@ function goBack() {
   router.push(`${parentPath.value}`);
 }
 
-onMounted(async () => {
-  await loadData();
+onMounted(() => {
+  eventSubscription = uiEventSubject.subscribe((event: UiEvent) => {
+    if (options.value?.reloadDetailsOn?.includes(event.key)) {
+      loadData();
+    }
+  });
+  loadData();
+});
+
+onUnmounted(() => {
+  eventSubscription?.unsubscribe();
 });
 </script>
 

@@ -62,6 +62,11 @@ export interface ModuleUsersOptions {
    * Defines how fields are grouped and ordered in the forms.
    */
   formSections: FormSection[];
+
+  /**
+   * List of event types that should trigger a reload of the user details when they occur.
+   */
+  reloadDetailsOn?: string[];
 }
 
 /**
