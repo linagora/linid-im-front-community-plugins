@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@linagora/linid-im-front-corelib':
-        specifier: 0.0.51
-        version: 0.0.51(axios@1.13.6)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.30(typescript@5.9.3)))(quasar@2.18.6)(rxjs@7.8.2)(vue@3.5.30(typescript@5.9.3))
+        specifier: github:linagora/linid-im-front-corelib#improvement/dependencies_update
+        version: https://codeload.github.com/linagora/linid-im-front-corelib/tar.gz/2c3c7bb61e533711560b44397f0588cb13350ced(axios@1.13.6)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.30(typescript@5.9.3)))(quasar@2.18.6)(rxjs@7.8.2)(vue@3.5.30(typescript@5.9.3))
       '@vueuse/core':
         specifier: 14.2.1
         version: 14.2.1(vue@3.5.30(typescript@5.9.3))
@@ -172,8 +172,8 @@ importers:
   apps/catalog-ui:
     dependencies:
       '@linagora/linid-im-front-corelib':
-        specifier: 0.0.51
-        version: 0.0.51(axios@1.13.6)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.30(typescript@5.9.3)))(quasar@2.18.6)(rxjs@7.8.2)(vue@3.5.30(typescript@5.9.3))
+        specifier: github:linagora/linid-im-front-corelib#improvement/dependencies_update
+        version: https://codeload.github.com/linagora/linid-im-front-corelib/tar.gz/2c3c7bb61e533711560b44397f0588cb13350ced(axios@1.13.6)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.30(typescript@5.9.3)))(quasar@2.18.6)(rxjs@7.8.2)(vue@3.5.30(typescript@5.9.3))
       '@vueuse/core':
         specifier: 14.2.1
         version: 14.2.1(vue@3.5.30(typescript@5.9.3))
@@ -187,8 +187,8 @@ importers:
   apps/module-import:
     dependencies:
       '@linagora/linid-im-front-corelib':
-        specifier: 0.0.51
-        version: 0.0.51(axios@1.13.6)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.30(typescript@5.9.3)))(quasar@2.18.6)(rxjs@7.8.2)(vue@3.5.30(typescript@5.9.3))
+        specifier: github:linagora/linid-im-front-corelib#improvement/dependencies_update
+        version: https://codeload.github.com/linagora/linid-im-front-corelib/tar.gz/2c3c7bb61e533711560b44397f0588cb13350ced(axios@1.13.6)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.30(typescript@5.9.3)))(quasar@2.18.6)(rxjs@7.8.2)(vue@3.5.30(typescript@5.9.3))
       p-limit:
         specifier: 7.3.0
         version: 7.3.0
@@ -212,8 +212,8 @@ importers:
   apps/module-users:
     dependencies:
       '@linagora/linid-im-front-corelib':
-        specifier: 0.0.51
-        version: 0.0.51(axios@1.13.6)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.30(typescript@5.9.3)))(quasar@2.18.6)(rxjs@7.8.2)(vue@3.5.30(typescript@5.9.3))
+        specifier: github:linagora/linid-im-front-corelib#improvement/dependencies_update
+        version: https://codeload.github.com/linagora/linid-im-front-corelib/tar.gz/2c3c7bb61e533711560b44397f0588cb13350ced(axios@1.13.6)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.30(typescript@5.9.3)))(quasar@2.18.6)(rxjs@7.8.2)(vue@3.5.30(typescript@5.9.3))
       '@vueuse/core':
         specifier: 14.2.1
         version: 14.2.1(vue@3.5.30(typescript@5.9.3))
@@ -920,14 +920,14 @@ packages:
   '@changesets/write@0.4.0':
     resolution: {integrity: sha512-CdTLvIOPiCNuH71pyDu3rA+Q0n65cmAbXnwWH84rKGiFumFzkmHNT8KHTMEchcxN+Kl8I54xGUhJ7l3E7X396Q==}
 
-  '@emnapi/core@1.8.1':
-    resolution: {integrity: sha512-AvT9QFpxK0Zd8J0jopedNm+w/2fIzvtPKPjqyw9jwvBaReTTqPBk9Hixaz7KbjimP+QNz605/XnjFcDAL2pqBg==}
+  '@emnapi/core@1.9.0':
+    resolution: {integrity: sha512-0DQ98G9ZQZOxfUcQn1waV2yS8aWdZ6kJMbYCJB3oUBecjWYO1fqJ+a1DRfPF3O5JEkwqwP1A9QEN/9mYm2Yd0w==}
 
-  '@emnapi/runtime@1.8.1':
-    resolution: {integrity: sha512-mehfKSMWjjNol8659Z8KxEMrdSJDDot5SXMq00dM8BN4o+CLNXQ0xH2V7EchNHV4RmbZLmmPdEaXZc5H2FXmDg==}
+  '@emnapi/runtime@1.9.0':
+    resolution: {integrity: sha512-QN75eB0IH2ywSpRpNddCRfQIhmJYBCJ1x5Lb3IscKAL8bMnVAKnRg8dCoXbHzVLLH7P38N2Z3mtulB7W0J0FKw==}
 
-  '@emnapi/wasi-threads@1.1.0':
-    resolution: {integrity: sha512-WI0DdZ8xFSbgMjR1sFsKABJ/C5OnRrjT06JXbZKexJGrDuPTzZdDYfFlsgcCXCyf+suG5QU2e/y1Wo2V/OapLQ==}
+  '@emnapi/wasi-threads@1.2.0':
+    resolution: {integrity: sha512-N10dEJNSsUx41Z6pZsXU8FjPjpBEplgH24sfkmITrBED1/U2Esum9F3lfLrMjKHHjmi557zQn7kR9R+XWXu5Rg==}
 
   '@es-joy/jsdoccomment@0.84.0':
     resolution: {integrity: sha512-0xew1CxOam0gV5OMjh2KjFQZsKL2bByX1+q4j3E73MpYIdyUxcZb/xQct9ccUb+ve5KGUYbCUxyPnYB7RbuP+w==}
@@ -1258,16 +1258,17 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@linagora/linid-im-front-corelib@0.0.51':
-    resolution: {integrity: sha512-7oU1oZGt33dDw8s/F21R0C+OvMIYBO3Jccd34iy16PooPpL2XYhv/E7HZW0m11G31KJW8xmi6O/2rswbWpuhkQ==}
+  '@linagora/linid-im-front-corelib@https://codeload.github.com/linagora/linid-im-front-corelib/tar.gz/2c3c7bb61e533711560b44397f0588cb13350ced':
+    resolution: {tarball: https://codeload.github.com/linagora/linid-im-front-corelib/tar.gz/2c3c7bb61e533711560b44397f0588cb13350ced}
+    version: 0.0.51
     peerDependencies:
-      '@module-federation/enhanced': 0.21.6
-      axios: 1.13.2
+      '@module-federation/enhanced': 2.1.0
+      axios: 1.13.6
       pinia: 3.0.4
       quasar: 2.18.6
       rxjs: 7.8.2
-      vue: 3.5.25
-      vue-i18n: 11.2.2
+      vue: 3.5.30
+      vue-i18n: 11.3.0
 
   '@manypkg/find-root@1.1.0':
     resolution: {integrity: sha512-mki5uBvhHzO8kYYix/WRy2WX8S3B5wdVSc9D6KcU5lQNglP2yt58/VfLuAK49glRXChosY8ap2oJ1qgma3GUVA==}
@@ -2173,9 +2174,6 @@ packages:
 
   '@types/node@12.20.55':
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
-
-  '@types/node@25.0.0':
-    resolution: {integrity: sha512-rl78HwuZlaDIUSeUKkmogkhebA+8K1Hy7tddZuJ3D0xV8pZSfsYGTsliGUol1JPzu9EKnTxPC4L1fiWouStRew==}
 
   '@types/node@25.4.0':
     resolution: {integrity: sha512-9wLpoeWuBlcbBpOY3XmzSTG3oscB6xjBEEtn+pYXTfhyXhIxC5FsBer2KTopBlvKEiW9l13po9fq+SJY/5lkhw==}
@@ -3205,8 +3203,8 @@ packages:
     engines: {node: '>=0.10.0'}
     hasBin: true
 
-  electron-to-chromium@1.5.307:
-    resolution: {integrity: sha512-5z3uFKBWjiNR44nFcYdkcXjKMbg5KXNdciu7mhTPo9tB7NbqSNP2sSnGR+fqknZSCwKkBN+oxiiajWs4dT6ORg==}
+  electron-to-chromium@1.5.313:
+    resolution: {integrity: sha512-QBMrTWEf00GXZmJyx2lbYD45jpI3TUFnNIzJ5BBc8piGUDwMPa1GV6HJWTZVvY/eiN3fSopl7NRbgGp9sZ9LTA==}
 
   emittery@0.13.1:
     resolution: {integrity: sha512-DeWwawk6r5yR9jFgnDKYt4sLS0LmHJJi3ZOnb5/JdbYwj3nW+FxQnHIjhBKz8YLC7oRNPVM9NQ47I3CVx34eqQ==}
@@ -5093,8 +5091,8 @@ packages:
     resolution: {integrity: sha512-j2Zq4NyQYG5XMST4cbs02Ak8iJUdxRM0XI5QyxXuZOzKOINmWurp3smXu3y5wDcJrptwpSjgXHzIQxR0omXljQ==}
     engines: {node: '>=12.0.0'}
 
-  tinyrainbow@3.0.3:
-    resolution: {integrity: sha512-PSkbLUoxOFRzJYjjxHJt9xro7D+iilgMX/C9lawzVuYiIdcihh9DXmVibBe8lmcFrRi/VzlPjBxbN7rH24q8/Q==}
+  tinyrainbow@3.1.0:
+    resolution: {integrity: sha512-Bf+ILmBgretUrdJxzXM0SgXLZ3XfiaUuOj/IKQHuTXip+05Xn+uyEYdVg0kYDipTBcLrCVyUzAPz7QmArb0mmw==}
     engines: {node: '>=14.0.0'}
 
   tmp@0.2.5:
@@ -5197,9 +5195,6 @@ packages:
 
   unbzip2-stream@1.4.3:
     resolution: {integrity: sha512-mlExGW4w71ebDJviH16lQLtZS32VKqsSfk80GCfUlwT/4/hNRFsoscrF/c++9xinkMzECL1uL9DDwXqFWkruPg==}
-
-  undici-types@7.16.0:
-    resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
 
   undici-types@7.18.2:
     resolution: {integrity: sha512-AsuCzffGHJybSaRrmr5eHr81mwJU3kjw6M+uprWvCXiNeN9SOGwQ3Jn8jb8m3Z6izVgknn1R0FTCEAP2QrLY/w==}
@@ -6451,16 +6446,16 @@ snapshots:
       human-id: 4.1.3
       prettier: 2.8.8
 
-  '@emnapi/core@1.8.1':
+  '@emnapi/core@1.9.0':
     dependencies:
-      '@emnapi/wasi-threads': 1.1.0
+      '@emnapi/wasi-threads': 1.2.0
       tslib: 2.8.1
 
-  '@emnapi/runtime@1.8.1':
+  '@emnapi/runtime@1.9.0':
     dependencies:
       tslib: 2.8.1
 
-  '@emnapi/wasi-threads@1.1.0':
+  '@emnapi/wasi-threads@1.2.0':
     dependencies:
       tslib: 2.8.1
 
@@ -6784,7 +6779,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@linagora/linid-im-front-corelib@0.0.51(axios@1.13.6)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.30(typescript@5.9.3)))(quasar@2.18.6)(rxjs@7.8.2)(vue@3.5.30(typescript@5.9.3))':
+  '@linagora/linid-im-front-corelib@https://codeload.github.com/linagora/linid-im-front-corelib/tar.gz/2c3c7bb61e533711560b44397f0588cb13350ced(axios@1.13.6)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.30(typescript@5.9.3)))(quasar@2.18.6)(rxjs@7.8.2)(vue@3.5.30(typescript@5.9.3))':
     dependencies:
       axios: 1.13.6
       pinia: 3.0.4(typescript@5.9.3)(vue@3.5.30(typescript@5.9.3))
@@ -6992,21 +6987,21 @@ snapshots:
 
   '@napi-rs/wasm-runtime@0.2.12':
     dependencies:
-      '@emnapi/core': 1.8.1
-      '@emnapi/runtime': 1.8.1
+      '@emnapi/core': 1.9.0
+      '@emnapi/runtime': 1.9.0
       '@tybys/wasm-util': 0.10.1
     optional: true
 
   '@napi-rs/wasm-runtime@0.2.4':
     dependencies:
-      '@emnapi/core': 1.8.1
-      '@emnapi/runtime': 1.8.1
+      '@emnapi/core': 1.9.0
+      '@emnapi/runtime': 1.9.0
       '@tybys/wasm-util': 0.9.0
 
   '@napi-rs/wasm-runtime@1.1.1':
     dependencies:
-      '@emnapi/core': 1.8.1
-      '@emnapi/runtime': 1.8.1
+      '@emnapi/core': 1.9.0
+      '@emnapi/runtime': 1.9.0
       '@tybys/wasm-util': 0.10.1
     optional: true
 
@@ -7778,17 +7773,13 @@ snapshots:
 
   '@types/node@12.20.55': {}
 
-  '@types/node@25.0.0':
-    dependencies:
-      undici-types: 7.16.0
-
   '@types/node@25.4.0':
     dependencies:
       undici-types: 7.18.2
 
   '@types/papaparse@5.5.2':
     dependencies:
-      '@types/node': 25.0.0
+      '@types/node': 25.4.0
 
   '@types/parse-json@4.0.2': {}
 
@@ -7977,7 +7968,7 @@ snapshots:
       magicast: 0.5.2
       obug: 2.1.1
       std-env: 3.10.0
-      tinyrainbow: 3.0.3
+      tinyrainbow: 3.1.0
       vitest: 4.0.18(@types/node@25.4.0)(@vitest/ui@4.0.18)(happy-dom@20.8.3)(jiti@2.6.1)(sass-embedded@1.98.0)(sass@1.98.0)(yaml@2.8.2)
 
   '@vitest/expect@4.0.18':
@@ -7987,7 +7978,7 @@ snapshots:
       '@vitest/spy': 4.0.18
       '@vitest/utils': 4.0.18
       chai: 6.2.2
-      tinyrainbow: 3.0.3
+      tinyrainbow: 3.1.0
 
   '@vitest/mocker@4.0.18(vite@7.3.1(@types/node@25.4.0)(jiti@2.6.1)(sass-embedded@1.98.0)(sass@1.98.0)(yaml@2.8.2))':
     dependencies:
@@ -7999,7 +7990,7 @@ snapshots:
 
   '@vitest/pretty-format@4.0.18':
     dependencies:
-      tinyrainbow: 3.0.3
+      tinyrainbow: 3.1.0
 
   '@vitest/runner@4.0.18':
     dependencies:
@@ -8022,13 +8013,13 @@ snapshots:
       pathe: 2.0.3
       sirv: 3.0.2
       tinyglobby: 0.2.15
-      tinyrainbow: 3.0.3
+      tinyrainbow: 3.1.0
       vitest: 4.0.18(@types/node@25.4.0)(@vitest/ui@4.0.18)(happy-dom@20.8.3)(jiti@2.6.1)(sass-embedded@1.98.0)(sass@1.98.0)(yaml@2.8.2)
 
   '@vitest/utils@4.0.18':
     dependencies:
       '@vitest/pretty-format': 4.0.18
-      tinyrainbow: 3.0.3
+      tinyrainbow: 3.1.0
 
   '@volar/language-core@2.4.28':
     dependencies:
@@ -8626,7 +8617,7 @@ snapshots:
     dependencies:
       baseline-browser-mapping: 2.10.0
       caniuse-lite: 1.0.30001778
-      electron-to-chromium: 1.5.307
+      electron-to-chromium: 1.5.313
       node-releases: 2.0.36
       update-browserslist-db: 1.2.3(browserslist@4.28.1)
 
@@ -8898,7 +8889,7 @@ snapshots:
     dependencies:
       jake: 10.9.4
 
-  electron-to-chromium@1.5.307: {}
+  electron-to-chromium@1.5.313: {}
 
   emittery@0.13.1: {}
 
@@ -11017,7 +11008,7 @@ snapshots:
       fdir: 6.5.0(picomatch@4.0.3)
       picomatch: 4.0.3
 
-  tinyrainbow@3.0.3: {}
+  tinyrainbow@3.1.0: {}
 
   tmp@0.2.5: {}
 
@@ -11099,8 +11090,6 @@ snapshots:
     dependencies:
       buffer: 5.7.1
       through: 2.3.8
-
-  undici-types@7.16.0: {}
 
   undici-types@7.18.2: {}
 
@@ -11246,7 +11235,7 @@ snapshots:
       tinybench: 2.9.0
       tinyexec: 1.0.2
       tinyglobby: 0.2.15
-      tinyrainbow: 3.0.3
+      tinyrainbow: 3.1.0
       vite: 7.3.1(@types/node@25.4.0)(jiti@2.6.1)(sass-embedded@1.98.0)(sass@1.98.0)(yaml@2.8.2)
       why-is-node-running: 2.3.0
     optionalDependencies:

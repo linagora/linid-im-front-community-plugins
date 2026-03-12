@@ -6,7 +6,7 @@
   "dependencies": {
     "vue": "3.5.30",
     "quasar": "2.18.6",
-    "@linagora/linid-im-front-corelib": "0.0.51",
+    "@linagora/linid-im-front-corelib": "github:linagora/linid-im-front-corelib#improvement/dependencies_update",
     "vue-router": "5.0.3",
     "@vueuse/core": "14.2.1"
   },

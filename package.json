@@ -19,7 +19,7 @@
   },
   "private": true,
   "dependencies": {
-    "@linagora/linid-im-front-corelib": "0.0.51",
+    "@linagora/linid-im-front-corelib": "github:linagora/linid-im-front-corelib#improvement/dependencies_update",
     "@vueuse/core": "14.2.1",
     "axios": "1.13.6",
     "pinia": "3.0.4",
