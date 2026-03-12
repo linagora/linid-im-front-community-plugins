@@ -120,17 +120,7 @@ describe('Test component: EntityAttributeListField', () => {
       expect(wrapper.vm.localValue).toEqual('value2');
     });
 
-    it('should be initialized with first element of values if entity value and default value are not set', () => {
-      mountingOptions.props.definition.inputSettings.values = [
-        'value1',
-        'value2',
-      ];
-      wrapper = shallowMount(EntityAttributeListField, mountingOptions);
-
-      expect(wrapper.vm.localValue).toEqual('value1');
-    });
-
-    it('should be initialized to null if entity value, default value and values are not set', () => {
+    it('should be initialized to null if entity value and default value are not set', () => {
       wrapper = shallowMount(EntityAttributeListField, mountingOptions);
 
       expect(wrapper.vm.localValue).toBeNull();
@@ -145,42 +135,13 @@ describe('Test component: EntityAttributeListField', () => {
       expect(wrapper.vm.localValue).toEqual('entity-role');
     });
 
-    it('should be initialized with entity value even if values are set', () => {
-      mountingOptions.props.entity.role = 'entity-role';
-      mountingOptions.props.definition.inputSettings.values = [
-        'value1',
-        'value2',
-      ];
-      wrapper = shallowMount(EntityAttributeListField, mountingOptions);
-      expect(wrapper.vm.localValue).toEqual('entity-role');
-    });
-
-    it('should be initialized with default value if values are set', () => {
-      mountingOptions.props.definition.inputSettings.defaultValue = 'value2';
-      mountingOptions.props.definition.inputSettings.values = [
-        'value1',
-        'value2',
-      ];
-      wrapper = shallowMount(EntityAttributeListField, mountingOptions);
-
-      expect(wrapper.vm.localValue).toEqual('value2');
-    });
-
-    it('should be initialized with first element of values if default value is not in values', () => {
+    it('should be initialized to null if default value is not in values', () => {
       mountingOptions.props.definition.inputSettings.defaultValue =
         'default-role';
       mountingOptions.props.definition.inputSettings.values = [
         'value1',
         'value2',
       ];
-      wrapper = shallowMount(EntityAttributeListField, mountingOptions);
-
-      expect(wrapper.vm.localValue).toEqual('value1');
-    });
-
-    it('should be initialized to null if default value is not in values and values is undefined', () => {
-      mountingOptions.props.definition.inputSettings.defaultValue =
-        'default-role';
       wrapper = shallowMount(EntityAttributeListField, mountingOptions);
 
       expect(wrapper.vm.localValue).toBeNull();
@@ -336,6 +297,49 @@ describe('Test component: EntityAttributeListField', () => {
       });
 
       expect(wrapper.vm.localValue).toEqual('maintainer');
+    });
+  });
+
+  describe('Test hook: onMounted', () => {
+    it('should update value if localValue is not null and entity attribute is null', () => {
+      mountingOptions.props.definition.inputSettings = {
+        defaultValue: 'default-role',
+        values: ['default-role', 'value1'],
+      };
+      mountingOptions.props.entity.role = null;
+      wrapper = shallowMount(EntityAttributeListField, mountingOptions);
+
+      expect(wrapper.vm.localValue).toEqual('default-role');
+      expect(wrapper.emitted('update:entity')).toBeTruthy();
+      expect(wrapper.emitted('update:entity')[0]).toEqual([
+        {
+          name: 'entity-name',
+          role: 'default-role',
+        },
+      ]);
+    });
+
+    it('should not update value if localValue is null', () => {
+      mountingOptions.props.definition.inputSettings = {
+        values: ['default-role', 'value1'],
+      };
+      mountingOptions.props.entity.role = null;
+      wrapper = shallowMount(EntityAttributeListField, mountingOptions);
+
+      expect(wrapper.vm.localValue).toBeNull();
+      expect(wrapper.emitted('update:entity')).toBeFalsy();
+    });
+
+    it('should not update value if entity attribute is already set', () => {
+      mountingOptions.props.definition.inputSettings = {
+        defaultValue: 'default-role',
+        values: ['default-role', 'value1'],
+      };
+      mountingOptions.props.entity.role = 'entity-role';
+      wrapper = shallowMount(EntityAttributeListField, mountingOptions);
+
+      expect(wrapper.vm.localValue).toBe('entity-role');
+      expect(wrapper.emitted('update:entity')).toBeFalsy();
     });
   });
 });
