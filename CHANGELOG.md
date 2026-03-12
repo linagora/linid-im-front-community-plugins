@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.9](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.8...v0.2.9) (2026-03-12)
+
+
+### Bug Fixes
+
+* ensure default value is set for static list field in entity when untouched ([1854433](https://github.com/linagora/linid-im-front-community-plugins/commit/18544333a976d6e526e1d7ce31c2456c2ce89c88)), closes [#127](https://github.com/linagora/linid-im-front-community-plugins/issues/127)
+* remove default value for dynamic list field ([cf08f56](https://github.com/linagora/linid-im-front-community-plugins/commit/cf08f56fa81475a5667341e2f081101daa789c98))
+
 ### [0.2.8](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.7...v0.2.8) (2026-03-12)
 
 
