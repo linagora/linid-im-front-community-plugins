@@ -15,7 +15,6 @@ customizable, localized, and reactive select input for predefined value lists.
 - Emits normalized entity updates on user selection
 - Supports scoped translations for labels, hints, prefixes, and suffixes
 - Enables UI customization via the design system
-- Automatically sets the first value of the list as default value when no other default is provided
 
 ---
 
@@ -63,8 +62,7 @@ export interface FieldListSettings extends FieldSettings {
 
   /**
    * Default value for the field. Must be one of the values defined in the `values` array.
-   * If not provided or if the value is not in the `values` array, defaults to the first value.
-   * @default values[0]
+   * If not provided or if the value is not in the `values` array, falls back to `null`.
    */
   defaultValue?: string;
 
@@ -200,8 +198,7 @@ The validation rules are executed in a specific order to ensure proper validatio
 1. Initial value is resolved from:
    - `entity[definition.name]` (existing value in entity)
    - `defaultValue` (if provided and included in `values` array)
-   - `options[0]` (first value in the options array)
-   - `null` (fallback if options array is empty)
+   - `null` (fallback if `defaultValue` is absent or invalid)
 
 2. User selects a value from the dropdown
 3. `localValue` is updated via `v-model`
@@ -228,12 +225,11 @@ const options = props.definition.inputSettings?.values || [];
 ### Default Value Resolution
 
 ```ts
-const defaultValue = props.definition.inputSettings?.defaultValue && options.includes(props.definition.inputSettings.defaultValue) ? props.definition.inputSettings.defaultValue : options[0];
+const defaultValue = props.definition.inputSettings?.defaultValue && options.includes(props.definition.inputSettings.defaultValue) ? props.definition.inputSettings.defaultValue : null;
 ```
 
 - Validates that `defaultValue` (if provided) exists in the `values` array
-- Falls back to the first value in the options array if validation fails
-- Returns `undefined` if the options array is empty
+- Falls back to `null` if `defaultValue` is absent or not included in the `values` array
 
 ### Selected Value Management
 
@@ -244,8 +240,8 @@ const localValue = ref(props.entity[props.definition.name] ?? defaultValue ?? nu
 - Uses a local reactive reference to isolate UI interaction
 - Implements a cascading default value resolution strategy:
   1. Entity's existing value takes precedence
-  2. Falls back to the validated `defaultValue` (or first option)
-  3. Finally falls back to `null` if no default is available
+  2. Falls back to the validated `defaultValue` if provided and present in `values`
+  3. Finally falls back to `null` if no valid default is available
 - A `watch` on `() => props.entity[props.definition.name]` keeps `localValue` in sync when the parent updates the entity — it only triggers when the **specific attribute value** changes, not when other fields of the entity change
 - When the watched value becomes `null` or `undefined`, the fallback cascade `newValue ?? defaultValue ?? null` is applied, restoring the default value if available
 
@@ -269,7 +265,7 @@ const definition = {
   hasValidations: false,
   inputSettings: {
     values: ['admin', 'user', 'guest'],
-    defaultValue: 'user', // Optional, defaults to 'admin' (values[0]) if omitted or invalid
+    defaultValue: 'user', // Optional, falls back to null if omitted or invalid
     ignoreRules: false,
   },
 };
@@ -299,7 +295,7 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 - **Localized UI:** Supports multiple translatable UI elements
 - **Highly customizable:** Fully integrated with the UI design system
 - **Reusable:** Works across modules with different schemas
-- **Smart defaults:** Validates defaultValue and automatically selects the first value when needed
+- **Smart defaults:** Validates `defaultValue` against the `values` array; falls back to `null` if absent or invalid
 - **Framework-native:** Built using Vue 3 Composition API and Quasar standards
 
 ---
@@ -308,8 +304,8 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 
 - Verify initial selected value matches the entity state or default value
 - Assert `update:entity` emission on selection changes
-- Test default value resolution (entity value → validated defaultValue → options[0] → null)
-- Test that invalid `defaultValue` (not in `values` array) falls back to first option
+- Test default value resolution (entity value → validated defaultValue → null)
+- Test that invalid `defaultValue` (not in `values` array) falls back to `null`
 - Mock `useScopedI18n` to control translation output
 - Shallow mount the component to isolate logic from UI rendering
 - Verify that the options list matches the `values` array from `inputSettings`
@@ -326,7 +322,7 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 - The `values` property is **mandatory** in `FieldListSettings`
 - Available options are stored in a local constant, not reactive, as they are expected to be static
 - Default value is validated to ensure it exists in the `values` array
-- Default value resolution follows a specific cascade: entity value → validated `defaultValue` → `options[0]` → `null`
+- Default value resolution follows a specific cascade: entity value → validated `defaultValue` → `null`
 - The `entity` prop is reactive: changes to `entity[definition.name]` are reflected in `localValue` via a selective `watch`; the default value cascade also applies when the watched value becomes `null` or `undefined`
 - Validation is handled internally using `useQuasarRules` and can be configured via `inputSettings`
 - Missing translations safely fall back to default values

@@ -131,7 +131,6 @@ export interface FieldListSettings extends FieldSettings {
 
   /**
    * Default value for the field. Must be one of the values defined in the `values` array.
-   * @default values[0] first value in the `values` array
    */
   defaultValue?: string;
 }

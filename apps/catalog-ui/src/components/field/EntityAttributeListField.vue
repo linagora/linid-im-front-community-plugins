@@ -49,7 +49,7 @@ import {
   useScopedI18n,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import type {
   AttributeFieldProps,
   EntityAttributeFieldOutputs,
@@ -72,7 +72,7 @@ const defaultValue =
   props.definition.inputSettings?.defaultValue &&
   options.includes(props.definition.inputSettings.defaultValue)
     ? props.definition.inputSettings.defaultValue
-    : options[0];
+    : null;
 
 const localValue = ref(
   props.entity[props.definition.name] ?? defaultValue ?? null
@@ -109,4 +109,10 @@ function updateValue() {
     [props.definition.name]: localValue.value,
   });
 }
+
+onMounted(() => {
+  if (localValue.value != null && props.entity[props.definition.name] == null) {
+    updateValue();
+  }
+});
 </script>
