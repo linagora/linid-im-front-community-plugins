@@ -85,9 +85,6 @@ export interface FieldDynamicListSettings extends FieldSettings {
    */
   size?: number;
 
-  /** Default value for the field. */
-  defaultValue?: string;
-
   /**
    * Controls uniqueness validation for this field.
    * - When `true`: uniqueness validation is enabled but no reference values are provided yet.
