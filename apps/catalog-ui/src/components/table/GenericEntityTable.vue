@@ -30,6 +30,15 @@
     :columns="columns"
     :rows="rows"
     :row-key="props.rowKey"
+    :rows-per-page-label="translateOrDefault('', 'rowsPerPage')"
+    :pagination-label="
+      (firstRowIndex, endRowIndex, totalRowsNumber) =>
+        translateOrDefault('', 'paginationLabel', {
+          start: firstRowIndex,
+          end: endRowIndex,
+          total: totalRowsNumber,
+        })
+    "
     v-bind="uiProps"
   >
     <template
@@ -47,6 +56,7 @@
 <script setup lang="ts">
 import {
   type LinidQTableProps,
+  useScopedI18n,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
 import type { GenericEntityTableProps } from '../../types/genericEntityTable';
@@ -54,6 +64,9 @@ import type { GenericEntityTableProps } from '../../types/genericEntityTable';
 const props = withDefaults(defineProps<GenericEntityTableProps>(), {
   rowKey: 'id',
 });
+const { translateOrDefault } = useScopedI18n(
+  `${props.i18nScope}.GenericEntityTable`
+);
 
 const { ui } = useUiDesign();
 
