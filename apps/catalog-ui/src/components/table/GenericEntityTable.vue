@@ -30,6 +30,8 @@
     :columns="columns"
     :rows="rows"
     :row-key="props.rowKey"
+    :rows-per-page-label="t('rowsPerPage')"
+    :pagination-label="getPaginationLabel"
     v-bind="uiProps"
   >
     <template
@@ -47,6 +49,7 @@
 <script setup lang="ts">
 import {
   type LinidQTableProps,
+  useScopedI18n,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
 import type { GenericEntityTableProps } from '../../types/genericEntityTable';
@@ -54,6 +57,7 @@ import type { GenericEntityTableProps } from '../../types/genericEntityTable';
 const props = withDefaults(defineProps<GenericEntityTableProps>(), {
   rowKey: 'id',
 });
+const { t } = useScopedI18n(`${props.i18nScope}.GenericEntityTable`);
 
 const { ui } = useUiDesign();
 
@@ -61,4 +65,23 @@ const uiProps = ui<LinidQTableProps>(
   `${props.uiNamespace}.generic-entity-table`,
   'q-table'
 );
+
+/**
+ * Get the pagination label for the table.
+ * @param firstRowIndex Index of first displayed row.
+ * @param endRowIndex Index of last displayed row.
+ * @param totalRowsNumber The total number of rows in the table.
+ * @returns Number of total rows available in data.
+ */
+function getPaginationLabel(
+  firstRowIndex: number,
+  endRowIndex: number,
+  totalRowsNumber: number
+): string {
+  return t('paginationLabel', {
+    start: firstRowIndex,
+    end: endRowIndex,
+    total: totalRowsNumber,
+  });
+}
 </script>
