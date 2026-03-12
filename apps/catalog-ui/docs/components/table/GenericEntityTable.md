@@ -10,6 +10,7 @@ It renders a simple table from provided columns and rows, without slots, actions
 - Provide a reusable base table for entity lists
 - Keep the first iteration minimal and easy to extend later
 - Stay aligned with the LinID design system
+- Provide internationalized labels for pagination and rows
 
 ---
 
@@ -21,6 +22,7 @@ It renders a simple table from provided columns and rows, without slots, actions
 | `rows`        | `Record<string, unknown>[]` | Yes      | -       | Table row data                         |
 | `rowKey`      | `QTableProps['rowKey']`     | No       | `id`    | Row key for Quasar QTable              |
 | `uiNamespace` | `string`                    | Yes      | -       | UI design namespace for custom styling |
+| `i18nScope`   | `string`                    | Yes      | -       | i18n scope for translations            |
 
 ---
 
@@ -122,7 +124,8 @@ remoteComponent.value = loadAsyncComponent('catalogUI/GenericEntityTable');
     :is="remoteComponent"
     v-if="remoteComponent"
     ui-namespace="catalogUI"
-    :columns
+    i18n-scope="i18nScope"
+    :columns="columns"
     :rows="rows"
   />
 </template>
@@ -168,6 +171,28 @@ Key fields:
 - `rowsPerPage`: number of rows per page
 - `rowsNumber`: **total number of rows** (required for server-side pagination)
 - `sortBy` / `descending`: current sorting state
+
+---
+
+## **🌍 Internationalization**
+
+The component uses scoped i18n with the following translation keys:
+
+| Key                                              | Description                          | Usage                              | Parameters             |
+| ------------------------------------------------ | ------------------------------------ | ---------------------------------- | ---------------------- |
+| `{i18nScope}.GenericEntityTable.rowsPerPage`     | Label for the rows per page selector | Bottom of table pagination control | -                      |
+| `{i18nScope}.GenericEntityTable.paginationLabel` | Label for the pagination display     | Bottom of table pagination info    | {start}, {end},{total} |
+
+Example:
+
+```json
+{
+  "moduleRestrictedDomains.HomePage.GenericEntityTable": {
+    "rowsPerPage": "Domaines interdits par page",
+    "paginationLabel": "{start}-{end} sur {total}"
+  }
+}
+```
 
 ---
 
