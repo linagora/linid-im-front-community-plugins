@@ -25,9 +25,14 @@
  */
 
 import { getEntityById } from '@linagora/linid-im-front-corelib';
-import { shallowMount } from '@vue/test-utils';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { shallowMount, flushPromises } from '@vue/test-utils';
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import UserDetailsPage from '../../../src/pages/UserDetailsPage.vue';
+
+const { mockSubscribe, mockUnsubscribe } = vi.hoisted(() => ({
+  mockSubscribe: vi.fn(),
+  mockUnsubscribe: vi.fn(),
+}));
 
 const mockedGetEntityById = vi.mocked(getEntityById);
 const mockNotify = vi.fn();
@@ -63,8 +68,10 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
       userIdKey: 'id',
       fieldOrder: ['name', 'email'],
       showRemainingFields: false,
+      reloadDetailsOn: ['refresh'],
     },
   })),
+  uiEventSubject: { subscribe: mockSubscribe, next: vi.fn() },
   useScopedI18n: () => ({
     t: vi.fn((v) => v),
   }),
@@ -238,6 +245,51 @@ describe('Test component: UserDetailsPage', () => {
       wrapper.vm.goBack();
 
       expect(mockRouter.push).toHaveBeenCalledWith('/users');
+    });
+  });
+
+  describe('Test hook: onMounted', () => {
+    beforeAll(() => {
+      mockSubscribe.mockReturnValue({ unsubscribe: mockUnsubscribe });
+    });
+
+    beforeEach(async () => {
+      wrapper = shallowMount(UserDetailsPage);
+      await flushPromises();
+    });
+
+    it('should subscribe to uiEventSubject', () => {
+      expect(mockSubscribe).toHaveBeenCalled();
+    });
+
+    it('should call loadData', () => {
+      expect(getEntityById).toHaveBeenCalledWith(
+        'test-instance-id',
+        'test-user-id'
+      );
+    });
+
+    it('should reload user detail when refresh event is received', async () => {
+      getEntityById.mockClear();
+      const subscriberCallback = mockSubscribe.mock.calls[0][0];
+      subscriberCallback({ key: 'refresh' });
+      await flushPromises();
+      expect(getEntityById).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not reload user detail for unrelated events', async () => {
+      getEntityById.mockClear();
+      const subscriberCallback = mockSubscribe.mock.calls[0][0];
+      subscriberCallback({ key: 'unrelated-event' });
+      await flushPromises();
+      expect(getEntityById).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Test hook: onUnmounted', () => {
+    it('should unsubscribe from uiEventSubject on unmount', () => {
+      wrapper.unmount();
+      expect(mockUnsubscribe).toHaveBeenCalled();
     });
   });
 });

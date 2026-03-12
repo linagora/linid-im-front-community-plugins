@@ -67,6 +67,10 @@ export interface ModuleUsersOptions {
    * Defines how fields are grouped and ordered in the forms.
    */
   formSections: FormSection[];
+  /**
+   * List of event types that should trigger a reload of the user details when they occur.
+   */
+  reloadDetailsOn?: string[];
 }
 
 export interface AdvancedSearchConfiguration {
@@ -109,6 +113,7 @@ export interface FormSection {
 | `showRemainingFields` | `boolean`                     | ⬜ No    | If true, displays all user attributes not in `fieldOrder` after the ordered fields in the details card. Default: `false`                                                  |
 | `advancedSearch`      | `AdvancedSearchConfiguration` | ✅ Yes   | Configuration for the advanced search feature. Enables the AdvancedSearchCard on the HomePage.                                                                            |
 | `formSections`        | `FormSection[]`               | ✅ Yes   | Configuration for the edit and create form pages. Defines sections with ordered fields for user creation and editing.                                                     |
+| `reloadDetailsOn`     | `string[]`                    | ⬜ No    | List of UI event keys that trigger an automatic reload of the user details page. Default: `undefined` (no event-driven reload).                                           |
 
 ### Option - `userTableColumns`
 
@@ -136,6 +141,38 @@ The **module-users** table can include a special **actions column** that is rese
   "headerStyle": "width: 200px"
 }
 ```
+
+### **Option - `reloadDetailsOn`**
+
+The `reloadDetailsOn` option allows the `UserDetailsPage` to automatically reload user data when specific UI events are emitted via the global `uiEventSubject` stream.
+
+This is useful when other components or plugin zone components (e.g., group membership forms) perform actions that modify the displayed user and need to notify the page to refresh its data.
+
+#### **Configuration**
+
+```json
+{
+  "reloadDetailsOn": ["user:updated", "group:membership-changed"]
+}
+```
+
+**Behavior:**
+
+- On mount, `UserDetailsPage` subscribes to the global `uiEventSubject` stream.
+- When an event whose `key` matches one of the values in `reloadDetailsOn` is emitted, `loadData()` is called and the user data is refreshed.
+- The subscription is automatically cleaned up on component unmount.
+- If `reloadDetailsOn` is not configured or is empty, no event-driven reload occurs.
+
+#### **Emitting an event from a plugin zone component**
+
+```typescript
+import { uiEventSubject } from '@linagora/linid-im-front-corelib';
+
+// After updating a user's group membership:
+uiEventSubject.next({ key: 'group:membership-changed' });
+```
+
+---
 
 ### **Option - `advancedSearch`**
 

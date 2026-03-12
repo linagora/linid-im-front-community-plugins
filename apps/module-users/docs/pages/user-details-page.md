@@ -20,26 +20,28 @@ The page supports i18n, configurable field ordering, automatic UI styling throug
 - Integrates with the **LinID design system** for consistent styling.
 - Provides **loading states** for asynchronous data operations.
 - **Error handling** with notifications and automatic redirect on load failure.
+- Supports **event-driven reload** of user data when specific UI events occur, configured via the `reloadDetailsOn` option.
 
 ---
 
 ## Props and Data
 
-| Name                | Type                                          | Description                                                                                         |
-| ------------------- | --------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `user`              | `Ref<Record<string, unknown> \| null>`        | Reactive object holding the user's data (null until loaded).                                        |
-| `isLoading`         | `Ref<boolean>`                                | Boolean indicating if a data load is in progress.                                                   |
-| `entityDetailsCard` | `Ref<Component \| null>`                      | Asynchronously loaded `EntityDetailsCard` component.                                                |
-| `buttonsCard`       | `Ref<Component \| null>`                      | Asynchronously loaded `ButtonsCard` component.                                                      |
-| `pageName`          | `string`                                      | Constant page name (`UserDetailsPage`), used for zone names and i18n scope.                         |
-| `uiNamespace`       | `ComputedRef<string>`                         | Computed namespace for UI design props (`{instanceId}.user-details-page`).                          |
-| `i18nScope`         | `ComputedRef<string>`                         | Computed scope for i18n translations (`{instanceId}.UserDetailsPage`).                              |
-| `uiProps`           | `ComputedRef<{ editButton: LinidQBtnProps }>` | Computed UI props for the edit button.                                                              |
-| `instanceId`        | `ComputedRef<string>`                         | Computed from the route meta, used for i18n and module configuration.                               |
-| `userId`            | `ComputedRef<string>`                         | Computed from route params, identifies which user to load.                                          |
-| `parentPath`        | `ComputedRef<string>`                         | Computed path for navigation (typically `/users`).                                                  |
-| `moduleHostConfig`  | `ComputedRef<ModuleHostConfiguration>`        | Computed module host configuration resolved from `instanceId`, providing entity config and options. |
-| `options`           | `ComputedRef<ModuleUsersOptions>`             | Computed configuration options for the module, including `fieldOrder` and `showRemainingFields`.    |
+| Name                | Type                                          | Description                                                                                                                  |
+| ------------------- | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `user`              | `Ref<Record<string, unknown> \| null>`        | Reactive object holding the user's data (null until loaded).                                                                 |
+| `isLoading`         | `Ref<boolean>`                                | Boolean indicating if a data load is in progress.                                                                            |
+| `entityDetailsCard` | `Ref<Component \| null>`                      | Asynchronously loaded `EntityDetailsCard` component.                                                                         |
+| `buttonsCard`       | `Ref<Component \| null>`                      | Asynchronously loaded `ButtonsCard` component.                                                                               |
+| `pageName`          | `string`                                      | Constant page name (`UserDetailsPage`), used for zone names and i18n scope.                                                  |
+| `uiNamespace`       | `ComputedRef<string>`                         | Computed namespace for UI design props (`{instanceId}.user-details-page`).                                                   |
+| `i18nScope`         | `ComputedRef<string>`                         | Computed scope for i18n translations (`{instanceId}.UserDetailsPage`).                                                       |
+| `uiProps`           | `ComputedRef<{ editButton: LinidQBtnProps }>` | Computed UI props for the edit button.                                                                                       |
+| `instanceId`        | `ComputedRef<string>`                         | Computed from the route meta, used for i18n and module configuration.                                                        |
+| `userId`            | `ComputedRef<string>`                         | Computed from route params, identifies which user to load.                                                                   |
+| `parentPath`        | `ComputedRef<string>`                         | Computed path for navigation (typically `/users`).                                                                           |
+| `moduleHostConfig`  | `ComputedRef<ModuleHostConfiguration>`        | Computed module host configuration resolved from `instanceId`, providing entity config and options.                          |
+| `options`           | `ComputedRef<ModuleUsersOptions>`             | Computed configuration options for the module, including `fieldOrder`, `showRemainingFields`, and `reloadDetailsOn`.         |
+| `eventSubscription` | `Subscription`                                | RxJS subscription to `uiEventSubject`, used to trigger data reload on matching UI events. Unsubscribed on component unmount. |
 
 ---
 
@@ -53,6 +55,7 @@ Loads the user entity by ID from the backend using `getEntityById` and updates t
 - Updates `user.value` with the fetched data.
 - On error, shows a negative notification and redirects to the user list page by calling `goBack()`.
 - Sets `isLoading` to `false` when done.
+- Also called automatically when a UI event matching one of the keys in `reloadDetailsOn` is emitted via `uiEventSubject`.
 
 **Error handling:** If the user cannot be loaded, the user is redirected back to the user list.
 
@@ -85,6 +88,30 @@ Example:
 ```ts
 goBack(); // Navigates to /users
 ```
+
+---
+
+## Event-driven Reload
+
+The page subscribes to `uiEventSubject` on mount and automatically reloads user data when a matching event is emitted.
+
+### Configuration
+
+Set the `reloadDetailsOn` option in `ModuleUsersOptions` with a list of event keys that should trigger a reload:
+
+```json
+{
+  "reloadDetailsOn": ["user:updated", "group:membership-changed"]
+}
+```
+
+**Behavior:**
+
+- On mount, the page subscribes to the global `uiEventSubject` stream.
+- When an event whose `key` is included in `reloadDetailsOn` is emitted, `loadData()` is called.
+- On unmount, the subscription is automatically cleaned up.
+
+This is useful when other modules or components emit UI events that should cause the current user's data to be refreshed (e.g., after editing group memberships in a plugin zone).
 
 ---
 
@@ -282,6 +309,7 @@ Alternatively, if loading fails:
   - `useNotify` (user notifications)
   - `getModuleHostConfiguration` (module options)
   - `LinidZoneRenderer` (plugin zone rendering)
+  - `uiEventSubject` (RxJS subject for UI events, used for event-driven reload)
 
 - `vue-router` for route and navigation handling.
 - `EntityDetailsCard` (Catalog UI component).
