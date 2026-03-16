@@ -109,13 +109,12 @@ const handleItemChange = (item: NavigationMenuItem) => {
 
 ## **📌 Notes**
 
-- **No v-model needed:** The component does not use `v-model` as the active state is managed by Vue Router
-- **Best practice:** Follows Quasar's recommendation to not use `v-model` with `QRouteTab` components
+- **Prefix matching:** The active tab is resolved using path prefix matching via `model-value` on `q-tabs`. This ensures tabs remain active for sub-routes handled by separate modules (e.g. `/users/import` keeps the `/users` tab active)
+- **Longest prefix wins:** When multiple items match the current path, the one with the longest path is selected (e.g. `/users/settings/profile` matches `/users/settings` over `/users`)
 - **Route synchronization:** The active tab automatically updates when the route changes
-- **Event emission:** `update:activeItem` is emitted when the route path matches a navigation item, with the full `NavigationMenuItem` object
+- **Event emission:** `update:activeItem` is emitted when the route path matches a navigation item (exact or prefix), with the full `NavigationMenuItem` object
 - **No emission for unmatched routes:** If the route doesn't match any item in the list, no event is emitted
 - **Event timing:** The event is emitted immediately on mount (with `immediate: true`) and on every route change
-- **Exact matching:** All route tabs use `:exact="true"` for precise route matching
 - **Template coverage:** The template section is ignored from code coverage (`v8 ignore`) as it contains only presentation logic
 - **Selection context:** Ideal for module-level navigation; combine with layout components for full page structure
 

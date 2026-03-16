@@ -37,8 +37,11 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
   }),
 }));
 
+const mockRouter = { push: vi.fn() };
+
 vi.mock('vue-router', () => ({
   useRoute: () => mockRoute,
+  useRouter: () => mockRouter,
 }));
 
 describe('Test component: NavigationMenu', () => {
@@ -98,6 +101,40 @@ describe('Test component: NavigationMenu', () => {
       await wrapper.vm.$nextTick();
 
       expect(wrapper.emitted('update:activeItem')[1]).toBeFalsy();
+    });
+
+    it('should emit "update:activeItem" with parent item when route is a sub-path', async () => {
+      mockRoute.path = '/users/import';
+
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.emitted('update:activeItem')[1]).toEqual([mockItems[1]]);
+    });
+
+    it('should emit "update:activeItem" with parent item for deeply nested sub-paths', async () => {
+      mockRoute.path = '/users/123/edit';
+
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.emitted('update:activeItem')[1]).toEqual([mockItems[1]]);
+    });
+
+    it('should match the longest prefix when paths overlap', async () => {
+      const overlappingItems = [
+        { id: '1', label: 'Users', path: '/users' },
+        { id: '2', label: 'User Settings', path: '/users/settings' },
+      ];
+      wrapper = shallowMount(NavigationMenu, {
+        props: { items: overlappingItems, uiNamespace: 'test-namespace' },
+      });
+
+      mockRoute.path = '/users/settings/profile';
+
+      await wrapper.vm.$nextTick();
+
+      const emitted = wrapper.emitted('update:activeItem');
+      const lastEmission = emitted[emitted.length - 1];
+      expect(lastEmission).toEqual([overlappingItems[1]]);
     });
   });
 });
