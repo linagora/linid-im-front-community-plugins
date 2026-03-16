@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.10](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.9...v0.2.10) (2026-03-16)
+
+
+### Bug Fixes
+
+* **catalog-ui:** use prefix matching for active navigation tab ([4a97f2d](https://github.com/linagora/linid-im-front-community-plugins/commit/4a97f2d8a8d9e78963b8daeedbd1a1023f3cb338))
+
 ### [0.2.9](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.8...v0.2.9) (2026-03-12)
 
 
