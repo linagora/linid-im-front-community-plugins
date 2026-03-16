@@ -28,18 +28,19 @@
   <!-- v8 ignore start -->
   <q-tabs
     v-bind="uiProps.tabs"
+    :model-value="activeTabPath"
     class="navigation-menu"
     data-cy="navigation-menu"
   >
-    <q-route-tab
+    <q-tab
       v-for="item in props.items"
       v-bind="uiProps.routes[item.id]"
       :key="item.id"
-      :to="item.path"
+      :name="item.path"
       :label="item.label"
-      :exact="false"
       :class="`navigation-menu--${item.id}`"
       :data-cy="`item_${item.id}`"
+      @click="router.push(item.path)"
     />
   </q-tabs>
   <!-- v8 ignore stop -->
@@ -51,8 +52,8 @@ import type {
   LinidQTabsProps,
 } from '@linagora/linid-im-front-corelib';
 import { useUiDesign } from '@linagora/linid-im-front-corelib';
-import { watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { computed, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import type {
   NavigationMenuOutputs,
   NavigationMenuProps,
@@ -65,8 +66,23 @@ const emit = defineEmits<NavigationMenuOutputs>();
 
 const { ui } = useUiDesign();
 const route = useRoute();
+const router = useRouter();
 
 const localUiNamespace = `${props.uiNamespace}.navigation-menu`;
+
+/**
+ * Resolves the active tab path using prefix matching.
+ * This ensures tabs remain active for sub-routes handled by separate modules.
+ */
+const activeTabPath = computed(() => {
+  const currentPath = route.path;
+  const sorted = [...props.items].sort((a, b) => b.path.length - a.path.length);
+  const match = sorted.find(
+    (item) =>
+      currentPath === item.path || currentPath.startsWith(`${item.path}/`)
+  );
+  return match?.path;
+});
 
 const uiProps: NavigationMenuUIProps = {
   tabs: ui<LinidQTabsProps>(localUiNamespace, 'q-tabs'),
@@ -82,12 +98,12 @@ const uiProps: NavigationMenuUIProps = {
 };
 
 /**
- * Watches for route changes and emits the active item.
+ * Watches for route changes and emits the active item using prefix matching.
  */
 watch(
-  () => route.path,
-  (newPath) => {
-    const selectedItem = props.items.find((item) => item.path === newPath);
+  activeTabPath,
+  (activePath) => {
+    const selectedItem = props.items.find((item) => item.path === activePath);
     if (selectedItem) {
       emit('update:activeItem', selectedItem);
     }
