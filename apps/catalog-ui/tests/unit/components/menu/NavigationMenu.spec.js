@@ -37,11 +37,8 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
   }),
 }));
 
-const mockRouter = { push: vi.fn() };
-
 vi.mock('vue-router', () => ({
   useRoute: () => mockRoute,
-  useRouter: () => mockRouter,
 }));
 
 describe('Test component: NavigationMenu', () => {

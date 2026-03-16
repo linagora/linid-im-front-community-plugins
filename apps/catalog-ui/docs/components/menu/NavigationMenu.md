@@ -109,7 +109,7 @@ const handleItemChange = (item: NavigationMenuItem) => {
 
 ## **📌 Notes**
 
-- **Prefix matching:** The active tab is resolved using path prefix matching via `model-value` on `q-tabs`. This ensures tabs remain active for sub-routes handled by separate modules (e.g. `/users/import` keeps the `/users` tab active)
+- **Prefix matching:** The active tab is resolved using path prefix matching via the `:active` prop on `q-route-tab`. This ensures tabs remain active for sub-routes handled by separate modules (e.g. `/users/import` keeps the `/users` tab active) while preserving native `<a href>` links for accessibility and right-click support
 - **Longest prefix wins:** When multiple items match the current path, the one with the longest path is selected (e.g. `/users/settings/profile` matches `/users/settings` over `/users`)
 - **Route synchronization:** The active tab automatically updates when the route changes
 - **Event emission:** `update:activeItem` is emitted when the route path matches a navigation item (exact or prefix), with the full `NavigationMenuItem` object

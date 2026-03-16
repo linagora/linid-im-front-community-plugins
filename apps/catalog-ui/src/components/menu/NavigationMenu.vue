@@ -28,19 +28,19 @@
   <!-- v8 ignore start -->
   <q-tabs
     v-bind="uiProps.tabs"
-    :model-value="activeTabPath"
     class="navigation-menu"
     data-cy="navigation-menu"
   >
-    <q-tab
+    <q-route-tab
       v-for="item in props.items"
       v-bind="uiProps.routes[item.id]"
       :key="item.id"
-      :name="item.path"
+      :to="item.path"
       :label="item.label"
+      :exact="false"
+      :active="activeTabPath === item.path"
       :class="`navigation-menu--${item.id}`"
       :data-cy="`item_${item.id}`"
-      @click="router.push(item.path)"
     />
   </q-tabs>
   <!-- v8 ignore stop -->
@@ -53,7 +53,7 @@ import type {
 } from '@linagora/linid-im-front-corelib';
 import { useUiDesign } from '@linagora/linid-im-front-corelib';
 import { computed, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import type {
   NavigationMenuOutputs,
   NavigationMenuProps,
@@ -66,7 +66,6 @@ const emit = defineEmits<NavigationMenuOutputs>();
 
 const { ui } = useUiDesign();
 const route = useRoute();
-const router = useRouter();
 
 const localUiNamespace = `${props.uiNamespace}.navigation-menu`;
 
