@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.11](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.10...v0.2.11) (2026-03-17)
+
+
+### Bug Fixes
+
+* eslint error ([5ed1965](https://github.com/linagora/linid-im-front-community-plugins/commit/5ed196534cca5c5ea8cc27f4f8be2a0c344ae9fb))
+
 ### [0.2.10](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.9...v0.2.10) (2026-03-16)
 
 
