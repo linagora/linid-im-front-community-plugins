@@ -24,6 +24,7 @@ export default defineConfigWithVueTs(
       '**/out-tsc/',
       '**/*.template',
       '**/.__mf__temp',
+      'tools/module/src/generators/*',
     ],
   },
   nx.configs['flat/base'],
