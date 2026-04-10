@@ -57,6 +57,8 @@
           :label="t('version')"
           data-cy="application_version"
         />
+        <q-space />
+        <HeaderProfile :ui-namespace="headerUiNamespace" />
       </q-toolbar>
       <q-toolbar
         v-bind="uiProps.toolbar"
@@ -98,6 +100,7 @@ import {
 } from '@linagora/linid-im-front-corelib';
 import { useRouter } from 'vue-router';
 import NavigationMenu from '../components/menu/NavigationMenu.vue';
+import HeaderProfile from '../components/profile/HeaderProfile.vue';
 
 const { ui } = useUiDesign();
 const { t } = useScopedI18n('application');

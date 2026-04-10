@@ -53,6 +53,28 @@ The main application layout with header, toolbar, and navigation.
 
 ---
 
+### HeaderProfile
+
+User profile button displayed in the application header. This component is a child of BaseLayout.
+
+**Namespace:** `{uiNamespace}.header-profile`
+
+```json
+{
+  "base-layout": {
+    "header": {
+      "header-profile": {
+        "q-btn": { "flat": true, "round": false, "color": "white", "noCaps": true },
+        "q-item-section": { "avatar": true },
+        "q-item-label": { "caption": true }
+      }
+    }
+  }
+}
+```
+
+---
+
 ### NavigationMenu
 
 Tab-based navigation menu for routing between modules. This component is a child of BaseLayout.
@@ -335,6 +357,11 @@ A full example showing all CatalogUI components configured together:
       "q-avatar": { "size": "md", "color": "primary" },
       "q-toolbar-title": { "shrink": false },
       "q-badge": { "color": "secondary" },
+      "header-profile": {
+        "q-btn": { "flat": true, "color": "white", "noCaps": true },
+        "q-item-section": { "avatar": true },
+        "q-item-label": { "caption": true }
+      },
       "navigation-menu": {
         "q-tabs": { "dense": false, "align": "left", "noCaps": true },
         "route-[ROUTE_ID]": {
