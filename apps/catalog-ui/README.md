@@ -64,6 +64,11 @@ The library organizes components by category. For each component, documentation 
 - **NavigationMenu** — Tab-based navigation menu for module pages
   → Documentation is inside: [`NavigationMenu.md`](./docs/components/menu/NavigationMenu.md)
 
+### **Profile Components**
+
+- 👤 **HeaderProfile** — User profile button for the application header, displaying the authenticated user's name and email from the LinID user store
+  → Documentation is inside: [`HeaderProfile.md`](./docs/components/profile/HeaderProfile.md)
+
 ### **Table Components**
 
 - **GenericEntityTable** — Minimal QTable wrapper for simple entity lists

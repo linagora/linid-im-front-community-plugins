@@ -85,6 +85,10 @@ export default defineConfig({
           __dirname,
           'src/components/field/EntityAttributeDynamicListField.vue'
         ),
+        './HeaderProfile': resolve(
+          __dirname,
+          'src/components/profile/HeaderProfile.vue'
+        ),
       },
       shared: {
         vue: {
