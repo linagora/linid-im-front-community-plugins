@@ -89,6 +89,10 @@ export default defineConfig({
           __dirname,
           'src/components/profile/HeaderProfile.vue'
         ),
+        './DropdownButton': resolve(
+          __dirname,
+          'src/components/button/DropdownButton.vue'
+        ),
       },
       shared: {
         vue: {
