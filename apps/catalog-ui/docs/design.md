@@ -24,6 +24,8 @@ The examples in this document use placeholders that should be replaced with actu
 | `[PAGE_NAME]`        | The page or view name within the module                  | `homepage`, `details-page`    |
 | `[ROUTE_ID]`         | The route identifier for navigation menu tabs            | `moduleUsers`, `moduleGroups` |
 | `[FIELD_NAME]`       | The entity attribute field name                          | `uid`, `mail`, `displayName`  |
+| `[ITEM_KEY]`         | The root dropdown action key                             | `edit`, `export`, `archive`   |
+| `[CHILD_KEY]`        | The nested dropdown action key                           | `csv`, `pdf`, `json`          |
 | `[PARENT_NAMESPACE]` | The full namespace path passed by the parent component   | `moduleUsers.homepage`        |
 
 ---
@@ -151,6 +153,54 @@ Card with confirm/cancel action buttons.
       },
       "cancel-button": {
         "q-btn": { "color": "negative", "outline": true }
+      }
+    }
+  }
+}
+```
+
+---
+
+### DropdownButton
+
+Dropdown action button supporting flat actions and one submenu level.
+
+**Namespace:** `{uiNamespace}.dropdown-button`
+
+```json
+{
+  "[PARENT_NAMESPACE]": {
+    "dropdown-button": {
+      "q-btn-dropdown": { "color": "primary", "outline": true, "icon": "more_vert" },
+      "q-list": { "dense": true },
+      "q-menu": { "autoClose": false },
+      "menu-trigger": {
+        "q-item-section": { "side": true },
+        "q-icon": { "name": "keyboard_arrow_right", "size": "16px" }
+      },
+      "items": {
+        "[ITEM_KEY]": {
+          "q-item": { "clickable": true },
+          "icon": {
+            "q-item-section": { "avatar": true },
+            "q-icon": { "name": "edit" }
+          },
+          "label": {
+            "q-item-label": { "lines": 1 }
+          },
+          "children": {
+            "[CHILD_KEY]": {
+              "q-item": { "clickable": true },
+              "icon": {
+                "q-item-section": { "avatar": true },
+                "q-icon": { "name": "description" }
+              },
+              "label": {
+                "q-item-label": { "lines": 1 }
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -420,6 +470,30 @@ A full example showing all CatalogUI components configured together:
         },
         "cancel-button": {
           "q-btn": { "color": "negative", "outline": true }
+        }
+      },
+      "dropdown-button": {
+        "q-btn-dropdown": { "color": "primary", "outline": true, "icon": "more_vert" },
+        "q-list": { "dense": true },
+        "q-menu": { "autoClose": false },
+        "menu-trigger": {
+          "q-item-section": { "side": true },
+          "q-icon": { "name": "keyboard_arrow_right" }
+        },
+        "items": {
+          "edit": {
+            "q-item": { "clickable": true },
+            "label": {
+              "q-item-label": { "lines": 1 }
+            }
+          },
+          "export": {
+            "children": {
+              "csv": {
+                "q-item": { "clickable": true }
+              }
+            }
+          }
         }
       }
     }

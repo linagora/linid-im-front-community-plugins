@@ -116,6 +116,11 @@ The library organizes components by category. For each component, documentation 
 - ✨ **BlurLoader** — Skeleton loader for representing loading states
   → Documentation is inside: [`BlurLoader.md`](./docs/components/loader/BlurLoader.md)
 
+### **Buttons Components**
+
+- 🔽 **DropdownButton** — A button component that provides a reusable dropdown action button with support for flat items and one-level nested sub-menus.
+  → Documentation is inside: [`DropdownButton.md`](./docs/components/button/DropdownButton.md)
+
 > More categories and components will be added as the library evolves.
 
 ---
