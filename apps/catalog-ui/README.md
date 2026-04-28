@@ -74,6 +74,11 @@ The library organizes components by category. For each component, documentation 
 - **GenericEntityTable** — Minimal QTable wrapper for simple entity lists
   → Documentation is inside: [`GenericEntityTable.md`](./docs/components/table/GenericEntityTable.md)
 
+### **Tree Components**
+
+- 🌳 **GenericTree** — Minimal QTree wrapper for hierarchical entity structures with per-type icon and label support
+  → Documentation is inside: [`GenericTree.md`](./docs/components/tree/GenericTree.md)
+
 ### **Card Components**
 
 - ✨ **InformationCard** — Reusable card component for displaying labeled read-only information with optional loading states

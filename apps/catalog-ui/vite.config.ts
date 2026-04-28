@@ -29,6 +29,10 @@ export default defineConfig({
           __dirname,
           'src/components/table/GenericEntityTable.vue'
         ),
+        './GenericTree': resolve(
+          __dirname,
+          'src/components/tree/GenericTree.vue'
+        ),
         './NavigationMenu': resolve(
           __dirname,
           'src/components/menu/NavigationMenu.vue'

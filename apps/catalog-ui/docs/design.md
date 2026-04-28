@@ -27,6 +27,7 @@ The examples in this document use placeholders that should be replaced with actu
 | `[ITEM_KEY]`         | The root dropdown action key                             | `edit`, `export`, `archive`   |
 | `[CHILD_KEY]`        | The nested dropdown action key                           | `csv`, `pdf`, `json`          |
 | `[PARENT_NAMESPACE]` | The full namespace path passed by the parent component   | `moduleUsers.homepage`        |
+| `[TYPE]`             | The node type for tree components                        | `structure`, `establishment`  |
 
 ---
 
@@ -104,15 +105,34 @@ Data table for displaying entity lists.
 
 **Namespace:** `{uiNamespace}.generic-entity-table`
 
-```json
+````json
 {
   "[PARENT_NAMESPACE]": {
     "generic-entity-table": {
       "q-table": { "dense": true, "bordered": true, "flat": true }
+
+### GenericTree
+
+Hierarchical tree for displaying entity structures.
+
+**Namespace:** `{uiNamespace}.GenericTree`
+
+```json
+{
+  "[PARENT_NAMESPACE]": {
+    "GenericTree": {
+      "q-tree": {},
+      "types": {
+        "[TYPE]": {
+          "q-icon": {
+            "name": "folder"
+          }
+        }
+      }
     }
   }
 }
-```
+````
 
 ---
 
