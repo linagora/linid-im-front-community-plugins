@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.18](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.17...v0.2.18) (2026-04-29)
+
+
+### Features
+
+* **catalog-ui:** add dropdown button ([090086f](https://github.com/linagora/linid-im-front-community-plugins/commit/090086f47f65f34a7d2c93fbf1ec033984424bc3)), closes [#137](https://github.com/linagora/linid-im-front-community-plugins/issues/137)
+
 ### [0.2.17](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.16...v0.2.17) (2026-04-23)
 
 ### [0.2.16](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.15...v0.2.16) (2026-04-23)
