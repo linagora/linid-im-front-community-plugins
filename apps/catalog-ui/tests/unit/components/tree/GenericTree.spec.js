@@ -28,7 +28,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { shallowMount } from '@vue/test-utils';
 import GenericTree from '../../../../src/components/tree/GenericTree.vue';
 
-const uiMock = vi.fn((namespace) => ({ namespace }));
+const uiMock = vi.fn((namespace, component) => ({ namespace, component }));
 
 vi.mock('@linagora/linid-im-front-corelib', () => ({
   useUiDesign: () => ({ ui: uiMock }),
@@ -36,94 +36,166 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
   useTree: () => ({ toQTreeNodes: vi.fn(() => []) }),
 }));
 
-const folderNode = {
+const fileNode = (key = 'file-1', extraActions = []) => ({
+  type: 'file',
+  key,
+  value: `File ${key}`,
+  extraActions,
+  nodes: [],
+});
+
+const folderNode = (key = 'folder-1', children = [], extraActions = []) => ({
   type: 'folder',
-  key: 'folder-1',
-  value: 'Folder 1',
-  nodes: [
-    {
-      type: 'file',
-      key: 'file-1',
-      value: 'File 1',
-      nodes: [],
-    },
-  ],
+  key,
+  value: `Folder ${key}`,
+  extraActions,
+  nodes: children,
+});
+
+const defaultProps = {
+  uiNamespace: 'Homepage',
+  i18nScope: 'myScope',
+  nodes: [folderNode('folder-1', [fileNode('file-1')])],
+  nodeTypes: [],
 };
 
-const folderWithTwoFiles = {
-  type: 'folder',
-  key: 'folder-1',
-  value: 'Folder 1',
-  nodes: [
-    {
-      type: 'file',
-      key: 'file-1',
-      value: 'File 1',
-      nodes: [],
-    },
-    {
-      type: 'file',
-      key: 'file-2',
-      value: 'File 2',
-      nodes: [],
-    },
-  ],
-};
+function mountComponent(props = {}) {
+  return shallowMount(GenericTree, { props: { ...defaultProps, ...props } });
+}
 
 describe('Test component: GenericTree', () => {
   let wrapper;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    wrapper = shallowMount(GenericTree, {
-      props: {
-        uiNamespace: 'Homepage',
-        i18nScope: 'myScope',
-        nodes: [folderNode],
-      },
-    });
+    wrapper = mountComponent();
   });
 
-  describe('Test computed: uiPropsTypes', () => {
-    it('should contain an entry for each unique type found in nodes', async () => {
-      const result = wrapper.vm.uiPropsTypes;
-
-      expect(Object.keys(result)).toEqual(['folder', 'file']);
+  describe('test function: buildIndexes (resolvedActionsByNode)', () => {
+    it('should be empty when nodeTypes and extraActions are all empty', () => {
+      expect(wrapper.vm.resolvedActionsByNode).toEqual({});
     });
 
-    it('should not duplicate types when the same type appears in multiple nodes', async () => {
-      await wrapper.setProps({ nodes: [folderWithTwoFiles] });
-
-      const result = wrapper.vm.uiPropsTypes;
-
-      expect(Object.keys(result)).toEqual(['folder', 'file']);
-    });
-
-    it('should return an empty object when nodes is empty', async () => {
-      await wrapper.setProps({ nodes: [] });
-
-      expect(wrapper.vm.uiPropsTypes).toEqual({});
-    });
-
-    it('should update when nodes prop changes', async () => {
+    it('should not include a node that has no actions', async () => {
       await wrapper.setProps({
-        nodes: [
-          {
-            type: 'group',
-            key: 'group-1',
-            value: 'Group 1',
-            nodes: [],
-          },
+        nodeTypes: [{ type: 'folder', actions: ['delete'] }],
+      });
+
+      expect('file-1' in wrapper.vm.resolvedActionsByNode).toBe(false);
+    });
+
+    it('should include a node when it has actions from nodeTypes', async () => {
+      await wrapper.setProps({
+        nodeTypes: [{ type: 'folder', actions: ['rename', 'delete'] }],
+      });
+
+      expect(wrapper.vm.resolvedActionsByNode['folder-1']).toEqual([
+        'rename',
+        'delete',
+      ]);
+    });
+
+    it('should include a node when it has extraActions', async () => {
+      await wrapper.setProps({
+        nodes: [folderNode('folder-1', [], ['share'])],
+      });
+
+      expect(wrapper.vm.resolvedActionsByNode['folder-1']).toEqual(['share']);
+    });
+
+    it('should merge and deduplicate actions from nodeTypes and extraActions', async () => {
+      await wrapper.setProps({
+        nodes: [folderNode('folder-1', [], ['rename', 'share'])],
+        nodeTypes: [{ type: 'folder', actions: ['rename', 'delete'] }],
+      });
+
+      expect(wrapper.vm.resolvedActionsByNode['folder-1']).toEqual([
+        'rename',
+        'delete',
+        'share',
+      ]);
+    });
+
+    it('should recursively collect actions for nested nodes', async () => {
+      await wrapper.setProps({
+        nodeTypes: [
+          { type: 'folder', actions: ['delete'] },
+          { type: 'file', actions: ['download'] },
         ],
       });
 
-      const result = wrapper.vm.uiPropsTypes;
+      expect(wrapper.vm.resolvedActionsByNode['folder-1']).toEqual(['delete']);
+      expect(wrapper.vm.resolvedActionsByNode['file-1']).toEqual(['download']);
+    });
+  });
 
-      expect(Object.keys(result)).toEqual(['group']);
-      expect(uiMock).toHaveBeenCalledWith(
-        'Homepage.GenericTree.types.group',
-        'q-icon'
+  describe('Test function: buildIndexes (resolvedActionsByType)', () => {
+    it('should be empty when nodeTypes and extraActions are all empty', () => {
+      expect(wrapper.vm.resolvedActionsByType).toEqual({});
+    });
+
+    it('should contain an entry for each type that has at least one action', async () => {
+      await wrapper.setProps({
+        nodeTypes: [
+          { type: 'folder', actions: ['delete'] },
+          { type: 'file', actions: ['download'] },
+        ],
+      });
+
+      expect(Object.keys(wrapper.vm.resolvedActionsByType)).toEqual(
+        expect.arrayContaining(['folder', 'file'])
       );
+    });
+
+    it('should not create a type entry for a type with no actions', async () => {
+      await wrapper.setProps({
+        nodeTypes: [{ type: 'folder', actions: ['delete'] }],
+      });
+
+      expect('file' in wrapper.vm.resolvedActionsByType).toBe(false);
+    });
+
+    it('should not duplicate a type when the same type appears in multiple nodes', async () => {
+      await wrapper.setProps({
+        nodes: [
+          folderNode('folder-1', [fileNode('file-1'), fileNode('file-2')]),
+        ],
+        nodeTypes: [{ type: 'file', actions: ['download'] }],
+      });
+
+      const keys = Object.keys(wrapper.vm.resolvedActionsByType).filter(
+        (k) => k === 'file'
+      );
+      expect(keys).toHaveLength(1);
+    });
+
+    it('should accumulate all actions seen across nodes of the same type', async () => {
+      await wrapper.setProps({
+        nodes: [
+          folderNode(
+            'folder-1',
+            [folderNode('folder-2', [], ['archive'])],
+            ['share']
+          ),
+        ],
+        nodeTypes: [{ type: 'folder', actions: ['delete'] }],
+      });
+
+      expect(wrapper.vm.resolvedActionsByType['folder']).toEqual(
+        expect.arrayContaining(['delete', 'share', 'archive'])
+      );
+    });
+
+    it('should deduplicate actions accumulated across nodes of the same type', async () => {
+      await wrapper.setProps({
+        nodes: [
+          fileNode('file-1', ['download']),
+          fileNode('file-2', ['download']),
+        ],
+        nodeTypes: [{ type: 'file', actions: [] }],
+      });
+
+      expect(wrapper.vm.resolvedActionsByType['file']).toEqual(['download']);
     });
   });
 });

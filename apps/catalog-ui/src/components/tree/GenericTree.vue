@@ -29,22 +29,56 @@
     class="tree"
     :nodes="quasarNodes"
     node-key="key"
-    v-bind="uiProps"
+    v-bind="uiProps.tree"
     :no-nodes-label="t('noNodesLabel')"
     :no-results-label="t('noResultsLabel')"
   >
     <template #default-header="prop">
       <div
-        :class="`row items-center tree-header-type-${prop.node.type} tree-header-key-${prop.node.key}`"
+        :class="`row items-center full-width tree-header-type-${prop.node.type} tree-header-key-${prop.node.key}`"
       >
         <q-icon
-          v-if="uiPropsTypes[prop.node.type]?.icon?.name"
-          v-bind="uiPropsTypes[prop.node.type].icon"
+          v-if="uiProps.types[prop.node.type]?.icon?.name"
+          v-bind="uiProps.types[prop.node.type].icon"
           class="q-mr-sm tree-header-icon"
         />
-        <div class="text-weight-bold text-primary tree-header-title">
+        <div class="text-weight-bold text-primary col-grow tree-header-title">
           {{ t(`types.${prop.node.type}.label`, { value: prop.node.value }) }}
         </div>
+        <q-btn
+          v-if="resolvedActionsByNode[prop.node.key]"
+          v-bind="uiProps.buttonActions"
+          class="tree-header-actions-btn"
+          :data-cy="`tree-actions-btn-${prop.node.key}`"
+          @click.stop
+        >
+          <q-menu>
+            <q-list>
+              <q-item
+                v-for="action in resolvedActionsByNode[prop.node.key]"
+                :key="action"
+                v-close-popup
+                clickable
+                :data-cy="`tree-actions-btn-${prop.node.key}-${action}`"
+                @click="emit(`click:${action}`, prop.node)"
+              >
+                <q-item-section avatar>
+                  <q-icon
+                    v-if="
+                      uiProps.types[prop.node.type]?.actions?.[action]?.icon
+                        ?.name
+                    "
+                    v-bind="uiProps.types[prop.node.type].actions[action].icon"
+                    class="q-mr-sm tree-header-action-icon"
+                  />
+                </q-item-section>
+                <q-item-section>
+                  {{ t(`types.${prop.node.type}.actions.${action}`) }}
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
+        </q-btn>
       </div>
     </template>
   </q-tree>
@@ -53,66 +87,106 @@
 <script setup lang="ts">
 import type {
   LinidQIconProps,
-  TreeNode,
   LinidQTreeProps,
+  TreeNode,
 } from '@linagora/linid-im-front-corelib';
 import {
   useScopedI18n,
   useTree,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
-import type { TreeProps, UiPropsTypes } from '../../types/genericTree';
-import type { ComputedRef } from 'vue';
-import { computed } from 'vue';
-import type { QTreeNode } from 'quasar';
+import type { Ref } from 'vue';
+import { computed, ref, toRaw, watchEffect } from 'vue';
+import type {
+  TreeOutputs,
+  TreeProps,
+  UiPropsAction,
+  UiPropsTypes,
+} from '../../types/genericTree';
 
 const props = defineProps<TreeProps>();
+
+const emit = defineEmits<TreeOutputs>();
 
 const { ui } = useUiDesign();
 const { t } = useScopedI18n(`${props.i18nScope}.GenericTree`);
 const { toQTreeNodes } = useTree();
 
-const quasarNodes: ComputedRef<QTreeNode[]> = computed(() => {
-  return toQTreeNodes(props.nodes);
-});
-
-const uiProps = ui<LinidQTreeProps>(
-  `${props.uiNamespace}.GenericTree`,
-  'q-tree'
+const quasarNodes = computed(() => toQTreeNodes(props.nodes));
+const nodeTypesMap = computed(
+  () => new Map(props.nodeTypes.map((nodeType) => [nodeType.type, nodeType]))
 );
+
+const resolvedActionsByNode: Ref<Record<string, string[]>> = ref({});
+const resolvedActionsByType: Ref<Record<string, string[]>> = ref({});
 
 /**
- * Warning there is no tests for this function because the function will be removed in the next PR.
- * Recursively collects all node types from a treeNode array.
- * @param nodes Tree nodes to traverse.
- * @returns An array with all the types names.
+ * Recursively builds indexes for quick lookup of actions by node key and type.
+ * @param nodes The tree nodes to index.
  */
-function getTypes(nodes: TreeNode[]): string[] {
-  const types: string[] = [];
+function buildIndexes(nodes: TreeNode[]) {
+  // toRaw prevents tracking the object's property reads, avoiding a reactive cycle in watchEffect.
+  const rawResolvedActionsByType = toRaw(resolvedActionsByType.value);
 
   for (const node of nodes) {
-    types.push(node.type);
+    const nodeActions = [
+      ...new Set([
+        ...(nodeTypesMap.value.get(node.type)?.actions || []),
+        ...(node.extraActions || []),
+      ]),
+    ];
 
-    if (node.nodes.length === 0) {
-      continue;
+    if (nodeActions.length > 0) {
+      // Union of all actions ever seen for this type, used to build icon lookups in uiProps.types.
+      const typeActions = [
+        ...new Set([
+          ...(rawResolvedActionsByType[node.type] || []),
+          ...nodeActions,
+        ]),
+      ];
+
+      resolvedActionsByType.value[node.type] = typeActions;
+      resolvedActionsByNode.value[node.key] = nodeActions;
     }
-    types.push(...getTypes(node.nodes));
+
+    if (node.nodes.length > 0) {
+      buildIndexes(node.nodes);
+    }
   }
-  return types;
 }
 
-const types = computed(() => [...new Set(getTypes(props.nodes))]);
+watchEffect(() => {
+  resolvedActionsByType.value = {};
+  resolvedActionsByNode.value = {};
+  buildIndexes(props.nodes);
+});
 
-const uiPropsTypes = computed(() =>
-  types.value.reduce<UiPropsTypes>((acc, type) => {
-    acc[type] = {
-      icon: ui<LinidQIconProps>(
-        `${props.uiNamespace}.GenericTree.types.${type}`,
-        'q-icon'
-      ),
-    };
-
-    return acc;
-  }, {})
-);
+const uiProps = computed(() => ({
+  tree: ui<LinidQTreeProps>(`${props.uiNamespace}.GenericTree`, 'q-tree'),
+  buttonActions: ui<LinidQTreeProps>(
+    `${props.uiNamespace}.GenericTree.ButtonActions`,
+    'q-btn'
+  ),
+  types: Object.entries(resolvedActionsByType.value).reduce<UiPropsTypes>(
+    (acc, [type, actions]) => {
+      acc[type] = {
+        icon: ui<LinidQIconProps>(
+          `${props.uiNamespace}.GenericTree.types.${type}`,
+          'q-icon'
+        ),
+        actions: actions.reduce<UiPropsAction>((acc, action) => {
+          acc[action] = {
+            icon: ui<LinidQIconProps>(
+              `${props.uiNamespace}.GenericTree.types.${type}.actions.${action}`,
+              'q-icon'
+            ),
+          };
+          return acc;
+        }, {}),
+      };
+      return acc;
+    },
+    {}
+  ),
+}));
 </script>
