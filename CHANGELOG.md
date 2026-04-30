@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.20](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.18...v0.2.20) (2026-04-30)
+
+
+### Features
+
+* **catalog-ui:** add GenericTree component ([f5d0686](https://github.com/linagora/linid-im-front-community-plugins/commit/f5d06866e6d55c2ade416a19ab161b62e4572d89))
+
 ### [0.2.18](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.17...v0.2.18) (2026-04-29)
 
 
