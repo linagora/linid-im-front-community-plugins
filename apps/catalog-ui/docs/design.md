@@ -28,6 +28,7 @@ The examples in this document use placeholders that should be replaced with actu
 | `[CHILD_KEY]`        | The nested dropdown action key                           | `csv`, `pdf`, `json`          |
 | `[PARENT_NAMESPACE]` | The full namespace path passed by the parent component   | `moduleUsers.homepage`        |
 | `[TYPE]`             | The node type for tree components                        | `structure`, `establishment`  |
+| `[ACTION]`           | The node action name for menu in tree nodes              | `edit`, `create`              |
 
 ---
 
@@ -122,10 +123,24 @@ Hierarchical tree for displaying entity structures.
   "[PARENT_NAMESPACE]": {
     "GenericTree": {
       "q-tree": {},
+      "ButtonActions": {
+        "q-btn": {
+          "flat": true,
+          "round": true,
+          "dense": true
+        }
+      },
       "types": {
         "[TYPE]": {
           "q-icon": {
             "name": "folder"
+          },
+          "actions": {
+            "[ACTION]": {
+              "q-icon": {
+                "name": "edit"
+              }
+            }
           }
         }
       }
