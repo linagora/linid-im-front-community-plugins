@@ -54,6 +54,7 @@
 import type {
   LinidQIconProps,
   TreeNode,
+  TreeNodeType,
   LinidQTreeProps,
 } from '@linagora/linid-im-front-corelib';
 import {
@@ -62,11 +63,22 @@ import {
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
 import type { TreeProps, UiPropsTypes } from '../../types/genericTree';
-import type { ComputedRef } from 'vue';
+import { ComputedRef, onMounted } from 'vue';
 import { computed } from 'vue';
 import type { QTreeNode } from 'quasar';
 
-const props = defineProps<TreeProps>();
+const props = withDefaults(defineProps<TreeProps>(), {
+  nodeTypes: [
+    {
+      type: 'Structure',
+      actions: ['toto', 'tata'],
+    },
+    {
+      type: 'Establishment',
+      actions: ['RIRI', 'FIFI'],
+    },
+  ],
+});
 
 const { ui } = useUiDesign();
 const { t } = useScopedI18n(`${props.i18nScope}.GenericTree`);
@@ -89,6 +101,10 @@ const uiProps = ui<LinidQTreeProps>(
  */
 function getTypes(nodes: TreeNode[]): string[] {
   const types: string[] = [];
+
+  const tott = props.nodeTypes;
+  console.log(tott);
+  debugger;
 
   for (const node of nodes) {
     types.push(node.type);
@@ -115,4 +131,8 @@ const uiPropsTypes = computed(() =>
     return acc;
   }, {})
 );
+
+onMounted(() => {
+  console.log('Props:', props);
+});
 </script>

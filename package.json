@@ -19,7 +19,7 @@
   },
   "private": true,
   "dependencies": {
-    "@linagora/linid-im-front-corelib": "0.0.58",
+    "@linagora/linid-im-front-corelib": "github:linagora/linid-im-front-corelib#feature/add-type-tree-node-type",
     "@vueuse/core": "14.2.1",
     "axios": "1.13.6",
     "pinia": "3.0.4",

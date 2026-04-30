@@ -25,10 +25,7 @@
  */
 
 import type { CommonComponentProps } from './common';
-import type {
-  LinidQIconProps,
-  TreeNode,
-} from '@linagora/linid-im-front-corelib';
+import type { LinidQIconProps, TreeNode, TreeNodeType, } from '@linagora/linid-im-front-corelib';
 
 /**
  * Props for the Tree component.
@@ -38,6 +35,10 @@ export interface TreeProps extends CommonComponentProps {
    * Hierarchical node data to render in the tree.
    */
   nodes: TreeNode[];
+  /**
+   * The types of nodes with their associated actions.
+   */
+  nodeTypes: TreeNodeType[];
 }
 
 /**
