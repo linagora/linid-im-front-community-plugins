@@ -25,32 +25,14 @@
  */
 
 import type {
+  DropdownClickPayload,
   LinidQIconProps,
   LinidQItemLabelProps,
   LinidQItemProps,
   LinidQItemSectionProps,
+  MenuItem,
 } from '@linagora/linid-im-front-corelib';
 import type { CommonComponentProps } from './common';
-
-/**
- * Defines the shape of a dropdown button menu item.
- */
-export interface MenuItem {
-  /**
-   * The unique identifier of the menu item, used as an i18n key and as the base of the emitted action key.
-   */
-  key: string;
-
-  /**
-   * Whether the menu item is clickable or not.
-   */
-  clickable: boolean;
-
-  /**
-   * An optional array of child menu item keys, representing a nested menu structure.
-   */
-  children?: string[];
-}
 
 /**
  * Defines the shape of the props for a dropdown button component.
@@ -69,15 +51,7 @@ export interface DropdownButtonOutputs {
   /**
    * Emitted when a menu item is clicked.
    */
-  itemClick: [
-    {
-      /**
-       * The action key of the clicked item. For a root item it equals the item's key (e.g. `'edit'`).
-       * For a child item it is a dot-separated composite of the parent key and child key (e.g. `'export.csv'`).
-       */
-      key: string;
-    },
-  ];
+  itemClick: [DropdownClickPayload];
 }
 
 /**
