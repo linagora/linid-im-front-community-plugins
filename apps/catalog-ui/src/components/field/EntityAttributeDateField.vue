@@ -53,6 +53,7 @@
           <q-date
             v-model="localValue"
             :data-cy="`field_${definition.name}_datepicker`"
+            :mask
             v-bind="uiProps.date"
             @update:model-value="updateValue"
           >
@@ -75,9 +76,11 @@
 import type {
   LinidQBtnProps,
   LinidQDateProps,
+  LinidQIconProps,
   LinidQInputProps,
 } from '@linagora/linid-im-front-corelib';
 import {
+  getI18nInstance,
   useQuasarRules,
   useScopedI18n,
   useUiDesign,
@@ -106,7 +109,7 @@ const uiProps = {
     `${props.uiNamespace}.${props.definition.name}`,
     'q-input'
   ),
-  icon: ui<LinidQInputProps>(
+  icon: ui<LinidQIconProps>(
     `${props.uiNamespace}.${props.definition.name}`,
     'q-icon'
   ),
@@ -129,6 +132,11 @@ const rules = computed(() =>
     ? useQuasarRules(props.instanceId, props.definition, [])
     : []
 );
+
+const mask = computed(() => {
+  const key = props.definition.inputSettings?.maskKey;
+  return key ? getI18nInstance().global.t(key) : undefined;
+});
 
 watch(
   () => props.entity[props.definition.name],

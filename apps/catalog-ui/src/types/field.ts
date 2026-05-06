@@ -113,7 +113,13 @@ export interface FieldTextSettings extends FieldSettings {
 /**
  * Settings for input date fields.
  */
-export type FieldDateSettings = FieldSettings;
+export interface FieldDateSettings extends FieldSettings {
+  /**
+   * Key for the date format mask to be applied on the datepicker,
+   * retrieved from the i18n translations (e.g., "dateFormat").
+   */
+  maskKey?: string;
+}
 
 /**
  * Settings for input boolean fields.
