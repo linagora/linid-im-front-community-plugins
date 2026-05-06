@@ -86,7 +86,110 @@ describe('Test component: GenericTree', () => {
         i18nScope: 'myScope',
         nodes: [folderNode],
         nodeTypes: [],
+        selectedNode: folderNode,
       },
+    });
+  });
+
+  describe('Test function: flattenTreeNode (via computed treeNodeRecord)', () => {
+    it('should return an empty object when nodes is empty', async () => {
+      await wrapper.setProps({ nodes: [] });
+
+      expect(wrapper.vm.treeNodeRecord).toEqual({});
+    });
+
+    it('should index a single root-level node by its key', async () => {
+      const singleNode = {
+        type: 'folder',
+        key: 'folder-1',
+        value: 'Folder 1',
+        extraActions: [],
+        nodes: [],
+      };
+      await wrapper.setProps({ nodes: [singleNode] });
+
+      expect(wrapper.vm.treeNodeRecord['folder-1']).toEqual(singleNode);
+    });
+
+    it('should index multiple root-level nodes by their keys', async () => {
+      const nodeA = {
+        type: 'folder',
+        key: 'folder-a',
+        value: 'A',
+        extraActions: [],
+        nodes: [],
+      };
+      const nodeB = {
+        type: 'folder',
+        key: 'folder-b',
+        value: 'B',
+        extraActions: [],
+        nodes: [],
+      };
+      await wrapper.setProps({ nodes: [nodeA, nodeB] });
+
+      expect(wrapper.vm.treeNodeRecord['folder-a']).toEqual(nodeA);
+      expect(wrapper.vm.treeNodeRecord['folder-b']).toEqual(nodeB);
+    });
+
+    it('should recursively index nested nodes by their keys', () => {
+      // folderNode contains file-1 as a child
+      expect(wrapper.vm.treeNodeRecord['folder-1']).toBeDefined();
+      expect(wrapper.vm.treeNodeRecord['file-1']).toBeDefined();
+      expect(wrapper.vm.treeNodeRecord['file-1'].key).toBe('file-1');
+    });
+
+    it('should index nodes at multiple levels of nesting', async () => {
+      await wrapper.setProps({
+        nodes: [
+          {
+            type: 'folder',
+            key: 'level-1',
+            value: 'Level 1',
+            extraActions: [],
+            nodes: [
+              {
+                type: 'folder',
+                key: 'level-2',
+                value: 'Level 2',
+                extraActions: [],
+                nodes: [
+                  {
+                    type: 'file',
+                    key: 'level-3',
+                    value: 'Level 3',
+                    extraActions: [],
+                    nodes: [],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      });
+
+      expect(wrapper.vm.treeNodeRecord['level-1']).toBeDefined();
+      expect(wrapper.vm.treeNodeRecord['level-2']).toBeDefined();
+      expect(wrapper.vm.treeNodeRecord['level-3']).toBeDefined();
+    });
+
+    it('should update when nodes prop changes', async () => {
+      expect(wrapper.vm.treeNodeRecord['folder-1']).toBeDefined();
+
+      await wrapper.setProps({
+        nodes: [
+          {
+            type: 'group',
+            key: 'group-1',
+            value: 'Group 1',
+            extraActions: [],
+            nodes: [],
+          },
+        ],
+      });
+
+      expect(wrapper.vm.treeNodeRecord['folder-1']).toBeUndefined();
+      expect(wrapper.vm.treeNodeRecord['group-1']).toBeDefined();
     });
   });
 

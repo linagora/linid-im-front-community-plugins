@@ -18,27 +18,27 @@ It renders a hierarchical tree from provided nodes, with per-type icon support, 
 
 ## **Props**
 
-| Prop          | Type             | Required | Default | Description                                   |
-| ------------- | ---------------- | -------- | ------- | --------------------------------------------- |
-| `nodes`       | `TreeNode[]`     | Yes      | -       | Hierarchical node data                        |
-| `nodeTypes`   | `TreeNodeType[]` | Yes      | -       | Node type definitions with associated actions |
-| `uiNamespace` | `string`         | Yes      | -       | UI design namespace for custom styling        |
-| `i18nScope`   | `string`         | Yes      | -       | i18n scope for translations                   |
+| Prop           | Type             | Required | Default | Description                                                                                      |
+| -------------- | ---------------- | -------- | ------- | ------------------------------------------------------------------------------------------------ |
+| `nodes`        | `TreeNode[]`     | Yes      | -       | Hierarchical node data                                                                           |
+| `nodeTypes`    | `TreeNodeType[]` | Yes      | -       | Node type definitions with associated actions                                                    |
+| `uiNamespace`  | `string`         | Yes      | -       | UI design namespace for custom styling                                                           |
+| `i18nScope`    | `string`         | Yes      | -       | i18n scope for translations                                                                      |
+| `selectedNode` | `TreeNode`       | Yes      | -       | The currently selected node (v-model). Auto-selected to the first node on mount if not provided. |
 
 ---
 
 ## **Events**
 
-The component emits dynamic events based on the action name:
-
-| Event            | Payload     | Description                                                                                                                         |
-| ---------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `click:{action}` | `QTreeNode` | Emitted when the user clicks on an action in the context menu. `{action}` is the action name (e.g. `click:delete`, `click:rename`). |
+| Event                 | Payload     | Description                                                                                                                         |
+| --------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `update:selectedNode` | `TreeNode`  | Emitted when the selected node changes. Used for `v-model:selectedNode` two-way binding.                                            |
+| `click:{action}`      | `QTreeNode` | Emitted when the user clicks on an action in the context menu. `{action}` is the action name (e.g. `click:delete`, `click:rename`). |
 
 Example:
 
 ```vue
-<GenericTree @click:delete="handleDelete" @click:rename="handleRename" />
+<GenericTree v-model:selected-node="currentNode" @click:delete="handleDelete" @click:rename="handleRename" />
 ```
 
 ```typescript
@@ -50,6 +50,27 @@ function handleRename(node: QTreeNode) {
   /* ... */
 }
 ```
+
+---
+
+## **Node Selection Behavior**
+
+### Non-null constraint
+
+The component enforces that a node is **always** selected:
+
+- Quasar's `no-selection-unset` prop prevents the user from deselecting a node by clicking the currently selected one.
+- On mount (`onMounted`), if `selectedNode` is not provided, the component automatically emits `update:selectedNode` with the first available node.
+
+### Two-way binding
+
+Use `v-model:selectedNode` to keep the parent in sync with the currently selected node:
+
+```vue
+<GenericTree v-model:selected-node="currentNode" :nodes="nodes" ... />
+```
+
+When the user clicks a node in the tree, the component emits `update:selectedNode` with the corresponding `TreeNode`.
 
 ---
 
@@ -189,6 +210,8 @@ const nodeTypes: TreeNodeType[] = [
   { type: 'file', actions: ['download'] },
 ];
 
+const selectedNode = ref<TreeNode>(nodes[0]);
+
 function handleDelete(node: QTreeNode) {
   console.log('delete', node);
 }
@@ -208,6 +231,7 @@ remoteComponent.value = loadAsyncComponent('catalogUI/GenericTree');
   <component
     :is="remoteComponent"
     v-if="remoteComponent"
+    v-model:selected-node="selectedNode"
     ui-namespace="Homepage"
     i18n-scope="Homepage"
     :nodes="nodes"
