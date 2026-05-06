@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.23](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.22...v0.2.23) (2026-05-06)
+
+
+### Features
+
+* **catalog-ui:** resolve date input mask from i18n translations ([57166bd](https://github.com/linagora/linid-im-front-community-plugins/commit/57166bd389bbda20fb9391a3df85952b6e9b4f19))
+
 ### [0.2.22](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.21...v0.2.22) (2026-05-06)
 
 ### [0.2.21](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.20...v0.2.21) (2026-05-04)
