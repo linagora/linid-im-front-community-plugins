@@ -57,6 +57,7 @@ const defaultProps = {
   i18nScope: 'myScope',
   nodes: [folderNode('folder-1', [fileNode('file-1')])],
   nodeTypes: [],
+  selectedNode: {},
 };
 
 function mountComponent(props = {}) {
@@ -196,6 +197,39 @@ describe('Test component: GenericTree', () => {
       });
 
       expect(wrapper.vm.resolvedActionsByType['file']).toEqual(['download']);
+    });
+  });
+
+  describe('Test function: buildIndexes (treeNodeRecord)', () => {
+    it('should store the exact node object for each key', () => {
+      const record = wrapper.vm.treeNodeRecord;
+
+      expect(record['folder-1'].type).toBe('folder');
+      expect(record['folder-1'].value).toBe('Folder folder-1');
+      expect(record['file-1'].type).toBe('file');
+      expect(record['file-1'].value).toBe('File file-1');
+    });
+
+    it('should index all nodes recursively including deeply nested ones', async () => {
+      await wrapper.setProps({
+        nodes: [
+          folderNode('folder-1', [
+            folderNode('folder-2', [fileNode('file-deep')]),
+          ]),
+        ],
+      });
+
+      const record = wrapper.vm.treeNodeRecord;
+
+      expect(Object.keys(record)).toEqual(
+        expect.arrayContaining(['folder-1', 'folder-2', 'file-deep'])
+      );
+    });
+
+    it('should be empty when nodes is empty', async () => {
+      await wrapper.setProps({ nodes: [] });
+
+      expect(wrapper.vm.treeNodeRecord).toEqual({});
     });
   });
 });

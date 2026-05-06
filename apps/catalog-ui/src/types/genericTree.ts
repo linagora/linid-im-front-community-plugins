@@ -29,7 +29,6 @@ import type {
   TreeNode,
   TreeNodeType,
 } from '@linagora/linid-im-front-corelib';
-import type { QTreeNode } from 'quasar';
 import type { CommonComponentProps } from './common';
 
 /**
@@ -44,6 +43,10 @@ export interface TreeProps extends CommonComponentProps {
    * The types of nodes with their associated actions.
    */
   nodeTypes: TreeNodeType[];
+  /**
+   * The key of the selected node (v-model).
+   */
+  selectedNode: string;
 }
 
 /**
@@ -80,5 +83,6 @@ export type UiPropsAction = Record<
  * Defines the events emitted by the GenericTree component.
  */
 export type TreeOutputs = {
-  [key: `click:${string}`]: [node: QTreeNode];
+  (e: 'update:selectedNode', key: string): void;
+  (e: `click:${string}`, node: TreeNode): void;
 };

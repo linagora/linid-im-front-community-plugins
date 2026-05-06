@@ -26,10 +26,12 @@
 
 <template>
   <q-tree
+    v-model:selected="selected"
     class="tree"
     :nodes="quasarNodes"
     node-key="key"
     v-bind="uiProps.tree"
+    no-selection-unset
     :no-nodes-label="t('noNodesLabel')"
     :no-results-label="t('noResultsLabel')"
   >
@@ -42,7 +44,7 @@
           v-bind="uiProps.types[prop.node.type].icon"
           class="q-mr-sm tree-header-icon"
         />
-        <div class="text-weight-bold text-primary col-grow tree-header-title">
+        <div class="text-weight-bold col-grow tree-header-title">
           {{ t(`types.${prop.node.type}.label`, { value: prop.node.value }) }}
         </div>
         <q-btn
@@ -96,7 +98,7 @@ import {
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
 import type { Ref } from 'vue';
-import { computed, ref, toRaw, watchEffect } from 'vue';
+import { computed, ref, toRaw, watch, watchEffect } from 'vue';
 import type {
   TreeOutputs,
   TreeProps,
@@ -105,7 +107,6 @@ import type {
 } from '../../types/genericTree';
 
 const props = defineProps<TreeProps>();
-
 const emit = defineEmits<TreeOutputs>();
 
 const { ui } = useUiDesign();
@@ -119,6 +120,8 @@ const nodeTypesMap = computed(
 
 const resolvedActionsByNode: Ref<Record<string, string[]>> = ref({});
 const resolvedActionsByType: Ref<Record<string, string[]>> = ref({});
+const treeNodeRecord: Ref<Record<string, TreeNode>> = ref({});
+const selected = ref<string>(props.selectedNode);
 
 /**
  * Recursively builds indexes for quick lookup of actions by node key and type.
@@ -129,6 +132,7 @@ function buildIndexes(nodes: TreeNode[]) {
   const rawResolvedActionsByType = toRaw(resolvedActionsByType.value);
 
   for (const node of nodes) {
+    treeNodeRecord.value[node.key] = node;
     const nodeActions = [
       ...new Set([
         ...(nodeTypesMap.value.get(node.type)?.actions || []),
@@ -158,8 +162,20 @@ function buildIndexes(nodes: TreeNode[]) {
 watchEffect(() => {
   resolvedActionsByType.value = {};
   resolvedActionsByNode.value = {};
+  treeNodeRecord.value = {};
   buildIndexes(props.nodes);
 });
+
+watch(selected, (key: string) => {
+  emit('update:selectedNode', key);
+});
+
+watch(
+  () => props.selectedNode,
+  (key: string) => {
+    selected.value = key;
+  }
+);
 
 const uiProps = computed(() => ({
   tree: ui<LinidQTreeProps>(`${props.uiNamespace}.GenericTree`, 'q-tree'),
