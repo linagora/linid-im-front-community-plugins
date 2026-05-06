@@ -26,15 +26,19 @@ It dynamically builds UI design props for each menu entry, integrates with scope
 
 ### MenuItem Interface
 
+`MenuItem` is provided by `@linagora/linid-im-front-corelib` so any plugin or host application can build typed menus without depending on `catalog-ui` internals. It is generic over the key type, defaulting to `string` for open-ended menus.
+
 ```typescript
+import type { MenuItem } from '@linagora/linid-im-front-corelib';
+
 /**
- * Defines the shape of a dropdown button menu item.
+ * Generic shape of a dropdown button menu item.
  */
-export interface MenuItem {
+export interface MenuItem<TKey extends string = string> {
   /**
    * The unique identifier of the menu item, used as an i18n key and as the base of the emitted action key.
    */
-  key: string;
+  key: TKey;
 
   /**
    * Whether the menu item is clickable or not.
@@ -44,7 +48,7 @@ export interface MenuItem {
   /**
    * An optional array of child menu item keys, representing a nested menu structure.
    */
-  children?: string[];
+  children?: TKey[];
 }
 ```
 
@@ -78,7 +82,11 @@ export interface DropdownButtonProps extends CommonComponentProps {
 
 ### DropdownButtonOutputs Interface
 
+The click payload is `DropdownClickPayload` from `@linagora/linid-im-front-corelib`, which is generic over the emitted key type and defaults to `string`.
+
 ```typescript
+import type { DropdownClickPayload } from '@linagora/linid-im-front-corelib';
+
 /**
  * Outputs (events) emitted by the DropdownButton component.
  */
@@ -86,15 +94,7 @@ export interface DropdownButtonOutputs {
   /**
    * Emitted when a menu item is clicked.
    */
-  itemClick: [
-    {
-      /**
-       * The action key of the clicked item. For a root item it equals the item's key (e.g. `'edit'`).
-       * For a child item it is a dot-separated composite of the parent key and child key (e.g. `'export.csv'`).
-       */
-      key: string;
-    },
-  ];
+  itemClick: [DropdownClickPayload];
 }
 ```
 
@@ -229,7 +229,7 @@ Example:
 ```vue
 <script setup lang="ts">
 import { loadAsyncComponent } from '@linagora/linid-im-front-corelib';
-import type { MenuItem } from '@/types/dropdownButton';
+import type { MenuItem } from '@linagora/linid-im-front-corelib';
 
 const dropdownButton = loadAsyncComponent('catalogUI/DropdownButton');
 
@@ -281,7 +281,7 @@ function onItemClick({ key }: { key: string }) {
 ```vue
 <script setup lang="ts">
 import { loadAsyncComponent } from '@linagora/linid-im-front-corelib';
-import type { MenuItem } from '@/types/dropdownButton';
+import type { MenuItem } from '@linagora/linid-im-front-corelib';
 
 const dropdownButton = loadAsyncComponent('catalogUI/DropdownButton');
 
