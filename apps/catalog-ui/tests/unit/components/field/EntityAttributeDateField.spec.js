@@ -29,12 +29,18 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import EntityAttributeDateField from '../../../../src/components/field/EntityAttributeDateField.vue';
 
 const mockUi = vi.fn(() => ({}));
+const mockGlobalT = vi.fn((key) => key);
 
 vi.mock('@linagora/linid-im-front-corelib', () => ({
+  getI18nInstance: () => ({
+    global: {
+      t: mockGlobalT,
+    },
+  }),
   useUiDesign: () => ({
     ui: mockUi,
   }),
-  useScopedI18n: () => ({ translateOrDefault: vi.fn() }),
+  useScopedI18n: () => ({ t: vi.fn(), translateOrDefault: vi.fn() }),
   useQuasarRules: () => [vi.fn(), vi.fn()],
 }));
 
@@ -85,6 +91,79 @@ describe('Test component: EntityAttributeDateField', () => {
       await wrapper.vm.$nextTick();
 
       expect(wrapper.vm.ignoreRules).toEqual(true);
+    });
+  });
+
+  describe('Test computed: mask', () => {
+    it('should return undefined when maskKey is not defined in inputSettings', () => {
+      expect(wrapper.vm.mask).toBeUndefined();
+    });
+
+    it('should return undefined when inputSettings is not defined', async () => {
+      wrapper.setProps({
+        definition: {
+          name: 'birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: false,
+          input: 'Date',
+        },
+      });
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.mask).toBeUndefined();
+    });
+
+    it('should return undefined when maskKey is an empty string', async () => {
+      wrapper.setProps({
+        definition: {
+          name: 'birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: false,
+          input: 'Date',
+          inputSettings: { maskKey: '' },
+        },
+      });
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.mask).toBeUndefined();
+      expect(mockGlobalT).not.toHaveBeenCalled();
+    });
+
+    it('should return undefined when maskKey is null', async () => {
+      wrapper.setProps({
+        definition: {
+          name: 'birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: false,
+          input: 'Date',
+          inputSettings: { maskKey: null },
+        },
+      });
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.mask).toBeUndefined();
+      expect(mockGlobalT).not.toHaveBeenCalled();
+    });
+
+    it('should call globalT with maskKey and return its result when maskKey is defined', async () => {
+      mockGlobalT.mockReturnValue('DD/MM/YYYY');
+      wrapper.setProps({
+        definition: {
+          name: 'birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: false,
+          input: 'Date',
+          inputSettings: { maskKey: 'dateFormat' },
+        },
+      });
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.mask).toEqual('DD/MM/YYYY');
+      expect(mockGlobalT).toHaveBeenCalledWith('dateFormat');
     });
   });
 
@@ -148,7 +227,7 @@ describe('Test component: EntityAttributeDateField', () => {
     });
   });
 
-  describe('Test function: updateEntity', () => {
+  describe('Test function: updateValue', () => {
     it('should emit event', () => {
       wrapper.vm.localValue = '1990/01/05';
 

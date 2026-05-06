@@ -14,6 +14,7 @@ customizable, localized, and reactive date input.
 - Synchronizes the input value with the entity model
 - Emits normalized entity updates on user input
 - Supports scoped translations for labels, hints, prefixes, and suffixes
+- Applies a configurable date format mask resolved from global i18n translations
 - Enables UI customization via the design system
 
 ---
@@ -57,8 +58,11 @@ export interface AttributeFieldProps<T = Record<string, unknown>> extends Common
 
 ```ts
 export interface FieldDateSettings extends FieldSettings {
-  /** Indicates whether to bypass validation rules for this field. */
-  ignoreRules?: boolean;
+  /**
+   * Key for the date format mask to be applied on the datepicker,
+   * retrieved from the i18n translations (e.g., "dateFormat").
+   */
+  maskKey?: string;
 }
 ```
 
@@ -98,6 +102,19 @@ The component uses `useScopedI18n` to resolve translations for multiple UI text 
 | `suffix` | Input suffix                             |
 | `close`  | Close button label, to close date-picker |
 
+### Date Mask
+
+The date format mask is a computed property resolved via the **global** i18n instance (not the scoped one), using the `maskKey` defined in `inputSettings`:
+
+```ts
+const mask = computed(() => {
+  const key = props.definition.inputSettings?.maskKey;
+  return key ? getI18nInstance().global.t(key) : undefined;
+});
+```
+
+This allows the date format mask to be defined per locale through translation files. If `maskKey` is not defined or a falsy value, `mask` returns `undefined` and Quasar default mask is applied (YYYY/MM/DD).
+
 ### Fallback Behavior
 
 ```ts
@@ -123,7 +140,7 @@ UI customization is handled via the LinID design system using `useUiDesign()`.
 ### Applied Component
 
 - Quasar component: `q-input`, `q-btn`, `q-icon` and `q-date`
-- Props type: `LinidQInputProps`, `LinidQBtnProps`, `LinidQIconProps` and `LinidQDateProps`
+- Props type: `LinidQInputProps`, `LinidQBtnProps`, `LinidQInputProps` and `LinidQDateProps`
 
 Example:
 
@@ -231,6 +248,7 @@ const definition = {
   hasValidations: true,
   inputSettings: {
     ignoreRules: false,
+    maskKey: 'dateFormat',
   },
 };
 
@@ -268,16 +286,19 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 - Verify initial input value matches the entity state
 - Assert `update:entity` emission on input changes
 - Mock `useScopedI18n` to control translation output
+- Mock `getI18nInstance` to control mask key resolution
 - Shallow mount the component to isolate logic from UI rendering
 - Verify that `localValue` is updated when `entity[definition.name]` changes
 - Verify that `localValue` is **not** overwritten when only other entity attributes change (e.g. mutate `name` while keeping the date attribute value identical)
+- Verify that `globalT` is called with the `maskKey` defined in `inputSettings`
 
 ---
 
 ## **📌 Notes**
 
 - The component assumes `definition.input === 'Date'`
-- Uses `FieldDateSettings` type for `inputSettings`, which supports `ignoreRules`
+- Uses `FieldDateSettings` for `inputSettings`, which supports `maskKey`
+- The date format mask is resolved via the global i18n instance using `maskKey`; if absent or equal to a falsy value, `mask` returns `undefined` and Quasar default mask is applied (YYYY/MM/DD).
 - Validation is handled internally using `useQuasarRules` with support for `required` date constraints
 - Missing translations safely fall back to default values
 - Intended for use via `EntityAttributeField`, not directly in most cases
