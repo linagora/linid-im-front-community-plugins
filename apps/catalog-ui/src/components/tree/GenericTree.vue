@@ -26,10 +26,12 @@
 
 <template>
   <q-tree
+    v-model:selected="selected"
     class="tree"
     :nodes="quasarNodes"
     node-key="key"
     v-bind="uiProps.tree"
+    no-selection-unset
     :no-nodes-label="t('noNodesLabel')"
     :no-results-label="t('noResultsLabel')"
   >
@@ -59,7 +61,7 @@
                 :key="action"
                 v-close-popup
                 clickable
-                @click="emit(`click:${action}`, prop.node)"
+                @click="emit(`click:${action}`, treeNodeRecord[prop.node.key])"
               >
                 <q-item-section avatar>
                   <q-icon
@@ -94,7 +96,7 @@ import {
   useTree,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
-import { computed } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import type {
   ResolvedActionsIndex,
   TreeOutputs,
@@ -104,14 +106,54 @@ import type {
 } from '../../types/genericTree';
 
 const props = defineProps<TreeProps>();
-
 const emit = defineEmits<TreeOutputs>();
 
 const { ui } = useUiDesign();
 const { t } = useScopedI18n(`${props.i18nScope}.GenericTree`);
 const { toQTreeNodes } = useTree();
-
 const quasarNodes = computed(() => toQTreeNodes(props.nodes));
+const selected = ref<string>('');
+
+onMounted(() => {
+  if (!props.selectedNode && props.nodes.length > 0) {
+    selected.value = props.nodes[0]?.key;
+  } else if (props.selectedNode) {
+    selected.value = props.selectedNode.key;
+  }
+});
+
+watch(
+  () => props.selectedNode,
+  (node) => {
+    if (node && selected.value !== node.key) {
+      selected.value = node.key;
+    }
+  }
+);
+
+/**
+ * Recursively flatten a treeNodes array.
+ * @param nodes The tree nodes to search in.
+ * @returns A record mapping node keys to their corresponding TreeNode objects.
+ */
+function flattenTreeNode(nodes: TreeNode[]): Record<string, TreeNode> {
+  const map: Record<string, TreeNode> = {};
+  for (const node of nodes) {
+    map[node.key] = node;
+    if (node.nodes.length > 0) {
+      Object.assign(map, flattenTreeNode(node.nodes));
+    }
+  }
+  return map;
+}
+
+const treeNodeRecord = computed<Record<string, TreeNode>>(() =>
+  flattenTreeNode(props.nodes)
+);
+
+watch(selected, (key) => {
+  emit('update:selectedNode', treeNodeRecord.value[key]);
+});
 
 const actionsByNodeType = computed(() =>
   props.nodeTypes.reduce<Record<string, string[]>>((acc, nodeType) => {
