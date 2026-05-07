@@ -24,11 +24,13 @@
  * LinID Identity Manager software.
  */
 
-import type { CommonComponentProps } from './common';
 import type {
   LinidQIconProps,
   TreeNode,
+  TreeNodeType,
 } from '@linagora/linid-im-front-corelib';
+import type { QTreeNode } from 'quasar';
+import type { CommonComponentProps } from './common';
 
 /**
  * Props for the Tree component.
@@ -38,6 +40,10 @@ export interface TreeProps extends CommonComponentProps {
    * Hierarchical node data to render in the tree.
    */
   nodes: TreeNode[];
+  /**
+   * The types of nodes with their associated actions.
+   */
+  nodeTypes: TreeNodeType[];
 }
 
 /**
@@ -50,5 +56,43 @@ export type UiPropsTypes = Record<
      * The UI properties for the displayed icon.
      */
     icon: LinidQIconProps;
+    /**
+     * The UI properties for the action icon.
+     */
+    actions: UiPropsAction;
   }
 >;
+
+/**
+ * Defines the UI properties for different actions in node types.
+ */
+export type UiPropsAction = Record<
+  string,
+  {
+    /**
+     * The UI properties for the displayed icon.
+     */
+    icon: LinidQIconProps;
+  }
+>;
+
+/**
+ * Index of actions available for each node type and node key, used to determine which actions to display in the UI.
+ */
+export interface ResolvedActionsIndex {
+  /**
+   * The actions available for each node type and node key.
+   */
+  types: Record<string, string[]>;
+  /**
+   * The actions available for each node key, regardless of the node type.
+   */
+  nodes: Record<string, string[]>;
+}
+
+/**
+ * Defines the events emitted by the GenericTree component.
+ */
+export type TreeOutputs = {
+  [key: `click:${string}`]: [node: QTreeNode];
+};
