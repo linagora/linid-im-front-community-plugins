@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.24](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.23...v0.2.24) (2026-05-11)
+
+
+### Features
+
+* **catalog-ui:** add contextual actions in tree items ([9a35af8](https://github.com/linagora/linid-im-front-community-plugins/commit/9a35af844e84d5c31e57f77e3752df6cffa37e09))
+
 ### [0.2.23](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.22...v0.2.23) (2026-05-06)
 
 
