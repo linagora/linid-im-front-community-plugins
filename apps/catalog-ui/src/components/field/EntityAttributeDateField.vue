@@ -99,6 +99,9 @@ const props = withDefaults(
   }
 );
 const emits = defineEmits<EntityAttributeFieldOutputs>();
+const localI18nScope = computed(
+  () => `${props.i18nScope}.fields.${props.definition.name}`
+);
 
 const { ui } = useUiDesign();
 
@@ -123,13 +126,16 @@ const uiProps = {
   ),
 };
 
-const { t, translateOrDefault } = useScopedI18n(
-  `${props.i18nScope}.fields.${props.definition.name}`
-);
+const { t, translateOrDefault } = useScopedI18n(localI18nScope.value);
 
 const rules = computed(() =>
   !props.ignoreRules && !props.definition.inputSettings?.ignoreRules
-    ? useQuasarRules(props.instanceId, props.definition, [])
+    ? useQuasarRules(
+        props.instanceId,
+        props.definition,
+        [],
+        localI18nScope.value
+      )
     : []
 );
 

@@ -63,6 +63,9 @@ const props = withDefaults(
   }
 );
 const emits = defineEmits<EntityAttributeFieldOutputs>();
+const localI18nScope = computed(
+  () => `${props.i18nScope}.fields.${props.definition.name}`
+);
 
 const { ui } = useUiDesign();
 
@@ -72,17 +75,16 @@ const uiProps = ui<LinidQInputProps>(
   `${props.uiNamespace}.${props.definition.name}`,
   'q-input'
 );
-const { translateOrDefault } = useScopedI18n(
-  `${props.i18nScope}.fields.${props.definition.name}`
-);
+const { translateOrDefault } = useScopedI18n(localI18nScope.value);
 
 const rules = computed(() =>
   !props.ignoreRules && !props.definition.inputSettings?.ignoreRules
-    ? useQuasarRules(props.instanceId, props.definition, [
-        'minLength',
-        'maxLength',
-        'pattern',
-      ])
+    ? useQuasarRules(
+        props.instanceId,
+        props.definition,
+        ['minLength', 'maxLength', 'pattern'],
+        localI18nScope.value
+      )
     : []
 );
 
