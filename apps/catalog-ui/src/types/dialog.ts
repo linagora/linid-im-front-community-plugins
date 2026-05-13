@@ -34,25 +34,49 @@ export enum DialogKey {
    * Represents a confirmation dialog.
    */
   Confirmation = 'confirmation',
+  /**
+   * Represents a form dialog.
+   */
+  Form = 'form',
+}
+
+/**
+ * Base interface for dialog events, containing common properties for both confirmation and form dialogs.
+ */
+interface BaseDialogEvent extends DialogEvent {
+  /**
+   * Title of the dialog.
+   */
+  title?: string;
+
+  /**
+   * Descriptive message shown in the dialog. (HTML supported).
+   */
+  content?: string;
 }
 
 /**
  * Dialog event for user confirmations.
  */
-export interface ConfirmationDialogEvent extends DialogEvent {
-  /**
-   * Title of the confirmation dialog.
-   */
-  title?: string;
-
-  /**
-   * Descriptive message shown in the confirmation dialog. (HTML supported).
-   */
-  content?: string;
-
+export interface ConfirmationDialogEvent extends BaseDialogEvent {
   /**
    * Callback triggered when the user confirms.
    * Must return a Promise (e.g., to handle async logic like API calls).
    */
   onConfirm?: () => Promise<void>;
+}
+
+/**
+ * Dialog event for forms, allowing to specify form data and a submit callback.
+ */
+export interface FormDialogEvent extends BaseDialogEvent {
+  /**
+   * Form fields to be rendered in the dialog, defined as a record where keys are field names and values contain field properties (e.g., type, label).
+   */
+  formFields: Record<string, any>;
+  /**
+   * Callback triggered when the user submits the form.
+   * Must return a Promise (e.g., to handle async logic like API calls).
+   */
+  onSubmit?: (formData: Record<string, any>) => Promise<void>;
 }
