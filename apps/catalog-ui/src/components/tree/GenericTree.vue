@@ -34,6 +34,7 @@
     no-selection-unset
     :no-nodes-label="t('noNodesLabel')"
     :no-results-label="t('noResultsLabel')"
+    data-cy="generic-tree"
   >
     <template #default-header="prop">
       <div
@@ -44,8 +45,11 @@
           v-bind="uiProps.types[prop.node.type].icon"
           class="q-mr-sm tree-header-icon"
         />
-        <div class="text-weight-bold col-grow tree-header-title">
-          {{ t(`types.${prop.node.type}.label`, { value: prop.node.value }) }}
+        <div
+          class="text-weight-bold col-grow tree-header-title"
+          :data-cy="`generic-tree-node-${prop.node.key}`"
+        >
+          {{ t(`types.${prop.node.type}.label`, { ...prop.node.value }) }}
         </div>
         <q-btn
           v-if="resolvedActionsByNode[prop.node.key]"
