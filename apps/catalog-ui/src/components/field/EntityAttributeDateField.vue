@@ -54,6 +54,7 @@
             v-model="localValue"
             :data-cy="`field_${definition.name}_datepicker`"
             :mask
+            :options
             v-bind="uiProps.date"
             @update:model-value="updateValue"
           >
@@ -74,6 +75,7 @@
 
 <script setup lang="ts">
 import type {
+  LinidAttributeConfiguration,
   LinidQBtnProps,
   LinidQDateProps,
   LinidQIconProps,
@@ -81,10 +83,15 @@ import type {
 } from '@linagora/linid-im-front-corelib';
 import {
   getI18nInstance,
-  useQuasarRules,
+  useDayjs,
+  useNunjucks,
+  useQuasarDate,
+  useQuasarFieldValidation,
   useScopedI18n,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
+import type { Dayjs } from 'dayjs';
+import type { ValidationRule } from 'quasar';
 import { computed, ref, watch } from 'vue';
 import type {
   AttributeFieldProps,
@@ -100,7 +107,22 @@ const props = withDefaults(
 );
 const emits = defineEmits<EntityAttributeFieldOutputs>();
 
+const localI18nScope = `${props.i18nScope}.fields.${props.definition.name}`;
+
+const { t, translateOrDefault } = useScopedI18n(localI18nScope);
 const { ui } = useUiDesign();
+const { render } = useNunjucks();
+const { minDate, maxDate } = useDayjs();
+const { toQDateFormat, formatQDate } = useQuasarDate();
+const {
+  required,
+  validDate,
+  afterDate,
+  beforeDate,
+  fromDate,
+  upToDate,
+  validateFromApi,
+} = useQuasarFieldValidation(localI18nScope);
 
 const localValue = ref(props.entity[props.definition.name] ?? null);
 
@@ -123,21 +145,6 @@ const uiProps = {
   ),
 };
 
-const { t, translateOrDefault } = useScopedI18n(
-  `${props.i18nScope}.fields.${props.definition.name}`
-);
-
-const rules = computed(() =>
-  !props.ignoreRules && !props.definition.inputSettings?.ignoreRules
-    ? useQuasarRules(props.instanceId, props.definition, [])
-    : []
-);
-
-const mask = computed(() => {
-  const key = props.definition.inputSettings?.maskKey;
-  return key ? getI18nInstance().global.t(key) : undefined;
-});
-
 watch(
   () => props.entity[props.definition.name],
   (newValue) => {
@@ -145,8 +152,130 @@ watch(
   }
 );
 
+const mask = computed(() => {
+  const rawMask = props.definition.inputSettings?.mask;
+  if (!rawMask) {
+    return undefined;
+  }
+
+  return render<string>(rawMask, {
+    t: (key: string) => getI18nInstance().global.t(key),
+  });
+});
+
+const renderedDefinition = computed(() => {
+  const context = {
+    entity: props.entity,
+    t: (key: string) => getI18nInstance().global.t(key),
+    today: formatQDate(new Date(), mask.value),
+  };
+
+  return render<LinidAttributeConfiguration<FieldDateSettings>>(
+    props.definition,
+    context
+  );
+});
+
 /**
- * Emits an 'update:entity' event with the updated entity object when the toggle changes.
+ * Computes a reference date from a date value and an aggregation function.
+ * If the value is empty or nullish, returns null. Otherwise, applies the aggregation function
+ * to the resolved array of dates and formats the result as a QDate string.
+ * @param value - A date string, an array of date strings, or undefined.
+ * @param aggregate - A function that takes an array of date strings and returns a single
+ * Dayjs instance representing the aggregated value (e.g., minimum or maximum), or null if
+ * the aggregation yields no result.
+ * @returns A string representing the computed reference date in QDate format, or null if
+ * the input is empty.
+ */
+function computeRef(
+  value: string | string[] | undefined,
+  aggregate: (d: string[], format?: string) => Dayjs | null
+): string | null {
+  if (value == null || value === '') {
+    return null;
+  }
+
+  const dates = (Array.isArray(value) ? value : [value]).filter(
+    (d) => d.trim() !== ''
+  );
+  if (dates.length === 0) {
+    return null;
+  }
+
+  const result = aggregate(dates, mask.value);
+
+  return result != null ? formatQDate(result.toISOString(), mask.value) : null;
+}
+
+const dateConstraints = computed(() => {
+  const config = renderedDefinition.value.inputSettings?.options;
+  if (!config) {
+    return null;
+  }
+
+  return [
+    {
+      dateRef: computeRef(config.afterDate, maxDate),
+      validator: afterDate,
+      predicate: (ref: string) => (date: string) => date > ref,
+    },
+    {
+      dateRef: computeRef(config.beforeDate, minDate),
+      validator: beforeDate,
+      predicate: (ref: string) => (date: string) => date < ref,
+    },
+    {
+      dateRef: computeRef(config.fromDate, maxDate),
+      validator: fromDate,
+      predicate: (ref: string) => (date: string) => date >= ref,
+    },
+    {
+      dateRef: computeRef(config.upToDate, minDate),
+      validator: upToDate,
+      predicate: (ref: string) => (date: string) => date <= ref,
+    },
+  ].filter((c) => c.dateRef != null);
+});
+
+const rules = computed(() => {
+  if (props.ignoreRules || props.definition.inputSettings?.ignoreRules) {
+    return [];
+  }
+
+  const rules = [validDate(mask.value)];
+
+  if (props.definition.required) {
+    rules.unshift(required);
+  }
+
+  const rulesFromConstraints: ValidationRule[] =
+    dateConstraints.value?.map(({ dateRef, validator }) =>
+      validator(dateRef as string, mask.value)
+    ) ?? [];
+
+  if (props.definition.hasValidations) {
+    rulesFromConstraints.push(
+      validateFromApi(props.instanceId, props.definition.name)
+    );
+  }
+
+  return [...rules, ...rulesFromConstraints];
+});
+
+const options = computed(() => {
+  const predicates =
+    dateConstraints.value?.map(({ dateRef, predicate }) => {
+      const ref = toQDateFormat(dateRef as string, mask.value);
+      return predicate(ref);
+    }) ?? [];
+
+  return predicates.length > 0
+    ? (date: string) => predicates.every((predicate) => predicate(date))
+    : undefined;
+});
+
+/**
+ * Emits an 'update:entity' event with the updated entity object when date value changes.
  * Updates the value of the attribute in the entity using the local reactive value.
  */
 function updateValue() {
