@@ -59,10 +59,23 @@ export interface AttributeFieldProps<T = Record<string, unknown>> extends Common
 ```ts
 export interface FieldDateSettings extends FieldSettings {
   /**
-   * Key for the date format mask to be applied on the datepicker,
-   * retrieved from the i18n translations (e.g., "dateFormat").
+   * Date format mask to be used for displaying and parsing the date value.
+   * Can be a Nunjucks template string (e.g. "{{ t('dateFormat') }}")
+   * or a static mask (e.g. "YYYY-MM-DD").
    */
-  maskKey?: string;
+  mask?: string;
+
+  /**
+   * Constraint options for the date picker (see below).
+   */
+  options?: FieldDateOptions;
+}
+
+export interface FieldDateOptions {
+  afterDate?: string | string[]; // Exclusive lower bound(s)
+  beforeDate?: string | string[]; // Exclusive upper bound(s)
+  fromDate?: string | string[]; // Inclusive lower bound(s)
+  upToDate?: string | string[]; // Inclusive upper bound(s)
 }
 ```
 
@@ -104,16 +117,17 @@ The component uses `useScopedI18n` to resolve translations for multiple UI text 
 
 ### Date Mask
 
-The date format mask is a computed property resolved via the **global** i18n instance (not the scoped one), using the `maskKey` defined in `inputSettings`:
+The date format mask is a computed property resolved via Nunjucks rendering, allowing both static masks and i18n-based templates:
 
 ```ts
 const mask = computed(() => {
-  const key = props.definition.inputSettings?.maskKey;
-  return key ? getI18nInstance().global.t(key) : undefined;
+  const rawMask = props.definition.inputSettings?.mask;
+  if (!rawMask) return undefined;
+  return render<string>(rawMask, { t: (key) => getI18nInstance().global.t(key) });
 });
 ```
 
-This allows the date format mask to be defined per locale through translation files. If `maskKey` is not defined or a falsy value, `mask` returns `undefined` and Quasar default mask is applied (YYYY/MM/DD).
+This allows the mask to be defined as a static string (e.g. "YYYY-MM-DD") or as a template (e.g. "{{ t('dateFormat') }}"). If `mask` is not defined, Quasar's default mask is used (YYYY/MM/DD).
 
 ### Fallback Behavior
 
@@ -160,42 +174,47 @@ This allows full control over appearance, validation rules, and behavior per att
 
 ## **✅ Validation**
 
-The component implements automatic validation based on the attribute's `inputSettings`, the `definition.required` property, and the `definition.hasValidations` property.
+The component implements automatic validation based on the attribute's `inputSettings`, the `definition.required` property, and the `definition.hasValidations` property, **plus all date constraints defined in `options`**.
 
 ### Validation Rules
 
-Validation rules are generated automatically using `useQuasarRules`:
+Validation rules are dynamically generated:
+
+- `required` (if applicable)
+- `validDate(mask)` (always)
+- `afterDate`, `beforeDate`, `fromDate`, `upToDate` (if corresponding options are set)
+- `validateFromApi` (if `definition.hasValidations` is `true`)
+
+Example:
 
 ```ts
-const rules = computed(() => (!props.ignoreRules && !props.definition.inputSettings?.ignoreRules ? useQuasarRules(props.instanceId, props.definition, []) : []));
+const rules = computed(() => {
+  if (props.ignoreRules || props.definition.inputSettings?.ignoreRules) return [];
+  const rules = [validDate(mask.value)];
+  if (props.definition.required) rules.unshift(required);
+
+  // Date constraints are processed via a table-driven approach
+  const rulesFromConstraints: ValidationRule[] = dateConstraints.value?.map(({ dateRef, validator }) => validator(dateRef as string, mask.value)) ?? [];
+
+  if (props.definition.hasValidations) {
+    rulesFromConstraints.push(validateFromApi(props.instanceId, props.definition.name));
+  }
+  return [...rules, ...rulesFromConstraints];
+});
 ```
-
-### Validation Execution Order
-
-The validation rules are executed in a specific order to ensure proper validation flow:
-
-1. **Required validation** (if applicable)
-   - Depends on the `definition.required` property
-   - If `definition.required` is `true`, this validation is automatically added as the **first rule** in the validation chain
-   - Ensures that the field is not empty before proceeding to other validations
-
-2. **Specific validation rules** (in order)
-   - The rules specified in the `useQuasarRules` parameters (currently an empty array `[]` for date fields)
-   - These rules are executed **in the order specified** in the array
-   - Execute **after** the required validation (if present)
-
-3. **Backend API validations** (if applicable)
-   - Depends on the `definition.hasValidations` property
-   - If `definition.hasValidations` is `true`, backend validation rules are added
-   - These validations are executed **last**, after all client-side validations pass
-   - Used for server-side validation logic (e.g., checking uniqueness, business rules)
 
 ### Supported Validation Types
 
-| Setting       | Description                                                                          | Example             |
-| ------------- | ------------------------------------------------------------------------------------ | ------------------- |
-| `required`    | Marks the field as mandatory. Setting comes from the `definition.required` property. | `required: true`    |
-| `ignoreRules` | Bypass validation when set to `true`                                                 | `ignoreRules: true` |
+| Setting          | Description                                                                          | Example                |
+| ---------------- | ------------------------------------------------------------------------------------ | ---------------------- |
+| `required`       | Marks the field as mandatory. Setting comes from the `definition.required` property. | `required: true`       |
+| `validDate`      | Ensures the value is a valid date (with mask)                                        |                        |
+| `afterDate`      | Value must be strictly after the given date(s)                                       | `afterDate: '...'`     |
+| `beforeDate`     | Value must be strictly before the given date(s)                                      | `beforeDate: '...'`    |
+| `fromDate`       | Value must be on or after the given date(s)                                          | `fromDate: '...'`      |
+| `upToDate`       | Value must be on or before the given date(s)                                         | `upToDate: '...'`      |
+| `hasValidations` | Appends an API-backed validation rule (`validateFromApi`) when `true`                | `hasValidations: true` |
+| `ignoreRules`    | Bypass validation when set to `true`                                                 | `ignoreRules: true`    |
 
 ### Validation Behavior
 
@@ -205,12 +224,13 @@ The validation rules are executed in a specific order to ensure proper validatio
 
 ---
 
-## **🔁 Data Flow**
+## **🔁 Data Flow & Dynamic Rendering**
 
 1. Initial value is read from `entity[definition.name]`
-2. User edits the input field or the date-picker
-3. `localValue` is updated via `v-model`
-4. `updateValue()` emits `update:entity` with a new entity object
+2. The mask and all options are rendered via Nunjucks with context `{ entity, today, t }`
+3. User edits the input field or the date-picker
+4. `localValue` is updated via `v-model`
+5. `updateValue()` emits `update:entity` with a new entity object
 
 ```text
 QInput/QDate → localValue → updateValue → update:entity
@@ -248,7 +268,11 @@ const definition = {
   hasValidations: true,
   inputSettings: {
     ignoreRules: false,
-    maskKey: 'dateFormat',
+    mask: "{{ t('dateFormat') }}",
+    options: {
+      afterDate: '{{ entity.startDate }}',
+      upToDate: '{{ today }}',
+    },
   },
 };
 
@@ -290,16 +314,16 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 - Shallow mount the component to isolate logic from UI rendering
 - Verify that `localValue` is updated when `entity[definition.name]` changes
 - Verify that `localValue` is **not** overwritten when only other entity attributes change (e.g. mutate `name` while keeping the date attribute value identical)
-- Verify that `globalT` is called with the `maskKey` defined in `inputSettings`
+- Verify that `validateFromApi` is called with the correct `instanceId` and `definition.name` when `hasValidations` is `true`
 
 ---
 
 ## **📌 Notes**
 
 - The component assumes `definition.input === 'Date'`
-- Uses `FieldDateSettings` for `inputSettings`, which supports `maskKey`
-- The date format mask is resolved via the global i18n instance using `maskKey`; if absent or equal to a falsy value, `mask` returns `undefined` and Quasar default mask is applied (YYYY/MM/DD).
-- Validation is handled internally using `useQuasarRules` with support for `required` date constraints
+- Uses `FieldDateSettings` for `inputSettings`, which supports `mask`, `options`, and `ignoreRules`
+- The date format mask is a Nunjucks-rendered string from `inputSettings.mask`; if absent or falsy, `mask` returns `undefined` and Quasar's default format (YYYY/MM/DD) is used
+- Validation is handled internally using `useQuasarFieldValidation` with support for `required`, date constraints, and API-backed validation (`validateFromApi` when `hasValidations` is `true`)
 - Missing translations safely fall back to default values
 - Intended for use via `EntityAttributeField`, not directly in most cases
 

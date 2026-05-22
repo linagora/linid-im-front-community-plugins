@@ -120,10 +120,45 @@ export type FieldTextAreaSettings = FieldTextSettings;
  */
 export interface FieldDateSettings extends FieldSettings {
   /**
-   * Key for the date format mask to be applied on the datepicker,
-   * retrieved from the i18n translations (e.g., "dateFormat").
+   * Date format to be used for displaying and parsing the date value.
+   * The mask can be a string representing the date format (e.g., "YYYY-MM-DD")
+   * or a Nunjucks template string that will be rendered with the i18n key associated to
+   * the localized date format in context.
    */
-  maskKey?: string;
+  mask?: string;
+
+  /**
+   * Constraint applied to the date picker to restrict selectable dates.
+   */
+  options?: FieldDateOptions;
+}
+
+/**
+ * Constraints applied to the date picker to restrict selectable dates.
+ * All specified constraints are AND-ed: a date is selectable only if it
+ * satisfies all of them. Each property accepts a single date string or an
+ * array of date strings (Nunjucks template strings rendered with the current
+ * entity and `today` in context, e.g. `"{{ today }}"` or
+ * `"{{ entity.startDate }}"`). When an array is provided, all values of that
+ * constraint must be satisfied.
+ */
+export interface FieldDateOptions {
+  /**
+   * Exclusive lower bound(s): the selected date must be strictly after each.
+   */
+  afterDate?: string | string[];
+  /**
+   * Exclusive upper bound(s): the selected date must be strictly before each.
+   */
+  beforeDate?: string | string[];
+  /**
+   * Inclusive lower bound(s): the selected date must be on or after each.
+   */
+  fromDate?: string | string[];
+  /**
+   * Inclusive upper bound(s): the selected date must be on or before each.
+   */
+  upToDate?: string | string[];
 }
 
 /**

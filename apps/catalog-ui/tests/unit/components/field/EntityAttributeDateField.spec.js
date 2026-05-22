@@ -30,6 +30,18 @@ import EntityAttributeDateField from '../../../../src/components/field/EntityAtt
 
 const mockUi = vi.fn(() => ({}));
 const mockGlobalT = vi.fn((key) => key);
+const mockRender = vi.fn((value) => value);
+const mockMinDate = vi.fn(() => null);
+const mockMaxDate = vi.fn(() => null);
+const mockFormatQDate = vi.fn(() => '2026/01/01');
+const mockToQDateFormat = vi.fn((d) => d);
+const mockValidDate = vi.fn(() => vi.fn());
+const mockRequired = vi.fn();
+const mockAfterDate = vi.fn(() => vi.fn());
+const mockBeforeDate = vi.fn(() => vi.fn());
+const mockFromDate = vi.fn(() => vi.fn());
+const mockUpToDate = vi.fn(() => vi.fn());
+const mockValidateFromApi = vi.fn(() => vi.fn());
 
 vi.mock('@linagora/linid-im-front-corelib', () => ({
   getI18nInstance: () => ({
@@ -41,7 +53,21 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
     ui: mockUi,
   }),
   useScopedI18n: () => ({ t: vi.fn(), translateOrDefault: vi.fn() }),
-  useQuasarRules: () => [vi.fn(), vi.fn()],
+  useNunjucks: () => ({ render: mockRender }),
+  useDayjs: () => ({ minDate: mockMinDate, maxDate: mockMaxDate }),
+  useQuasarDate: () => ({
+    toQDateFormat: mockToQDateFormat,
+    formatQDate: mockFormatQDate,
+  }),
+  useQuasarFieldValidation: () => ({
+    required: mockRequired,
+    validDate: mockValidDate,
+    afterDate: mockAfterDate,
+    beforeDate: mockBeforeDate,
+    fromDate: mockFromDate,
+    upToDate: mockUpToDate,
+    validateFromApi: mockValidateFromApi,
+  }),
 }));
 
 describe('Test component: EntityAttributeDateField', () => {
@@ -49,6 +75,8 @@ describe('Test component: EntityAttributeDateField', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockFormatQDate.mockImplementation(() => '2026/01/01');
+    mockToQDateFormat.mockImplementation((d) => d);
     wrapper = shallowMount(EntityAttributeDateField, {
       props: {
         uiNamespace: 'namespace',
@@ -87,20 +115,19 @@ describe('Test component: EntityAttributeDateField', () => {
     });
 
     it('should use provided value', async () => {
-      wrapper.setProps({ ignoreRules: true });
-      await wrapper.vm.$nextTick();
+      await wrapper.setProps({ ignoreRules: true });
 
       expect(wrapper.vm.ignoreRules).toEqual(true);
     });
   });
 
   describe('Test computed: mask', () => {
-    it('should return undefined when maskKey is not defined in inputSettings', () => {
+    it('should return undefined when mask is not defined in inputSettings', () => {
       expect(wrapper.vm.mask).toBeUndefined();
     });
 
     it('should return undefined when inputSettings is not defined', async () => {
-      wrapper.setProps({
+      await wrapper.setProps({
         definition: {
           name: 'birthdate',
           type: 'Date',
@@ -109,80 +136,107 @@ describe('Test component: EntityAttributeDateField', () => {
           input: 'Date',
         },
       });
-      await wrapper.vm.$nextTick();
 
       expect(wrapper.vm.mask).toBeUndefined();
     });
 
-    it('should return undefined when maskKey is an empty string', async () => {
-      wrapper.setProps({
+    it('should return undefined when mask is an empty string', async () => {
+      await wrapper.setProps({
         definition: {
           name: 'birthdate',
           type: 'Date',
           required: false,
           hasValidations: false,
           input: 'Date',
-          inputSettings: { maskKey: '' },
+          inputSettings: { mask: '' },
         },
       });
-      await wrapper.vm.$nextTick();
 
       expect(wrapper.vm.mask).toBeUndefined();
-      expect(mockGlobalT).not.toHaveBeenCalled();
     });
 
-    it('should return undefined when maskKey is null', async () => {
-      wrapper.setProps({
+    it('should return undefined when mask is null', async () => {
+      await wrapper.setProps({
         definition: {
           name: 'birthdate',
           type: 'Date',
           required: false,
           hasValidations: false,
           input: 'Date',
-          inputSettings: { maskKey: null },
+          inputSettings: { mask: null },
         },
       });
-      await wrapper.vm.$nextTick();
 
       expect(wrapper.vm.mask).toBeUndefined();
-      expect(mockGlobalT).not.toHaveBeenCalled();
     });
 
-    it('should call globalT with maskKey and return its result when maskKey is defined', async () => {
-      mockGlobalT.mockReturnValue('DD/MM/YYYY');
-      wrapper.setProps({
+    it('should call render with mask and return its result when mask is defined', async () => {
+      mockRender.mockReturnValueOnce('DD/MM/YYYY');
+      await wrapper.setProps({
         definition: {
           name: 'birthdate',
           type: 'Date',
           required: false,
           hasValidations: false,
           input: 'Date',
-          inputSettings: { maskKey: 'dateFormat' },
+          inputSettings: { mask: 'DD/MM/YYYY' },
         },
       });
-      await wrapper.vm.$nextTick();
 
       expect(wrapper.vm.mask).toEqual('DD/MM/YYYY');
-      expect(mockGlobalT).toHaveBeenCalledWith('dateFormat');
+      expect(mockRender).toHaveBeenCalledWith(
+        'DD/MM/YYYY',
+        expect.objectContaining({ t: expect.any(Function) })
+      );
+    });
+
+    it('should delegate t context function to getI18nInstance().global.t', async () => {
+      await wrapper.setProps({
+        definition: {
+          name: 'birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: false,
+          input: 'Date',
+          inputSettings: { mask: 'DD/MM/YYYY' },
+        },
+      });
+
+      const maskRenderCall = mockRender.mock.calls.find(
+        ([value]) => value === 'DD/MM/YYYY'
+      );
+      maskRenderCall[1].t('date.format');
+
+      expect(mockGlobalT).toHaveBeenCalledWith('date.format');
     });
   });
 
-  describe('Test computed: rules', async () => {
+  describe('Test computed: renderedDefinition', () => {
+    it('should delegate t context function to getI18nInstance().global.t', () => {
+      const definitionRenderCall = mockRender.mock.calls.find(
+        ([value]) => typeof value === 'object' && value !== null
+      );
+      definitionRenderCall[1].t('some.key');
+
+      expect(mockGlobalT).toHaveBeenCalledWith('some.key');
+    });
+  });
+
+  describe('Test computed: rules', () => {
     it('should return empty array if ignoreRules property is true', async () => {
-      wrapper.setProps({
+      await wrapper.setProps({
         ignoreRules: true,
         definition: {
           hasValidations: true,
           required: true,
         },
       });
-      await wrapper.vm.$nextTick();
 
       expect(wrapper.vm.rules).toEqual([]);
     });
 
     it('should return empty array if ignoreRules field from inputSettings is true', async () => {
-      wrapper.setProps({
+      await wrapper.setProps({
         ignoreRules: false,
         definition: {
           hasValidations: true,
@@ -190,13 +244,12 @@ describe('Test component: EntityAttributeDateField', () => {
           inputSettings: { ignoreRules: true },
         },
       });
-      await wrapper.vm.$nextTick();
 
       expect(wrapper.vm.rules).toEqual([]);
     });
 
     it('should return rules if ignoreRules is false', async () => {
-      wrapper.setProps({
+      await wrapper.setProps({
         definition: {
           ignoreRules: false,
           hasValidations: true,
@@ -207,13 +260,11 @@ describe('Test component: EntityAttributeDateField', () => {
         },
       });
 
-      await wrapper.vm.$nextTick();
-
-      expect(wrapper.vm.rules.length).toEqual(2);
+      expect(wrapper.vm.rules.length).toEqual(3);
     });
 
     it('should return rules if ignoreRules is unset', async () => {
-      wrapper.setProps({
+      await wrapper.setProps({
         definition: {
           hasValidations: true,
           required: true,
@@ -221,9 +272,409 @@ describe('Test component: EntityAttributeDateField', () => {
         },
       });
 
-      await wrapper.vm.$nextTick();
+      expect(wrapper.vm.rules.length).toEqual(3);
+    });
 
-      expect(wrapper.vm.rules.length).toEqual(2);
+    it('should return only validDate rule when required is false', async () => {
+      await wrapper.setProps({
+        definition: {
+          hasValidations: false,
+          required: false,
+          inputSettings: {},
+        },
+      });
+
+      expect(wrapper.vm.rules.length).toEqual(1);
+    });
+
+    it('should include option-based rules when date constraints are set', async () => {
+      const mockDayjsResult = { toISOString: () => '2026-01-01T00:00:00.000Z' };
+      mockMaxDate.mockReturnValue(mockDayjsResult);
+      await wrapper.setProps({
+        definition: {
+          hasValidations: true,
+          required: false,
+          inputSettings: {
+            options: { afterDate: '2026/01/01' },
+          },
+        },
+      });
+
+      expect(wrapper.vm.rules.length).toEqual(3);
+    });
+
+    it('should call validateFromApi with instanceId and definition name when hasValidations is true', async () => {
+      await wrapper.setProps({
+        definition: {
+          name: 'birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: true,
+          input: 'Date',
+          inputSettings: {},
+        },
+      });
+
+      expect(mockValidateFromApi).toHaveBeenCalledWith('id', 'birthdate');
+    });
+
+    it('should pass the mask to the constraint rule factories when DD/MM/YYYY mask is set', async () => {
+      const mockDayjsResult = { toISOString: () => '2026-01-31T00:00:00.000Z' };
+      mockMaxDate.mockReturnValue(mockDayjsResult);
+      mockFormatQDate.mockReturnValue('31/01/2026');
+      await wrapper.setProps({
+        definition: {
+          name: 'birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: false,
+          input: 'Date',
+          inputSettings: {
+            mask: 'DD/MM/YYYY',
+            options: { afterDate: '31/01/2026' },
+          },
+        },
+      });
+
+      expect(mockAfterDate).toHaveBeenCalledWith('31/01/2026', 'DD/MM/YYYY');
+    });
+  });
+
+  describe('Test computed: dateConstraints', () => {
+    it('should return null when inputSettings has no options', () => {
+      expect(wrapper.vm.dateConstraints).toBeNull();
+    });
+
+    it('should return an empty array when options is an empty object', async () => {
+      await wrapper.setProps({
+        definition: {
+          name: 'birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: false,
+          input: 'Date',
+          inputSettings: { options: {} },
+        },
+      });
+
+      expect(wrapper.vm.dateConstraints).toEqual([]);
+    });
+
+    it('should exclude the constraint and not call the aggregate when option value is an empty string', async () => {
+      await wrapper.setProps({
+        definition: {
+          name: 'birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: false,
+          input: 'Date',
+          inputSettings: { options: { afterDate: '' } },
+        },
+      });
+
+      expect(wrapper.vm.dateConstraints).toEqual([]);
+      expect(mockMaxDate).not.toHaveBeenCalled();
+    });
+
+    it('should exclude the constraint and not call the aggregate when array contains only empty strings', async () => {
+      await wrapper.setProps({
+        definition: {
+          name: 'birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: false,
+          input: 'Date',
+          inputSettings: { options: { afterDate: ['', '  '] } },
+        },
+      });
+
+      expect(wrapper.vm.dateConstraints).toEqual([]);
+      expect(mockMaxDate).not.toHaveBeenCalled();
+    });
+
+    it('should exclude the constraint when the aggregate function returns null', async () => {
+      mockMaxDate.mockReturnValue(null);
+      await wrapper.setProps({
+        definition: {
+          name: 'birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: false,
+          input: 'Date',
+          inputSettings: { options: { afterDate: '2026/01/01' } },
+        },
+      });
+
+      expect(wrapper.vm.dateConstraints).toEqual([]);
+    });
+
+    it('should call maxDate with a single-element array when afterDate is a string', async () => {
+      const mockDayjsResult = { toISOString: () => '2026-01-01T00:00:00.000Z' };
+      mockMaxDate.mockReturnValue(mockDayjsResult);
+      await wrapper.setProps({
+        definition: {
+          name: 'birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: false,
+          input: 'Date',
+          inputSettings: { options: { afterDate: '2026/01/01' } },
+        },
+      });
+
+      expect(mockMaxDate).toHaveBeenCalledWith(['2026/01/01'], undefined);
+    });
+
+    it('should call minDate with the array as-is when beforeDate is an array', async () => {
+      const mockDayjsResult = { toISOString: () => '2026-06-01T00:00:00.000Z' };
+      mockMinDate.mockReturnValue(mockDayjsResult);
+      await wrapper.setProps({
+        definition: {
+          name: 'birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: false,
+          input: 'Date',
+          inputSettings: {
+            options: { beforeDate: ['2026/06/01', '2026/12/31'] },
+          },
+        },
+      });
+
+      expect(mockMinDate).toHaveBeenCalledWith(
+        ['2026/06/01', '2026/12/31'],
+        undefined
+      );
+    });
+
+    it('should return the formatted date string when aggregate returns a Dayjs object', async () => {
+      const mockDayjsResult = { toISOString: () => '2026-01-01T00:00:00.000Z' };
+      mockMaxDate.mockReturnValue(mockDayjsResult);
+      mockFormatQDate.mockReturnValue('2026/01/01');
+      await wrapper.setProps({
+        definition: {
+          name: 'birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: false,
+          input: 'Date',
+          inputSettings: { options: { afterDate: '2026/01/01' } },
+        },
+      });
+
+      expect(wrapper.vm.dateConstraints[0].dateRef).toEqual('2026/01/01');
+    });
+
+    it('should pass the mask to the aggregate and formatQDate with DD/MM/YYYY mask', async () => {
+      const mockDayjsResult = { toISOString: () => '2026-01-31T00:00:00.000Z' };
+      mockMaxDate.mockReturnValue(mockDayjsResult);
+      mockFormatQDate.mockReturnValue('31/01/2026');
+      await wrapper.setProps({
+        definition: {
+          name: 'birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: false,
+          input: 'Date',
+          inputSettings: {
+            mask: 'DD/MM/YYYY',
+            options: { afterDate: '31/01/2026' },
+          },
+        },
+      });
+
+      expect(mockMaxDate).toHaveBeenCalledWith(['31/01/2026'], 'DD/MM/YYYY');
+      expect(mockFormatQDate).toHaveBeenCalledWith(
+        '2026-01-31T00:00:00.000Z',
+        'DD/MM/YYYY'
+      );
+      expect(wrapper.vm.dateConstraints[0].dateRef).toEqual('31/01/2026');
+    });
+  });
+
+  describe('Test computed: options', () => {
+    it('should return undefined when there are no date constraints', () => {
+      expect(wrapper.vm.options).toBeUndefined();
+    });
+
+    it('should return undefined when all constraint refs are null', async () => {
+      await wrapper.setProps({
+        definition: {
+          name: 'birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: false,
+          input: 'Date',
+          inputSettings: { options: {} },
+        },
+      });
+
+      expect(wrapper.vm.options).toBeUndefined();
+    });
+
+    it('should filter dates strictly after afterRef', async () => {
+      const mockDayjsResult = { toISOString: () => '2026-01-01T00:00:00.000Z' };
+      mockMaxDate.mockReturnValue(mockDayjsResult);
+      await wrapper.setProps({
+        definition: {
+          name: 'birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: false,
+          input: 'Date',
+          inputSettings: { options: { afterDate: '2026/01/01' } },
+        },
+      });
+
+      expect(wrapper.vm.options('2026/01/02')).toBe(true);
+      expect(wrapper.vm.options('2026/01/01')).toBe(false);
+      expect(wrapper.vm.options('2025/12/31')).toBe(false);
+    });
+
+    it('should filter dates strictly before beforeRef', async () => {
+      const mockDayjsResult = { toISOString: () => '2026-01-01T00:00:00.000Z' };
+      mockMinDate.mockReturnValue(mockDayjsResult);
+      await wrapper.setProps({
+        definition: {
+          name: 'birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: false,
+          input: 'Date',
+          inputSettings: { options: { beforeDate: '2026/01/01' } },
+        },
+      });
+
+      expect(wrapper.vm.options('2025/12/31')).toBe(true);
+      expect(wrapper.vm.options('2026/01/01')).toBe(false);
+      expect(wrapper.vm.options('2026/01/02')).toBe(false);
+    });
+
+    it('should filter dates from fromRef inclusive', async () => {
+      const mockDayjsResult = { toISOString: () => '2026-01-01T00:00:00.000Z' };
+      mockMaxDate.mockReturnValue(mockDayjsResult);
+      await wrapper.setProps({
+        definition: {
+          name: 'birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: false,
+          input: 'Date',
+          inputSettings: { options: { fromDate: '2026/01/01' } },
+        },
+      });
+
+      expect(wrapper.vm.options('2026/01/01')).toBe(true);
+      expect(wrapper.vm.options('2026/01/02')).toBe(true);
+      expect(wrapper.vm.options('2025/12/31')).toBe(false);
+    });
+
+    it('should filter dates up to upToRef inclusive', async () => {
+      const mockDayjsResult = { toISOString: () => '2026-01-01T00:00:00.000Z' };
+      mockMinDate.mockReturnValue(mockDayjsResult);
+      await wrapper.setProps({
+        definition: {
+          name: 'birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: false,
+          input: 'Date',
+          inputSettings: { options: { upToDate: '2026/01/01' } },
+        },
+      });
+
+      expect(wrapper.vm.options('2026/01/01')).toBe(true);
+      expect(wrapper.vm.options('2025/12/31')).toBe(true);
+      expect(wrapper.vm.options('2026/01/02')).toBe(false);
+    });
+
+    it('should combine multiple constraints with AND logic', async () => {
+      const mockDayjsAfter = { toISOString: () => 'AFTER_ISO' };
+      const mockDayjsBefore = { toISOString: () => 'BEFORE_ISO' };
+      mockMaxDate.mockReturnValue(mockDayjsAfter);
+      mockMinDate.mockReturnValue(mockDayjsBefore);
+      mockFormatQDate.mockImplementation((isoString) => {
+        if (isoString === 'AFTER_ISO') {
+          return '2026/01/01';
+        }
+        if (isoString === 'BEFORE_ISO') {
+          return '2026/06/01';
+        }
+        return '2026/01/01';
+      });
+      await wrapper.setProps({
+        definition: {
+          name: 'birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: false,
+          input: 'Date',
+          inputSettings: {
+            options: { afterDate: '2026/01/01', beforeDate: '2026/06/01' },
+          },
+        },
+      });
+
+      expect(wrapper.vm.options('2026/03/15')).toBe(true);
+      expect(wrapper.vm.options('2025/12/31')).toBe(false);
+      expect(wrapper.vm.options('2026/07/01')).toBe(false);
+    });
+
+    it('should correctly filter cross-month boundary dates with DD/MM/YYYY mask', async () => {
+      // afterDate = 31 Jan 2026 in DD/MM/YYYY; the predicate must accept 1 Feb 2026
+      // even though '01/02/2026' < '31/01/2026' lexicographically.
+      // toQDateFormat is expected to normalise the stored ref to YYYY/MM/DD so
+      // the string comparison inside options() remains valid.
+      const mockDayjsResult = { toISOString: () => '2026-01-31T00:00:00.000Z' };
+      mockMaxDate.mockReturnValue(mockDayjsResult);
+      mockFormatQDate.mockReturnValue('31/01/2026');
+      // Simulate toQDateFormat normalising DD/MM/YYYY → YYYY/MM/DD
+      mockToQDateFormat.mockReturnValue('2026/01/31');
+      await wrapper.setProps({
+        definition: {
+          name: 'birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: false,
+          input: 'Date',
+          inputSettings: {
+            mask: 'DD/MM/YYYY',
+            options: { afterDate: '31/01/2026' },
+          },
+        },
+      });
+
+      // Quasar passes dates to options() in its internal YYYY/MM/DD format
+      expect(wrapper.vm.options('2026/02/01')).toBe(true); // 1 Feb > 31 Jan
+      expect(wrapper.vm.options('2026/01/31')).toBe(false); // equal to boundary
+      expect(wrapper.vm.options('2025/12/31')).toBe(false); // before boundary
+    });
+
+    it('should pass the mask to toQDateFormat when building the options predicate with DD/MM/YYYY mask', async () => {
+      const mockDayjsResult = { toISOString: () => '2026-01-31T00:00:00.000Z' };
+      mockMaxDate.mockReturnValue(mockDayjsResult);
+      mockFormatQDate.mockReturnValue('31/01/2026');
+      await wrapper.setProps({
+        definition: {
+          name: 'birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: false,
+          input: 'Date',
+          inputSettings: {
+            mask: 'DD/MM/YYYY',
+            options: { afterDate: '31/01/2026' },
+          },
+        },
+      });
+
+      // Access options to trigger the lazy computed and the toQDateFormat call
+      wrapper.vm.options('2026/01/01');
+
+      expect(mockToQDateFormat).toHaveBeenCalledWith(
+        '31/01/2026',
+        'DD/MM/YYYY'
+      );
     });
   });
 
