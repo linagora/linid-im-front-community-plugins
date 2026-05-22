@@ -191,7 +191,7 @@ The component implements automatic validation based on the attribute's `inputSet
 Validation rules are generated automatically using `useQuasarRules`:
 
 ```ts
-const rules = computed(() => (!props.ignoreRules && !props.definition.inputSettings?.ignoreRules ? useQuasarRules(props.instanceId, props.definition, ['unique']) : []));
+const rules = computed(() => (!props.ignoreRules && !props.definition.inputSettings?.ignoreRules ? useQuasarRules(props.instanceId, props.definition, ['unique'], localI18nScope) : []));
 ```
 
 ### Validation Execution Order

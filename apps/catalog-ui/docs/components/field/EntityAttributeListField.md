@@ -155,7 +155,7 @@ The component implements automatic validation based on the attribute's `inputSet
 Validation rules are generated automatically using `useQuasarRules`:
 
 ```ts
-const rules = computed(() => (!props.ignoreRules && !props.definition.inputSettings?.ignoreRules ? useQuasarRules(props.instanceId, props.definition, []) : []));
+const rules = computed(() => (!props.ignoreRules && !props.definition.inputSettings?.ignoreRules ? useQuasarRules(props.instanceId, props.definition, [], localI18nScope) : []));
 ```
 
 ### Validation Execution Order
@@ -200,9 +200,10 @@ The validation rules are executed in a specific order to ensure proper validatio
    - `defaultValue` (if provided and included in `values` array)
    - `null` (fallback if `defaultValue` is absent or invalid)
 
-2. User selects a value from the dropdown
-3. `localValue` is updated via `v-model`
-4. `updateValue()` emits `update:entity` with a new entity object
+2. On mount, if `localValue` is not `null` (i.e. a `defaultValue` was applied) but the entity has no value yet, `updateValue()` is called immediately to propagate the default to the parent
+3. User selects a value from the dropdown
+4. `localValue` is updated via `v-model`
+5. `updateValue()` emits `update:entity` with a new entity object
 
 ```text
 QSelect → localValue → updateValue → update:entity
@@ -303,6 +304,8 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 ## **🧪 Testing Considerations**
 
 - Verify initial selected value matches the entity state or default value
+- Verify `update:entity` is emitted on mount when a `defaultValue` is applied and the entity has no existing value
+- Verify `update:entity` is **not** emitted on mount when the entity already has a value
 - Assert `update:entity` emission on selection changes
 - Test default value resolution (entity value → validated defaultValue → null)
 - Test that invalid `defaultValue` (not in `values` array) falls back to `null`

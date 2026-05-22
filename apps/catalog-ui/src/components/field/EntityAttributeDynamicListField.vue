@@ -90,11 +90,10 @@ const props = withDefaults(
   }
 );
 const emits = defineEmits<EntityAttributeFieldOutputs>();
+const localI18nScope = `${props.i18nScope}.fields.${props.definition.name}`;
 
 const { ui } = useUiDesign();
-const { translateOrDefault, t } = useScopedI18n(
-  `${props.i18nScope}.fields.${props.definition.name}`
-);
+const { translateOrDefault, t } = useScopedI18n(localI18nScope);
 
 const allOptions = ref<DynamicListElement[]>([]);
 const isLoading = ref(false);
@@ -113,7 +112,12 @@ const uiProps = ui<LinidQSelectProps>(
 
 const rules = computed(() =>
   !props.ignoreRules && !props.definition.inputSettings?.ignoreRules
-    ? useQuasarRules(props.instanceId, props.definition, ['unique'])
+    ? useQuasarRules(
+        props.instanceId,
+        props.definition,
+        ['unique'],
+        localI18nScope
+      )
     : []
 );
 
