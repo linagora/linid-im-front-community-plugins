@@ -18,17 +18,18 @@ CatalogUI components use a namespace-based design system. Each component appends
 
 The examples in this document use placeholders that should be replaced with actual values:
 
-| Placeholder          | Description                                              | Example                       |
-| -------------------- | -------------------------------------------------------- | ----------------------------- |
-| `[INSTANCE_ID]`      | The module instance identifier (same level as `default`) | `moduleUsers`                 |
-| `[PAGE_NAME]`        | The page or view name within the module                  | `homepage`, `details-page`    |
-| `[ROUTE_ID]`         | The route identifier for navigation menu tabs            | `moduleUsers`, `moduleGroups` |
-| `[FIELD_NAME]`       | The entity attribute field name                          | `uid`, `mail`, `displayName`  |
-| `[ITEM_KEY]`         | The root dropdown action key                             | `edit`, `export`, `archive`   |
-| `[CHILD_KEY]`        | The nested dropdown action key                           | `csv`, `pdf`, `json`          |
-| `[PARENT_NAMESPACE]` | The full namespace path passed by the parent component   | `moduleUsers.homepage`        |
-| `[TYPE]`             | The node type for tree components                        | `structure`, `establishment`  |
-| `[ACTION]`           | The node action name for menu in tree nodes              | `edit`, `create`              |
+| Placeholder                       | Description                                               | Example                                                 |
+| --------------------------------- | --------------------------------------------------------- | ------------------------------------------------------- |
+| `[INSTANCE_ID]`                   | The module instance identifier (same level as `default`)  | `moduleUsers`                                           |
+| `[PAGE_NAME]`                     | The page or view name within the module                   | `homepage`, `details-page`                              |
+| `[ROUTE_ID]`                      | The route identifier for navigation menu tabs             | `moduleUsers`, `moduleGroups`                           |
+| `[FIELD_NAME]`                    | The entity attribute field name                           | `uid`, `mail`, `displayName`                            |
+| `[ITEM_KEY]`                      | The root dropdown action key                              | `edit`, `export`, `archive`                             |
+| `[CHILD_KEY]`                     | The nested dropdown action key                            | `csv`, `pdf`, `json`                                    |
+| `[PARENT_NAMESPACE]`              | The full namespace path passed by the parent component    | `moduleUsers.homepage`                                  |
+| `[TYPE]`                          | The node type for tree components                         | `structure`, `establishment`                            |
+| `[ACTION]`                        | The node action name for menu in tree nodes               | `edit`, `create`                                        |
+| `[CONFIRMATION_DIALOG_NAMESPACE]` | The namespace for a specific confirmation dialog instance | `delete-user-confirmation`, `archive-user-confirmation` |
 
 ---
 
@@ -410,6 +411,60 @@ Dropdown select field for dynamic list attributes with lazy loading from a backe
 
 ---
 
+### ConfirmationDialog
+
+Generic confirmation dialog for user actions (e.g., delete, confirm, etc.).
+
+**Namespace:** `{uiNamespace}.confirmation-dialog`
+
+for all confirmation dialogs opened from the same parent:
+
+```json
+{
+  "[PARENT_NAMESPACE]": {
+    "confirmation-dialog": {
+      "q-dialog": { "persistent": false },
+      "q-card": { "flat": true, "bordered": true },
+      "buttons-card": {
+        "q-card": { "flat": true },
+        "confirm-button": {
+          "q-btn": { "color": "primary", "icon": "check" }
+        },
+        "cancel-button": {
+          "q-btn": { "color": "negative", "outline": true }
+        }
+      }
+    }
+  }
+}
+```
+
+or for a specific confirmation dialog instance:
+
+```json
+{
+  "[PARENT_NAMESPACE]": {
+    "[CONFIRMATION_DIALOG_NAMESPACE]": {
+      "confirmation-dialog": {
+        "q-dialog": { "persistent": false },
+        "q-card": { "flat": true, "bordered": true },
+        "buttons-card": {
+          "q-card": { "flat": true },
+          "confirm-button": {
+            "q-btn": { "color": "primary", "icon": "check" }
+          },
+          "cancel-button": {
+            "q-btn": { "color": "negative", "outline": true }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+---
+
 ## **💡 Complete Configuration Example**
 
 A full example showing all CatalogUI components configured together:
@@ -515,6 +570,19 @@ A full example showing all CatalogUI components configured together:
                 "q-item": { "clickable": true }
               }
             }
+          }
+        }
+      },
+      "confirmation-dialog": {
+        "q-dialog": { "persistent": false },
+        "q-card": { "flat": true, "bordered": true },
+        "buttons-card": {
+          "q-card": { "flat": true },
+          "confirm-button": {
+            "q-btn": { "color": "primary", "icon": "check" }
+          },
+          "cancel-button": {
+            "q-btn": { "color": "negative", "outline": true }
           }
         }
       }

@@ -30,9 +30,10 @@ import { ref } from 'vue';
 import ConfirmationDialog from '../../../../src/components/dialog/ConfirmationDialog.vue';
 
 const mockShowRef = ref(false);
-const mockUi = vi.fn(() => ({
-  persistent: true,
-}));
+
+const mockUi = vi.fn((namespace, type) => {
+  return { persistent: true, namespace, type };
+});
 
 vi.mock('@linagora/linid-im-front-corelib', () => {
   return {
@@ -64,10 +65,23 @@ describe('Test component: ConfirmationDialog', () => {
     });
   });
 
+  describe('Test computed: localUiNamespace', () => {
+    it('should append .confirmation-dialog to the provided uiNamespace', () => {
+      wrapper.vm.uiNamespace = 'my-namespace';
+      expect(wrapper.vm.localUiNamespace).toBe(
+        'my-namespace.confirmation-dialog'
+      );
+    });
+  });
+
   describe('Test computed: uiProps', () => {
-    it('should return dialog props with correct namespace', () => {
-      expect(wrapper.vm.uiProps).toBeDefined();
-      expect(wrapper.vm.uiProps.dialog).toBeDefined();
+    it('should return dialog props using localUiNamespace', () => {
+      wrapper.vm.uiNamespace = 'my-namespace';
+      const props = wrapper.vm.uiProps;
+      expect(props).toBeDefined();
+      expect(props.dialog).toBeDefined();
+      expect(props.dialog.namespace).toBe('my-namespace.confirmation-dialog');
+      expect(props.dialog.type).toBe('q-dialog');
     });
   });
 
@@ -96,13 +110,16 @@ describe('Test component: ConfirmationDialog', () => {
   });
 
   describe('Test function: onOpen', () => {
-    it('should use default value', () => {
-      wrapper.vm.onOpen({});
+    it('should use default values for optional fields', () => {
+      wrapper.vm.onOpen({
+        uiNamespace: 'test-namespace',
+        i18nScope: 'test-scope',
+      });
 
       expect(wrapper.vm.title).toBe('');
       expect(wrapper.vm.content).toBe('');
-      expect(wrapper.vm.uiNamespace).toBe('');
-      expect(wrapper.vm.i18nScope).toBe('');
+      expect(wrapper.vm.uiNamespace).toBe('test-namespace');
+      expect(wrapper.vm.i18nScope).toBe('test-scope');
     });
 
     it('should use provided value', () => {
@@ -132,6 +149,8 @@ describe('Test component: ConfirmationDialog', () => {
       expect(wrapper.vm.onConfirm).not.toBe(defaultOnConfirm);
       expect(wrapper.vm.uiProps.dialog).toEqual({
         persistent: true,
+        namespace: 'test-namespace.confirmation-dialog',
+        type: 'q-dialog',
       });
     });
   });
