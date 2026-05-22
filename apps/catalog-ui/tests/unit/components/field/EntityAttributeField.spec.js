@@ -28,15 +28,6 @@ import { shallowMount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import EntityAttributeField from '../../../../src/components/field/EntityAttributeField.vue';
 
-const mockUi = vi.fn(() => ({}));
-
-vi.mock('@linagora/linid-im-front-corelib', () => ({
-  useUiDesign: () => ({
-    ui: mockUi,
-  }),
-  useScopedI18n: () => ({ t: vi.fn() }),
-}));
-
 describe('Test component: EntityAttributeField', () => {
   let wrapper;
 
@@ -69,8 +60,7 @@ describe('Test component: EntityAttributeField', () => {
     });
 
     it('should use provided value', async () => {
-      wrapper.setProps({ ignoreRules: true });
-      await wrapper.vm.$nextTick();
+      await wrapper.setProps({ ignoreRules: true });
 
       expect(wrapper.vm.ignoreRules).toEqual(true);
     });

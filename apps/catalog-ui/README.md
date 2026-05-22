@@ -107,6 +107,9 @@ The library organizes components by category. For each component, documentation 
 - 🔢 **EntityAttributeNumberField** — Numeric attribute input with automatic number casting and scoped translations
   → Documentation is inside: [`EntityAttributeNumberField.md`](./docs/components/field/EntityAttributeNumberField.md)
 
+- 📝 **EntityAttributeTextAreaField** — Textarea attribute input with full i18n and UI customization support
+  → Documentation is inside: [`EntityAttributeTextAreaField.md`](./docs/components/field/EntityAttributeTextAreaField.md)
+
 - 🔢 **EntityAttributeDateField** — Date attribute input with automatic date casting and scoped translations
   → Documentation is inside: [`EntityAttributeDateField.md`](./docs/components/field/EntityAttributeDateField.md)
 

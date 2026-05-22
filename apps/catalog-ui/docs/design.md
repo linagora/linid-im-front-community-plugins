@@ -317,9 +317,9 @@ Expandable search card with default and advanced filters.
 
 ---
 
-### EntityAttributeTextField
+### EntityAttributeTextField / EntityAttributeTextAreaField / EntityAttributeNumberField
 
-Text input field for entity attributes.
+Number, text, textarea input fields for entity attributes.
 
 **Namespace:** `{uiNamespace}` (direct, no suffix)
 
@@ -328,24 +328,6 @@ Text input field for entity attributes.
   "[PARENT_NAMESPACE]": {
     "[FIELD_NAME]": {
       "q-input": { "outlined": true, "dense": true, "clearable": true }
-    }
-  }
-}
-```
-
----
-
-### EntityAttributeNumberField
-
-Number input field for entity attributes.
-
-**Namespace:** `{uiNamespace}` (direct, no suffix)
-
-```json
-{
-  "[PARENT_NAMESPACE]": {
-    "[FIELD_NAME]": {
-      "q-input": { "outlined": true, "dense": true, "type": "number" }
     }
   }
 }
