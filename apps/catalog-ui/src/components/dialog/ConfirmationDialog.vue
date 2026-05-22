@@ -52,7 +52,7 @@
       <component
         :is="buttonsCard"
         v-if="buttonsCard"
-        :ui-namespace="uiNamespace"
+        :ui-namespace="localUiNamespace"
         :i18n-scope="i18nScope"
         @cancel="onClose"
         @confirm="handleConfirm"
@@ -73,19 +73,23 @@ import { computed, ref } from 'vue';
 import type { ConfirmationDialogEvent } from '../../types/dialog';
 import { DialogKey } from '../../types/dialog';
 
-const { show } = useDialog(DialogKey.Confirmation, onOpen);
+const { show } = useDialog<ConfirmationDialogEvent>(
+  DialogKey.Confirmation,
+  onOpen
+);
 const title = ref<string>('');
 const content = ref<string>('');
 const uiNamespace = ref<string>('');
 const i18nScope = ref<string>('');
 let onConfirm: () => Promise<void>;
 
+const localUiNamespace = computed(
+  () => `${uiNamespace.value}.confirmation-dialog`
+);
+
 const { ui } = useUiDesign();
 const uiProps = computed(() => ({
-  dialog: ui<LinidQDialogProps>(
-    `${uiNamespace.value}.confirmation-dialog`,
-    'q-dialog'
-  ),
+  dialog: ui<LinidQDialogProps>(localUiNamespace.value, 'q-dialog'),
 }));
 
 const buttonsCard = loadAsyncComponent('catalogUI/ButtonsCard');
@@ -112,8 +116,8 @@ function onClose() {
  * @param dialogData - The data for the confirmation dialog.
  */
 function onOpen(dialogData: ConfirmationDialogEvent) {
-  uiNamespace.value = dialogData.uiNamespace || '';
-  i18nScope.value = dialogData.i18nScope || '';
+  uiNamespace.value = dialogData.uiNamespace;
+  i18nScope.value = dialogData.i18nScope;
   title.value = dialogData.title || '';
   content.value = dialogData.content || '';
   onConfirm = dialogData.onConfirm || (() => Promise.resolve());

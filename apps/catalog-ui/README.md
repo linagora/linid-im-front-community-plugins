@@ -119,6 +119,11 @@ The library organizes components by category. For each component, documentation 
 - 📋 **EntityAttributeDynamicListField** — Single-selection dropdown for dynamic list attributes with lazy loading from a backend endpoint
   → Documentation is inside: [`EntityAttributeDynamicListField.md`](./docs/components/field/EntityAttributeDynamicListField.md)
 
+### **Dialog Components**
+
+- 🗨️ **ConfirmationDialog** — Modal dialog for confirmation actions, with customizable title, message, and buttons
+  → Documentation is inside: [`ConfirmationDialog.md`](./docs/components/dialog/ConfirmationDialog.md)
+
 ### **Feedback & Utility Components**
 
 - ✨ **BlurLoader** — Skeleton loader for representing loading states
