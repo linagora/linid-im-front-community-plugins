@@ -101,6 +101,10 @@ export default defineConfig({
           __dirname,
           'src/components/field/EntityAttributeTextAreaField.vue'
         ),
+        './FormDialog': resolve(
+          __dirname,
+          'src/components/dialog/FormDialog.vue'
+        ),
       },
       shared: {
         vue: {

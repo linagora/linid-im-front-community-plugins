@@ -124,6 +124,9 @@ The library organizes components by category. For each component, documentation 
 - 🗨️ **ConfirmationDialog** — Modal dialog for confirmation actions, with customizable title, message, and buttons
   → Documentation is inside: [`ConfirmationDialog.md`](./docs/components/dialog/ConfirmationDialog.md)
 
+- 📝 **FormDialog** — Modal dialog for dynamic forms, supporting async validation, i18n, and custom layouts
+  → Documentation is inside: [`FormDialog.md`](./docs/components/dialog/FormDialog.md)
+
 ### **Feedback & Utility Components**
 
 - ✨ **BlurLoader** — Skeleton loader for representing loading states
