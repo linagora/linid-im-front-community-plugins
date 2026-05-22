@@ -57,7 +57,7 @@ const defaultProps = {
   i18nScope: 'myScope',
   nodes: [folderNode('folder-1', [fileNode('file-1')])],
   nodeTypes: [],
-  selectedNode: {},
+  selectedNode: '',
 };
 
 function mountComponent(props = {}) {
