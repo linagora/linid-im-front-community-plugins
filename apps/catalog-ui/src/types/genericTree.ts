@@ -34,11 +34,11 @@ import type { CommonComponentProps } from './common';
 /**
  * Props for the Tree component.
  */
-export interface TreeProps extends CommonComponentProps {
+export interface TreeProps<T> extends CommonComponentProps {
   /**
    * Hierarchical node data to render in the tree.
    */
-  nodes: TreeNode[];
+  nodes: TreeNode<T>[];
   /**
    * The types of nodes with their associated actions.
    */
@@ -82,7 +82,7 @@ export type UiPropsAction = Record<
 /**
  * Defines the events emitted by the GenericTree component.
  */
-export type TreeOutputs = {
+export type TreeOutputs<T> = {
   (e: 'update:selectedNode', key: string): void;
-  (e: `click:${string}`, node: TreeNode): void;
+  (e: `click:${string}`, node: TreeNode<T>): void;
 };
