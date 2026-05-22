@@ -110,8 +110,9 @@ import type {
   UiPropsTypes,
 } from '../../types/genericTree';
 
-const props = defineProps<TreeProps>();
-const emit = defineEmits<TreeOutputs>();
+const props = defineProps<TreeProps<unknown>>();
+
+const emit = defineEmits<TreeOutputs<unknown>>();
 
 const { ui } = useUiDesign();
 const { t } = useScopedI18n(`${props.i18nScope}.GenericTree`);
@@ -124,14 +125,14 @@ const nodeTypesMap = computed(
 
 const resolvedActionsByNode: Ref<Record<string, string[]>> = ref({});
 const resolvedActionsByType: Ref<Record<string, string[]>> = ref({});
-const treeNodeRecord: Ref<Record<string, TreeNode>> = ref({});
+const treeNodeRecord: Ref<Record<string, TreeNode<unknown>>> = ref({});
 const selected = ref<string>(props.selectedNode);
 
 /**
  * Recursively builds indexes for quick lookup of actions by node key and type.
  * @param nodes The tree nodes to index.
  */
-function buildIndexes(nodes: TreeNode[]) {
+function buildIndexes(nodes: TreeNode<unknown>[]) {
   // toRaw prevents tracking the object's property reads, avoiding a reactive cycle in watchEffect.
   const rawResolvedActionsByType = toRaw(resolvedActionsByType.value);
 

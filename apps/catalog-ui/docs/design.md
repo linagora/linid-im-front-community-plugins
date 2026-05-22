@@ -106,11 +106,15 @@ Data table for displaying entity lists.
 
 **Namespace:** `{uiNamespace}.generic-entity-table`
 
-````json
+```json
 {
   "[PARENT_NAMESPACE]": {
     "generic-entity-table": {
       "q-table": { "dense": true, "bordered": true, "flat": true }
+    }
+  }
+}
+```
 
 ### GenericTree
 
@@ -148,7 +152,7 @@ Hierarchical tree for displaying entity structures.
     }
   }
 }
-````
+```
 
 ---
 
