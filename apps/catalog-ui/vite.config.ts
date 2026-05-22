@@ -97,6 +97,10 @@ export default defineConfig({
           __dirname,
           'src/components/button/DropdownButton.vue'
         ),
+        './EntityAttributeTextAreaField': resolve(
+          __dirname,
+          'src/components/field/EntityAttributeTextAreaField.vue'
+        ),
       },
       shared: {
         vue: {

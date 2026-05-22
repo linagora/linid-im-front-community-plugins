@@ -111,6 +111,11 @@ export interface FieldTextSettings extends FieldSettings {
 }
 
 /**
+ * Settings for TextArea fields.
+ */
+export type FieldTextAreaSettings = FieldTextSettings;
+
+/**
  * Settings for input date fields.
  */
 export interface FieldDateSettings extends FieldSettings {
