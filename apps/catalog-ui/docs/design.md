@@ -30,6 +30,7 @@ The examples in this document use placeholders that should be replaced with actu
 | `[TYPE]`                          | The node type for tree components                         | `structure`, `establishment`                            |
 | `[ACTION]`                        | The node action name for menu in tree nodes               | `edit`, `create`                                        |
 | `[CONFIRMATION_DIALOG_NAMESPACE]` | The namespace for a specific confirmation dialog instance | `delete-user-confirmation`, `archive-user-confirmation` |
+| `[FORM_DIALOG_NAMESPACE]`         | The namespace for a specific form dialog instance         | `create-user-dialog`, `edit-user-dialog`                |
 
 ---
 
@@ -465,6 +466,70 @@ or for a specific confirmation dialog instance:
 
 ---
 
+### FormDialog
+
+Dialog containing a form.
+
+**Namespace:** `{uiNamespace}.form-dialog`
+
+for all form dialogs opened from the same parent:
+
+```json
+{
+  "[PARENT_NAMESPACE]": {
+    "form-dialog": {
+      "q-dialog": { "persistent": false },
+      "q-card": { "flat": true, "bordered": true },
+      "EntityAttributeField": {
+        "[FIELD_NAME]": {
+          "q-input": { "outlined": true, "dense": true }
+        }
+      },
+      "buttons-card": {
+        "q-card": { "flat": true },
+        "confirm-button": {
+          "q-btn": { "color": "primary", "icon": "save" }
+        },
+        "cancel-button": {
+          "q-btn": { "color": "negative", "outline": true }
+        }
+      }
+    }
+  }
+}
+```
+
+or for a specific form dialog instance:
+
+```json
+{
+  "[PARENT_NAMESPACE]": {
+    "[FORM_DIALOG_NAMESPACE]": {
+      "form-dialog": {
+        "q-dialog": { "persistent": false },
+        "q-card": { "flat": true, "bordered": true },
+        "EntityAttributeField": {
+          "[FIELD_NAME]": {
+            "q-input": { "outlined": true, "dense": true }
+          }
+        },
+        "buttons-card": {
+          "q-card": { "flat": true },
+          "confirm-button": {
+            "q-btn": { "color": "primary", "icon": "save" }
+          },
+          "cancel-button": {
+            "q-btn": { "color": "negative", "outline": true }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+---
+
 ## **💡 Complete Configuration Example**
 
 A full example showing all CatalogUI components configured together:
@@ -580,6 +645,24 @@ A full example showing all CatalogUI components configured together:
           "q-card": { "flat": true },
           "confirm-button": {
             "q-btn": { "color": "primary", "icon": "check" }
+          },
+          "cancel-button": {
+            "q-btn": { "color": "negative", "outline": true }
+          }
+        }
+      },
+      "form-dialog": {
+        "q-dialog": { "persistent": false },
+        "q-card": { "flat": true, "bordered": true },
+        "EntityAttributeField": {
+          "[FIELD_NAME]": {
+            "q-input": { "outlined": true, "dense": true }
+          }
+        },
+        "buttons-card": {
+          "q-card": { "flat": true },
+          "confirm-button": {
+            "q-btn": { "color": "primary", "icon": "save" }
           },
           "cancel-button": {
             "q-btn": { "color": "negative", "outline": true }

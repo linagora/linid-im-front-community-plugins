@@ -24,7 +24,10 @@
  * LinID Identity Manager software.
  */
 
-import type { DialogEvent } from '@linagora/linid-im-front-corelib';
+import type {
+  DialogEvent,
+  LinidAttributeConfiguration,
+} from '@linagora/linid-im-front-corelib';
 
 /**
  * Enum used to identify the type of dialog.
@@ -34,25 +37,65 @@ export enum DialogKey {
    * Represents a confirmation dialog.
    */
   Confirmation = 'confirmation',
+  /**
+   * Represents a form dialog.
+   */
+  Form = 'form',
+}
+
+/**
+ * Base interface for dialog events, containing common properties for both confirmation and form dialogs.
+ */
+interface BaseDialogEvent extends DialogEvent {
+  /**
+   * Title of the dialog.
+   */
+  title?: string;
+
+  /**
+   * Descriptive message shown in the dialog. (HTML supported).
+   */
+  content?: string;
 }
 
 /**
  * Dialog event for user confirmations.
  */
-export interface ConfirmationDialogEvent extends DialogEvent {
-  /**
-   * Title of the confirmation dialog.
-   */
-  title?: string;
-
-  /**
-   * Descriptive message shown in the confirmation dialog. (HTML supported).
-   */
-  content?: string;
-
+export interface ConfirmationDialogEvent extends BaseDialogEvent {
   /**
    * Callback triggered when the user confirms.
    * Must return a Promise (e.g., to handle async logic like API calls).
    */
   onConfirm?: () => Promise<void>;
+}
+
+/**
+ * Dialog event for forms, allowing to specify form data and a submit callback.
+ */
+export interface FormDialogEvent extends BaseDialogEvent {
+  /**
+   * Identifier of the instance used for contextual data (e.g. API validation rules).
+   */
+  instanceId?: string;
+
+  /**
+   * Form fields to be rendered in the dialog, defined as an array of LinidAttributeConfiguration objects.
+   */
+  formFields?: LinidAttributeConfiguration[];
+
+  /**
+   * Initial form data to populate the form fields, defined as a record of key-value pairs where keys are
+   * field names and values are the corresponding initial values. This allows the form to be pre-filled
+   * with existing data when the dialog is opened.
+   */
+  initialFormData?: Record<string, unknown>;
+
+  /**
+   * Callback triggered when the form is submitted, receiving the form data as a record of key-value pairs.
+   * @param formData - An object containing the submitted form data, where keys are field names and values are the corresponding user inputs.
+   * @returns A Promise that resolves when the form submission handling is complete (e.g., after performing API calls or other async operations).
+   * The Promise **must reject** (or re-throw) to signal failure — for example, after displaying an error notification.
+   * If the Promise resolves, the dialog considers the submission successful and closes.
+   */
+  onSubmit?: (formData: Record<string, unknown>) => Promise<void>;
 }
