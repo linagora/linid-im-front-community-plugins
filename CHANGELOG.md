@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.26](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.25...v0.2.26) (2026-05-26)
+
+
+### Features
+
+* add data-cy in generic-tree ([f3ce427](https://github.com/linagora/linid-im-front-community-plugins/commit/f3ce427660a535cc1adadeeb15dccc1ae31ca3ea))
+
+
+### Bug Fixes
+
+* change selectedNode value in genericTree tests ([d127bfe](https://github.com/linagora/linid-im-front-community-plugins/commit/d127bfe99b760fd4e5221eac9028908e670f26ce))
+
 ### [0.2.25](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.24...v0.2.25) (2026-05-13)
 
 
