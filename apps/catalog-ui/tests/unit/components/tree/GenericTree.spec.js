@@ -58,6 +58,8 @@ const defaultProps = {
   nodes: [folderNode('folder-1', [fileNode('file-1')])],
   nodeTypes: [],
   selectedNode: '',
+  searchEnabled: false,
+  filterMethod: vi.fn(() => true),
 };
 
 function mountComponent(props = {}) {

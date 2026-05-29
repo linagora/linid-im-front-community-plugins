@@ -25,74 +25,93 @@
 -->
 
 <template>
-  <q-tree
-    v-model:selected="selected"
-    class="tree"
-    :nodes="quasarNodes"
-    node-key="key"
-    v-bind="uiProps.tree"
-    no-selection-unset
-    :no-nodes-label="t('noNodesLabel')"
-    :no-results-label="t('noResultsLabel')"
-    data-cy="generic-tree"
-  >
-    <template #default-header="prop">
-      <div
-        :class="`row items-center full-width tree-header-type-${prop.node.type} tree-header-key-${prop.node.key}`"
-      >
-        <q-icon
-          v-if="uiProps.types[prop.node.type]?.icon?.name"
-          v-bind="uiProps.types[prop.node.type].icon"
-          class="q-mr-sm tree-header-icon"
-        />
+  <div class="generic-tree-container">
+    <q-input
+      v-if="props.searchEnabled"
+      v-model="filter"
+      type="text"
+      :data-cy="`organizational-unit-filter-input`"
+      class="generic-tree-filter-input"
+      :label="t('filterLabel')"
+      :hint="t('filterHint')"
+      v-bind="uiProps.filterInput"
+    />
+
+    <q-tree
+      v-model:selected="selected"
+      class="tree"
+      :nodes="quasarNodes"
+      node-key="key"
+      :filter="filter"
+      :filter-method="props.filterMethod"
+      v-bind="uiProps.tree"
+      no-selection-unset
+      :no-nodes-label="t('noNodesLabel')"
+      :no-results-label="t('noResultsLabel')"
+      data-cy="generic-tree"
+    >
+      <template #default-header="prop">
         <div
-          class="text-weight-bold col-grow tree-header-title"
-          :data-cy="`generic-tree-node-${prop.node.key}`"
+          :class="`row items-center full-width tree-header-type-${prop.node.type} tree-header-key-${prop.node.key}`"
         >
-          {{ t(`types.${prop.node.type}.label`, { ...prop.node.value }) }}
+          <q-icon
+            v-if="uiProps.types[prop.node.type]?.icon?.name"
+            v-bind="uiProps.types[prop.node.type].icon"
+            class="q-mr-sm tree-header-icon"
+          />
+          <div
+            class="text-weight-bold col-grow tree-header-title"
+            :data-cy="`generic-tree-node-${prop.node.key}`"
+          >
+            {{ t(`types.${prop.node.type}.label`, { ...prop.node.value }) }}
+          </div>
+          <q-btn
+            v-if="resolvedActionsByNode[prop.node.key]"
+            v-bind="uiProps.buttonActions"
+            class="tree-header-actions-btn"
+            :data-cy="`tree-actions-btn-${prop.node.key}`"
+            @click.stop
+          >
+            <q-menu>
+              <q-list>
+                <q-item
+                  v-for="action in resolvedActionsByNode[prop.node.key]"
+                  :key="action"
+                  v-close-popup
+                  clickable
+                  :data-cy="`tree-actions-btn-${prop.node.key}-${action}`"
+                  @click="emit(`click:${action}`, prop.node)"
+                >
+                  <q-item-section avatar>
+                    <q-icon
+                      v-if="
+                        uiProps.types[prop.node.type]?.actions?.[action]?.icon
+                          ?.name
+                      "
+                      v-bind="
+                        uiProps.types[prop.node.type].actions[action].icon
+                      "
+                      class="q-mr-sm tree-header-action-icon"
+                    />
+                  </q-item-section>
+                  <q-item-section>
+                    {{ t(`types.${prop.node.type}.actions.${action}`) }}
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </q-menu>
+          </q-btn>
         </div>
-        <q-btn
-          v-if="resolvedActionsByNode[prop.node.key]"
-          v-bind="uiProps.buttonActions"
-          class="tree-header-actions-btn"
-          :data-cy="`tree-actions-btn-${prop.node.key}`"
-          @click.stop
-        >
-          <q-menu>
-            <q-list>
-              <q-item
-                v-for="action in resolvedActionsByNode[prop.node.key]"
-                :key="action"
-                v-close-popup
-                clickable
-                :data-cy="`tree-actions-btn-${prop.node.key}-${action}`"
-                @click="emit(`click:${action}`, prop.node)"
-              >
-                <q-item-section avatar>
-                  <q-icon
-                    v-if="
-                      uiProps.types[prop.node.type]?.actions?.[action]?.icon
-                        ?.name
-                    "
-                    v-bind="uiProps.types[prop.node.type].actions[action].icon"
-                    class="q-mr-sm tree-header-action-icon"
-                  />
-                </q-item-section>
-                <q-item-section>
-                  {{ t(`types.${prop.node.type}.actions.${action}`) }}
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </q-menu>
-        </q-btn>
-      </div>
-    </template>
-  </q-tree>
+      </template>
+    </q-tree>
+  </div>
 </template>
 
 <script setup lang="ts">
 import type {
+  LinidQBtnProps,
   LinidQIconProps,
+  LinidQInputProps,
   LinidQTreeProps,
   TreeNode,
 } from '@linagora/linid-im-front-corelib';
@@ -111,6 +130,7 @@ import type {
 } from '../../types/genericTree';
 
 const props = defineProps<TreeProps<unknown>>();
+const filter = ref<string>('');
 
 const emit = defineEmits<TreeOutputs<unknown>>();
 
@@ -183,8 +203,12 @@ watch(
 );
 
 const uiProps = computed(() => ({
+  filterInput: ui<LinidQInputProps>(
+    `${props.uiNamespace}.GenericTree`,
+    'q-input'
+  ),
   tree: ui<LinidQTreeProps>(`${props.uiNamespace}.GenericTree`, 'q-tree'),
-  buttonActions: ui<LinidQTreeProps>(
+  buttonActions: ui<LinidQBtnProps>(
     `${props.uiNamespace}.GenericTree.ButtonActions`,
     'q-btn'
   ),
@@ -211,3 +235,9 @@ const uiProps = computed(() => ({
   ),
 }));
 </script>
+
+<style>
+.generic-tree-container {
+  padding: 1rem;
+}
+</style>

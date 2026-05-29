@@ -18,13 +18,15 @@ It renders a hierarchical tree from provided nodes, with per-type icon support, 
 
 ## **Props**
 
-| Prop           | Type             | Required | Default | Description                                   |
-| -------------- | ---------------- | -------- | ------- | --------------------------------------------- |
-| `nodes`        | `TreeNode[]`     | Yes      | -       | Hierarchical node data                        |
-| `nodeTypes`    | `TreeNodeType[]` | Yes      | -       | Node type definitions with associated actions |
-| `uiNamespace`  | `string`         | Yes      | -       | UI design namespace for custom styling        |
-| `i18nScope`    | `string`         | Yes      | -       | i18n scope for translations                   |
-| `selectedNode` | `string`         | Yes      | -       | The key of the selected node (v-model).       |
+| Prop            | Type                                           | Required | Default | Description                                                                |
+| --------------- | ---------------------------------------------- | -------- | ------- | -------------------------------------------------------------------------- |
+| `nodes`         | `TreeNode<T>[]`                                | Yes      | -       | Hierarchical node data                                                     |
+| `nodeTypes`     | `TreeNodeType[]`                               | Yes      | -       | Node type definitions with associated actions                              |
+| `uiNamespace`   | `string`                                       | Yes      | -       | UI design namespace for custom styling                                     |
+| `i18nScope`     | `string`                                       | Yes      | -       | i18n scope for translations                                                |
+| `selectedNode`  | `string`                                       | Yes      | -       | The key of the selected node (v-model).                                    |
+| `searchEnabled` | `boolean`                                      | Yes      | -       | Displays the built-in filter input field when `true`.                      |
+| `filterMethod`  | `(node: QTreeNode, filter: string) => boolean` | Yes      | -       | Custom filter function applied to the tree when `searchEnabled` is `true`. |
 
 ---
 
@@ -73,18 +75,34 @@ When the user clicks a node in the tree, the component emits `update:selectedNod
 
 ---
 
+## **Filtering**
+
+When `searchEnabled` is `true`, the component renders a built-in `q-input` above the tree. The text typed in that input is used as the filter string passed to Quasar's `QTree`.
+
+```vue
+<GenericTree v-model:selected-node="selectedNode" :nodes="nodes" :node-types="nodeTypes" :search-enabled="true" :filter-method="customFilter" ui-namespace="Homepage" i18n-scope="Homepage" />
+```
+
+```typescript
+function customFilter(node: QTreeNode, filter: string): boolean {
+  return node.label?.toLowerCase().includes(filter.toLowerCase()) ?? false;
+}
+```
+
+---
+
 ## **Types**
 
-### `TreeNode`
+### `TreeNode<T>`
 
 Exported from `@linagora/linid-im-front-corelib`:
 
 ```typescript
-type TreeNode = {
+type TreeNode<T> = {
   type: string;
   key: string;
-  value: string | number | Record<string, unknown>;
-  nodes: TreeNode[];
+  value: T;
+  nodes: TreeNode<T>[];
   extraActions?: string[];
 };
 ```
@@ -134,7 +152,7 @@ This type is imported from `@linagora/linid-im-front-corelib`.
 
 ## **useTree Composable**
 
-The `useTree` composable (from corelib) exposes a `toQTreeNodes` mapper that converts `TreeNode[]` into the format expected by Quasar's `QTree`:
+The `useTree` composable (from corelib) exposes a `toQTreeNodes` mapper that converts `TreeNode<T>[]` into the format expected by Quasar's `QTree`:
 
 ```typescript
 import { useTree } from '@linagora/linid-im-front-corelib';
@@ -143,7 +161,7 @@ const { toQTreeNodes } = useTree();
 const quasarNodes = computed(() => toQTreeNodes(props.nodes));
 ```
 
-This conversion is handled internally by `GenericTree` — consumers simply pass `TreeNode[]`.
+This conversion is handled internally by `GenericTree` — consumers simply pass `TreeNode<T>[]`.
 
 ---
 
@@ -151,12 +169,13 @@ This conversion is handled internally by `GenericTree` — consumers simply pass
 
 The component uses the LinID design system through `useUiDesign()` and applies props to several Quasar components:
 
-| Namespace                                                 | Target   | Description                            |
-| --------------------------------------------------------- | -------- | -------------------------------------- |
-| `{uiNamespace}.GenericTree`                               | `q-tree` | Tree-level props                       |
-| `{uiNamespace}.GenericTree.ButtonActions`                 | `q-btn`  | Context menu trigger button            |
-| `{uiNamespace}.GenericTree.types.{type}`                  | `q-icon` | Icon for the node type label           |
-| `{uiNamespace}.GenericTree.types.{type}.actions.{action}` | `q-icon` | Icon for a specific action in the menu |
+| Namespace                                                 | Target    | Description                            |
+| --------------------------------------------------------- | --------- | -------------------------------------- |
+| `{uiNamespace}.GenericTree`                               | `q-input` | Filter input field props               |
+| `{uiNamespace}.GenericTree`                               | `q-tree`  | Tree-level props                       |
+| `{uiNamespace}.GenericTree.ButtonActions`                 | `q-btn`   | Context menu trigger button            |
+| `{uiNamespace}.GenericTree.types.{type}`                  | `q-icon`  | Icon for the node type label           |
+| `{uiNamespace}.GenericTree.types.{type}.actions.{action}` | `q-icon`  | Icon for a specific action in the menu |
 
 Example:
 
@@ -173,7 +192,7 @@ Example:
 ## **Advantages**
 
 - **Simple:** Minimal wrapper with sensible defaults
-- **Type-safe:** Node structure typed via corelib `TreeNode` and `TreeNodeType`
+- **Type-safe:** Node structure typed via corelib `TreeNode<T>` and `TreeNodeType`
 - **Consistent:** UI props and icons come from the LinID design system
 - **Extensible:** Per-node `extraActions` allow customization without changing node types
 - **Reusable:** Designed as a base for future enhancements (lazy loading, drag-and-drop, etc.)
@@ -191,17 +210,19 @@ import type { QTreeNode } from 'quasar';
 
 const remoteComponent = ref<Component | null>(null);
 
-const nodes: TreeNode[] = [
+type NodeValue = { name: string };
+
+const nodes: TreeNode<NodeValue>[] = [
   {
     type: 'folder',
     key: 'root',
-    value: 'Root',
+    value: { name: 'Root' },
     extraActions: ['share'],
     nodes: [
       {
         type: 'file',
         key: 'child-1',
-        value: 'Child 1',
+        value: { name: 'Child 1' },
         extraActions: [],
         nodes: [],
       },
@@ -240,6 +261,7 @@ remoteComponent.value = loadAsyncComponent('catalogUI/GenericTree');
     i18n-scope="Homepage"
     :nodes="nodes"
     :node-types="nodeTypes"
+    :search-enabled="true"
     @click:delete="handleDelete"
     @click:rename="handleRename"
     @click:share="handleShare"
@@ -255,6 +277,8 @@ The component uses scoped i18n with the following translation keys:
 
 | Key                                                     | Description                                   | Usage                   | Parameters |
 | ------------------------------------------------------- | --------------------------------------------- | ----------------------- | ---------- |
+| `{i18nScope}.GenericTree.filterLabel`                   | Label for the filter input field              | Filter input            | -          |
+| `{i18nScope}.GenericTree.filterHint`                    | Hint text below the filter input field        | Filter input            | -          |
 | `{i18nScope}.GenericTree.noNodesLabel`                  | Message shown when the tree has no nodes      | Empty tree state        | -          |
 | `{i18nScope}.GenericTree.noResultsLabel`                | Message shown when a filter yields no results | Filtered empty state    | -          |
 | `{i18nScope}.GenericTree.types.{type}.label`            | Display label for a given node type           | Node header in the tree | `value`    |
@@ -265,6 +289,8 @@ Example:
 ```json
 {
   "[INSTANCE_ID].GenericTree": {
+    "filterLabel": "Search",
+    "filterHint": "Filter nodes by name",
     "noNodesLabel": "No items to display",
     "noResultsLabel": "No results",
     "types": {
