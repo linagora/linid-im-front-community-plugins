@@ -47,6 +47,14 @@ export interface TreeProps<T> extends CommonComponentProps {
    * The key of the selected node (v-model).
    */
   selectedNode: string;
+  /**
+   * Indicates whether the search functionality is enabled.
+   */
+  searchEnabled: boolean;
+  /**
+   * Defines how to filter tree nodes based on the provided filter string.
+   */
+  filterMethod?: (node: TreeNode<T>, filter: string) => boolean;
 }
 
 /**
