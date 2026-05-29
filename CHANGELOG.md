@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.27](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.26...v0.2.27) (2026-05-29)
+
+
+### Features
+
+* **catalog-ui:** add date range validation and picker constraints to date field ([bd248e3](https://github.com/linagora/linid-im-front-community-plugins/commit/bd248e38d15c5e72b9ff39507ff400ca5a42efec))
+* **catalog-ui:** add EntityAttributeTextAreaField component ([055167c](https://github.com/linagora/linid-im-front-community-plugins/commit/055167c54f90bcc9ec310f8210555729ac76780d))
+* **catalog-ui:** add FormDialog component ([4270735](https://github.com/linagora/linid-im-front-community-plugins/commit/4270735c6ada0baa631f47b4c621b1000dc88717))
+* **catalog-ui:** pass local i18n scope to useQuasarRules ([b3c3759](https://github.com/linagora/linid-im-front-community-plugins/commit/b3c37597b38389cbdbd8331dc7d66a3f058ca586))
+
+
+### Bug Fixes
+
+* **catalog-ui:** add missing generic parameter T to TreeProps and TreeNode ([e336dda](https://github.com/linagora/linid-im-front-community-plugins/commit/e336dda494932c7fa5395d19df8e587e1bc0694e))
+
 ### [0.2.26](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.25...v0.2.26) (2026-05-26)
 
 
