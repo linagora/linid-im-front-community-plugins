@@ -49,6 +49,7 @@ vi.mock('@linagora/linid-im-front-corelib', () => {
 
 describe('Test component: FormDialog', () => {
   let wrapper;
+  let mockValidate;
 
   beforeEach(async () => {
     mockShowRef.value = false;
@@ -64,6 +65,12 @@ describe('Test component: FormDialog', () => {
         },
       },
     });
+
+    // The form is a template ref on the async-loaded QForm; the component is
+    // stubbed in unit tests, so we provide a controllable validate() mock that
+    // resolves to a valid form by default.
+    mockValidate = vi.fn(() => Promise.resolve(true));
+    wrapper.vm.form = { validate: mockValidate };
   });
 
   describe('Test computed: localUiNamespace', () => {
@@ -133,6 +140,33 @@ describe('Test component: FormDialog', () => {
       expect(wrapper.vm.isLoading).toBe(false);
       expect(wrapper.vm.show).toBe(true);
       expect(wrapper.vm.formData).toEqual({ name: 'test' });
+    });
+
+    it('should not call onSubmit and keep dialog open when the form is invalid', async () => {
+      mockValidate.mockResolvedValue(false);
+      const mockOnSubmit = vi.fn(() => Promise.resolve());
+
+      mockShowRef.value = true;
+      wrapper.vm.onSubmit = mockOnSubmit;
+      wrapper.vm.formData = { name: 'test' };
+
+      await wrapper.vm.handleSubmit();
+
+      expect(mockOnSubmit).not.toHaveBeenCalled();
+      expect(wrapper.vm.show).toBe(true);
+      expect(wrapper.vm.formData).toEqual({ name: 'test' });
+      expect(wrapper.vm.isLoading).toBe(false);
+    });
+
+    it('should validate the form before submitting', async () => {
+      const mockOnSubmit = vi.fn(() => Promise.resolve());
+
+      wrapper.vm.onSubmit = mockOnSubmit;
+
+      await wrapper.vm.handleSubmit();
+
+      expect(mockValidate).toHaveBeenCalledOnce();
+      expect(mockOnSubmit).toHaveBeenCalled();
     });
   });
 

@@ -53,8 +53,9 @@
       <!-- eslint-enable vue/no-v-text-v-html-on-component vue/no-v-html -->
 
       <q-form
+        ref="form"
         class="form-dialog--form"
-        @submit="handleSubmit"
+        @submit.prevent="handleSubmit"
       >
         <q-card-section
           v-for="field in formFields"
@@ -101,6 +102,7 @@ import {
   useDialog,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
+import type { QForm } from 'quasar';
 import { computed, ref } from 'vue';
 import type { FormDialogEvent } from '../../types/dialog';
 import { DialogKey } from '../../types/dialog';
@@ -114,6 +116,7 @@ const instanceId = ref<string>('');
 const formFields = ref<LinidAttributeConfiguration[]>([]);
 const isLoading = ref(false);
 const formData = ref<Record<string, unknown>>({});
+const form = ref<QForm>();
 let onSubmit: (formData: Record<string, unknown>) => Promise<void>;
 
 const { ui } = useUiDesign();
@@ -134,13 +137,21 @@ const buttonsCard = loadAsyncComponent('catalogUI/ButtonsCard');
 
 /**
  * Handles the submit action.
- * Calls onSubmit with the current form data. Closes the dialog on success;
+ * Validates the form first and aborts if any field is invalid, keeping the
+ * dialog open so validation errors stay visible. Form fields are loaded
+ * asynchronously, so the explicit validate() call guarantees they are checked
+ * regardless of their mount timing rather than relying on the native submit.
+ * On success, calls onSubmit with the current form data and closes the dialog;
  * keeps it open if onSubmit rejects so the user can correct errors.
  * Errors from onSubmit are caught here to prevent unhandled promise rejections —
  * onSubmit is responsible for its own error handling and must re-throw to signal
  * failure (e.g. After displaying an error notification).
  */
 async function handleSubmit() {
+  if (!(await form.value?.validate())) {
+    return;
+  }
+
   isLoading.value = true;
   try {
     await onSubmit(formData.value);
