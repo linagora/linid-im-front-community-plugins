@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.28](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.27...v0.2.28) (2026-06-02)
+
+
+### Features
+
+* **catalog-ui:** add node filter in generic tree ([a309b6c](https://github.com/linagora/linid-im-front-community-plugins/commit/a309b6c19e00a1bd172c75e243200316039de4aa))
+
 ### [0.2.27](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.26...v0.2.27) (2026-05-29)
 
 
