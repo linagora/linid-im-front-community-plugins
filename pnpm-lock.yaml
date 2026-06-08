@@ -10,7 +10,7 @@ importers:
     dependencies:
       '@linagora/linid-im-front-corelib':
         specifier: 0.0.67
-        version: 0.0.67(axios@1.13.6)(dayjs@1.11.20)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.30(typescript@5.9.3)))(quasar@2.18.6)(rxjs@7.8.2)(vue@3.5.30(typescript@5.9.3))
+        version: 0.0.67(axios@1.13.6)(dayjs@1.11.20)(interactjs@1.10.27)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.30(typescript@5.9.3)))(quasar@2.18.6)(rxjs@7.8.2)(vue@3.5.30(typescript@5.9.3))
       '@vueuse/core':
         specifier: 14.2.1
         version: 14.2.1(vue@3.5.30(typescript@5.9.3))
@@ -173,10 +173,13 @@ importers:
     dependencies:
       '@linagora/linid-im-front-corelib':
         specifier: 0.0.67
-        version: 0.0.67(axios@1.13.6)(dayjs@1.11.20)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.30(typescript@5.9.3)))(quasar@2.18.6)(rxjs@7.8.2)(vue@3.5.30(typescript@5.9.3))
+        version: 0.0.67(axios@1.13.6)(dayjs@1.11.20)(interactjs@1.10.27)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.30(typescript@5.9.3)))(quasar@2.18.6)(rxjs@7.8.2)(vue@3.5.30(typescript@5.9.3))
       '@vueuse/core':
         specifier: 14.2.1
         version: 14.2.1(vue@3.5.30(typescript@5.9.3))
+      interactjs:
+        specifier: 1.10.27
+        version: 1.10.27
       quasar:
         specifier: 2.18.6
         version: 2.18.6
@@ -192,7 +195,7 @@ importers:
     dependencies:
       '@linagora/linid-im-front-corelib':
         specifier: 0.0.67
-        version: 0.0.67(axios@1.13.6)(dayjs@1.11.20)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.30(typescript@5.9.3)))(quasar@2.18.6)(rxjs@7.8.2)(vue@3.5.30(typescript@5.9.3))
+        version: 0.0.67(axios@1.13.6)(dayjs@1.11.20)(interactjs@1.10.27)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.30(typescript@5.9.3)))(quasar@2.18.6)(rxjs@7.8.2)(vue@3.5.30(typescript@5.9.3))
       p-limit:
         specifier: 7.3.0
         version: 7.3.0
@@ -217,7 +220,7 @@ importers:
     dependencies:
       '@linagora/linid-im-front-corelib':
         specifier: 0.0.67
-        version: 0.0.67(axios@1.13.6)(dayjs@1.11.20)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.30(typescript@5.9.3)))(quasar@2.18.6)(rxjs@7.8.2)(vue@3.5.30(typescript@5.9.3))
+        version: 0.0.67(axios@1.13.6)(dayjs@1.11.20)(interactjs@1.10.27)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.30(typescript@5.9.3)))(quasar@2.18.6)(rxjs@7.8.2)(vue@3.5.30(typescript@5.9.3))
       '@vueuse/core':
         specifier: 14.2.1
         version: 14.2.1(vue@3.5.30(typescript@5.9.3))
@@ -1179,6 +1182,9 @@ packages:
     peerDependenciesMeta:
       '@types/node':
         optional: true
+
+  '@interactjs/types@1.10.27':
+    resolution: {integrity: sha512-BUdv0cvs4H5ODuwft2Xp4eL8Vmi3LcihK42z0Ft/FbVJZoRioBsxH+LlsBdK4tAie7PqlKGy+1oyOncu1nQ6eA==}
 
   '@isaacs/cliui@8.0.2':
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
@@ -3886,6 +3892,9 @@ packages:
 
   inspect-with-kind@1.0.5:
     resolution: {integrity: sha512-MAQUJuIo7Xqk8EVNP+6d3CKq9c80hi4tjIbIAT6lmGW9W6WzlHiu9PS8uSuUYU+Do+j1baiFp3H25XEVxDIG2g==}
+
+  interactjs@1.10.27:
+    resolution: {integrity: sha512-y/8RcCftGAF24gSp76X2JS3XpHiUvDQyhF8i7ujemBz77hwiHDuJzftHx7thY8cxGogwGiPJ+o97kWB6eAXnsA==}
 
   is-arrayish@0.2.1:
     resolution: {integrity: sha512-zz06S8t0ozoDXMG+ube26zeCTNXcKIPJZJi8hBrF4idCLms4CG9QtK7qBl1boi5ODzFpjswb5JPmHCbMpjaYzg==}
@@ -6727,6 +6736,8 @@ snapshots:
     optionalDependencies:
       '@types/node': 25.4.0
 
+  '@interactjs/types@1.10.27': {}
+
   '@isaacs/cliui@8.0.2':
     dependencies:
       string-width: 5.1.2
@@ -6907,10 +6918,11 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@linagora/linid-im-front-corelib@0.0.67(axios@1.13.6)(dayjs@1.11.20)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.30(typescript@5.9.3)))(quasar@2.18.6)(rxjs@7.8.2)(vue@3.5.30(typescript@5.9.3))':
+  '@linagora/linid-im-front-corelib@0.0.67(axios@1.13.6)(dayjs@1.11.20)(interactjs@1.10.27)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.30(typescript@5.9.3)))(quasar@2.18.6)(rxjs@7.8.2)(vue@3.5.30(typescript@5.9.3))':
     dependencies:
       axios: 1.13.6
       dayjs: 1.11.20
+      interactjs: 1.10.27
       pinia: 3.0.4(typescript@5.9.3)(vue@3.5.30(typescript@5.9.3))
       quasar: 2.18.6
       rxjs: 7.8.2
@@ -9780,6 +9792,10 @@ snapshots:
   inspect-with-kind@1.0.5:
     dependencies:
       kind-of: 6.0.3
+
+  interactjs@1.10.27:
+    dependencies:
+      '@interactjs/types': 1.10.27
 
   is-arrayish@0.2.1: {}
 
