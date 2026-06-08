@@ -32,8 +32,11 @@
     data-cy="confirmation_dialog"
     @hide="show = false"
   >
-    <q-card data-cy="confirmation_dialog_card">
-      <q-card-section>
+    <q-card
+      ref="dialogRef"
+      data-cy="confirmation_dialog_card"
+    >
+      <q-card-section class="drag-handle">
         <h3
           class="q-my-none confirmation-dialog-title"
           data-cy="confirmation_dialog_title"
@@ -73,10 +76,11 @@ import { computed, ref } from 'vue';
 import type { ConfirmationDialogEvent } from '../../types/dialog';
 import { DialogKey } from '../../types/dialog';
 
-const { show } = useDialog<ConfirmationDialogEvent>(
+const { show, dialogRef } = useDialog<ConfirmationDialogEvent>(
   DialogKey.Confirmation,
   onOpen
 );
+void dialogRef;
 const title = ref<string>('');
 const content = ref<string>('');
 const uiNamespace = ref<string>('');
@@ -123,3 +127,10 @@ function onOpen(dialogData: ConfirmationDialogEvent) {
   onConfirm = dialogData.onConfirm || (() => Promise.resolve());
 }
 </script>
+
+<style lang="scss" scoped>
+.drag-handle {
+  cursor: move;
+  user-select: none;
+}
+</style>

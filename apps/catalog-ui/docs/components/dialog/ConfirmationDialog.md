@@ -8,6 +8,8 @@ Generic, event-driven confirmation dialog for LinID applications.
 
 The `ConfirmationDialog` component listens for UI events to display a confirmation dialog. It supports dynamic content, customizable buttons, and asynchronous confirmation handling.
 
+The dialog is **draggable**: click and hold the header to reposition it anywhere on screen.
+
 ## **⚙️ Usage**
 
 ### Dialog Key

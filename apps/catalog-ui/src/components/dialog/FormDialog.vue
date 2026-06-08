@@ -33,10 +33,11 @@
     @hide="onClose"
   >
     <q-card
+      ref="dialogRef"
       v-bind="uiProps.card"
       data-cy="form-dialog_card"
     >
-      <q-card-section>
+      <q-card-section class="drag-handle">
         <h3
           class="q-my-none form-dialog--title"
           data-cy="form-dialog_title"
@@ -105,7 +106,8 @@ import { computed, ref } from 'vue';
 import type { FormDialogEvent } from '../../types/dialog';
 import { DialogKey } from '../../types/dialog';
 
-const { show } = useDialog<FormDialogEvent>(DialogKey.Form, onOpen);
+const { show, dialogRef } = useDialog<FormDialogEvent>(DialogKey.Form, onOpen);
+void dialogRef;
 const title = ref<string>('');
 const content = ref<string>('');
 const uiNamespace = ref<string>('');
@@ -178,3 +180,10 @@ function onOpen(dialogData: FormDialogEvent) {
   onSubmit = dialogData.onSubmit || (() => Promise.resolve());
 }
 </script>
+
+<style lang="scss" scoped>
+.drag-handle {
+  cursor: move;
+  user-select: none;
+}
+</style>

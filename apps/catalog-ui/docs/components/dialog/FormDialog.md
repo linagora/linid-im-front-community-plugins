@@ -10,6 +10,8 @@ The `FormDialog` component listens for UI events to display a dialog containing 
 fields from `LinidAttributeConfiguration` definitions, manages local form state, and handles asynchronous form
 submission with a loading indicator.
 
+The dialog is **draggable**: click and hold the header to reposition it anywhere on screen.
+
 ## **⚙️ Usage**
 
 ### Dialog Key
