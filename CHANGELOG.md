@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.29](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.28...v0.2.29) (2026-06-09)
+
+
+### Features
+
+* **catalog-ui:** make dialogs draggable from their header ([75a317e](https://github.com/linagora/linid-im-front-community-plugins/commit/75a317eb256f3e7736112b1720fed884f30261c8))
+
 ### [0.2.28](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.27...v0.2.28) (2026-06-02)
 
 
