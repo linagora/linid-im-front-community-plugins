@@ -20,6 +20,7 @@ Unlike `EntityAttributeListField`, which uses a static predefined list, this com
 - Supports scoped translations for labels, hints, prefixes, and suffixes
 - Enables UI customization via the design system
 - Displays loading and error states during data fetching
+- Supports disabling the field via `inputSettings.disable`
 
 ---
 
@@ -97,6 +98,9 @@ export interface FieldDynamicListSettings extends FieldSettings {
 
   /** Indicates whether to bypass validation rules for this field. */
   ignoreRules?: boolean;
+
+  /** When true, the select is rendered as non-interactive (disabled state). */
+  disable?: boolean;
 }
 ```
 
@@ -548,6 +552,7 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 - Verify validation rules are applied when `ignoreRules` is `false`
 - Verify that `localValue` is updated when `entity[definition.name]` changes
 - Verify that `localValue` is **not** overwritten when only other entity attributes change
+- Verify the select is rendered as disabled when `definition.inputSettings.disable` is `true`
 
 ---
 
@@ -556,6 +561,7 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 - The component assumes `definition.input === 'DynamicList'`
 - Uses `FieldDynamicListSettings` type for `inputSettings`, which requires a `route` property
 - The `route` property is **mandatory** in `FieldDynamicListSettings` — without it, the component displays an error
+- The field is rendered as non-interactive when `definition.inputSettings.disable` is `true`
 - Options are fetched lazily and accumulated across pages
 - The `entity` prop is reactive: changes to `entity[definition.name]` are reflected in `localValue` via a selective `watch`
 - Validation is handled internally using `useQuasarRules` with a `unique` rule and can be configured via `inputSettings`

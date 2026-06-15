@@ -76,6 +76,12 @@ export interface FieldSettings extends Record<string, unknown> {
    * When set to true, validation rules will not be applied.
    */
   ignoreRules?: boolean;
+
+  /**
+   * Indicates whether the field is disable (non-editable).
+   * When set to true, the field will be rendered in a disabled state.
+   */
+  disable?: boolean;
 }
 
 /**

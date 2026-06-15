@@ -31,6 +31,7 @@
     :data-cy="`field_${definition.name}`"
     class="entity-attribute-boolean-field"
     v-bind="uiProps"
+    :disable="definition.inputSettings?.disable || false"
     :label="translateOrDefault('', 'label')"
     @update:model-value="updateValue"
   />

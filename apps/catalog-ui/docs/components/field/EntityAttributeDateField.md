@@ -16,6 +16,7 @@ customizable, localized, and reactive date input.
 - Supports scoped translations for labels, hints, prefixes, and suffixes
 - Applies a configurable date format mask resolved from global i18n translations
 - Enables UI customization via the design system
+- Supports disabling the field via `inputSettings.disable`
 
 ---
 
@@ -69,6 +70,9 @@ export interface FieldDateSettings extends FieldSettings {
    * Constraint options for the date picker (see below).
    */
   options?: FieldDateOptions;
+
+  /** When true, the input is rendered as non-interactive (disabled state). */
+  disable?: boolean;
 }
 
 export interface FieldDateOptions {
@@ -315,15 +319,17 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 - Verify that `localValue` is updated when `entity[definition.name]` changes
 - Verify that `localValue` is **not** overwritten when only other entity attributes change (e.g. mutate `name` while keeping the date attribute value identical)
 - Verify that `validateFromApi` is called with the correct `instanceId` and `definition.name` when `hasValidations` is `true`
+- Verify the input is rendered as disabled when `definition.inputSettings.disable` is `true`
 
 ---
 
 ## **📌 Notes**
 
 - The component assumes `definition.input === 'Date'`
-- Uses `FieldDateSettings` for `inputSettings`, which supports `mask`, `options`, and `ignoreRules`
+- Uses `FieldDateSettings` for `inputSettings`, which supports `mask`, `options`, `ignoreRules`, and `disable`
 - The date format mask is a Nunjucks-rendered string from `inputSettings.mask`; if absent or falsy, `mask` returns `undefined` and Quasar's default format (YYYY/MM/DD) is used
 - Validation is handled internally using `useQuasarFieldValidation` with support for `required`, date constraints, and API-backed validation (`validateFromApi` when `hasValidations` is `true`)
+- The field is rendered as non-interactive when `definition.inputSettings.disable` is `true`
 - Missing translations safely fall back to default values
 - Intended for use via `EntityAttributeField`, not directly in most cases
 

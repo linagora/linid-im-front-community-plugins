@@ -16,6 +16,7 @@ scoped i18n to provide a consistent, localized, and customizable number field.
 - Emits normalized entity updates on value changes
 - Supports scoped translations for labels and helper texts
 - Enables UI customization through the design system
+- Supports disabling the field via `inputSettings.disable`
 
 ---
 
@@ -66,6 +67,9 @@ export interface FieldNumberSettings extends FieldSettings {
 
   /** Indicates whether to bypass validation rules for this field. */
   ignoreRules?: boolean;
+
+  /** When true, the input is rendered as non-interactive (disabled state). */
+  disable?: boolean;
 }
 ```
 
@@ -280,14 +284,16 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 - Shallow mount the component to isolate behavior from UI rendering
 - Verify that `localValue` is updated when `entity[definition.name]` changes
 - Verify that `localValue` is **not** overwritten when only other entity attributes change
+- Verify the input is rendered as disabled when `definition.inputSettings.disable` is `true`
 
 ---
 
 ## **📌 Notes**
 
 - The component assumes `definition.input === 'Number'`
-- Uses `FieldNumberSettings` type for `inputSettings`, which supports `min`, `max`, and `ignoreRules`
+- Uses `FieldNumberSettings` type for `inputSettings`, which supports `min`, `max`, `ignoreRules`, and `disable`
 - Validation is handled internally using `useQuasarRules` and can be configured via `inputSettings`
+- The field is rendered as non-interactive when `definition.inputSettings.disable` is `true`
 - Missing translations gracefully fall back to default values
 - Intended for use via `EntityAttributeField` in most scenarios
 
