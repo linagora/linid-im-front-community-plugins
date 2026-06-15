@@ -15,6 +15,7 @@ customizable, localized, and reactive select input for predefined value lists.
 - Emits normalized entity updates on user selection
 - Supports scoped translations for labels, hints, prefixes, and suffixes
 - Enables UI customization via the design system
+- Supports disabling the field via `inputSettings.disable`
 
 ---
 
@@ -68,6 +69,9 @@ export interface FieldListSettings extends FieldSettings {
 
   /** Indicates whether to bypass validation rules for this field. */
   ignoreRules?: boolean;
+
+  /** When true, the select is rendered as non-interactive (disabled state). */
+  disable?: boolean;
 }
 ```
 

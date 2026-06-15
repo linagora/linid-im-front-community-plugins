@@ -32,6 +32,7 @@
     class="entity-attribute-date-field"
     type="text"
     v-bind="uiProps.input"
+    :disable="definition.inputSettings?.disable || false"
     :label="translateOrDefault('', 'label')"
     :hint="translateOrDefault('', 'hint')"
     :prefix="translateOrDefault('', 'prefix')"

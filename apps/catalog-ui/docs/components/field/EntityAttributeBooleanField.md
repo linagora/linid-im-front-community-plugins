@@ -15,6 +15,7 @@ consistent, configurable, and localized boolean input.
 - Emits updates in a controlled, immutable way
 - Supports scoped translations for labels
 - Integrates UI customization through the design system
+- Supports disabling the field via `inputSettings.disable`
 
 ---
 
@@ -59,6 +60,9 @@ export interface AttributeFieldProps<T = Record<string, unknown>> extends Common
 export interface FieldBooleanSettings extends FieldSettings {
   /** Indicates whether to bypass validation rules for this field. */
   ignoreRules?: boolean;
+
+  /** When true, the toggle is rendered as non-interactive (disabled state). */
+  disable?: boolean;
 }
 ```
 
@@ -211,14 +215,16 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 - UI rendering can be shallow-mounted since behavior is event-driven
 - Verify that `localValue` is updated when `entity[definition.name]` changes
 - Verify that `localValue` is **not** overwritten when only other entity attributes change (e.g. mutate `name` while keeping the boolean attribute value identical)
+- Verify the toggle is rendered as disabled when `definition.inputSettings.disable` is `true`
 
 ---
 
 ## **📌 Notes**
 
 - The component assumes `definition.input === 'Boolean'`
-- Uses `FieldBooleanSettings` type for `inputSettings`, which supports the `ignoreRules` property
+- Uses `FieldBooleanSettings` type for `inputSettings`, which supports the `ignoreRules` and `disable` properties
 - Boolean fields typically don't require validation rules, but validation can be bypassed via the `ignoreRules` prop or `definition.inputSettings.ignoreRules` if needed
+- The field is rendered as non-interactive when `definition.inputSettings.disable` is `true`
 - Translation keys are optional and safely fallback
 - Designed to be used exclusively through `EntityAttributeField`
 

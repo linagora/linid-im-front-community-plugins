@@ -32,6 +32,7 @@
     class="entity-attribute-number-field"
     type="number"
     v-bind="uiProps"
+    :disable="definition.inputSettings?.disable || false"
     :label="translateOrDefault('', 'label')"
     :hint="translateOrDefault('', 'hint')"
     :prefix="translateOrDefault('', 'prefix')"

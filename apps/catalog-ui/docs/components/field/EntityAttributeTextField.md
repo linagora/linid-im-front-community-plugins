@@ -15,6 +15,7 @@ customizable, localized, and reactive text input.
 - Emits normalized entity updates on user input
 - Supports scoped translations for labels, hints, prefixes, and suffixes
 - Enables UI customization via the design system
+- Supports disabling the field via `inputSettings.disable`
 
 ---
 
@@ -68,6 +69,9 @@ export interface FieldTextSettings extends FieldSettings {
 
   /** Indicates whether to bypass validation rules for this field. */
   ignoreRules?: boolean;
+
+  /** When true, the input is rendered as non-interactive (disabled state). */
+  disable?: boolean;
 }
 ```
 
@@ -282,14 +286,16 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 - Shallow mount the component to isolate logic from UI rendering
 - Verify that `localValue` is updated when `entity[definition.name]` changes
 - Verify that `localValue` is **not** overwritten when only other entity attributes change
+- Verify the input is rendered as disabled when `definition.inputSettings.disable` is `true`
 
 ---
 
 ## **📌 Notes**
 
 - The component assumes `definition.input === 'Text'`
-- Uses `FieldTextSettings` type for `inputSettings`, which supports `minLength`, `maxLength`, `pattern`, and `ignoreRules`
+- Uses `FieldTextSettings` type for `inputSettings`, which supports `minLength`, `maxLength`, `pattern`, `ignoreRules`, and `disable`
 - Validation is handled internally using `useQuasarRules` and can be configured via `inputSettings`
+- The field is rendered as non-interactive when `definition.inputSettings.disable` is `true`
 - Missing translations safely fall back to default values
 - Intended for use via `EntityAttributeField`, not directly in most cases
 
