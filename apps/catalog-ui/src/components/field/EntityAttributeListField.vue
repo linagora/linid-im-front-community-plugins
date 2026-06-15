@@ -37,6 +37,10 @@
     :prefix="translateOrDefault('', 'prefix')"
     :suffix="translateOrDefault('', 'suffix')"
     :options="options"
+    option-value="value"
+    option-label="value"
+    emit-value
+    map-options
     :rules="rules"
     @update:model-value="updateValue"
   />
@@ -55,6 +59,7 @@ import type {
   AttributeFieldProps,
   EntityAttributeFieldOutputs,
   FieldListSettings,
+  FieldListValue,
 } from '../../types/field';
 
 const props = withDefaults(
@@ -68,17 +73,51 @@ const localI18nScope = `${props.i18nScope}.fields.${props.definition.name}`;
 
 const { ui } = useUiDesign();
 
-const options = props.definition.inputSettings?.values || [];
+const normalizedValues: FieldListValue[] = (() => {
+  const values = props.definition.inputSettings?.values;
+  if (!values?.length) {
+    return [];
+  }
+  if (typeof values[0] === 'string') {
+    return (values as string[]).map((v) => ({ value: v }));
+  }
+  return values as FieldListValue[];
+})();
 
 const defaultValue =
   props.definition.inputSettings?.defaultValue &&
-  options.includes(props.definition.inputSettings.defaultValue)
+  normalizedValues.some(
+    (opt) => opt.value === props.definition.inputSettings?.defaultValue
+  )
     ? props.definition.inputSettings.defaultValue
     : null;
 
 const localValue = ref(
   props.entity[props.definition.name] ?? defaultValue ?? null
 );
+
+const options = computed((): FieldListValue[] => {
+  if (!normalizedValues.length) {
+    return normalizedValues;
+  }
+  return normalizedValues.filter((entry) => {
+    if (!entry.filterContext) {
+      return true;
+    }
+    return Object.entries(entry.filterContext).every(
+      ([fieldName, accepted]) => {
+        const currentValue = props.entity[fieldName];
+        if (currentValue == null) {
+          return true;
+        }
+        const acceptedArray: string[] = Array.isArray(accepted)
+          ? accepted
+          : [accepted];
+        return acceptedArray.includes(currentValue as string);
+      }
+    );
+  });
+});
 
 const uiProps = ui<LinidQSelectProps>(
   `${props.uiNamespace}.${props.definition.name}`,
@@ -99,9 +138,19 @@ watch(
   }
 );
 
+watch(options, (newOptions) => {
+  if (
+    localValue.value !== null &&
+    !newOptions.some((opt) => opt.value === (localValue.value as string))
+  ) {
+    localValue.value = null;
+    updateValue();
+  }
+});
+
 /**
- * Emits an 'update:entity' event with the updated entity object when the selection changes.
- * Updates the value of the attribute in the entity using the local reactive value.
+ * Emits an 'update:entity' event with the updated entity object.
+ * Called on user selection and when the current value becomes invalid after filtering.
  */
 function updateValue() {
   emits('update:entity', {
