@@ -57,9 +57,26 @@ export interface AttributeFieldProps<T = Record<string, unknown>> extends Common
 ### FieldListSettings
 
 ```ts
+export interface FieldListValue {
+  /** The option value displayed in the select. */
+  value: string;
+  /**
+   * Conditions under which this option is shown.
+   * Each key is an entity field name; the value is a string or an array of strings (OR logic within a key).
+   * All keys must match simultaneously (AND logic across keys).
+   * When a key's entity field has no value (null/undefined), the condition is considered satisfied.
+   * When absent, the option is always shown regardless of entity state.
+   */
+  filterContext?: Record<string, string | string[]>;
+}
+
 export interface FieldListSettings extends FieldSettings {
-  /** List of possible values for the field. The user must select one of these values. */
-  values: string[];
+  /**
+   * List of possible values for the field.
+   * Use `string[]` for a flat list with no filtering.
+   * Use `FieldListValue[]` to configure conditional visibility via `filterContext`.
+   */
+  values: string[] | FieldListValue[];
 
   /**
    * Default value for the field. Must be one of the values defined in the `values` array.
@@ -220,17 +237,24 @@ QSelect → localValue → updateValue → update:entity
 ### Options Management
 
 ```ts
-const options = props.definition.inputSettings?.values || [];
+const options = computed((): FieldListValue[] => { ... });
 ```
 
-- Stores the list of available values as a local constant
+- Always returns `FieldListValue[]` — `string[]` inputs are normalized to `{ value: string }` objects
 - Falls back to an empty array if `values` is not provided
-- Remains static after initialization (props don't change during component lifecycle)
+- When no value has a `filterContext`, returns the full normalized list unchanged
+- When `filterContext` is present on some values, filters entries against the current `entity` state:
+  - OR logic within each `filterContext` key (single string or array of accepted values)
+  - AND logic across keys (all constraints must be satisfied simultaneously)
+  - Entries with no `filterContext` are always included
+  - If a `filterContext` key references an entity field with no value (null/undefined), the constraint is considered satisfied and the entry is shown
+- Re-evaluates automatically whenever the referenced `entity` fields change
+- The `q-select` receives `option-value="value"`, `option-label="value"`, `emit-value`, and `map-options` so that `localValue` remains a plain string regardless of the object options format
 
 ### Default Value Resolution
 
 ```ts
-const defaultValue = props.definition.inputSettings?.defaultValue && options.includes(props.definition.inputSettings.defaultValue) ? props.definition.inputSettings.defaultValue : null;
+const defaultValue = props.definition.inputSettings?.defaultValue && normalizedValues.some((opt) => opt.value === props.definition.inputSettings?.defaultValue) ? props.definition.inputSettings.defaultValue : null;
 ```
 
 - Validates that `defaultValue` (if provided) exists in the `values` array
@@ -249,18 +273,19 @@ const localValue = ref(props.entity[props.definition.name] ?? defaultValue ?? nu
   3. Finally falls back to `null` if no valid default is available
 - A `watch` on `() => props.entity[props.definition.name]` keeps `localValue` in sync when the parent updates the entity — it only triggers when the **specific attribute value** changes, not when other fields of the entity change
 - When the watched value becomes `null` or `undefined`, the fallback cascade `newValue ?? defaultValue ?? null` is applied, restoring the default value if available
+- A second `watch` on the `options` computed detects when the current `localValue` is no longer available after filtering: it resets `localValue` to `null` and emits `update:entity` to notify the parent
 
 ---
 
-## **💡 Usage Example**
+## **💡 Usage Examples**
+
+### Flat list (no filtering)
 
 ```vue
 <script setup lang="ts">
 import EntityAttributeListField from '@/components/field/EntityAttributeListField.vue';
 
-const entity = reactive({
-  role: 'user',
-});
+const entity = reactive({ role: 'user' });
 
 const definition = {
   name: 'role',
@@ -270,8 +295,7 @@ const definition = {
   hasValidations: false,
   inputSettings: {
     values: ['admin', 'user', 'guest'],
-    defaultValue: 'user', // Optional, falls back to null if omitted or invalid
-    ignoreRules: false,
+    defaultValue: 'user',
   },
 };
 
@@ -289,6 +313,32 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
     @update:entity="onUpdateEntity"
   />
 </template>
+```
+
+### Dependent filtering
+
+When `country` changes, the city options update automatically. If the selected city is no longer available, it is cleared and `update:entity` is emitted.
+
+```vue
+<script setup lang="ts">
+const entity = reactive({ country: 'France', city: null });
+
+const cityDefinition = {
+  name: 'city',
+  input: 'List',
+  type: 'String',
+  required: false,
+  hasValidations: false,
+  inputSettings: {
+    values: [
+      { value: 'Paris', filterContext: { country: 'France' } },
+      { value: 'Lyon', filterContext: { country: 'France' } },
+      { value: 'London', filterContext: { country: 'UK' } },
+      { value: 'Valence', filterContext: { country: ['France', 'Espagne'] } },
+    ],
+  },
+};
+</script>
 ```
 
 ---
@@ -319,6 +369,13 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 - Verify that `localValue` is updated when `entity[definition.name]` changes
 - Verify that when `entity[definition.name]` is set to `null`, `localValue` falls back to `defaultValue` (or `options[0]`)
 - Verify that `localValue` is **not** overwritten when only other entity attributes change
+- Verify that `options` is filtered reactively when entity fields referenced in `filterContext` change
+- Verify OR logic within a single `filterContext` key (array of accepted values)
+- Verify AND logic across multiple `filterContext` keys
+- Verify that entries with no `filterContext` are always included
+- Verify that entries are shown when a `filterContext` key references an entity field with no value
+- Verify that `localValue` is cleared and `update:entity` is emitted when the selected value is no longer in the filtered options
+- Verify that no emission occurs when `localValue` is already `null` and the options change
 
 ---
 
@@ -327,8 +384,8 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 - The component assumes `definition.input === 'List'`
 - Uses `FieldListSettings` type for `inputSettings`, which requires a `values` array
 - The `values` property is **mandatory** in `FieldListSettings`
-- Available options are stored in a local constant, not reactive, as they are expected to be static
-- Default value is validated to ensure it exists in the `values` array
+- Available options are computed reactively; when no value has a `filterContext`, the result is equivalent to the full normalized list
+- Default value is validated against the full `values` array (unfiltered)
 - Default value resolution follows a specific cascade: entity value → validated `defaultValue` → `null`
 - The `entity` prop is reactive: changes to `entity[definition.name]` are reflected in `localValue` via a selective `watch`; the default value cascade also applies when the watched value becomes `null` or `undefined`
 - Validation is handled internally using `useQuasarRules` and can be configured via `inputSettings`

@@ -173,13 +173,33 @@ export interface FieldDateOptions {
 export type FieldBooleanSettings = FieldSettings;
 
 /**
+ * Represents a single option in a filtered list field.
+ */
+export interface FieldListValue {
+  /**
+   * The option value displayed in the select.
+   */
+  value: string;
+
+  /**
+   * Conditions under which this option is shown.
+   * Each key is an entity field name; the value is a string or an array of strings (OR logic within a key).
+   * All keys must match simultaneously (AND logic across keys).
+   * When absent, the option is always shown regardless of entity state.
+   */
+  filterContext?: Record<string, string | string[]>;
+}
+
+/**
  * Settings for fields that allow selection from a predefined list of values.
  */
 export interface FieldListSettings extends FieldSettings {
   /**
-   * List of possible values for the field. The user must select one of these values.
+   * List of possible values for the field.
+   * Use `string[]` for a flat list with no filtering.
+   * Use `FieldListValue[]` to configure conditional visibility via `filterContext`.
    */
-  values: string[];
+  values: string[] | FieldListValue[];
 
   /**
    * Default value for the field. Must be one of the values defined in the `values` array.

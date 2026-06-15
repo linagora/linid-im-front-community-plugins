@@ -60,7 +60,18 @@ describe('Test component: EntityAttributeListField', () => {
       stubs: {
         QSelect: {
           template: '<select />',
-          props: ['modelValue', 'prefix', 'suffix', 'options', 'rules', 'hint'],
+          props: [
+            'modelValue',
+            'prefix',
+            'suffix',
+            'options',
+            'rules',
+            'hint',
+            'optionValue',
+            'optionLabel',
+            'emitValue',
+            'mapOptions',
+          ],
           emits: ['update:modelValue'],
         },
       },
@@ -297,6 +308,232 @@ describe('Test component: EntityAttributeListField', () => {
       });
 
       expect(wrapper.vm.localValue).toEqual('maintainer');
+    });
+  });
+
+  describe('Test computed: options', () => {
+    it('should return values normalized to FieldListValue objects', () => {
+      mountingOptions.props.definition.inputSettings.values = [
+        'value1',
+        'value2',
+      ];
+      wrapper = shallowMount(EntityAttributeListField, mountingOptions);
+
+      expect(wrapper.vm.options).toEqual([
+        { value: 'value1' },
+        { value: 'value2' },
+      ]);
+    });
+
+    it('should return empty array when values is not set', () => {
+      wrapper = shallowMount(EntityAttributeListField, mountingOptions);
+
+      expect(wrapper.vm.options).toEqual([]);
+    });
+
+    it('should filter values by filterContext matching the current entity field value', () => {
+      mountingOptions.props.definition.inputSettings = {
+        values: [
+          { value: 'Paris', filterContext: { country: 'France' } },
+          { value: 'Lyon', filterContext: { country: 'France' } },
+          { value: 'London', filterContext: { country: 'UK' } },
+        ],
+      };
+      mountingOptions.props.entity = {
+        ...mountingOptions.props.entity,
+        country: 'France',
+      };
+      wrapper = shallowMount(EntityAttributeListField, mountingOptions);
+
+      expect(wrapper.vm.options.map((o) => o.value)).toEqual(['Paris', 'Lyon']);
+    });
+
+    it('should apply OR logic when filterContext accepts an array of values for a key', () => {
+      mountingOptions.props.definition.inputSettings = {
+        values: [
+          {
+            value: 'Valence',
+            filterContext: { country: ['France', 'Espagne'] },
+          },
+          { value: 'Paris', filterContext: { country: 'France' } },
+        ],
+      };
+      mountingOptions.props.entity = {
+        ...mountingOptions.props.entity,
+        country: 'Espagne',
+      };
+      wrapper = shallowMount(EntityAttributeListField, mountingOptions);
+
+      expect(wrapper.vm.options.map((o) => o.value)).toEqual(['Valence']);
+    });
+
+    it('should apply AND logic across multiple filterContext keys', () => {
+      mountingOptions.props.definition.inputSettings = {
+        values: [
+          {
+            value: 'Paris',
+            filterContext: { country: 'France', region: 'Ile-de-France' },
+          },
+          {
+            value: 'Lyon',
+            filterContext: {
+              country: 'France',
+              region: 'Auvergne-Rhône-Alpes',
+            },
+          },
+        ],
+      };
+      mountingOptions.props.entity = {
+        ...mountingOptions.props.entity,
+        country: 'France',
+        region: 'Ile-de-France',
+      };
+      wrapper = shallowMount(EntityAttributeListField, mountingOptions);
+
+      expect(wrapper.vm.options.map((o) => o.value)).toEqual(['Paris']);
+    });
+
+    it('should always include values with no filterContext', () => {
+      mountingOptions.props.definition.inputSettings = {
+        values: [
+          { value: 'All' },
+          { value: 'Paris', filterContext: { country: 'France' } },
+        ],
+      };
+      mountingOptions.props.entity = {
+        ...mountingOptions.props.entity,
+        country: 'UK',
+      };
+      wrapper = shallowMount(EntityAttributeListField, mountingOptions);
+
+      expect(wrapper.vm.options.map((o) => o.value)).toEqual(['All']);
+    });
+
+    it('should return empty array when no filterContext matches the current entity state', () => {
+      mountingOptions.props.definition.inputSettings = {
+        values: [{ value: 'Paris', filterContext: { country: 'France' } }],
+      };
+      mountingOptions.props.entity = {
+        ...mountingOptions.props.entity,
+        country: 'UK',
+      };
+      wrapper = shallowMount(EntityAttributeListField, mountingOptions);
+
+      expect(wrapper.vm.options).toEqual([]);
+    });
+
+    it('should include values when a filterContext entity field is null', () => {
+      mountingOptions.props.definition.inputSettings = {
+        values: [{ value: 'Paris', filterContext: { country: 'France' } }],
+      };
+      mountingOptions.props.entity = {
+        ...mountingOptions.props.entity,
+        country: null,
+      };
+      wrapper = shallowMount(EntityAttributeListField, mountingOptions);
+
+      expect(wrapper.vm.options.map((o) => o.value)).toEqual(['Paris']);
+    });
+
+    it('should update options reactively when a dependency field changes', async () => {
+      mountingOptions.props.definition.inputSettings = {
+        values: [
+          { value: 'Paris', filterContext: { country: 'France' } },
+          { value: 'London', filterContext: { country: 'UK' } },
+        ],
+      };
+      mountingOptions.props.entity = {
+        ...mountingOptions.props.entity,
+        country: 'France',
+      };
+      wrapper = shallowMount(EntityAttributeListField, mountingOptions);
+      expect(wrapper.vm.options.map((o) => o.value)).toEqual(['Paris']);
+
+      await wrapper.setProps({
+        entity: { ...mountingOptions.props.entity, country: 'UK' },
+      });
+
+      expect(wrapper.vm.options.map((o) => o.value)).toEqual(['London']);
+    });
+  });
+
+  describe('Test watch: options', () => {
+    it('should clear localValue and emit update:entity when selected value is no longer in options', async () => {
+      mountingOptions.props.definition.inputSettings = {
+        values: [
+          { value: 'Paris', filterContext: { country: 'France' } },
+          { value: 'London', filterContext: { country: 'UK' } },
+        ],
+      };
+      mountingOptions.props.entity = {
+        ...mountingOptions.props.entity,
+        country: 'France',
+        role: 'Paris',
+      };
+      wrapper = shallowMount(EntityAttributeListField, mountingOptions);
+      expect(wrapper.vm.localValue).toEqual('Paris');
+
+      await wrapper.setProps({
+        entity: {
+          ...mountingOptions.props.entity,
+          country: 'UK',
+          role: 'Paris',
+        },
+      });
+
+      expect(wrapper.vm.localValue).toBeNull();
+      expect(wrapper.emitted('update:entity')).toBeTruthy();
+      expect(wrapper.emitted('update:entity').at(-1)[0].role).toBeNull();
+    });
+
+    it('should not clear localValue when selected value remains in options', async () => {
+      mountingOptions.props.definition.inputSettings = {
+        values: [
+          {
+            value: 'Valence',
+            filterContext: { country: ['France', 'Espagne'] },
+          },
+        ],
+      };
+      mountingOptions.props.entity = {
+        ...mountingOptions.props.entity,
+        country: 'France',
+        role: 'Valence',
+      };
+      wrapper = shallowMount(EntityAttributeListField, mountingOptions);
+      const emitCountBefore = wrapper.emitted('update:entity')?.length ?? 0;
+
+      await wrapper.setProps({
+        entity: {
+          ...mountingOptions.props.entity,
+          country: 'Espagne',
+          role: 'Valence',
+        },
+      });
+
+      expect(wrapper.vm.localValue).toEqual('Valence');
+      expect(
+        (wrapper.emitted('update:entity')?.length ?? 0) - emitCountBefore
+      ).toEqual(0);
+    });
+
+    it('should not emit when localValue is already null', async () => {
+      mountingOptions.props.definition.inputSettings = {
+        values: [{ value: 'Paris', filterContext: { country: 'France' } }],
+      };
+      mountingOptions.props.entity = {
+        ...mountingOptions.props.entity,
+        country: 'France',
+      };
+      wrapper = shallowMount(EntityAttributeListField, mountingOptions);
+      expect(wrapper.vm.localValue).toBeNull();
+
+      await wrapper.setProps({
+        entity: { ...mountingOptions.props.entity, country: 'UK' },
+      });
+
+      expect(wrapper.vm.localValue).toBeNull();
+      expect(wrapper.emitted('update:entity')).toBeFalsy();
     });
   });
 
