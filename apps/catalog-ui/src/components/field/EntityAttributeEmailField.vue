@@ -82,7 +82,7 @@ const rules = computed(() =>
     ? useQuasarRules(
         props.instanceId,
         props.definition,
-        ['minLength', 'maxLength', 'pattern'],
+        ['minLength', 'maxLength', 'pattern', 'email'],
         localI18nScope
       )
     : []

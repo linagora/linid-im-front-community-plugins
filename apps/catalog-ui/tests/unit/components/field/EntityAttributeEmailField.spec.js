@@ -35,7 +35,7 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
     ui: mockUi,
   }),
   useScopedI18n: () => ({ translateOrDefault: vi.fn() }),
-  useQuasarRules: () => [vi.fn(), vi.fn(), vi.fn(), vi.fn(), vi.fn()],
+  useQuasarRules: () => [vi.fn(), vi.fn(), vi.fn(), vi.fn(), vi.fn(), vi.fn()],
 }));
 
 describe('Test component: EntityAttributeEmailField', () => {
@@ -137,7 +137,7 @@ describe('Test component: EntityAttributeEmailField', () => {
         },
       });
 
-      expect(wrapper.vm.rules.length).toEqual(5);
+      expect(wrapper.vm.rules.length).toEqual(6);
     });
 
     it('should return rules if ignoreRules is unset', async () => {
@@ -153,7 +153,7 @@ describe('Test component: EntityAttributeEmailField', () => {
         },
       });
 
-      expect(wrapper.vm.rules.length).toEqual(5);
+      expect(wrapper.vm.rules.length).toEqual(6);
     });
   });
 
