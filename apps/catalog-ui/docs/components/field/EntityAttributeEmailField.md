@@ -172,7 +172,7 @@ The component implements automatic validation based on the attribute's `inputSet
 Validation rules are generated automatically using `useQuasarRules`:
 
 ```ts
-const rules = computed(() => (!props.ignoreRules && !props.definition.inputSettings?.ignoreRules ? useQuasarRules(props.instanceId, props.definition, ['minLength', 'maxLength', 'pattern'], localI18nScope) : []));
+const rules = computed(() => (!props.ignoreRules && !props.definition.inputSettings?.ignoreRules ? useQuasarRules(props.instanceId, props.definition, ['minLength', 'maxLength', 'pattern', 'email'], localI18nScope) : []));
 ```
 
 ### Validation Execution Order
@@ -181,7 +181,8 @@ const rules = computed(() => (!props.ignoreRules && !props.definition.inputSetti
    - If `definition.required` is `true`, this validation is automatically added as the **first rule**
 
 2. **Specific validation rules** (in order)
-   - `minLength`, `maxLength`, `pattern` — in the order specified
+   - `minLength`, `maxLength`, `pattern`, `email` — in the order specified
+   - The `email` rule validates the format of the address at the framework level, independently of the browser's native validation
 
 3. **Backend API validations** (if applicable)
    - If `definition.hasValidations` is `true`, backend validation rules are appended last
@@ -194,13 +195,14 @@ const rules = computed(() => (!props.ignoreRules && !props.definition.inputSetti
 | `minLength`   | Minimum number of characters required                                                | `minLength: 5`                   |
 | `maxLength`   | Maximum number of characters allowed                                                 | `maxLength: 254`                 |
 | `pattern`     | Regular expression the value must match (e.g. domain restriction)                    | `pattern: '^.+@linagora\\.com$'` |
-| `ignoreRules` | Bypass validation when set to `true`                                                 | `ignoreRules: true`              |
+| `email`       | Validates that the value is a well-formed email address (framework-level rule)       | always active                    |
+| `ignoreRules` | Bypass all of the above when set to `true`                                           | `ignoreRules: true`              |
 
 ### Validation Behavior
 
 - If `ignoreRules` (prop) and `definition.inputSettings.ignoreRules` are both `false` or undefined, validation rules are applied
 - If `ignoreRules` (prop) or `definition.inputSettings.ignoreRules` is `true`, no validation is performed
-- The browser also applies native email format validation when `type="email"` is used; this is independent of `useQuasarRules`
+- The `email` rule provides a consistent framework-level error message; the browser's native `type="email"` validation is an additional independent layer
 - Validation messages are automatically translated using the instance's i18n scope
 
 ### Masking
