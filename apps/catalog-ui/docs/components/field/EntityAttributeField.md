@@ -4,7 +4,7 @@ The **EntityAttributeField** component is a dynamic field renderer responsible f
 attribute of an entity based on its definition.
 
 It acts as a **dispatcher component** that selects and loads the appropriate attribute field implementation
-(Boolean, Number, Text, List, Date, etc.) and propagates entity updates upward.
+(Boolean, Number, Text, TextArea, Date, List, DynamicList, Email, etc.) and propagates entity updates upward.
 
 ---
 
@@ -91,6 +91,7 @@ The component determines which field component to render based on
 | `List`        | `EntityAttributeListField`        |
 | `DynamicList` | `EntityAttributeDynamicListField` |
 | `TextArea`    | `EntityAttributeTextAreaField`    |
+| `Email`       | `EntityAttributeEmailField`       |
 
 Components are **lazy-loaded** using `defineAsyncComponent` to reduce initial
 bundle size.

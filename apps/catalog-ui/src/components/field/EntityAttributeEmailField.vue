@@ -26,63 +26,83 @@
 
 <template>
   <!-- v8 ignore start -->
-  <component
-    :is="field"
-    v-if="field"
-    class="entity-attribute-field"
-    :ui-namespace="`${uiNamespace}.EntityAttributeField`"
-    :instance-id="instanceId"
-    :i18n-scope="i18nScope"
-    :definition="definition"
-    :entity="entity"
-    :ignore-rules="ignoreRules"
-    @update:entity="updateEntity"
+  <q-input
+    v-model="localValue"
+    :data-cy="`field_${definition.name}`"
+    class="entity-attribute-email-field"
+    type="email"
+    v-bind="uiProps"
+    :disable="definition.inputSettings?.disable || false"
+    :multiple="definition.inputSettings?.multiple || false"
+    :label="translateOrDefault('', 'label')"
+    :hint="translateOrDefault('', 'hint')"
+    :prefix="translateOrDefault('', 'prefix')"
+    :suffix="translateOrDefault('', 'suffix')"
+    :rules="rules"
+    @update:model-value="updateValue"
   />
   <!-- v8 ignore stop -->
 </template>
 
 <script setup lang="ts">
-import type { Component } from 'vue';
-import { computed, defineAsyncComponent } from 'vue';
+import type { LinidQInputProps } from '@linagora/linid-im-front-corelib';
+import {
+  useQuasarRules,
+  useScopedI18n,
+  useUiDesign,
+} from '@linagora/linid-im-front-corelib';
+import { computed, ref, watch } from 'vue';
 import type {
   AttributeFieldProps,
   EntityAttributeFieldOutputs,
+  FieldEmailSettings,
 } from '../../types/field';
 
-const props = withDefaults(defineProps<AttributeFieldProps>(), {
-  ignoreRules: false,
-});
+const props = withDefaults(
+  defineProps<AttributeFieldProps<FieldEmailSettings>>(),
+  {
+    ignoreRules: false,
+  }
+);
 const emits = defineEmits<EntityAttributeFieldOutputs>();
+const localI18nScope = `${props.i18nScope}.fields.${props.definition.name}`;
 
-const fieldTypes: Record<string, Component> = {
-  Boolean: defineAsyncComponent(
-    () => import('./EntityAttributeBooleanField.vue')
-  ),
-  Number: defineAsyncComponent(
-    () => import('./EntityAttributeNumberField.vue')
-  ),
-  Text: defineAsyncComponent(() => import('./EntityAttributeTextField.vue')),
-  Date: defineAsyncComponent(() => import('./EntityAttributeDateField.vue')),
-  List: defineAsyncComponent(() => import('./EntityAttributeListField.vue')),
-  DynamicList: defineAsyncComponent(
-    () => import('./EntityAttributeDynamicListField.vue')
-  ),
-  TextArea: defineAsyncComponent(
-    () => import('./EntityAttributeTextAreaField.vue')
-  ),
-  Email: defineAsyncComponent(() => import('./EntityAttributeEmailField.vue')),
-};
+const { ui } = useUiDesign();
 
-const field = computed<Component | undefined>(
-  () => fieldTypes[props.definition.input]
+const localValue = ref(props.entity[props.definition.name] ?? null);
+
+const uiProps = ui<LinidQInputProps>(
+  `${props.uiNamespace}.${props.definition.name}`,
+  'q-input'
+);
+const { translateOrDefault } = useScopedI18n(localI18nScope);
+
+const rules = computed(() =>
+  !props.ignoreRules && !props.definition.inputSettings?.ignoreRules
+    ? useQuasarRules(
+        props.instanceId,
+        props.definition,
+        ['minLength', 'maxLength', 'pattern'],
+        localI18nScope
+      )
+    : []
+);
+
+watch(
+  () => props.entity[props.definition.name],
+  (newValue) => {
+    localValue.value = newValue ?? null;
+  }
 );
 
 /**
  * Emits an 'update:entity' event with the updated entity object when the toggle changes.
  * Updates the value of the attribute in the entity using the local reactive value.
- * @param entity - The updated entity object containing the new attribute values.
  */
-function updateEntity(entity: Record<string, unknown>) {
-  emits('update:entity', entity);
+function updateValue() {
+  emits('update:entity', {
+    ...props.entity,
+    [props.definition.name]: localValue.value,
+  });
 }
 </script>
