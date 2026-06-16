@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.32](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.31...v0.2.32) (2026-06-16)
+
+
+### Features
+
+* **catalog-ui:** add email attribute field ([dd87f4a](https://github.com/linagora/linid-im-front-community-plugins/commit/dd87f4ae2fbd06c689e31bc06997141ebf613f54))
+
 ### [0.2.31](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.30...v0.2.31) (2026-06-16)
 
 
