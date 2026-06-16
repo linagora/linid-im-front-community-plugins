@@ -122,6 +122,18 @@ export interface FieldTextSettings extends FieldSettings {
 export type FieldTextAreaSettings = FieldTextSettings;
 
 /**
+ * Settings for input email fields.
+ */
+export interface FieldEmailSettings extends FieldTextSettings {
+  /**
+   * Indicates whether the field allows multiple email addresses.
+   * When set to true, the input can accept a comma-separated list of email addresses.
+   * @default false
+   */
+  multiple?: boolean;
+}
+
+/**
  * Settings for input date fields.
  */
 export interface FieldDateSettings extends FieldSettings {

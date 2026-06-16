@@ -101,6 +101,10 @@ export default defineConfig({
           __dirname,
           'src/components/field/EntityAttributeTextAreaField.vue'
         ),
+        './EntityAttributeEmailField': resolve(
+          __dirname,
+          'src/components/field/EntityAttributeEmailField.vue'
+        ),
         './FormDialog': resolve(
           __dirname,
           'src/components/dialog/FormDialog.vue'
