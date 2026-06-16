@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.33](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.32...v0.2.33) (2026-06-16)
+
+
+### Features
+
+* **catalog-ui:** add default email validator for EntityAttributeEmailField ([4ab7f02](https://github.com/linagora/linid-im-front-community-plugins/commit/4ab7f026975fe5f7ebafa83dc6218a23eba1d128))
+
 ### [0.2.32](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.31...v0.2.32) (2026-06-16)
 
 
