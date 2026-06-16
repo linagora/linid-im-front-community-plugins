@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.30](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.29...v0.2.30) (2026-06-16)
+
+
+### Features
+
+* **catalog-ui:** support disabling fields via configuration ([7e9105e](https://github.com/linagora/linid-im-front-community-plugins/commit/7e9105ee1a97a0aee1db9f7d193e2766fcf23c5b))
+
 ### [0.2.29](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.28...v0.2.29) (2026-06-09)
 
 
