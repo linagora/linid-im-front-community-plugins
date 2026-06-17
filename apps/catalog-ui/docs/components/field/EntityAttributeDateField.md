@@ -60,11 +60,20 @@ export interface AttributeFieldProps<T = Record<string, unknown>> extends Common
 ```ts
 export interface FieldDateSettings extends FieldSettings {
   /**
-   * Date format mask to be used for displaying and parsing the date value.
-   * Can be a Nunjucks template string (e.g. "{{ t('dateFormat') }}")
-   * or a static mask (e.g. "YYYY-MM-DD").
+   * Static date format mask used for displaying and parsing the date value (e.g. "YYYY-MM-DD").
+   * Acts as the fallback used when `maskI18NKey` is absent or has no translation.
+   * @default QDATE_DEFAULT_MASK
    */
   mask?: string;
+
+  /**
+   * Internationalization key used to resolve a localized date format mask.
+   * Looked up against the **global** i18n instance (not scoped to
+   * `${i18nScope}.fields.${definition.name}` like `label`/`hint`/`prefix`/`suffix`),
+   * so this must be an absolute translation key (e.g. "date.format.fr").
+   * Falls back to `mask` (then to `QDATE_DEFAULT_MASK`) if missing or unresolved.
+   */
+  maskI18NKey?: string;
 
   /**
    * Constraint options for the date picker (see below).
@@ -121,17 +130,25 @@ The component uses `useScopedI18n` to resolve translations for multiple UI text 
 
 ### Date Mask
 
-The date format mask is a computed property resolved via Nunjucks rendering, allowing both static masks and i18n-based templates:
+The date format mask is resolved against the **global** i18n instance (`getI18nInstance().global.te`/`.t`), not the component's scoped i18n and not Nunjucks rendering:
 
 ```ts
 const mask = computed(() => {
-  const rawMask = props.definition.inputSettings?.mask;
-  if (!rawMask) return undefined;
-  return render<string>(rawMask, { t: (key) => getI18nInstance().global.t(key) });
+  const maskI18NKey = props.definition.inputSettings?.maskI18NKey;
+  if (getI18nInstance().global.te(maskI18NKey)) {
+    return globalT(maskI18NKey);
+  }
+  return props.definition.inputSettings?.mask || QDATE_DEFAULT_MASK;
 });
 ```
 
-This allows the mask to be defined as a static string (e.g. "YYYY-MM-DD") or as a template (e.g. "{{ t('dateFormat') }}"). If `mask` is not defined, Quasar's default mask is used (YYYY/MM/DD).
+Resolution order:
+
+1. If `inputSettings.maskI18NKey` is set and the **global** i18n instance has a translation for it (checked via `te`), the globally translated value is used — enabling locale-specific formats (e.g. `DD/MM/YYYY` for `fr`, `MM/DD/YYYY` for `en`). Because this check goes through the global instance rather than the component's scoped `useScopedI18n`, `maskI18NKey` must be an **absolute** translation key, not relative to `${i18nScope}.fields.${definition.name}`.
+2. Otherwise, falls back to the static `inputSettings.mask`
+3. If `inputSettings.mask` is also falsy (`undefined`, `null`, or `''`), falls back to the corelib's `QDATE_DEFAULT_MASK` constant (Quasar's default date format)
+
+> **Note:** the static mask fallback uses `||`, a falsy check — unlike a nullish (`??`) check, an empty string `mask: ''` is **also** replaced by `QDATE_DEFAULT_MASK`.
 
 ### Fallback Behavior
 
@@ -272,7 +289,8 @@ const definition = {
   hasValidations: true,
   inputSettings: {
     ignoreRules: false,
-    mask: "{{ t('dateFormat') }}",
+    mask: 'YYYY/MM/DD',
+    maskI18NKey: 'global.dateFormat', // absolute key, looked up against the global i18n instance
     options: {
       afterDate: '{{ entity.startDate }}',
       upToDate: '{{ today }}',
@@ -313,8 +331,9 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 
 - Verify initial input value matches the entity state
 - Assert `update:entity` emission on input changes
-- Mock `useScopedI18n` to control translation output
-- Mock `getI18nInstance` to control mask key resolution
+- Mock `useScopedI18n` to control translation output for `label`/`hint`/`prefix`/`suffix`/`close`
+- Mock `getI18nInstance().global.te`/`.t` to control mask resolution: the `maskI18NKey` lookup and its translated value, independently of the `mask`/`QDATE_DEFAULT_MASK` fallback chain
+- Mock `getI18nInstance` to control the `today`/`entity` context translations used in `renderedDefinition`
 - Shallow mount the component to isolate logic from UI rendering
 - Verify that `localValue` is updated when `entity[definition.name]` changes
 - Verify that `localValue` is **not** overwritten when only other entity attributes change (e.g. mutate `name` while keeping the date attribute value identical)
@@ -326,8 +345,8 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 ## **📌 Notes**
 
 - The component assumes `definition.input === 'Date'`
-- Uses `FieldDateSettings` for `inputSettings`, which supports `mask`, `options`, `ignoreRules`, and `disable`
-- The date format mask is a Nunjucks-rendered string from `inputSettings.mask`; if absent or falsy, `mask` returns `undefined` and Quasar's default format (YYYY/MM/DD) is used
+- Uses `FieldDateSettings` for `inputSettings`, which supports `mask`, `maskI18NKey`, `options`, `ignoreRules`, and `disable`
+- The date format mask is resolved via the **global** i18n instance, not the component's scoped i18n: `inputSettings.maskI18NKey` is checked against it first (as an **absolute** key) and translated via global `t` if found; otherwise falls back to the static `inputSettings.mask`, and finally to the corelib's `QDATE_DEFAULT_MASK` constant if `mask` is also falsy (`undefined`, `null`, or `''`)
 - Validation is handled internally using `useQuasarFieldValidation` with support for `required`, date constraints, and API-backed validation (`validateFromApi` when `hasValidations` is `true`)
 - The field is rendered as non-interactive when `definition.inputSettings.disable` is `true`
 - Missing translations safely fall back to default values

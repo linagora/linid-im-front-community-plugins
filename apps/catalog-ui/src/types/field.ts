@@ -139,11 +139,15 @@ export interface FieldEmailSettings extends FieldTextSettings {
 export interface FieldDateSettings extends FieldSettings {
   /**
    * Date format to be used for displaying and parsing the date value.
-   * The mask can be a string representing the date format (e.g., "YYYY-MM-DD")
-   * or a Nunjucks template string that will be rendered with the i18n key associated to
-   * the localized date format in context.
    */
   mask?: string;
+
+  /**
+   * Internationalization key for the date format mask.
+   * If provided, it will be used to retrieve the localized date format from the translation files.
+   * This allows the date format to adapt to different locales.
+   */
+  maskI18NKey?: string;
 
   /**
    * Constraint applied to the date picker to restrict selectable dates.
