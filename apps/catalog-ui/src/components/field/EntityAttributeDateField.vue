@@ -84,6 +84,7 @@ import type {
 } from '@linagora/linid-im-front-corelib';
 import {
   getI18nInstance,
+  QDATE_DEFAULT_MASK,
   useDayjs,
   useNunjucks,
   useQuasarDate,
@@ -124,6 +125,7 @@ const {
   upToDate,
   validateFromApi,
 } = useQuasarFieldValidation(localI18nScope);
+const globalT = getI18nInstance().global.t;
 
 const localValue = ref(props.entity[props.definition.name] ?? null);
 
@@ -154,20 +156,17 @@ watch(
 );
 
 const mask = computed(() => {
-  const rawMask = props.definition.inputSettings?.mask;
-  if (!rawMask) {
-    return undefined;
+  const maskI18NKey = props.definition.inputSettings?.maskI18NKey;
+  if (getI18nInstance().global.te(maskI18NKey)) {
+    return globalT(maskI18NKey);
   }
-
-  return render<string>(rawMask, {
-    t: (key: string) => getI18nInstance().global.t(key),
-  });
+  return props.definition.inputSettings?.mask || QDATE_DEFAULT_MASK;
 });
 
 const renderedDefinition = computed(() => {
   const context = {
     entity: props.entity,
-    t: (key: string) => getI18nInstance().global.t(key),
+    t: (key: string) => globalT(key),
     today: formatQDate(new Date(), mask.value),
   };
 
