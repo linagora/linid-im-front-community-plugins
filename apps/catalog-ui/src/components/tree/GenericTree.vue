@@ -38,7 +38,7 @@
     />
 
     <q-tree
-      v-model:selected="selected"
+      v-model:selected="selectedNode"
       class="tree"
       :nodes="quasarNodes"
       node-key="key"
@@ -53,7 +53,16 @@
       <template #default-header="prop">
         <div
           :class="`row items-center full-width tree-header-type-${prop.node.type} tree-header-key-${prop.node.key}`"
+          @click.stop="toggleNodeSelection(prop.node.key)"
         >
+          <q-checkbox
+            v-if="props.tickeable"
+            :model-value="tickedNodes.includes(prop.node.key)"
+            v-bind="uiProps.types[prop.node.type]?.checkbox"
+            class="tree-header-checkbox"
+            :data-cy="`generic-tree-checkbox-${prop.node.key}`"
+            @click="toggleNodeSelection(prop.node.key)"
+          />
           <q-icon
             v-if="uiProps.types[prop.node.type]?.icon?.name"
             v-bind="uiProps.types[prop.node.type].icon"
@@ -110,6 +119,7 @@
 <script setup lang="ts">
 import type {
   LinidQBtnProps,
+  LinidQCheckboxProps,
   LinidQIconProps,
   LinidQInputProps,
   LinidQTreeProps,
@@ -131,12 +141,30 @@ import type {
 
 const props = defineProps<TreeProps<unknown>>();
 const filter = ref<string>('');
+const tickedNodes = ref<string[]>([]);
 
 const emit = defineEmits<TreeOutputs<unknown>>();
 
 const { ui } = useUiDesign();
 const { t } = useScopedI18n(`${props.i18nScope}.GenericTree`);
 const { toQTreeNodes } = useTree();
+
+/**
+ * Toggles the selection state of a node.
+ * @param nodeKey The key of the node to toggle.
+ */
+function toggleNodeSelection(nodeKey: string): void {
+  if (!props.tickeable) {
+    return;
+  }
+  const index = tickedNodes.value.indexOf(nodeKey);
+  if (index > -1) {
+    tickedNodes.value.splice(index, 1);
+  } else {
+    tickedNodes.value.push(nodeKey);
+  }
+  emit('update:ticked', [...tickedNodes.value]);
+}
 
 const quasarNodes = computed(() => toQTreeNodes(props.nodes));
 const nodeTypesMap = computed(
@@ -146,7 +174,7 @@ const nodeTypesMap = computed(
 const resolvedActionsByNode: Ref<Record<string, string[]>> = ref({});
 const resolvedActionsByType: Ref<Record<string, string[]>> = ref({});
 const treeNodeRecord: Ref<Record<string, TreeNode<unknown>>> = ref({});
-const selected = ref<string>(props.selectedNode);
+const selectedNode = ref<string>(props.selected);
 
 /**
  * Recursively builds indexes for quick lookup of actions by node key and type.
@@ -191,15 +219,29 @@ watchEffect(() => {
   buildIndexes(props.nodes);
 });
 
-watch(selected, (key: string) => {
-  emit('update:selectedNode', key);
+watch(selectedNode, (key: string) => {
+  emit('update:selected', key);
 });
 
 watch(
-  () => props.selectedNode,
+  () => props.selected,
   (key: string) => {
-    selected.value = key;
+    selectedNode.value = key;
   }
+);
+
+watch(
+  () => props.ticked,
+  (newTicked: string[] | undefined) => {
+    if (!newTicked || newTicked.length === 0) {
+      tickedNodes.value = [];
+      return;
+    }
+
+    const nodeKeys = Object.keys(treeNodeRecord.value);
+    tickedNodes.value = newTicked.filter((str) => nodeKeys.includes(str));
+  },
+  { immediate: true }
 );
 
 const uiProps = computed(() => ({
@@ -215,6 +257,10 @@ const uiProps = computed(() => ({
   types: Object.entries(resolvedActionsByType.value).reduce<UiPropsTypes>(
     (acc, [type, actions]) => {
       acc[type] = {
+        checkbox: ui<LinidQCheckboxProps>(
+          `${props.uiNamespace}.GenericTree.types.${type}`,
+          'q-checkbox'
+        ),
         icon: ui<LinidQIconProps>(
           `${props.uiNamespace}.GenericTree.types.${type}`,
           'q-icon'

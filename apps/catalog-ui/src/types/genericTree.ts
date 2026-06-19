@@ -25,6 +25,7 @@
  */
 
 import type {
+  LinidQCheckboxProps,
   LinidQIconProps,
   TreeNode,
   TreeNodeType,
@@ -46,15 +47,26 @@ export interface TreeProps<T> extends CommonComponentProps {
   /**
    * The key of the selected node (v-model).
    */
-  selectedNode: string;
+  selected: string;
   /**
    * Indicates whether the search functionality is enabled.
    */
-  searchEnabled: boolean;
+  searchEnabled?: boolean;
   /**
    * Defines how to filter tree nodes based on the provided filter string.
    */
   filterMethod?: (node: TreeNode<T>, filter: string) => boolean;
+  /**
+   * Enables checkbox selection mode for the tree.
+   * When true, each node displays a checkbox for selection.
+   */
+  tickeable?: boolean;
+  /**
+   * Array of ticked node keys (v-model:ticked).
+   * Only used when tickeable is true.
+   * Controlled via v-model:ticked pattern.
+   */
+  ticked?: string[];
 }
 
 /**
@@ -71,6 +83,10 @@ export type UiPropsTypes = Record<
      * The UI properties for the action icon.
      */
     actions: UiPropsAction;
+    /**
+     * The UI properties for the checkbox.
+     */
+    checkbox: LinidQCheckboxProps;
   }
 >;
 
@@ -91,6 +107,7 @@ export type UiPropsAction = Record<
  * Defines the events emitted by the GenericTree component.
  */
 export type TreeOutputs<T> = {
-  (e: 'update:selectedNode', key: string): void;
+  (e: 'update:selected', key: string): void;
   (e: `click:${string}`, node: TreeNode<T>): void;
+  (e: 'update:ticked', keys: string[]): void;
 };

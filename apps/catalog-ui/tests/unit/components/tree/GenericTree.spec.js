@@ -57,7 +57,9 @@ const defaultProps = {
   i18nScope: 'myScope',
   nodes: [folderNode('folder-1', [fileNode('file-1')])],
   nodeTypes: [],
-  selectedNode: '',
+  selected: '',
+  ticked: [],
+  tickeable: false,
   searchEnabled: false,
   filterMethod: vi.fn(() => true),
 };
@@ -200,6 +202,52 @@ describe('Test component: GenericTree', () => {
 
       expect(wrapper.vm.resolvedActionsByType['file']).toEqual(['download']);
     });
+
+    it('should correctly accumulate actions for deeply nested structures', async () => {
+      await wrapper.setProps({
+        nodes: [
+          folderNode(
+            'root',
+            [
+              fileNode('file-1', ['download']),
+              folderNode(
+                'folder-2',
+                [fileNode('file-2', ['download', 'preview'])],
+                ['delete']
+              ),
+            ],
+            ['share']
+          ),
+        ],
+        nodeTypes: [
+          { type: 'file', actions: ['open'] },
+          { type: 'folder', actions: ['rename'] },
+        ],
+      });
+
+      // Check that all actions are properly indexed
+      const fileActions = wrapper.vm.resolvedActionsByType['file'];
+      const folderActions = wrapper.vm.resolvedActionsByType['folder'];
+
+      expect(fileActions).toEqual(
+        expect.arrayContaining(['open', 'download', 'preview'])
+      );
+      expect(folderActions).toEqual(
+        expect.arrayContaining(['rename', 'delete', 'share'])
+      );
+    });
+
+    it('should properly index node-specific actions', async () => {
+      await wrapper.setProps({
+        nodes: [
+          folderNode('folder-1', [fileNode('file-1', ['archive', 'export'])]),
+        ],
+      });
+
+      expect(wrapper.vm.resolvedActionsByNode['file-1']).toEqual(
+        expect.arrayContaining(['archive', 'export'])
+      );
+    });
   });
 
   describe('Test function: buildIndexes (treeNodeRecord)', () => {
@@ -232,6 +280,184 @@ describe('Test component: GenericTree', () => {
       await wrapper.setProps({ nodes: [] });
 
       expect(wrapper.vm.treeNodeRecord).toEqual({});
+    });
+  });
+
+  describe('Test function: toggleNodeSelection', () => {
+    let selectableWrapper;
+
+    beforeEach(() => {
+      selectableWrapper = mountComponent({ tickeable: true });
+    });
+
+    it('should add a node to tickedNodes when not already selected', () => {
+      selectableWrapper.vm.toggleNodeSelection('folder-1');
+
+      expect(selectableWrapper.vm.tickedNodes).toContain('folder-1');
+    });
+
+    it('should remove a node from tickedNodes when already selected', () => {
+      selectableWrapper.vm.toggleNodeSelection('folder-1');
+      selectableWrapper.vm.toggleNodeSelection('folder-1');
+
+      expect(selectableWrapper.vm.tickedNodes).not.toContain('folder-1');
+    });
+
+    it('should handle multiple node selections', () => {
+      selectableWrapper.vm.toggleNodeSelection('folder-1');
+      selectableWrapper.vm.toggleNodeSelection('file-1');
+
+      expect(selectableWrapper.vm.tickedNodes).toContain('folder-1');
+      expect(selectableWrapper.vm.tickedNodes).toContain('file-1');
+      expect(selectableWrapper.vm.tickedNodes).toHaveLength(2);
+    });
+
+    it('should maintain other selections when toggling a new node', () => {
+      selectableWrapper.vm.toggleNodeSelection('folder-1');
+      selectableWrapper.vm.toggleNodeSelection('file-1');
+      selectableWrapper.vm.toggleNodeSelection('file-1');
+
+      expect(selectableWrapper.vm.tickedNodes).toEqual(['folder-1']);
+    });
+
+    it('should not toggle when tickeable is false', () => {
+      const nonSelectableWrapper = mountComponent({ tickeable: false });
+      nonSelectableWrapper.vm.toggleNodeSelection('folder-1');
+
+      expect(nonSelectableWrapper.vm.tickedNodes).not.toContain('folder-1');
+    });
+
+    it('should emit update:ticked even for a single node toggle', () => {
+      selectableWrapper.vm.toggleNodeSelection('folder-1');
+
+      const emitted = selectableWrapper.emitted('update:ticked');
+      expect(emitted).toBeTruthy();
+      expect(emitted.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Test watch: props.ticked', () => {
+    it('should update tickedNodes when props.ticked is provided', async () => {
+      await wrapper.setProps({
+        ticked: ['folder-1', 'file-1'],
+      });
+
+      expect(wrapper.vm.tickedNodes).toEqual(
+        expect.arrayContaining(['folder-1', 'file-1'])
+      );
+    });
+
+    it('should clear tickedNodes when props.ticked is empty', async () => {
+      await wrapper.setProps({
+        ticked: ['folder-1'],
+      });
+      expect(wrapper.vm.tickedNodes).toContain('folder-1');
+
+      await wrapper.setProps({
+        ticked: [],
+      });
+      expect(wrapper.vm.tickedNodes).toEqual([]);
+    });
+
+    it('should filter out invalid keys that do not exist in the tree', async () => {
+      await wrapper.setProps({
+        ticked: ['folder-1', 'invalid-key', 'file-1'],
+      });
+
+      expect(wrapper.vm.tickedNodes).toContain('folder-1');
+      expect(wrapper.vm.tickedNodes).toContain('file-1');
+      expect(wrapper.vm.tickedNodes).not.toContain('invalid-key');
+    });
+
+    it('should handle undefined props.ticked', async () => {
+      await wrapper.setProps({
+        ticked: undefined,
+      });
+
+      expect(wrapper.vm.tickedNodes).toEqual([]);
+    });
+
+    it('should only include keys from the current tree structure', async () => {
+      await wrapper.setProps({
+        ticked: ['folder-1', 'file-1'],
+      });
+      expect(wrapper.vm.tickedNodes).toHaveLength(2);
+
+      // Change the tree structure to remove one node
+      await wrapper.setProps({
+        nodes: [folderNode('folder-1', [])],
+        ticked: ['folder-1', 'file-1'],
+      });
+
+      expect(wrapper.vm.tickedNodes).not.toContain('file-1');
+      expect(wrapper.vm.tickedNodes).toContain('folder-1');
+    });
+  });
+
+  describe('Test watch: props.selected', () => {
+    it('should update the internal selected state when props.selected changes', async () => {
+      await wrapper.setProps({
+        selected: 'folder-1',
+      });
+
+      // The internal selected should be updated
+      expect(wrapper.vm.selected).toBe('folder-1');
+    });
+
+    it('should emit update:selected when selected changes internally', async () => {
+      const selectableWrapper = mountComponent({
+        tickeable: true,
+        selected: 'folder-1',
+      });
+
+      await selectableWrapper.vm.$nextTick();
+
+      // Change the selected node to trigger the emit
+      selectableWrapper.vm.selectedNode = 'file-1';
+      await selectableWrapper.vm.$nextTick();
+
+      const emitted = selectableWrapper.emitted('update:selected');
+      expect(emitted).toBeTruthy();
+      expect(emitted[0][0]).toBe('file-1');
+    });
+
+    it('should update to a different node', async () => {
+      await wrapper.setProps({
+        selected: 'folder-1',
+      });
+      expect(wrapper.vm.selected).toBe('folder-1');
+
+      await wrapper.setProps({
+        selected: 'file-1',
+      });
+      expect(wrapper.vm.selected).toBe('file-1');
+    });
+  });
+
+  describe('Test integration: selected and ticked interaction', () => {
+    it('should maintain independent state for selected and ticked', async () => {
+      const selectableWrapper = mountComponent({
+        tickeable: true,
+        selected: 'folder-1',
+        ticked: ['file-1'],
+      });
+
+      await selectableWrapper.vm.$nextTick();
+
+      expect(selectableWrapper.vm.selected).toBe('folder-1');
+      expect(selectableWrapper.vm.tickedNodes).toContain('file-1');
+    });
+
+    it('should handle changes to both selected and ticked simultaneously', async () => {
+      await wrapper.setProps({
+        selected: 'folder-1',
+        ticked: ['folder-1', 'file-1'],
+      });
+
+      expect(wrapper.vm.selected).toBe('folder-1');
+      expect(wrapper.vm.tickedNodes).toEqual(
+        expect.arrayContaining(['folder-1', 'file-1'])
+      );
     });
   });
 });

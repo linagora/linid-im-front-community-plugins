@@ -24,23 +24,26 @@ It renders a hierarchical tree from provided nodes, with per-type icon support, 
 | `nodeTypes`     | `TreeNodeType[]`                               | Yes      | -       | Node type definitions with associated actions                              |
 | `uiNamespace`   | `string`                                       | Yes      | -       | UI design namespace for custom styling                                     |
 | `i18nScope`     | `string`                                       | Yes      | -       | i18n scope for translations                                                |
-| `selectedNode`  | `string`                                       | Yes      | -       | The key of the selected node (v-model).                                    |
-| `searchEnabled` | `boolean`                                      | Yes      | -       | Displays the built-in filter input field when `true`.                      |
-| `filterMethod`  | `(node: QTreeNode, filter: string) => boolean` | Yes      | -       | Custom filter function applied to the tree when `searchEnabled` is `true`. |
+| `selected`      | `string`                                       | Yes      | -       | The key of the selected node (v-model).                                    |
+| `searchEnabled` | `boolean`                                      | No       | -       | Displays the built-in filter input field when `true`.                      |
+| `filterMethod`  | `(node: QTreeNode, filter: string) => boolean` | No       | -       | Custom filter function applied to the tree when `searchEnabled` is `true`. |
+| `tickeable`     | `boolean`                                      | No       | -       | Enables checkbox selection mode for multi-node selection.                  |
+| `ticked`        | `string[]`                                     | No       | -       | Array of selected node keys for checkbox mode (v-model:ticked).            |
 
 ---
 
 ## **Events**
 
-| Event                 | Payload     | Description                                                                                                                         |
-| --------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `update:selectedNode` | `string`    | Emitted when the selected node changes. Used for `v-model:selectedNode` two-way binding.                                            |
-| `click:{action}`      | `QTreeNode` | Emitted when the user clicks on an action in the context menu. `{action}` is the action name (e.g. `click:delete`, `click:rename`). |
+| Event             | Payload     | Description                                                                                                                         |
+| ----------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `update:selected` | `string`    | Emitted when the selected node changes. Used for `v-model:selected` two-way binding.                                                |
+| `update:ticked`   | `string[]`  | Emitted when checkbox selection changes. Used for `v-model:ticked`.                                                                 |
+| `click:{action}`  | `QTreeNode` | Emitted when the user clicks on an action in the context menu. `{action}` is the action name (e.g. `click:delete`, `click:rename`). |
 
 Example:
 
 ```vue
-<GenericTree v-model:selected-node="currentNodeKey" @click:delete="handleDelete" @click:rename="handleRename" />
+<GenericTree v-model:selected="currentNodeKey" @click:delete="handleDelete" @click:rename="handleRename" />
 ```
 
 ```typescript
@@ -55,6 +58,89 @@ function handleRename(node: QTreeNode) {
 
 ---
 
+## **Checkbox Selection Mode**
+
+### Overview
+
+When `tickeable` is set to `true`, the component enables a checkbox-based multi-node selection system.
+
+### How it works
+
+- **Checkboxes:** Each tree node displays a checkbox when `tickeable` is enabled.
+- **Node click:** Clicking anywhere on a node (label, icon, or row) toggles the checkbox state.
+- **Controlled component:** The `ticked` prop controls the checked state and must follow Vue's v-model pattern.
+- **Events:** The `update:ticked` event emits the updated array of selected node keys.
+
+### Props for tickeable mode
+
+```typescript
+// Enable tickeable mode
+:tickeable = "true"
+
+// Control ticked nodes (v-model:ticked)
+v-model:ticked = "tickedNodeKeys"
+```
+
+### Example: Basic Selectable Tree
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue';
+import type { TreeNode, TreeNodeType } from '@linagora/linid-im-front-corelib';
+
+const tickedNodes = ref<string[]>([]);
+
+const nodes: TreeNode<{ name: string }>[] = [
+  {
+    type: 'folder',
+    key: 'folder-1',
+    value: { name: 'Documents' },
+    nodes: [
+      {
+        type: 'file',
+        key: 'file-1',
+        value: { name: 'Report.pdf' },
+        nodes: [],
+      },
+    ],
+  },
+];
+
+const nodeTypes: TreeNodeType[] = [
+  { type: 'folder', actions: [] },
+  { type: 'file', actions: [] },
+];
+</script>
+
+<template>
+  <GenericTree
+    v-model:ticked="tickedNodes"
+    :nodes="nodes"
+    :node-types="nodeTypes"
+    :tickeable="true"
+    ui-namespace="FilterPanel"
+    i18n-scope="FilterPanel"
+  />
+
+  <div>{{ tickedNodes }}</div>
+</template>
+```
+
+### Interaction Rules
+
+1. **Checkbox click:** Clicking the checkbox toggles selection.
+2. **Node row click:** Clicking anywhere else on the node row also toggles selection.
+3. **No implicit selection:** Only the clicked node's state changes; parent/child nodes are not automatically selected or deselected.
+4. **Controlled updates:** The parent component controls all ticked state via the `ticked` prop and receives updates via `update:ticked` event.
+
+### Styling Notes
+
+- Checkboxes appear in the left padding of each node when `tickeable` is true.
+- When `tickeable` is false, the tree renders without checkboxes and maintains its default appearance.
+- Checkbox styling follows Quasar's `QCheckbox` defaults unless customized via the UI namespace.
+
+---
+
 ## **Node Selection Behavior**
 
 ### Non-null constraint
@@ -65,13 +151,13 @@ The component enforces that a node is **always** selected:
 
 ### Two-way binding
 
-Use `v-model:selectedNode` to keep the parent in sync with the currently selected node:
+Use `v-model:selected` to keep the parent in sync with the currently selected node:
 
 ```vue
-<GenericTree v-model:selected-node="currentNodeKey" :nodes="nodes" ... />
+<GenericTree v-model:selected="currentNodeKey" :nodes="nodes" ... />
 ```
 
-When the user clicks a node in the tree, the component emits `update:selectedNode` with the corresponding key.
+When the user clicks a node in the tree, the component emits `update:selected` with the corresponding key.
 
 ---
 
@@ -201,6 +287,8 @@ Example:
 
 ## **Usage Example**
 
+### Standard Mode (Single Node Selection)
+
 ```vue
 <script setup lang="ts">
 import { loadAsyncComponent } from '@linagora/linid-im-front-corelib';
@@ -256,7 +344,7 @@ remoteComponent.value = loadAsyncComponent('catalogUI/GenericTree');
   <component
     :is="remoteComponent"
     v-if="remoteComponent"
-    v-model:selected-node="selectedNode"
+    v-model:selected="selectedNode"
     ui-namespace="Homepage"
     i18n-scope="Homepage"
     :nodes="nodes"
@@ -266,6 +354,81 @@ remoteComponent.value = loadAsyncComponent('catalogUI/GenericTree');
     @click:rename="handleRename"
     @click:share="handleShare"
   />
+</template>
+```
+
+### Selectable Mode (Multi-Node Selection)
+
+```vue
+<script setup lang="ts">
+import { loadAsyncComponent } from '@linagora/linid-im-front-corelib';
+import { ref, type Component } from 'vue';
+import type { TreeNode, TreeNodeType } from '@linagora/linid-im-front-corelib';
+
+const remoteComponent = ref<Component | null>(null);
+
+type NodeValue = { name: string };
+
+const nodes: TreeNode<NodeValue>[] = [
+  {
+    type: 'department',
+    key: 'eng',
+    value: { name: 'Engineering' },
+    nodes: [
+      {
+        type: 'team',
+        key: 'eng-backend',
+        value: { name: 'Backend' },
+        nodes: [],
+      },
+      {
+        type: 'team',
+        key: 'eng-frontend',
+        value: { name: 'Frontend' },
+        nodes: [],
+      },
+    ],
+  },
+  {
+    type: 'department',
+    key: 'sales',
+    value: { name: 'Sales' },
+    nodes: [
+      {
+        type: 'team',
+        key: 'sales-emea',
+        value: { name: 'EMEA' },
+        nodes: [],
+      },
+    ],
+  },
+];
+
+const nodeTypes: TreeNodeType[] = [
+  { type: 'department', actions: [] },
+  { type: 'team', actions: [] },
+];
+
+const tickedNodes = ref<string[]>([]);
+
+remoteComponent.value = loadAsyncComponent('catalogUI/GenericTree');
+</script>
+
+<template>
+  <div class="filter-container">
+    <component
+      :is="remoteComponent"
+      v-if="remoteComponent"
+      v-model:ticked="tickedNodes"
+      ui-namespace="FilterPanel"
+      i18n-scope="FilterPanel"
+      :nodes="nodes"
+      :node-types="nodeTypes"
+      :tickeable="true"
+    />
+
+    <div>Selected: {{ tickedNodes }}</div>
+  </div>
 </template>
 ```
 
