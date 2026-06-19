@@ -50,6 +50,22 @@ See: [`LICENSE.md`](../../LICENSE.md) for details.
 
 ---
 
+## **Default Module Implementations**
+
+Some modules require no custom behavior for specific concerns such as lifecycle hooks, routing, or internationalization.
+For these cases, `catalogUI` provides default no-op implementations that satisfy the Module Federation contract while performing no additional logic.
+
+These implementations are intended to simplify module configuration when no customization is needed.
+
+- 💤 **EmptyLifecycle** — Default lifecycle implementation that performs no operations during module lifecycle phases (init, postInit, destroy, etc.)
+  → Exposed as: `catalogUI/EmptyLifecycle`
+
+- 🧭 **EmptyRoutes** — Default route configuration that exposes no routes
+  → Exposed as: `catalogUI/EmptyRoutes`
+
+- 🌐 **EmptyI18n** — Default i18n configuration with no translations
+  → Exposed as: `catalogUI/EmptyI18n`
+
 ## **📚 Components**
 
 The library organizes components by category. For each component, documentation is provided in a dedicated Markdown file inside `apps/catalogUI/docs/`.
