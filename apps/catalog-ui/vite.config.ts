@@ -115,6 +115,14 @@ export default defineConfig({
           'src/federation/empty-lifecycle.ts'
         ),
         './EmptyI18n': resolve(__dirname, 'src/federation/empty-i18n.ts'),
+        './PageRoutes': resolve(
+          __dirname,
+          'src/federation/module-page-route.ts'
+        ),
+        './PageLifecycle': resolve(
+          __dirname,
+          'src/federation/module-page-lifecycle.ts'
+        ),
       },
       shared: {
         vue: {

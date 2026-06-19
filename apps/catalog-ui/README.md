@@ -50,7 +50,11 @@ See: [`LICENSE.md`](../../LICENSE.md) for details.
 
 ---
 
-## **Default Module Implementations**
+## **🧩 Module**
+
+This section groups the default Module Federation implementations provided by `catalogUI`.
+
+### **Default Module Implementations**
 
 Some modules require no custom behavior for specific concerns such as lifecycle hooks, routing, or internationalization.
 For these cases, `catalogUI` provides default no-op implementations that satisfy the Module Federation contract while performing no additional logic.
@@ -65,6 +69,20 @@ These implementations are intended to simplify module configuration when no cust
 
 - 🌐 **EmptyI18n** — Default i18n configuration with no translations
   → Exposed as: `catalogUI/EmptyI18n`
+
+### **Generic Page Modules**
+
+`catalogUI` also provides generic page module building blocks used to structure page-based federated modules.
+
+These modules define the standard federation contracts for page routing and lifecycle management.
+
+- 📄 **PageRoutes** — Generic page route federation module
+  → Exposed as: `catalogUI/PageRoutes`
+
+- ⚙️ **PageLifecycle** — Generic page lifecycle federation module
+  → Exposed as: `catalogUI/PageLifecycle`
+
+> Detailed documentation for these modules is available in the dedicated [module page documentation](/docs/modules/GenericPageModule.md).
 
 ## **📚 Components**
 
