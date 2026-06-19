@@ -109,6 +109,12 @@ export default defineConfig({
           __dirname,
           'src/components/dialog/FormDialog.vue'
         ),
+        './EmptyRoutes': resolve(__dirname, 'src/federation/empty-route.ts'),
+        './EmptyLifecycle': resolve(
+          __dirname,
+          'src/federation/empty-lifecycle.ts'
+        ),
+        './EmptyI18n': resolve(__dirname, 'src/federation/empty-i18n.ts'),
       },
       shared: {
         vue: {
