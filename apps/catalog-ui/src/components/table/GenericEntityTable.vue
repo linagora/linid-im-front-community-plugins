@@ -31,6 +31,7 @@
     :rows="rows"
     :row-key="props.rowKey"
     :rows-per-page-label="translateOrDefault('', 'rowsPerPage')"
+    :no-data-label="t('noData')"
     :pagination-label="
       (firstRowIndex, endRowIndex, totalRowsNumber) =>
         translateOrDefault('', 'paginationLabel', {
@@ -64,7 +65,7 @@ import type { GenericEntityTableProps } from '../../types/genericEntityTable';
 const props = withDefaults(defineProps<GenericEntityTableProps>(), {
   rowKey: 'id',
 });
-const { translateOrDefault } = useScopedI18n(
+const { t, translateOrDefault } = useScopedI18n(
   `${props.i18nScope}.GenericEntityTable`
 );
 

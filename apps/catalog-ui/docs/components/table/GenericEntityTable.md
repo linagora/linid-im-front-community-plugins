@@ -182,12 +182,14 @@ The component uses scoped i18n with the following translation keys:
 | ------------------------------------------------ | ------------------------------------ | ---------------------------------- | ---------------------- |
 | `{i18nScope}.GenericEntityTable.rowsPerPage`     | Label for the rows per page selector | Bottom of table pagination control | -                      |
 | `{i18nScope}.GenericEntityTable.paginationLabel` | Label for the pagination display     | Bottom of table pagination info    | {start}, {end},{total} |
+| `{i18nScope}.GenericEntityTable.noData`          | Label for no data                    | Body of table without data         | -                      |
 
 Example:
 
 ```json
 {
   "${instanceId}.GenericEntityTable": {
+    "noData": "No data available",
     "rowsPerPage": "Lignes par page",
     "paginationLabel": "{start}-{end} sur {total}"
   }
