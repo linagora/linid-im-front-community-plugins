@@ -82,7 +82,18 @@ These modules define the standard federation contracts for page routing and life
 - ⚙️ **PageLifecycle** — Generic page lifecycle federation module
   → Exposed as: `catalogUI/PageLifecycle`
 
-> Detailed documentation for these modules is available in the dedicated [module page documentation](/docs/modules/GenericPageModule.md).
+> Detailed documentation for these modules is available in the dedicated [module page documentation](./docs/modules/GenericPageModule.md).
+
+### **Generic Page Components**
+
+`catalogUI` also provides generic page components used to build reusable page structures in Module Federation applications.
+
+These components are intended to be combined with page modules to accelerate development of standard UI patterns.
+
+- 📊 **GenericTablePage** — Generic table-based page component for displaying and managing tabular data
+  → Exposed as: `catalogUI/GenericTablePage`
+
+> Detailed documentation is available in the dedicated [generic table page documentation](./docs/pages/GenericTablePage.md).
 
 ## **📚 Components**
 
