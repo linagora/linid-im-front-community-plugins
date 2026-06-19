@@ -530,6 +530,33 @@ or for a specific form dialog instance:
 
 ---
 
+### Generic table page
+
+Page that contain table.
+
+**Namespace:** `{uiNamespace}`
+
+```json
+{
+  "[NAMESPACE]": {
+    "generic-entity-table": {
+      "q-table": { "dense": true, "bordered": true, "flat": true }
+    },
+    "see-button": {
+      "q-btn": { "color": "negative", "outline": true }
+    },
+    "buttons-card": {
+      "q-card": { "flat": true },
+      "create-button": {
+        "q-btn": { "color": "primary", "icon": "save" }
+      }
+    }
+  }
+}
+```
+
+---
+
 ## **💡 Complete Configuration Example**
 
 A full example showing all CatalogUI components configured together:

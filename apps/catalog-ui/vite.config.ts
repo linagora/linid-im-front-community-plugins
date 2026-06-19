@@ -123,6 +123,10 @@ export default defineConfig({
           __dirname,
           'src/federation/module-page-lifecycle.ts'
         ),
+        './GenericTablePage': resolve(
+          __dirname,
+          'src/pages/GenericTablePage.vue'
+        ),
       },
       shared: {
         vue: {
