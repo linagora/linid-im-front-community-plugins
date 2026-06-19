@@ -139,6 +139,9 @@ Hierarchical tree for displaying entity structures.
       },
       "types": {
         "[TYPE]": {
+          "q-checkbox": {
+            "dense": true
+          },
           "q-icon": {
             "name": "folder"
           },
@@ -622,6 +625,34 @@ A full example showing all CatalogUI components configured together:
       },
       "generic-entity-table": {
         "q-table": { "dense": true, "bordered": true, "flat": true }
+      },
+      "GenericTree": {
+        "q-tree": {},
+        "ButtonActions": {
+          "q-btn": {
+            "flat": true,
+            "round": true,
+            "dense": true,
+            "icon": "more_vert"
+          }
+        },
+        "types": {
+          "[TYPE]": {
+            "q-checkbox": {
+              "dense": true
+            },
+            "q-icon": {
+              "name": "folder"
+            },
+            "actions": {
+              "[ACTION]": {
+                "q-icon": {
+                  "name": "edit"
+                }
+              }
+            }
+          }
+        }
       },
       "entity-details-card": {
         "q-card": { "flat": true, "bordered": true },
