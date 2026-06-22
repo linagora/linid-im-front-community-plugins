@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.36](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.35...v0.2.36) (2026-06-22)
+
+
+### Features
+
+* **catalog-ui:** add noData label in GenericEntityTable ([93f2978](https://github.com/linagora/linid-im-front-community-plugins/commit/93f297819c66a74de2e32340c03652f61d007f26))
+
 ### [0.2.35](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.34...v0.2.35) (2026-06-22)
 
 
