@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.35](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.34...v0.2.35) (2026-06-22)
+
+
+### Features
+
+* **catalog-ui:** add empty lifecycle, routes and i18n modules ([48d892d](https://github.com/linagora/linid-im-front-community-plugins/commit/48d892d35ad53603adc4955c3e5efb10a7523d95))
+* **catalog-ui:** add generic page lifecycle, routes and type modules ([200419c](https://github.com/linagora/linid-im-front-community-plugins/commit/200419cfa270d15c12148ae23ea4326987558add))
+* **catalog-ui:** add generic page with actions card and table ([1042207](https://github.com/linagora/linid-im-front-community-plugins/commit/1042207544dc27162f5736715ffd48d7b5618f0f))
+
 ### [0.2.34](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.33...v0.2.34) (2026-06-17)
 
 
