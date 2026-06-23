@@ -428,6 +428,12 @@ Smart filtering component with toggle-able menu for managing active filters and 
             "q-item-section": {}
           }
         }
+      },
+      "tree-search-filter": {
+        "q-btn": {},
+        "GenericTree": {
+          "q-tree": {}
+        }
       }
     }
   }
@@ -820,6 +826,12 @@ A full example showing all CatalogUI components configured together:
             "no-data-label-section": {
               "q-item-section": {}
             }
+          }
+        },
+        "tree-search-filter": {
+          "q-btn": {},
+          "GenericTree": {
+            "q-tree": {}
           }
         }
       },
