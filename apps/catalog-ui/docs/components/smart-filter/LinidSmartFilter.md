@@ -104,6 +104,8 @@ The component uses the LinID design system through `useUiDesign()` and applies p
 | `{uiNamespace}.linid-smart-filter.linid-favorite-panel.content.no-data-icon-section`  | `q-item-section` | Avatar section for no-data item                                                                             |
 | `{uiNamespace}.linid-smart-filter.linid-favorite-panel.content.no-data-icon-section`  | `q-icon`         | Avatar section for no-data item (icon)                                                                      |
 | `{uiNamespace}.linid-smart-filter.linid-favorite-panel.content.no-data-label-section` | `q-item-section` | Label section for no-data item (name)                                                                       |
+| `{uiNamespace}.linid-smart-filter.tree-search-filter-panel`                           | `GenericTree`    | Tree component styling and configuration                                                                    |
+| `{uiNamespace}.linid-smart-filter.tree-search-filter-panel`                           | `q-btn`          | Search button styling                                                                                       |
 
 - **Design Configuration Example:** See [design.md](../../design.md#LinidSmartFilter).
 
@@ -151,6 +153,7 @@ The component uses scoped i18n with the following translation keys:
 | `[INSTANCE_ID].LinidSmartFilter.LinidFavoritePanel.title`                      | Panel section title                                          | Header title           | -          |
 | `[INSTANCE_ID].LinidSmartFilter.LinidFavoritePanel.noData`                     | No data panel section                                        | No data label          | -          |
 | `[INSTANCE_ID].LinidSmartFilter.LinidFavoritePanel.deleteButton`               | Label for delete button (optional, defaults to empty string) | QBtn label             | -          |
+| `[INSTANCE_ID].LinidSmartFilter.TreeSearchFilterPanel.searchButton`            | Search button label                                          | QBtn label             | -          |
 
 Example:
 
@@ -208,6 +211,9 @@ Example:
           "notSuperior": "not superior",
           "notEquals": "not equals"
         }
+      },
+      "TreeSearchFilterPanel": {
+        "searchButton": "Search"
       }
     }
   }
