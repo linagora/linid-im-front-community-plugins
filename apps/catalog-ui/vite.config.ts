@@ -127,6 +127,10 @@ export default defineConfig({
           __dirname,
           'src/pages/GenericTablePage.vue'
         ),
+        './LinidSmartFilter': resolve(
+          __dirname,
+          'src/components/smart-filter/LinidSmartFilter.vue'
+        ),
       },
       shared: {
         vue: {
