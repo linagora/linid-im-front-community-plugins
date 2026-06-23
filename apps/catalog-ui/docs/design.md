@@ -322,6 +322,45 @@ Expandable search card with default and advanced filters.
 
 ---
 
+### LinidSmartFilter
+
+Smart filtering component with toggle-able menu for managing active filters and saved filter configurations.
+
+**Namespace:** `{uiNamespace}.linid-smart-filter`
+
+```json
+{
+  "[PARENT_NAMESPACE]": {
+    "linid-smart-filter": {
+      "q-field": {
+        "outlined": true,
+        "dense": true
+      },
+      "q-menu": {
+        "autoClose": true
+      },
+      "iconSearch": {
+        "q-icon": {
+          "name": "search"
+        }
+      },
+      "iconMenuClose": {
+        "q-icon": {
+          "name": "arrow_drop_up"
+        }
+      },
+      "iconMenuOpen": {
+        "q-icon": {
+          "name": "arrow_drop_down"
+        }
+      }
+    }
+  }
+}
+```
+
+---
+
 ### EntityAttributeTextField / EntityAttributeTextAreaField / EntityAttributeNumberField
 
 Number, text, textarea input fields for entity attributes.
@@ -621,6 +660,19 @@ A full example showing all CatalogUI components configured together:
               }
             }
           }
+        }
+      },
+      "linid-smart-filter": {
+        "q-field": { "outlined": true, "dense": true },
+        "q-menu": { "autoClose": true },
+        "iconSearch": {
+          "q-icon": { "name": "search" }
+        },
+        "iconMenuClose": {
+          "q-icon": { "name": "arrow_drop_up" }
+        },
+        "iconMenuOpen": {
+          "q-icon": { "name": "arrow_drop_down" }
         }
       },
       "generic-entity-table": {
