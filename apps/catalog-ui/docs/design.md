@@ -31,6 +31,7 @@ The examples in this document use placeholders that should be replaced with actu
 | `[ACTION]`                        | The node action name for menu in tree nodes               | `edit`, `create`                                        |
 | `[CONFIRMATION_DIALOG_NAMESPACE]` | The namespace for a specific confirmation dialog instance | `delete-user-confirmation`, `archive-user-confirmation` |
 | `[FORM_DIALOG_NAMESPACE]`         | The namespace for a specific form dialog instance         | `create-user-dialog`, `edit-user-dialog`                |
+| `[FILTER]`                        | The filter name for LinidSmartFilter instance             | `insertDate`, `email`                                   |
 
 ---
 
@@ -353,6 +354,17 @@ Smart filtering component with toggle-able menu for managing active filters and 
         "q-icon": {
           "name": "arrow_drop_down"
         }
+      },
+      "linid-filter-chip": {
+        "[FILTER]": {
+          "q-chip": {
+            "square": true
+          },
+          "q-avatar": {
+            "color": "primary",
+            "textColor": "white"
+          }
+        }
       }
     }
   }
@@ -673,6 +685,17 @@ A full example showing all CatalogUI components configured together:
         },
         "iconMenuOpen": {
           "q-icon": { "name": "arrow_drop_down" }
+        },
+        "linid-filter-chip": {
+          "[FILTER]": {
+            "q-chip": {
+              "square": true
+            },
+            "q-avatar": {
+              "color": "primary",
+              "textColor": "white"
+            }
+          }
         }
       },
       "generic-entity-table": {

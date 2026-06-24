@@ -66,13 +66,15 @@ export interface LinidSmartFilterProps extends CommonComponentProps {
 
 The component uses the LinID design system through `useUiDesign()` and applies props to Quasar components:
 
-| Namespace Path                                   | Target    | Description                                      |
-| ------------------------------------------------ | --------- | ------------------------------------------------ |
-| `{uiNamespace}.linid-smart-filter`               | `q-field` | Filter field container styling and configuration |
-| `{uiNamespace}.linid-smart-filter`               | `q-menu`  | Dropdown menu styling and configuration          |
-| `{uiNamespace}.linid-smart-filter.iconSearch`    | `q-icon`  | Search icon styling                              |
-| `{uiNamespace}.linid-smart-filter.iconMenuClose` | `q-icon`  | Right dropdown icon styling (menu open)          |
-| `{uiNamespace}.linid-smart-filter.iconMenuOpen`  | `q-icon`  | Right dropdown icon styling (menu closed)        |
+| Namespace Path                                                | Target     | Description                                                                                                 |
+| ------------------------------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------- |
+| `{uiNamespace}.linid-smart-filter`                            | `q-field`  | Filter field container styling and configuration                                                            |
+| `{uiNamespace}.linid-smart-filter`                            | `q-menu`   | Dropdown menu styling and configuration                                                                     |
+| `{uiNamespace}.linid-smart-filter.iconSearch`                 | `q-icon`   | Search icon styling                                                                                         |
+| `{uiNamespace}.linid-smart-filter.iconMenuClose`              | `q-icon`   | Right dropdown icon styling (menu open)                                                                     |
+| `{uiNamespace}.linid-smart-filter.iconMenuOpen`               | `q-icon`   | Right dropdown icon styling (menu closed)                                                                   |
+| `{uiNamespace}.linid-smart-filter.linid-filter-chip.[FILTER]` | `q-chip`   | Configures the chip container that displays the selected values associated with a specific filter field.    |
+| `{uiNamespace}.linid-smart-filter.linid-filter-chip.[FILTER]` | `q-avatar` | Configures the avatar section of the chip, which displays the filter field name before the selected values. |
 
 - **Design Configuration Example:** See [design.md](../../design.md#LinidSmartFilter).
 
@@ -82,12 +84,14 @@ The component uses the LinID design system through `useUiDesign()` and applies p
 
 The component uses scoped i18n with the following translation keys:
 
-| Key                                     | Description                           | Usage             | Parameters |
-| --------------------------------------- | ------------------------------------- | ----------------- | ---------- |
-| `[INSTANCE_ID].LinidSmartFilter.label`  | Filter field label (optional)         | Input label       | -          |
-| `[INSTANCE_ID].LinidSmartFilter.hint`   | Helper text for the filter (optional) | Input hint        | -          |
-| `[INSTANCE_ID].LinidSmartFilter.prefix` | Input prefix (optional)               | Input prefix icon | -          |
-| `[INSTANCE_ID].LinidSmartFilter.suffix` | Input suffix (optional)               | Input suffix icon | -          |
+| Key                                                                 | Description                                       | Usage                  | Parameters |
+| ------------------------------------------------------------------- | ------------------------------------------------- | ---------------------- | ---------- |
+| `[INSTANCE_ID].LinidSmartFilter.label`                              | Filter field label (optional)                     | Input label            | -          |
+| `[INSTANCE_ID].LinidSmartFilter.hint`                               | Helper text for the filter (optional)             | Input hint             | -          |
+| `[INSTANCE_ID].LinidSmartFilter.prefix`                             | Input prefix (optional)                           | Input prefix           | -          |
+| `[INSTANCE_ID].LinidSmartFilter.suffix`                             | Input suffix (optional)                           | Input suffix           | -          |
+| `[INSTANCE_ID].LinidSmartFilter.LinidFilterChip.[FILTER].type`      | Filter type label (optional, default filter.name) | Filter label           | -          |
+| `[INSTANCE_ID].LinidSmartFilter.LinidFilterChip.[FILTER].separator` | Separator between filter values                   | Filter separator label | -          |
 
 Example:
 
@@ -98,7 +102,13 @@ Example:
       "label": "Search",
       "hint": "Enter your search criteria",
       "prefix": "",
-      "suffix": ""
+      "suffix": "",
+      "LinidFilterChip": {
+        "[FILTER]": {
+          "type": "Filter name",
+          "separator": "or"
+        }
+      }
     }
   }
 }
