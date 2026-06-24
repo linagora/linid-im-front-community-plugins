@@ -32,6 +32,7 @@ The examples in this document use placeholders that should be replaced with actu
 | `[CONFIRMATION_DIALOG_NAMESPACE]` | The namespace for a specific confirmation dialog instance | `delete-user-confirmation`, `archive-user-confirmation` |
 | `[FORM_DIALOG_NAMESPACE]`         | The namespace for a specific form dialog instance         | `create-user-dialog`, `edit-user-dialog`                |
 | `[FILTER]`                        | The filter name for LinidSmartFilter instance             | `insertDate`, `email`                                   |
+| `[FILTER_TYPE]`                   | The filter type for LinidFilterPanel icon configuration   | `text`, `date`, `number`, `list`, `tree`                |
 
 ---
 
@@ -365,6 +366,28 @@ Smart filtering component with toggle-able menu for managing active filters and 
             "textColor": "white"
           }
         }
+      },
+      "linid-filter-panel": {
+        "header": {
+          "q-icon": { "name": "filter_alt" },
+          "q-separator": { "inset": false }
+        },
+        "content": {
+          "q-list": { "bordered": false, "separator": true },
+          "q-item": { "dense": true },
+          "q-separator": { "inset": false },
+          "icon-section": {
+            "q-item-section": {}
+          },
+          "label-section": {
+            "q-item-section": {}
+          },
+          "types": {
+            "[FILTER_TYPE]": {
+              "q-icon": { "name": "filter_alt", "size": "sm" }
+            }
+          }
+        }
       }
     }
   }
@@ -694,6 +717,28 @@ A full example showing all CatalogUI components configured together:
             "q-avatar": {
               "color": "primary",
               "textColor": "white"
+            }
+          }
+        },
+        "linid-filter-panel": {
+          "header": {
+            "q-icon": { "name": "filter_alt" },
+            "q-separator": { "inset": false }
+          },
+          "content": {
+            "q-list": { "bordered": false, "separator": true },
+            "q-item": { "dense": true },
+            "q-separator": { "inset": false },
+            "icon-section": {
+              "q-item-section": {}
+            },
+            "label-section": {
+              "q-item-section": {}
+            },
+            "types": {
+              "[FILTER_TYPE]": {
+                "q-icon": { "name": "filter_alt", "size": "sm" }
+              }
             }
           }
         }

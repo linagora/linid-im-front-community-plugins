@@ -66,15 +66,23 @@ export interface LinidSmartFilterProps extends CommonComponentProps {
 
 The component uses the LinID design system through `useUiDesign()` and applies props to Quasar components:
 
-| Namespace Path                                                | Target     | Description                                                                                                 |
-| ------------------------------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------- |
-| `{uiNamespace}.linid-smart-filter`                            | `q-field`  | Filter field container styling and configuration                                                            |
-| `{uiNamespace}.linid-smart-filter`                            | `q-menu`   | Dropdown menu styling and configuration                                                                     |
-| `{uiNamespace}.linid-smart-filter.iconSearch`                 | `q-icon`   | Search icon styling                                                                                         |
-| `{uiNamespace}.linid-smart-filter.iconMenuClose`              | `q-icon`   | Right dropdown icon styling (menu open)                                                                     |
-| `{uiNamespace}.linid-smart-filter.iconMenuOpen`               | `q-icon`   | Right dropdown icon styling (menu closed)                                                                   |
-| `{uiNamespace}.linid-smart-filter.linid-filter-chip.[FILTER]` | `q-chip`   | Configures the chip container that displays the selected values associated with a specific filter field.    |
-| `{uiNamespace}.linid-smart-filter.linid-filter-chip.[FILTER]` | `q-avatar` | Configures the avatar section of the chip, which displays the filter field name before the selected values. |
+| Namespace Path                                                                    | Target           | Description                                                                                                 |
+| --------------------------------------------------------------------------------- | ---------------- | ----------------------------------------------------------------------------------------------------------- |
+| `{uiNamespace}.linid-smart-filter`                                                | `q-field`        | Filter field container styling and configuration                                                            |
+| `{uiNamespace}.linid-smart-filter`                                                | `q-menu`         | Dropdown menu styling and configuration                                                                     |
+| `{uiNamespace}.linid-smart-filter.iconSearch`                                     | `q-icon`         | Search icon styling                                                                                         |
+| `{uiNamespace}.linid-smart-filter.iconMenuClose`                                  | `q-icon`         | Right dropdown icon styling (menu open)                                                                     |
+| `{uiNamespace}.linid-smart-filter.iconMenuOpen`                                   | `q-icon`         | Right dropdown icon styling (menu closed)                                                                   |
+| `{uiNamespace}.linid-smart-filter.linid-filter-chip.[FILTER]`                     | `q-chip`         | Configures the chip container that displays the selected values associated with a specific filter field.    |
+| `{uiNamespace}.linid-smart-filter.linid-filter-chip.[FILTER]`                     | `q-avatar`       | Configures the avatar section of the chip, which displays the filter field name before the selected values. |
+| `{uiNamespace}.linid-smart-filter.linid-filter-panel.header`                      | `q-icon`         | Icon displayed in the panel title bar                                                                       |
+| `{uiNamespace}.linid-smart-filter.linid-filter-panel.header`                      | `q-separator`    | Horizontal separator below the panel title                                                                  |
+| `{uiNamespace}.linid-smart-filter.linid-filter-panel.content`                     | `q-list`         | Filter navigation list styling                                                                              |
+| `{uiNamespace}.linid-smart-filter.linid-filter-panel.content`                     | `q-item`         | Filter item styling                                                                                         |
+| `{uiNamespace}.linid-smart-filter.linid-filter-panel.content`                     | `q-separator`    | Vertical separator between the filter list and the editor area                                              |
+| `{uiNamespace}.linid-smart-filter.linid-filter-panel.content.icon-section`        | `q-item-section` | Avatar section of a filter item (icon)                                                                      |
+| `{uiNamespace}.linid-smart-filter.linid-filter-panel.content.label-section`       | `q-item-section` | Label section of a filter item (name)                                                                       |
+| `{uiNamespace}.linid-smart-filter.linid-filter-panel.content.types.[FILTER_TYPE]` | `q-icon`         | Icon displayed next to a filter of a given type                                                             |
 
 - **Design Configuration Example:** See [design.md](../../design.md#LinidSmartFilter).
 
@@ -92,6 +100,7 @@ The component uses scoped i18n with the following translation keys:
 | `[INSTANCE_ID].LinidSmartFilter.suffix`                             | Input suffix (optional)                           | Input suffix           | -          |
 | `[INSTANCE_ID].LinidSmartFilter.LinidFilterChip.[FILTER].type`      | Filter type label (optional, default filter.name) | Filter label           | -          |
 | `[INSTANCE_ID].LinidSmartFilter.LinidFilterChip.[FILTER].separator` | Separator between filter values                   | Filter separator label | -          |
+| `[INSTANCE_ID].LinidFilterPanel.title`                              | Panel section title                               | Header title           | -          |
 
 Example:
 
@@ -108,6 +117,9 @@ Example:
           "type": "Filter name",
           "separator": "or"
         }
+      },
+      "LinidFilterPanel": {
+        "title": "Filter By"
       }
     }
   }
