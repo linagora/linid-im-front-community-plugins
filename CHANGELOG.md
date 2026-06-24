@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.40](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.39...v0.2.40) (2026-06-24)
+
+
+### Features
+
+* add translations for linidSmartFilter ([a804688](https://github.com/linagora/linid-im-front-community-plugins/commit/a804688ad44e3ddc9e240aa62b1f4bfa8bd7b145))
+
 ### [0.2.39](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.38...v0.2.39) (2026-06-24)
 
 
