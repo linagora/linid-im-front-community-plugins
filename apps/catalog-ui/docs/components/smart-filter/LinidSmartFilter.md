@@ -77,3 +77,29 @@ The component uses the LinID design system through `useUiDesign()` and applies p
 - **Design Configuration Example:** See [design.md](../../design.md#LinidSmartFilter).
 
 ---
+
+## **Internationalization**
+
+The component uses scoped i18n with the following translation keys:
+
+| Key                                     | Description                           | Usage             | Parameters |
+| --------------------------------------- | ------------------------------------- | ----------------- | ---------- |
+| `[INSTANCE_ID].LinidSmartFilter.label`  | Filter field label (optional)         | Input label       | -          |
+| `[INSTANCE_ID].LinidSmartFilter.hint`   | Helper text for the filter (optional) | Input hint        | -          |
+| `[INSTANCE_ID].LinidSmartFilter.prefix` | Input prefix (optional)               | Input prefix icon | -          |
+| `[INSTANCE_ID].LinidSmartFilter.suffix` | Input suffix (optional)               | Input suffix icon | -          |
+
+Example:
+
+```json
+{
+  "[INSTANCE_ID]": {
+    "LinidSmartFilter": {
+      "label": "Search",
+      "hint": "Enter your search criteria",
+      "prefix": "",
+      "suffix": ""
+    }
+  }
+}
+```
