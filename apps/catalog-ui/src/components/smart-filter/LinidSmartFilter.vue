@@ -31,6 +31,10 @@
       v-bind="uiProps.field"
       class="linid-smart-filter--field"
       data-cy="linid-smart-filter-field"
+      :label="translateOrDefault('', 'label')"
+      :hint="translateOrDefault('', 'hint')"
+      :prefix="translateOrDefault('', 'prefix')"
+      :suffix="translateOrDefault('', 'suffix')"
     >
       <template #prepend>
         <q-icon
@@ -72,13 +76,14 @@ import type {
   LinidQIconProps,
   LinidQMenuProps,
 } from '@linagora/linid-im-front-corelib';
-import { useUiDesign } from '@linagora/linid-im-front-corelib';
+import { useScopedI18n, useUiDesign } from '@linagora/linid-im-front-corelib';
 
 const props = defineProps<LinidSmartFilterProps>();
 
 const localUiNamespace = `${props.uiNamespace}.linid-smart-filter`;
 const { ui } = useUiDesign();
-
+const localI18nScope = `${props.i18nScope}.LinidSmartFilter`;
+const { translateOrDefault } = useScopedI18n(localI18nScope);
 const isFilterMenuOpen = ref(false);
 
 const uiProps = {
