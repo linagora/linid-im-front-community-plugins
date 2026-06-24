@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.41](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.40...v0.2.41) (2026-06-24)
+
+
+### Features
+
+* **catalog-ui:** add LinidFilterChip component ([a625f12](https://github.com/linagora/linid-im-front-community-plugins/commit/a625f12fe96a5bd4aa74a59b07a890c189816344))
+
 ### [0.2.40](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.39...v0.2.40) (2026-06-24)
 
 
