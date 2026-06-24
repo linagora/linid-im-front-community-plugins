@@ -83,6 +83,10 @@ The component uses the LinID design system through `useUiDesign()` and applies p
 | `{uiNamespace}.linid-smart-filter.linid-filter-panel.content.icon-section`        | `q-item-section` | Avatar section of a filter item (icon)                                                                      |
 | `{uiNamespace}.linid-smart-filter.linid-filter-panel.content.label-section`       | `q-item-section` | Label section of a filter item (name)                                                                       |
 | `{uiNamespace}.linid-smart-filter.linid-filter-panel.content.types.[FILTER_TYPE]` | `q-icon`         | Icon displayed next to a filter of a given type                                                             |
+| `{uiNamespace}.linid-smart-filter.text-search-filter-panel`                       | `q-input`        | Text input field styling                                                                                    |
+| `{uiNamespace}.linid-smart-filter.text-search-filter-panel`                       | `q-checkbox`     | Negation checkbox styling                                                                                   |
+| `{uiNamespace}.linid-smart-filter.text-search-filter-panel`                       | `q-option-group` | Operator radio group styling                                                                                |
+| `{uiNamespace}.linid-smart-filter.text-search-filter-panel`                       | `q-btn`          | Search button styling                                                                                       |
 
 - **Design Configuration Example:** See [design.md](../../design.md#LinidSmartFilter).
 
@@ -92,15 +96,29 @@ The component uses the LinID design system through `useUiDesign()` and applies p
 
 The component uses scoped i18n with the following translation keys:
 
-| Key                                                                 | Description                                       | Usage                  | Parameters |
-| ------------------------------------------------------------------- | ------------------------------------------------- | ---------------------- | ---------- |
-| `[INSTANCE_ID].LinidSmartFilter.label`                              | Filter field label (optional)                     | Input label            | -          |
-| `[INSTANCE_ID].LinidSmartFilter.hint`                               | Helper text for the filter (optional)             | Input hint             | -          |
-| `[INSTANCE_ID].LinidSmartFilter.prefix`                             | Input prefix (optional)                           | Input prefix           | -          |
-| `[INSTANCE_ID].LinidSmartFilter.suffix`                             | Input suffix (optional)                           | Input suffix           | -          |
-| `[INSTANCE_ID].LinidSmartFilter.LinidFilterChip.[FILTER].type`      | Filter type label (optional, default filter.name) | Filter label           | -          |
-| `[INSTANCE_ID].LinidSmartFilter.LinidFilterChip.[FILTER].separator` | Separator between filter values                   | Filter separator label | -          |
-| `[INSTANCE_ID].LinidFilterPanel.title`                              | Panel section title                               | Header title           | -          |
+| Key                                                                            | Description                                                  | Usage                  | Parameters |
+| ------------------------------------------------------------------------------ | ------------------------------------------------------------ | ---------------------- | ---------- |
+| `[INSTANCE_ID].LinidSmartFilter.label`                                         | Filter field label (optional)                                | Input label            | -          |
+| `[INSTANCE_ID].LinidSmartFilter.hint`                                          | Helper text for the filter (optional)                        | Input hint             | -          |
+| `[INSTANCE_ID].LinidSmartFilter.prefix`                                        | Input prefix (optional)                                      | Input prefix           | -          |
+| `[INSTANCE_ID].LinidSmartFilter.suffix`                                        | Input suffix (optional)                                      | Input suffix           | -          |
+| `[INSTANCE_ID].LinidSmartFilter.LinidFilterChip.[FILTER].type`                 | Filter type label (optional, default filter.name)            | Filter label           | -          |
+| `[INSTANCE_ID].LinidSmartFilter.LinidFilterChip.[FILTER].separator`            | Separator between filter values                              | Filter separator label | -          |
+| `[INSTANCE_ID].LinidFilterPanel.title`                                         | Panel section title                                          | Header title           | -          |
+| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.inputLabel`              | Text input label (optional, defaults to empty string)        | QInput label           | -          |
+| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.inputHint`               | Text input hint (optional, defaults to empty string)         | QInput hint            | -          |
+| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.inputPrefix`             | Text input prefix (optional, defaults to empty string)       | QInput prefix          | -          |
+| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.inputSuffix`             | Text input suffix (optional, defaults to empty string)       | QInput suffix          | -          |
+| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.negateLabel`             | Negation checkbox label (optional, defaults to empty string) | QCheckbox label        | -          |
+| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.searchButton`            | Search button label (optional, defaults to empty string)     | QBtn label             | -          |
+| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.operators.contains`      | "contains" operator label                                    | Radio option label     | -          |
+| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.operators.startsWith`    | "startsWith" operator label                                  | Radio option label     | -          |
+| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.operators.endsWith`      | "endsWith" operator label                                    | Radio option label     | -          |
+| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.operators.equals`        | "equals" operator label                                      | Radio option label     | -          |
+| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.operators.notContains`   | Negated "contains" label                                     | Radio option label     | -          |
+| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.operators.notStartsWith` | Negated "startsWith" label                                   | Radio option label     | -          |
+| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.operators.notEndsWith`   | Negated "endsWith" label                                     | Radio option label     | -          |
+| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.operators.notEquals`     | Negated "equals" label                                       | Radio option label     | -          |
 
 Example:
 
@@ -120,6 +138,24 @@ Example:
       },
       "LinidFilterPanel": {
         "title": "Filter By"
+      },
+      "TextSearchFilterPanel": {
+        "inputLabel": "Value",
+        "inputHint": "Enter a value to search",
+        "inputPrefix": "~",
+        "inputSuffix": "*",
+        "negateLabel": "Negate",
+        "searchButton": "Search",
+        "operators": {
+          "contains": "contains",
+          "startsWith": "startsWith",
+          "endsWith": "endsWith",
+          "equals": "equals",
+          "notContains": "not contains",
+          "notStartsWith": "not startsWith",
+          "notEndsWith": "not endsWith",
+          "notEquals": "not equals"
+        }
       }
     }
   }

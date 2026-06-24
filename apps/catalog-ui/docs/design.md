@@ -388,6 +388,12 @@ Smart filtering component with toggle-able menu for managing active filters and 
             }
           }
         }
+      },
+      "text-search-filter-panel": {
+        "q-input": { "outlined": true, "dense": true },
+        "q-checkbox": { "dense": true },
+        "q-option-group": { "color": "primary", "dense": true },
+        "q-btn": { "color": "primary", "unelevated": true }
       }
     }
   }
@@ -741,6 +747,12 @@ A full example showing all CatalogUI components configured together:
               }
             }
           }
+        },
+        "text-search-filter-panel": {
+          "q-input": { "outlined": true, "dense": true },
+          "q-checkbox": { "dense": true },
+          "q-option-group": { "color": "primary", "dense": true },
+          "q-btn": { "color": "primary", "unelevated": true }
         }
       },
       "generic-entity-table": {
