@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.42](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.41...v0.2.42) (2026-06-25)
+
+
+### Features
+
+* **catalog-ui:** add "Filter By" Panel Component ([80f7f3a](https://github.com/linagora/linid-im-front-community-plugins/commit/80f7f3afe06e91e803e53a63ed448cab5d1fa366)), closes [#161](https://github.com/linagora/linid-im-front-community-plugins/issues/161)
+* **catalog-ui:** add shared search output type for filter panel components ([3cde1e6](https://github.com/linagora/linid-im-front-community-plugins/commit/3cde1e6f6a1f3a592a4a9baa534ffc881a4583a9))
+
 ### [0.2.41](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.40...v0.2.41) (2026-06-24)
 
 
