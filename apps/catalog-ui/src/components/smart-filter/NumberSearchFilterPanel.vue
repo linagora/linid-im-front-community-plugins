@@ -25,26 +25,26 @@
 -->
 
 <template>
-  <!-- v8 ignore start -->
   <div
-    class="text-search-filter-panel"
-    data-cy="text-search-filter-panel"
+    class="number-search-filter-panel"
+    data-cy="number-search-filter-panel"
   >
     <q-input
       v-model="inputValue"
       v-bind="uiProps.input"
+      type="number"
       :label="translateOrDefault('', 'inputLabel')"
       :hint="translateOrDefault('', 'inputHint')"
       :prefix="translateOrDefault('', 'inputPrefix')"
       :suffix="translateOrDefault('', 'inputSuffix')"
-      data-cy="text-search-filter-panel_input"
+      data-cy="number-search-filter-panel_input"
     />
 
     <q-checkbox
       v-model="isNegation"
       v-bind="uiProps.checkbox"
       :label="t('negateLabel')"
-      data-cy="text-search-filter-panel_negate"
+      data-cy="number-search-filter-panel_negate"
     />
 
     <q-option-group
@@ -52,21 +52,21 @@
       v-bind="uiProps.optionGroup"
       :options="operators"
       type="radio"
-      data-cy="text-search-filter-panel_operators"
+      data-cy="number-search-filter-panel_operators"
     />
 
     <q-btn
       v-bind="uiProps.searchButton"
       :label="t('searchButton')"
-      data-cy="text-search-filter-panel_search"
+      data-cy="number-search-filter-panel_search"
       @click="onSearch"
     />
   </div>
-  <!-- v8 ignore stop -->
 </template>
 
 <script setup lang="ts">
 import type {
+  LinidFilterOperator,
   LinidQBtnProps,
   LinidQCheckboxProps,
   LinidQInputProps,
@@ -80,29 +80,34 @@ import {
 import { computed, ref } from 'vue';
 import type { LinidFilterPanelSearchOutputs } from '../../types/linidFilterPanel';
 import type {
-  TextFilterOperatorKey,
-  TextSearchFilterPanelProps,
-  TextSearchFilterPanelUIProps,
-} from '../../types/textSearchFilterPanel';
+  NumberFilterOperatorKey,
+  NumberSearchFilterPanelProps,
+  NumberSearchFilterPanelUIProps,
+} from '../../types/numberSearchFilterPanel';
 
-const OPERATOR_KEYS: TextFilterOperatorKey[] = [
-  'contains',
-  'startsWith',
-  'endsWith',
+const OPERATOR_KEYS: NumberFilterOperatorKey[] = [
+  'inferior',
+  'superior',
   'equals',
 ];
 
-const props = defineProps<TextSearchFilterPanelProps>();
+const OPERATOR_MAP: Record<NumberFilterOperatorKey, LinidFilterOperator> = {
+  inferior: 'lt_',
+  superior: 'gt_',
+  equals: '',
+};
+
+const props = defineProps<NumberSearchFilterPanelProps>();
 const emit = defineEmits<LinidFilterPanelSearchOutputs>();
 
 const { t, translateOrDefault } = useScopedI18n(
-  `${props.i18nScope}.TextSearchFilterPanel`
+  `${props.i18nScope}.NumberSearchFilterPanel`
 );
 const { ui } = useUiDesign();
 
-const localUiNamespace = `${props.uiNamespace}.text-search-filter-panel`;
+const localUiNamespace = `${props.uiNamespace}.number-search-filter-panel`;
 
-const uiProps: TextSearchFilterPanelUIProps = {
+const uiProps: NumberSearchFilterPanelUIProps = {
   input: ui<LinidQInputProps>(localUiNamespace, 'q-input'),
   checkbox: ui<LinidQCheckboxProps>(localUiNamespace, 'q-checkbox'),
   optionGroup: ui<LinidQOptionGroupProps>(localUiNamespace, 'q-option-group'),
@@ -111,7 +116,7 @@ const uiProps: TextSearchFilterPanelUIProps = {
 
 const inputValue = ref('');
 const isNegation = ref(false);
-const selectedOperatorKey = ref<TextFilterOperatorKey>('contains');
+const selectedOperatorKey = ref<NumberFilterOperatorKey>('equals');
 
 const operators = computed(() =>
   OPERATOR_KEYS.map((key) => ({
@@ -127,19 +132,11 @@ const operators = computed(() =>
  * @returns The constructed filter value.
  */
 function buildFilterValue(): LinidFilterValue {
-  const key = selectedOperatorKey.value;
-  const operator = key === 'equals' ? '' : 'lk_';
-
-  let value = inputValue.value;
-  if (key === 'contains') {
-    value = `*${value}*`;
-  } else if (key === 'startsWith') {
-    value = `${value}*`;
-  } else if (key === 'endsWith') {
-    value = `*${value}`;
-  }
-
-  return new LinidFilterValue(isNegation.value, operator, value);
+  return new LinidFilterValue(
+    isNegation.value,
+    OPERATOR_MAP[selectedOperatorKey.value],
+    inputValue.value
+  );
 }
 
 /**
