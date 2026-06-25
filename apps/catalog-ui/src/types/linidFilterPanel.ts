@@ -26,6 +26,7 @@
 
 import type {
   LinidFilter,
+  LinidFilterValue,
   LinidQIconProps,
   LinidQItemProps,
   LinidQItemSectionProps,
@@ -99,6 +100,30 @@ export interface LinidFilterPanelUIProps {
    */
   contentSeparator: LinidQSeparatorProps;
 }
+
+/**
+ * Base search payload for filter panel components. Can be extended to add filter-specific fields.
+ */
+export interface LinidFilterPanelSearchPayload {
+  /**
+   * The field name targeted by the filter.
+   */
+  field: string;
+  /**
+   * The list of filter values to apply.
+   */
+  values: LinidFilterValue[];
+}
+
+/**
+ * Generic search output type for filter panel components.
+ * Specialize with a payload type extending `LinidFilterPanelSearchPayload` to add filter-specific fields.
+ */
+export type LinidFilterPanelSearchOutputs<
+  T extends LinidFilterPanelSearchPayload = LinidFilterPanelSearchPayload,
+> = {
+  (e: 'search', payload: T): void;
+};
 
 /**
  * Defines the events emitted by the LinidFilterPanel component.
