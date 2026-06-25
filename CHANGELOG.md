@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.43](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.42...v0.2.43) (2026-06-25)
+
+
+### Features
+
+* **catalog-ui:** add "Text Search Filter Panel" component ([b178fa0](https://github.com/linagora/linid-im-front-community-plugins/commit/b178fa0ed49d323867da18d0aab67a4f0632fdcb)), closes [#162](https://github.com/linagora/linid-im-front-community-plugins/issues/162)
+
 ### [0.2.42](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.41...v0.2.42) (2026-06-25)
 
 
