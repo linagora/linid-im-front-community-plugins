@@ -399,6 +399,18 @@ Smart filtering component with toggle-able menu for managing active filters and 
         "q-option-group": { "color": "primary", "dense": true },
         "q-btn": { "color": "primary", "unelevated": true }
       },
+      "list-search-filter-panel": {
+        "q-list": { "bordered": true },
+        "q-item": { "dense": true },
+        "checkboxSection": {
+          "q-item-section": { "side": true },
+          "q-checkbox": { "dense": true }
+        },
+        "labelSection": {
+          "q-item-section": {}
+        },
+        "q-btn": { "color": "primary", "unelevated": true }
+      },
       "linid-favorite-panel": {
         "header": {
           "q-icon": { "name": "filter_alt" },
@@ -796,6 +808,18 @@ A full example showing all CatalogUI components configured together:
           "q-input": { "outlined": true, "dense": true },
           "q-checkbox": { "color": "primary", "dense": true },
           "q-option-group": { "color": "primary", "dense": true },
+          "q-btn": { "color": "primary", "unelevated": true }
+        },
+        "list-search-filter-panel": {
+          "q-list": { "bordered": true },
+          "q-item": { "dense": true },
+          "checkboxSection": {
+            "q-item-section": { "side": true },
+            "q-checkbox": { "dense": true }
+          },
+          "labelSection": {
+            "q-item-section": {}
+          },
           "q-btn": { "color": "primary", "unelevated": true }
         },
         "linid-favorite-panel": {

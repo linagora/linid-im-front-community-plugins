@@ -91,6 +91,12 @@ The component uses the LinID design system through `useUiDesign()` and applies p
 | `{uiNamespace}.linid-smart-filter.number-search-filter-panel`                         | `q-checkbox`     | Negation checkbox styling                                                                                   |
 | `{uiNamespace}.linid-smart-filter.number-search-filter-panel`                         | `q-option-group` | Operator radio group styling                                                                                |
 | `{uiNamespace}.linid-smart-filter.number-search-filter-panel`                         | `q-btn`          | Search button styling                                                                                       |
+| `{uiNamespace}.linid-smart-filter.list-search-filter-panel`                           | `q-list`         | List items container styling                                                                                |
+| `{uiNamespace}.linid-smart-filter.list-search-filter-panel`                           | `q-item`         | List item styling                                                                                           |
+| `{uiNamespace}.linid-smart-filter.list-search-filter-panel.checkboxSection`           | `q-item-section` | Checkbox area styling                                                                                       |
+| `{uiNamespace}.linid-smart-filter.list-search-filter-panel.checkboxSection`           | `q-checkbox`     | Checkbox styling                                                                                            |
+| `{uiNamespace}.linid-smart-filter.list-search-filter-panel.labelSection`              | `q-item-section` | Label area styling                                                                                          |
+| `{uiNamespace}.linid-smart-filter.list-search-filter-panel`                           | `q-btn`          | Search button styling                                                                                       |
 | `{uiNamespace}.linid-smart-filter.linid-favorite-panel.header`                        | `q-icon`         | Icon displayed in the panel title bar                                                                       |
 | `{uiNamespace}.linid-smart-filter.linid-favorite-panel.header`                        | `q-separator`    | Horizontal separator below the panel title                                                                  |
 | `{uiNamespace}.linid-smart-filter.linid-favorite-panel.content`                       | `q-list`         | Favorites navigation list styling                                                                           |
@@ -154,6 +160,7 @@ The component uses scoped i18n with the following translation keys:
 | `[INSTANCE_ID].LinidSmartFilter.LinidFavoritePanel.noData`                     | No data panel section                                        | No data label          | -          |
 | `[INSTANCE_ID].LinidSmartFilter.LinidFavoritePanel.deleteButton`               | Label for delete button (optional, defaults to empty string) | QBtn label             | -          |
 | `[INSTANCE_ID].LinidSmartFilter.TreeSearchFilterPanel.searchButton`            | Search button label                                          | QBtn label             | -          |
+| `[INSTANCE_ID].LinidSmartFilter.ListSearchFilterPanel.searchButton`            | Search button label                                          | QBtn label             | -          |
 
 Example:
 
@@ -213,6 +220,9 @@ Example:
         }
       },
       "TreeSearchFilterPanel": {
+        "searchButton": "Search"
+      },
+      "ListSearchFilterPanel": {
         "searchButton": "Search"
       }
     }
