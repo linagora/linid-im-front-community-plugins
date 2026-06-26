@@ -99,6 +99,8 @@ The component uses the LinID design system through `useUiDesign()` and applies p
 | `{uiNamespace}.linid-smart-filter.linid-favorite-panel.content.icon-section`          | `q-item-section` | Avatar section of a favorite item                                                                           |
 | `{uiNamespace}.linid-smart-filter.linid-favorite-panel.content.icon-section`          | `q-icon`         | Avatar section of a favorite item (icon)                                                                    |
 | `{uiNamespace}.linid-smart-filter.linid-favorite-panel.content.label-section`         | `q-item-section` | Label section of a favorite item (name)                                                                     |
+| `{uiNamespace}.linid-smart-filter.linid-favorite-panel.content.delete-section`        | `q-item-section` | Delete section of a favorite item                                                                           |
+| `{uiNamespace}.linid-smart-filter.linid-favorite-panel.content.delete-section`        | `q-btn`          | Delete button of a favorite item                                                                            |
 | `{uiNamespace}.linid-smart-filter.linid-favorite-panel.content.no-data-icon-section`  | `q-item-section` | Avatar section for no-data item                                                                             |
 | `{uiNamespace}.linid-smart-filter.linid-favorite-panel.content.no-data-icon-section`  | `q-icon`         | Avatar section for no-data item (icon)                                                                      |
 | `{uiNamespace}.linid-smart-filter.linid-favorite-panel.content.no-data-label-section` | `q-item-section` | Label section for no-data item (name)                                                                       |
@@ -111,43 +113,44 @@ The component uses the LinID design system through `useUiDesign()` and applies p
 
 The component uses scoped i18n with the following translation keys:
 
-| Key                                                                            | Description                                               | Usage                  | Parameters |
-| ------------------------------------------------------------------------------ | --------------------------------------------------------- | ---------------------- | ---------- |
-| `[INSTANCE_ID].LinidSmartFilter.label`                                         | Filter field label (optional)                             | Input label            | -          |
-| `[INSTANCE_ID].LinidSmartFilter.hint`                                          | Helper text for the filter (optional)                     | Input hint             | -          |
-| `[INSTANCE_ID].LinidSmartFilter.prefix`                                        | Input prefix (optional)                                   | Input prefix           | -          |
-| `[INSTANCE_ID].LinidSmartFilter.suffix`                                        | Input suffix (optional)                                   | Input suffix           | -          |
-| `[INSTANCE_ID].LinidSmartFilter.LinidFilterChip.[FILTER].type`                 | Filter type label (optional, default filter.name)         | Filter label           | -          |
-| `[INSTANCE_ID].LinidSmartFilter.LinidFilterChip.[FILTER].separator`            | Separator between filter values                           | Filter separator label | -          |
-| `[INSTANCE_ID].LinidSmartFilter.LinidFilterPanel.title`                        | Panel section title                                       | Header title           | -          |
-| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.inputLabel`              | Text input label (optional, defaults to empty string)     | QInput label           | -          |
-| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.inputHint`               | Text input hint (optional, defaults to empty string)      | QInput hint            | -          |
-| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.inputPrefix`             | Text input prefix (optional, defaults to empty string)    | QInput prefix          | -          |
-| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.inputSuffix`             | Text input suffix (optional, defaults to empty string)    | QInput suffix          | -          |
-| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.negateLabel`             | Negation checkbox label                                   | QCheckbox label        | -          |
-| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.searchButton`            | Search button label                                       | QBtn label             | -          |
-| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.operators.contains`      | "contains" operator label                                 | Radio option label     | -          |
-| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.operators.startsWith`    | "startsWith" operator label                               | Radio option label     | -          |
-| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.operators.endsWith`      | "endsWith" operator label                                 | Radio option label     | -          |
-| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.operators.equals`        | "equals" operator label                                   | Radio option label     | -          |
-| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.operators.notContains`   | Negated "contains" label                                  | Radio option label     | -          |
-| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.operators.notStartsWith` | Negated "startsWith" label                                | Radio option label     | -          |
-| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.operators.notEndsWith`   | Negated "endsWith" label                                  | Radio option label     | -          |
-| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.operators.notEquals`     | Negated "equals" label                                    | Radio option label     | -          |
-| `[INSTANCE_ID].LinidSmartFilter.NumberSearchFilterPanel.inputLabel`            | Numeric input label (optional, defaults to empty string)  | QInput label           | -          |
-| `[INSTANCE_ID].LinidSmartFilter.NumberSearchFilterPanel.inputHint`             | Numeric input hint (optional, defaults to empty string)   | QInput hint            | -          |
-| `[INSTANCE_ID].LinidSmartFilter.NumberSearchFilterPanel.inputPrefix`           | Numeric input prefix (optional, defaults to empty string) | QInput prefix          | -          |
-| `[INSTANCE_ID].LinidSmartFilter.NumberSearchFilterPanel.inputSuffix`           | Numeric input suffix (optional, defaults to empty string) | QInput suffix          | -          |
-| `[INSTANCE_ID].LinidSmartFilter.NumberSearchFilterPanel.negateLabel`           | Negation checkbox label                                   | QCheckbox label        | -          |
-| `[INSTANCE_ID].LinidSmartFilter.NumberSearchFilterPanel.searchButton`          | Search button label                                       | QBtn label             | -          |
-| `[INSTANCE_ID].LinidSmartFilter.NumberSearchFilterPanel.operators.inferior`    | "inferior" operator label                                 | Radio option label     | -          |
-| `[INSTANCE_ID].LinidSmartFilter.NumberSearchFilterPanel.operators.superior`    | "superior" operator label                                 | Radio option label     | -          |
-| `[INSTANCE_ID].LinidSmartFilter.NumberSearchFilterPanel.operators.equals`      | "equals" operator label                                   | Radio option label     | -          |
-| `[INSTANCE_ID].LinidSmartFilter.NumberSearchFilterPanel.operators.notInferior` | Negated "inferior" label                                  | Radio option label     | -          |
-| `[INSTANCE_ID].LinidSmartFilter.NumberSearchFilterPanel.operators.notSuperior` | Negated "superior" label                                  | Radio option label     | -          |
-| `[INSTANCE_ID].LinidSmartFilter.NumberSearchFilterPanel.operators.notEquals`   | Negated "equals" label                                    | Radio option label     | -          |
-| `[INSTANCE_ID].LinidSmartFilter.LinidFavoritePanel.title`                      | Panel section title                                       | Header title           | -          |
-| `[INSTANCE_ID].LinidSmartFilter.LinidFavoritePanel.noData`                     | No data panel section                                     | No data label          | -          |
+| Key                                                                            | Description                                                  | Usage                  | Parameters |
+| ------------------------------------------------------------------------------ | ------------------------------------------------------------ | ---------------------- | ---------- |
+| `[INSTANCE_ID].LinidSmartFilter.label`                                         | Filter field label (optional)                                | Input label            | -          |
+| `[INSTANCE_ID].LinidSmartFilter.hint`                                          | Helper text for the filter (optional)                        | Input hint             | -          |
+| `[INSTANCE_ID].LinidSmartFilter.prefix`                                        | Input prefix (optional)                                      | Input prefix           | -          |
+| `[INSTANCE_ID].LinidSmartFilter.suffix`                                        | Input suffix (optional)                                      | Input suffix           | -          |
+| `[INSTANCE_ID].LinidSmartFilter.LinidFilterChip.[FILTER].type`                 | Filter type label (optional, default filter.name)            | Filter label           | -          |
+| `[INSTANCE_ID].LinidSmartFilter.LinidFilterChip.[FILTER].separator`            | Separator between filter values                              | Filter separator label | -          |
+| `[INSTANCE_ID].LinidSmartFilter.LinidFilterPanel.title`                        | Panel section title                                          | Header title           | -          |
+| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.inputLabel`              | Text input label (optional, defaults to empty string)        | QInput label           | -          |
+| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.inputHint`               | Text input hint (optional, defaults to empty string)         | QInput hint            | -          |
+| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.inputPrefix`             | Text input prefix (optional, defaults to empty string)       | QInput prefix          | -          |
+| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.inputSuffix`             | Text input suffix (optional, defaults to empty string)       | QInput suffix          | -          |
+| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.negateLabel`             | Negation checkbox label                                      | QCheckbox label        | -          |
+| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.searchButton`            | Search button label                                          | QBtn label             | -          |
+| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.operators.contains`      | "contains" operator label                                    | Radio option label     | -          |
+| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.operators.startsWith`    | "startsWith" operator label                                  | Radio option label     | -          |
+| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.operators.endsWith`      | "endsWith" operator label                                    | Radio option label     | -          |
+| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.operators.equals`        | "equals" operator label                                      | Radio option label     | -          |
+| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.operators.notContains`   | Negated "contains" label                                     | Radio option label     | -          |
+| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.operators.notStartsWith` | Negated "startsWith" label                                   | Radio option label     | -          |
+| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.operators.notEndsWith`   | Negated "endsWith" label                                     | Radio option label     | -          |
+| `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.operators.notEquals`     | Negated "equals" label                                       | Radio option label     | -          |
+| `[INSTANCE_ID].LinidSmartFilter.NumberSearchFilterPanel.inputLabel`            | Numeric input label (optional, defaults to empty string)     | QInput label           | -          |
+| `[INSTANCE_ID].LinidSmartFilter.NumberSearchFilterPanel.inputHint`             | Numeric input hint (optional, defaults to empty string)      | QInput hint            | -          |
+| `[INSTANCE_ID].LinidSmartFilter.NumberSearchFilterPanel.inputPrefix`           | Numeric input prefix (optional, defaults to empty string)    | QInput prefix          | -          |
+| `[INSTANCE_ID].LinidSmartFilter.NumberSearchFilterPanel.inputSuffix`           | Numeric input suffix (optional, defaults to empty string)    | QInput suffix          | -          |
+| `[INSTANCE_ID].LinidSmartFilter.NumberSearchFilterPanel.negateLabel`           | Negation checkbox label                                      | QCheckbox label        | -          |
+| `[INSTANCE_ID].LinidSmartFilter.NumberSearchFilterPanel.searchButton`          | Search button label                                          | QBtn label             | -          |
+| `[INSTANCE_ID].LinidSmartFilter.NumberSearchFilterPanel.operators.inferior`    | "inferior" operator label                                    | Radio option label     | -          |
+| `[INSTANCE_ID].LinidSmartFilter.NumberSearchFilterPanel.operators.superior`    | "superior" operator label                                    | Radio option label     | -          |
+| `[INSTANCE_ID].LinidSmartFilter.NumberSearchFilterPanel.operators.equals`      | "equals" operator label                                      | Radio option label     | -          |
+| `[INSTANCE_ID].LinidSmartFilter.NumberSearchFilterPanel.operators.notInferior` | Negated "inferior" label                                     | Radio option label     | -          |
+| `[INSTANCE_ID].LinidSmartFilter.NumberSearchFilterPanel.operators.notSuperior` | Negated "superior" label                                     | Radio option label     | -          |
+| `[INSTANCE_ID].LinidSmartFilter.NumberSearchFilterPanel.operators.notEquals`   | Negated "equals" label                                       | Radio option label     | -          |
+| `[INSTANCE_ID].LinidSmartFilter.LinidFavoritePanel.title`                      | Panel section title                                          | Header title           | -          |
+| `[INSTANCE_ID].LinidSmartFilter.LinidFavoritePanel.noData`                     | No data panel section                                        | No data label          | -          |
+| `[INSTANCE_ID].LinidSmartFilter.LinidFavoritePanel.deleteButton`               | Label for delete button (optional, defaults to empty string) | QBtn label             | -          |
 
 Example:
 
@@ -170,7 +173,8 @@ Example:
       },
       "LinidFavoritePanel": {
         "title": "Favorites",
-        "noData": "No available favorites"
+        "noData": "No available favorites",
+        "deleteButton": "Delete"
       },
       "TextSearchFilterPanel": {
         "inputLabel": "Value",
