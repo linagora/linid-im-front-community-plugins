@@ -444,6 +444,17 @@ Smart filtering component with toggle-able menu for managing active filters and 
         "GenericTree": {
           "q-tree": {}
         }
+      },
+      "date-search-filter-panel": {
+        "q-input": { "outlined": true, "dense": true },
+        "q-icon": { "name": "event" },
+        "q-date": { "today-btn": true },
+        "q-checkbox": { "color": "primary", "dense": true },
+        "q-option-group": { "color": "primary", "dense": true },
+        "q-btn": { "color": "primary", "unelevated": true },
+        "close": {
+          "q-btn": { "flat": true }
+        }
       }
     }
   }
