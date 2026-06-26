@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.45](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.44...v0.2.45) (2026-06-26)
+
+
+### Features
+
+* **catalog-ui:** add favorite panel component ([b2c2838](https://github.com/linagora/linid-im-front-community-plugins/commit/b2c2838062430dc3d2052635996b04f1a5486a64))
+
 ### [0.2.44](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.43...v0.2.44) (2026-06-26)
 
 
