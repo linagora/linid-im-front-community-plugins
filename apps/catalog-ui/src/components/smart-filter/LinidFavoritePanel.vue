@@ -64,6 +64,15 @@
           <q-item-section v-bind="uiProps.labelSection">
             {{ favorite.label }}
           </q-item-section>
+          <q-item-section v-bind="uiProps.deleteSection">
+            <q-btn
+              v-bind="uiProps.deleteButton"
+              :label="translateOrDefault('', 'deleteButton')"
+              class="delete-button"
+              :data-cy="`button_delete_${index}`"
+              @click.stop="emit('delete', favorite)"
+            />
+          </q-item-section>
         </q-item>
 
         <q-item
@@ -89,6 +98,7 @@
 
 <script setup lang="ts">
 import type {
+  LinidQBtnProps,
   LinidQIconProps,
   LinidQItemProps,
   LinidQItemSectionProps,
@@ -106,7 +116,9 @@ import type {
 const props = defineProps<LinidFavoritePanelProps>();
 const emit = defineEmits<LinidFavoritePanelOutputs>();
 
-const { t } = useScopedI18n(`${props.i18nScope}.LinidFavoritePanel`);
+const { t, translateOrDefault } = useScopedI18n(
+  `${props.i18nScope}.LinidFavoritePanel`
+);
 const { ui } = useUiDesign();
 
 const localUiNamespace = `${props.uiNamespace}.linid-favorite-panel`;
@@ -138,6 +150,14 @@ const uiProps = computed<LinidFavoritePanelUIProps>(() => ({
   noDataLabelSection: ui<LinidQItemSectionProps>(
     `${contentUiNamespace}.no-data-label-section`,
     'q-item-section'
+  ),
+  deleteSection: ui<LinidQItemSectionProps>(
+    `${contentUiNamespace}.delete-section`,
+    'q-item-section'
+  ),
+  deleteButton: ui<LinidQBtnProps>(
+    `${contentUiNamespace}.delete-section`,
+    'q-btn'
   ),
 }));
 </script>

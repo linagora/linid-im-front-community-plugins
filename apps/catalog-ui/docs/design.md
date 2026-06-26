@@ -416,6 +416,10 @@ Smart filtering component with toggle-able menu for managing active filters and 
           "label-section": {
             "q-item-section": {}
           },
+          "delete-section": {
+            "q-item-section": {},
+            "q-btn": {}
+          },
           "no-data-icon-section": {
             "q-item-section": {},
             "q-icon": { "name": "filter_alt", "size": "sm" }
@@ -804,6 +808,10 @@ A full example showing all CatalogUI components configured together:
             },
             "label-section": {
               "q-item-section": {}
+            },
+            "delete-section": {
+              "q-item-section": {},
+              "q-btn": {}
             },
             "no-data-icon-section": {
               "q-item-section": {},

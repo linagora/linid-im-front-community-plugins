@@ -26,6 +26,7 @@
 
 import type {
   LinidFilterSet,
+  LinidQBtnProps,
   LinidQIconProps,
   LinidQItemProps,
   LinidQItemSectionProps,
@@ -88,6 +89,14 @@ export interface LinidFavoritePanelUIProps {
    * The UI properties for the horizontal separator below the title.
    */
   titleSeparator: LinidQSeparatorProps;
+  /**
+   * The UI properties for the delete item section.
+   */
+  deleteSection: LinidQItemSectionProps;
+  /**
+   * The UI properties for the delete button.
+   */
+  deleteButton: LinidQBtnProps;
 }
 
 /**
@@ -95,4 +104,5 @@ export interface LinidFavoritePanelUIProps {
  */
 export type LinidFavoritePanelOutputs = {
   (e: 'apply', favorite: LinidFilterSet): void;
+  (e: 'delete', favorite: LinidFilterSet): void;
 };
