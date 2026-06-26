@@ -66,31 +66,42 @@ export interface LinidSmartFilterProps extends CommonComponentProps {
 
 The component uses the LinID design system through `useUiDesign()` and applies props to Quasar components:
 
-| Namespace Path                                                                    | Target           | Description                                                                                                 |
-| --------------------------------------------------------------------------------- | ---------------- | ----------------------------------------------------------------------------------------------------------- |
-| `{uiNamespace}.linid-smart-filter`                                                | `q-field`        | Filter field container styling and configuration                                                            |
-| `{uiNamespace}.linid-smart-filter`                                                | `q-menu`         | Dropdown menu styling and configuration                                                                     |
-| `{uiNamespace}.linid-smart-filter.iconSearch`                                     | `q-icon`         | Search icon styling                                                                                         |
-| `{uiNamespace}.linid-smart-filter.iconMenuClose`                                  | `q-icon`         | Right dropdown icon styling (menu open)                                                                     |
-| `{uiNamespace}.linid-smart-filter.iconMenuOpen`                                   | `q-icon`         | Right dropdown icon styling (menu closed)                                                                   |
-| `{uiNamespace}.linid-smart-filter.linid-filter-chip.[FILTER]`                     | `q-chip`         | Configures the chip container that displays the selected values associated with a specific filter field.    |
-| `{uiNamespace}.linid-smart-filter.linid-filter-chip.[FILTER]`                     | `q-avatar`       | Configures the avatar section of the chip, which displays the filter field name before the selected values. |
-| `{uiNamespace}.linid-smart-filter.linid-filter-panel.header`                      | `q-icon`         | Icon displayed in the panel title bar                                                                       |
-| `{uiNamespace}.linid-smart-filter.linid-filter-panel.header`                      | `q-separator`    | Horizontal separator below the panel title                                                                  |
-| `{uiNamespace}.linid-smart-filter.linid-filter-panel.content`                     | `q-list`         | Filter navigation list styling                                                                              |
-| `{uiNamespace}.linid-smart-filter.linid-filter-panel.content`                     | `q-item`         | Filter item styling                                                                                         |
-| `{uiNamespace}.linid-smart-filter.linid-filter-panel.content`                     | `q-separator`    | Vertical separator between the filter list and the editor area                                              |
-| `{uiNamespace}.linid-smart-filter.linid-filter-panel.content.icon-section`        | `q-item-section` | Avatar section of a filter item (icon)                                                                      |
-| `{uiNamespace}.linid-smart-filter.linid-filter-panel.content.label-section`       | `q-item-section` | Label section of a filter item (name)                                                                       |
-| `{uiNamespace}.linid-smart-filter.linid-filter-panel.content.types.[FILTER_TYPE]` | `q-icon`         | Icon displayed next to a filter of a given type                                                             |
-| `{uiNamespace}.linid-smart-filter.text-search-filter-panel`                       | `q-input`        | Text input field styling                                                                                    |
-| `{uiNamespace}.linid-smart-filter.text-search-filter-panel`                       | `q-checkbox`     | Negation checkbox styling                                                                                   |
-| `{uiNamespace}.linid-smart-filter.text-search-filter-panel`                       | `q-option-group` | Operator radio group styling                                                                                |
-| `{uiNamespace}.linid-smart-filter.text-search-filter-panel`                       | `q-btn`          | Search button styling                                                                                       |
-| `{uiNamespace}.linid-smart-filter.number-search-filter-panel`                     | `q-input`        | Numeric input field styling                                                                                 |
-| `{uiNamespace}.linid-smart-filter.number-search-filter-panel`                     | `q-checkbox`     | Negation checkbox styling                                                                                   |
-| `{uiNamespace}.linid-smart-filter.number-search-filter-panel`                     | `q-option-group` | Operator radio group styling                                                                                |
-| `{uiNamespace}.linid-smart-filter.number-search-filter-panel`                     | `q-btn`          | Search button styling                                                                                       |
+| Namespace Path                                                                        | Target           | Description                                                                                                 |
+| ------------------------------------------------------------------------------------- | ---------------- | ----------------------------------------------------------------------------------------------------------- |
+| `{uiNamespace}.linid-smart-filter`                                                    | `q-field`        | Filter field container styling and configuration                                                            |
+| `{uiNamespace}.linid-smart-filter`                                                    | `q-menu`         | Dropdown menu styling and configuration                                                                     |
+| `{uiNamespace}.linid-smart-filter.iconSearch`                                         | `q-icon`         | Search icon styling                                                                                         |
+| `{uiNamespace}.linid-smart-filter.iconMenuClose`                                      | `q-icon`         | Right dropdown icon styling (menu open)                                                                     |
+| `{uiNamespace}.linid-smart-filter.iconMenuOpen`                                       | `q-icon`         | Right dropdown icon styling (menu closed)                                                                   |
+| `{uiNamespace}.linid-smart-filter.linid-filter-chip.[FILTER]`                         | `q-chip`         | Configures the chip container that displays the selected values associated with a specific filter field.    |
+| `{uiNamespace}.linid-smart-filter.linid-filter-chip.[FILTER]`                         | `q-avatar`       | Configures the avatar section of the chip, which displays the filter field name before the selected values. |
+| `{uiNamespace}.linid-smart-filter.linid-filter-panel.header`                          | `q-icon`         | Icon displayed in the panel title bar                                                                       |
+| `{uiNamespace}.linid-smart-filter.linid-filter-panel.header`                          | `q-separator`    | Horizontal separator below the panel title                                                                  |
+| `{uiNamespace}.linid-smart-filter.linid-filter-panel.content`                         | `q-list`         | Filter navigation list styling                                                                              |
+| `{uiNamespace}.linid-smart-filter.linid-filter-panel.content`                         | `q-item`         | Filter item styling                                                                                         |
+| `{uiNamespace}.linid-smart-filter.linid-filter-panel.content`                         | `q-separator`    | Vertical separator between the filter list and the editor area                                              |
+| `{uiNamespace}.linid-smart-filter.linid-filter-panel.content.icon-section`            | `q-item-section` | Avatar section of a filter item (icon)                                                                      |
+| `{uiNamespace}.linid-smart-filter.linid-filter-panel.content.label-section`           | `q-item-section` | Label section of a filter item (name)                                                                       |
+| `{uiNamespace}.linid-smart-filter.linid-filter-panel.content.types.[FILTER_TYPE]`     | `q-icon`         | Icon displayed next to a filter of a given type                                                             |
+| `{uiNamespace}.linid-smart-filter.text-search-filter-panel`                           | `q-input`        | Text input field styling                                                                                    |
+| `{uiNamespace}.linid-smart-filter.text-search-filter-panel`                           | `q-checkbox`     | Negation checkbox styling                                                                                   |
+| `{uiNamespace}.linid-smart-filter.text-search-filter-panel`                           | `q-option-group` | Operator radio group styling                                                                                |
+| `{uiNamespace}.linid-smart-filter.text-search-filter-panel`                           | `q-btn`          | Search button styling                                                                                       |
+| `{uiNamespace}.linid-smart-filter.number-search-filter-panel`                         | `q-input`        | Numeric input field styling                                                                                 |
+| `{uiNamespace}.linid-smart-filter.number-search-filter-panel`                         | `q-checkbox`     | Negation checkbox styling                                                                                   |
+| `{uiNamespace}.linid-smart-filter.number-search-filter-panel`                         | `q-option-group` | Operator radio group styling                                                                                |
+| `{uiNamespace}.linid-smart-filter.number-search-filter-panel`                         | `q-btn`          | Search button styling                                                                                       |
+| `{uiNamespace}.linid-smart-filter.linid-favorite-panel.header`                        | `q-icon`         | Icon displayed in the panel title bar                                                                       |
+| `{uiNamespace}.linid-smart-filter.linid-favorite-panel.header`                        | `q-separator`    | Horizontal separator below the panel title                                                                  |
+| `{uiNamespace}.linid-smart-filter.linid-favorite-panel.content`                       | `q-list`         | Favorites navigation list styling                                                                           |
+| `{uiNamespace}.linid-smart-filter.linid-favorite-panel.content`                       | `q-item`         | Favorites item styling                                                                                      |
+| `{uiNamespace}.linid-smart-filter.linid-favorite-panel.content`                       | `q-separator`    | Vertical separator between the favorites list and the editor area                                           |
+| `{uiNamespace}.linid-smart-filter.linid-favorite-panel.content.icon-section`          | `q-item-section` | Avatar section of a favorite item                                                                           |
+| `{uiNamespace}.linid-smart-filter.linid-favorite-panel.content.icon-section`          | `q-icon`         | Avatar section of a favorite item (icon)                                                                    |
+| `{uiNamespace}.linid-smart-filter.linid-favorite-panel.content.label-section`         | `q-item-section` | Label section of a favorite item (name)                                                                     |
+| `{uiNamespace}.linid-smart-filter.linid-favorite-panel.content.no-data-icon-section`  | `q-item-section` | Avatar section for no-data item                                                                             |
+| `{uiNamespace}.linid-smart-filter.linid-favorite-panel.content.no-data-icon-section`  | `q-icon`         | Avatar section for no-data item (icon)                                                                      |
+| `{uiNamespace}.linid-smart-filter.linid-favorite-panel.content.no-data-label-section` | `q-item-section` | Label section for no-data item (name)                                                                       |
 
 - **Design Configuration Example:** See [design.md](../../design.md#LinidSmartFilter).
 
@@ -135,6 +146,8 @@ The component uses scoped i18n with the following translation keys:
 | `[INSTANCE_ID].LinidSmartFilter.NumberSearchFilterPanel.operators.notInferior` | Negated "inferior" label                                  | Radio option label     | -          |
 | `[INSTANCE_ID].LinidSmartFilter.NumberSearchFilterPanel.operators.notSuperior` | Negated "superior" label                                  | Radio option label     | -          |
 | `[INSTANCE_ID].LinidSmartFilter.NumberSearchFilterPanel.operators.notEquals`   | Negated "equals" label                                    | Radio option label     | -          |
+| `[INSTANCE_ID].LinidSmartFilter.LinidFavoritePanel.title`                      | Panel section title                                       | Header title           | -          |
+| `[INSTANCE_ID].LinidSmartFilter.LinidFavoritePanel.noData`                     | No data panel section                                     | No data label          | -          |
 
 Example:
 
@@ -154,6 +167,10 @@ Example:
       },
       "LinidFilterPanel": {
         "title": "Filter By"
+      },
+      "LinidFavoritePanel": {
+        "title": "Favorites",
+        "noData": "No available favorites"
       },
       "TextSearchFilterPanel": {
         "inputLabel": "Value",
