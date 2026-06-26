@@ -24,7 +24,7 @@ It renders a hierarchical tree from provided nodes, with per-type icon support, 
 | `nodeTypes`     | `TreeNodeType[]`                               | Yes      | -       | Node type definitions with associated actions                              |
 | `uiNamespace`   | `string`                                       | Yes      | -       | UI design namespace for custom styling                                     |
 | `i18nScope`     | `string`                                       | Yes      | -       | i18n scope for translations                                                |
-| `selected`      | `string`                                       | Yes      | -       | The key of the selected node (v-model).                                    |
+| `selected`      | `string`                                       | No       | -       | The key of the selected node (v-model).                                    |
 | `searchEnabled` | `boolean`                                      | No       | -       | Displays the built-in filter input field when `true`.                      |
 | `filterMethod`  | `(node: QTreeNode, filter: string) => boolean` | No       | -       | Custom filter function applied to the tree when `searchEnabled` is `true`. |
 | `tickeable`     | `boolean`                                      | No       | -       | Enables checkbox selection mode for multi-node selection.                  |
@@ -255,13 +255,14 @@ This conversion is handled internally by `GenericTree` — consumers simply pass
 
 The component uses the LinID design system through `useUiDesign()` and applies props to several Quasar components:
 
-| Namespace                                                 | Target    | Description                            |
-| --------------------------------------------------------- | --------- | -------------------------------------- |
-| `{uiNamespace}.GenericTree`                               | `q-input` | Filter input field props               |
-| `{uiNamespace}.GenericTree`                               | `q-tree`  | Tree-level props                       |
-| `{uiNamespace}.GenericTree.ButtonActions`                 | `q-btn`   | Context menu trigger button            |
-| `{uiNamespace}.GenericTree.types.{type}`                  | `q-icon`  | Icon for the node type label           |
-| `{uiNamespace}.GenericTree.types.{type}.actions.{action}` | `q-icon`  | Icon for a specific action in the menu |
+| Namespace                                                 | Target       | Description                            |
+| --------------------------------------------------------- | ------------ | -------------------------------------- |
+| `{uiNamespace}.GenericTree`                               | `q-input`    | Filter input field props               |
+| `{uiNamespace}.GenericTree`                               | `q-tree`     | Tree-level props                       |
+| `{uiNamespace}.GenericTree`                               | `q-checkbox` | Checkbox styling for tickeable mode    |
+| `{uiNamespace}.GenericTree.ButtonActions`                 | `q-btn`      | Context menu trigger button            |
+| `{uiNamespace}.GenericTree.types.{type}`                  | `q-icon`     | Icon for the node type label           |
+| `{uiNamespace}.GenericTree.types.{type}.actions.{action}` | `q-icon`     | Icon for a specific action in the menu |
 
 Example:
 
@@ -269,6 +270,7 @@ Example:
 // For uiNamespace = 'Homepage', type = 'folder', action = 'delete'
 // Tree:          ui('Homepage.GenericTree', 'q-tree')
 // Button:        ui('Homepage.GenericTree.ButtonActions', 'q-btn')
+// Checkbox:      ui('Homepage.GenericTree', 'q-checkbox')
 // Folder icon:   ui('Homepage.GenericTree.types.folder', 'q-icon')
 // Delete icon:   ui('Homepage.GenericTree.types.folder.actions.delete', 'q-icon')
 ```

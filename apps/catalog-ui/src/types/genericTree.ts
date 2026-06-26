@@ -25,7 +25,6 @@
  */
 
 import type {
-  LinidQCheckboxProps,
   LinidQIconProps,
   TreeNode,
   TreeNodeType,
@@ -47,7 +46,7 @@ export interface TreeProps<T> extends CommonComponentProps {
   /**
    * The key of the selected node (v-model).
    */
-  selected: string;
+  selected?: string;
   /**
    * Indicates whether the search functionality is enabled.
    */
@@ -83,10 +82,6 @@ export type UiPropsTypes = Record<
      * The UI properties for the action icon.
      */
     actions: UiPropsAction;
-    /**
-     * The UI properties for the checkbox.
-     */
-    checkbox: LinidQCheckboxProps;
   }
 >;
 

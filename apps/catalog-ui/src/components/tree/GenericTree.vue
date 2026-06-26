@@ -58,7 +58,7 @@
           <q-checkbox
             v-if="props.tickeable"
             :model-value="tickedNodes.includes(prop.node.key)"
-            v-bind="uiProps.types[prop.node.type]?.checkbox"
+            v-bind="uiProps.checkbox"
             class="tree-header-checkbox"
             :data-cy="`generic-tree-checkbox-${prop.node.key}`"
             @click="toggleNodeSelection(prop.node.key)"
@@ -174,7 +174,7 @@ const nodeTypesMap = computed(
 const resolvedActionsByNode: Ref<Record<string, string[]>> = ref({});
 const resolvedActionsByType: Ref<Record<string, string[]>> = ref({});
 const treeNodeRecord: Ref<Record<string, TreeNode<unknown>>> = ref({});
-const selectedNode = ref<string>(props.selected);
+const selectedNode = ref<string>(props.selected || '');
 
 /**
  * Recursively builds indexes for quick lookup of actions by node key and type.
@@ -225,8 +225,8 @@ watch(selectedNode, (key: string) => {
 
 watch(
   () => props.selected,
-  (key: string) => {
-    selectedNode.value = key;
+  (key: string | undefined) => {
+    selectedNode.value = key || '';
   }
 );
 
@@ -254,13 +254,13 @@ const uiProps = computed(() => ({
     `${props.uiNamespace}.GenericTree.ButtonActions`,
     'q-btn'
   ),
+  checkbox: ui<LinidQCheckboxProps>(
+    `${props.uiNamespace}.GenericTree`,
+    'q-checkbox'
+  ),
   types: Object.entries(resolvedActionsByType.value).reduce<UiPropsTypes>(
     (acc, [type, actions]) => {
       acc[type] = {
-        checkbox: ui<LinidQCheckboxProps>(
-          `${props.uiNamespace}.GenericTree.types.${type}`,
-          'q-checkbox'
-        ),
         icon: ui<LinidQIconProps>(
           `${props.uiNamespace}.GenericTree.types.${type}`,
           'q-icon'

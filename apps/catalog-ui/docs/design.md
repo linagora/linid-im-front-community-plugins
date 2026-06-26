@@ -131,6 +131,7 @@ Hierarchical tree for displaying entity structures.
   "[PARENT_NAMESPACE]": {
     "GenericTree": {
       "q-tree": {},
+      "q-checkbox": {},
       "ButtonActions": {
         "q-btn": {
           "flat": true,
@@ -141,9 +142,6 @@ Hierarchical tree for displaying entity structures.
       },
       "types": {
         "[TYPE]": {
-          "q-checkbox": {
-            "dense": true
-          },
           "q-icon": {
             "name": "folder"
           },
@@ -840,6 +838,7 @@ A full example showing all CatalogUI components configured together:
       },
       "GenericTree": {
         "q-tree": {},
+        "q-checkbox": {},
         "ButtonActions": {
           "q-btn": {
             "flat": true,
@@ -850,9 +849,6 @@ A full example showing all CatalogUI components configured together:
         },
         "types": {
           "[TYPE]": {
-            "q-checkbox": {
-              "dense": true
-            },
             "q-icon": {
               "name": "folder"
             },
