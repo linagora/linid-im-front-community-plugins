@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.46](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.45...v0.2.46) (2026-06-26)
+
+
+### Features
+
+* **catalog-ui:** add delete button to favorite item ([f2ce22c](https://github.com/linagora/linid-im-front-community-plugins/commit/f2ce22c667cd45bef66745aba8884984376e7db6))
+
 ### [0.2.45](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.44...v0.2.45) (2026-06-26)
 
 
