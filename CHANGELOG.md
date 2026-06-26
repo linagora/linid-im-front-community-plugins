@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.47](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.46...v0.2.47) (2026-06-26)
+
+
+### Features
+
+* **catalog-ui:** add treeSearchFilter ([5a86996](https://github.com/linagora/linid-im-front-community-plugins/commit/5a86996d20c9756bda031bc2f3337aae088a9857))
+* put selected props not required in generic tree ([6652075](https://github.com/linagora/linid-im-front-community-plugins/commit/66520757974f28e11b94bef60517674f25f18830))
+
 ### [0.2.46](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.45...v0.2.46) (2026-06-26)
 
 
