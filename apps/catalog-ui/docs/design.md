@@ -400,6 +400,30 @@ Smart filtering component with toggle-able menu for managing active filters and 
         "q-checkbox": { "color": "primary", "dense": true },
         "q-option-group": { "color": "primary", "dense": true },
         "q-btn": { "color": "primary", "unelevated": true }
+      },
+      "linid-favorite-panel": {
+        "header": {
+          "q-icon": { "name": "filter_alt" },
+          "q-separator": { "inset": false }
+        },
+        "content": {
+          "q-list": { "bordered": false, "separator": true },
+          "q-item": { "dense": true },
+          "icon-section": {
+            "q-item-section": {},
+            "q-icon": { "name": "filter_alt", "size": "sm" }
+          },
+          "label-section": {
+            "q-item-section": {}
+          },
+          "no-data-icon-section": {
+            "q-item-section": {},
+            "q-icon": { "name": "filter_alt", "size": "sm" }
+          },
+          "no-data-label-section": {
+            "q-item-section": {}
+          }
+        }
       }
     }
   }
@@ -765,6 +789,30 @@ A full example showing all CatalogUI components configured together:
           "q-checkbox": { "color": "primary", "dense": true },
           "q-option-group": { "color": "primary", "dense": true },
           "q-btn": { "color": "primary", "unelevated": true }
+        },
+        "linid-favorite-panel": {
+          "header": {
+            "q-icon": { "name": "filter_alt" },
+            "q-separator": { "inset": false }
+          },
+          "content": {
+            "q-list": { "bordered": false, "separator": true },
+            "q-item": { "dense": true },
+            "icon-section": {
+              "q-item-section": {},
+              "q-icon": { "name": "filter_alt", "size": "sm" }
+            },
+            "label-section": {
+              "q-item-section": {}
+            },
+            "no-data-icon-section": {
+              "q-item-section": {},
+              "q-icon": { "name": "filter_alt", "size": "sm" }
+            },
+            "no-data-label-section": {
+              "q-item-section": {}
+            }
+          }
         }
       },
       "generic-entity-table": {
