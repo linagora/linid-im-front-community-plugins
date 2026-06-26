@@ -112,6 +112,13 @@ The component uses the LinID design system through `useUiDesign()` and applies p
 | `{uiNamespace}.linid-smart-filter.linid-favorite-panel.content.no-data-label-section` | `q-item-section` | Label section for no-data item (name)                                                                       |
 | `{uiNamespace}.linid-smart-filter.tree-search-filter-panel`                           | `GenericTree`    | Tree component styling and configuration                                                                    |
 | `{uiNamespace}.linid-smart-filter.tree-search-filter-panel`                           | `q-btn`          | Search button styling                                                                                       |
+| `{uiNamespace}.linid-smart-filter.date-search-filter-panel`                           | `q-input`        | Date text input field styling                                                                               |
+| `{uiNamespace}.linid-smart-filter.date-search-filter-panel`                           | `q-icon`         | Calendar icon trigger styling                                                                               |
+| `{uiNamespace}.linid-smart-filter.date-search-filter-panel`                           | `q-date`         | Date picker styling                                                                                         |
+| `{uiNamespace}.linid-smart-filter.date-search-filter-panel`                           | `q-checkbox`     | Negation checkbox styling                                                                                   |
+| `{uiNamespace}.linid-smart-filter.date-search-filter-panel`                           | `q-option-group` | Operator radio group styling                                                                                |
+| `{uiNamespace}.linid-smart-filter.date-search-filter-panel`                           | `q-btn`          | Search button styling                                                                                       |
+| `{uiNamespace}.linid-smart-filter.date-search-filter-panel.close`                     | `q-btn`          | Date picker close button styling                                                                            |
 
 - **Design Configuration Example:** See [design.md](../../design.md#LinidSmartFilter).
 
@@ -161,6 +168,19 @@ The component uses scoped i18n with the following translation keys:
 | `[INSTANCE_ID].LinidSmartFilter.LinidFavoritePanel.deleteButton`               | Label for delete button (optional, defaults to empty string) | QBtn label             | -          |
 | `[INSTANCE_ID].LinidSmartFilter.TreeSearchFilterPanel.searchButton`            | Search button label                                          | QBtn label             | -          |
 | `[INSTANCE_ID].LinidSmartFilter.ListSearchFilterPanel.searchButton`            | Search button label                                          | QBtn label             | -          |
+| `[INSTANCE_ID].LinidSmartFilter.DateSearchFilterPanel.inputLabel`              | Date input label (optional, defaults to empty string)        | QInput label           | -          |
+| `[INSTANCE_ID].LinidSmartFilter.DateSearchFilterPanel.inputHint`               | Date input hint (optional, defaults to empty string)         | QInput hint            | -          |
+| `[INSTANCE_ID].LinidSmartFilter.DateSearchFilterPanel.inputPrefix`             | Date input prefix (optional, defaults to empty string)       | QInput prefix          | -          |
+| `[INSTANCE_ID].LinidSmartFilter.DateSearchFilterPanel.inputSuffix`             | Date input suffix (optional, defaults to empty string)       | QInput suffix          | -          |
+| `[INSTANCE_ID].LinidSmartFilter.DateSearchFilterPanel.negateLabel`             | Negation checkbox label                                      | QCheckbox label        | -          |
+| `[INSTANCE_ID].LinidSmartFilter.DateSearchFilterPanel.close`                   | Date picker close button label                               | QBtn label             | -          |
+| `[INSTANCE_ID].LinidSmartFilter.DateSearchFilterPanel.searchButton`            | Search button label                                          | QBtn label             | -          |
+| `[INSTANCE_ID].LinidSmartFilter.DateSearchFilterPanel.operators.inferior`      | "inferior" operator label                                    | Radio option label     | -          |
+| `[INSTANCE_ID].LinidSmartFilter.DateSearchFilterPanel.operators.superior`      | "superior" operator label                                    | Radio option label     | -          |
+| `[INSTANCE_ID].LinidSmartFilter.DateSearchFilterPanel.operators.equals`        | "equals" operator label                                      | Radio option label     | -          |
+| `[INSTANCE_ID].LinidSmartFilter.DateSearchFilterPanel.operators.notInferior`   | Negated "inferior" label                                     | Radio option label     | -          |
+| `[INSTANCE_ID].LinidSmartFilter.DateSearchFilterPanel.operators.notSuperior`   | Negated "superior" label                                     | Radio option label     | -          |
+| `[INSTANCE_ID].LinidSmartFilter.DateSearchFilterPanel.operators.notEquals`     | Negated "equals" label                                       | Radio option label     | -          |
 
 Example:
 
@@ -224,6 +244,23 @@ Example:
       },
       "ListSearchFilterPanel": {
         "searchButton": "Search"
+      },
+      "DateSearchFilterPanel": {
+        "inputLabel": "Date",
+        "inputHint": "Select or enter a date",
+        "inputPrefix": "≥",
+        "inputSuffix": "(UTC)",
+        "negateLabel": "Negate",
+        "close": "Close",
+        "searchButton": "Search",
+        "operators": {
+          "inferior": "inferior",
+          "superior": "superior",
+          "equals": "equals",
+          "notInferior": "not inferior",
+          "notSuperior": "not superior",
+          "notEquals": "not equals"
+        }
       }
     }
   }
