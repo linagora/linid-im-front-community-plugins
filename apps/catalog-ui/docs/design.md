@@ -439,7 +439,7 @@ Smart filtering component with toggle-able menu for managing active filters and 
           }
         }
       },
-      "tree-search-filter": {
+      "tree-search-filter-panel": {
         "q-btn": {},
         "GenericTree": {
           "q-tree": {}
@@ -850,7 +850,7 @@ A full example showing all CatalogUI components configured together:
             }
           }
         },
-        "tree-search-filter": {
+        "tree-search-filter-panel": {
           "q-btn": {},
           "GenericTree": {
             "q-tree": {}
