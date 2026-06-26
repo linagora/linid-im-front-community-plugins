@@ -26,7 +26,7 @@
 
 <template>
   <!-- v8 ignore start -->
-  <div class="column tree-search-filter-container">
+  <div class="column tree-search-filter-panel">
     <generic-tree
       v-model:ticked="tickedNodeKeys"
       :tickeable="true"
@@ -59,9 +59,9 @@ const props = defineProps<TreeSearchFilterProps>();
 const emit = defineEmits<LinidFilterPanelSearchOutputs>();
 
 const { ui } = useUiDesign();
-const localI18n = `${props.i18nScope}.TreeSearchFilter`;
+const localI18n = `${props.i18nScope}.TreeSearchFilterPanel`;
 const { t } = useScopedI18n(localI18n);
-const localUiNamespace = `${props.uiNamespace}.tree-search-filter`;
+const localUiNamespace = `${props.uiNamespace}.tree-search-filter-panel`;
 
 const tickedNodeKeys = ref<string[]>([]);
 
