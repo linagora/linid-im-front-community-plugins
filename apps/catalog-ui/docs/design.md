@@ -436,6 +436,12 @@ Smart filtering component with toggle-able menu for managing active filters and 
           },
           "no-data-label-section": {
             "q-item-section": {}
+          },
+          "create-button": {
+            "q-btn": {}
+          },
+          "override-button": {
+            "q-btn": {}
           }
         }
       },
@@ -858,6 +864,12 @@ A full example showing all CatalogUI components configured together:
             },
             "no-data-label-section": {
               "q-item-section": {}
+            },
+            "create-button": {
+              "q-btn": {}
+            },
+            "override-button": {
+              "q-btn": {}
             }
           }
         },

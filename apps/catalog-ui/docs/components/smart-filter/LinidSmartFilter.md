@@ -110,6 +110,8 @@ The component uses the LinID design system through `useUiDesign()` and applies p
 | `{uiNamespace}.linid-smart-filter.linid-favorite-panel.content.no-data-icon-section`  | `q-item-section` | Avatar section for no-data item                                                                             |
 | `{uiNamespace}.linid-smart-filter.linid-favorite-panel.content.no-data-icon-section`  | `q-icon`         | Avatar section for no-data item (icon)                                                                      |
 | `{uiNamespace}.linid-smart-filter.linid-favorite-panel.content.no-data-label-section` | `q-item-section` | Label section for no-data item (name)                                                                       |
+| `{uiNamespace}.linid-smart-filter.linid-favorite-panel.content.create-button`         | `q-btn`          | Create favorite button styling                                                                              |
+| `{uiNamespace}.linid-smart-filter.linid-favorite-panel.content.override-button`       | `q-btn`          | Override favorite button styling                                                                            |
 | `{uiNamespace}.linid-smart-filter.tree-search-filter-panel`                           | `GenericTree`    | Tree component styling and configuration                                                                    |
 | `{uiNamespace}.linid-smart-filter.tree-search-filter-panel`                           | `q-btn`          | Search button styling                                                                                       |
 | `{uiNamespace}.linid-smart-filter.date-search-filter-panel`                           | `q-input`        | Date text input field styling                                                                               |
@@ -165,6 +167,8 @@ The component uses scoped i18n with the following translation keys:
 | `[INSTANCE_ID].LinidSmartFilter.NumberSearchFilterPanel.operators.notEquals`   | Negated "equals" label                                       | Radio option label     | -          |
 | `[INSTANCE_ID].LinidSmartFilter.LinidFavoritePanel.title`                      | Panel section title                                          | Header title           | -          |
 | `[INSTANCE_ID].LinidSmartFilter.LinidFavoritePanel.noData`                     | No data panel section                                        | No data label          | -          |
+| `[INSTANCE_ID].LinidSmartFilter.LinidFavoritePanel.createFavorite`             | Label for create button                                      | QBtn label             | -          |
+| `[INSTANCE_ID].LinidSmartFilter.LinidFavoritePanel.overrideFavorite`           | Label for override button                                    | QBtn label             | -          |
 | `[INSTANCE_ID].LinidSmartFilter.LinidFavoritePanel.deleteButton`               | Label for delete button (optional, defaults to empty string) | QBtn label             | -          |
 | `[INSTANCE_ID].LinidSmartFilter.TreeSearchFilterPanel.searchButton`            | Search button label                                          | QBtn label             | -          |
 | `[INSTANCE_ID].LinidSmartFilter.ListSearchFilterPanel.searchButton`            | Search button label                                          | QBtn label             | -          |
@@ -204,6 +208,8 @@ Example:
       "LinidFavoritePanel": {
         "title": "Favorites",
         "noData": "No available favorites",
+        "createFavorite": "Create Favorite",
+        "overrideFavorite": "Override Favorite",
         "deleteButton": "Delete"
       },
       "TextSearchFilterPanel": {
