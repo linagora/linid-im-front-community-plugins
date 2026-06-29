@@ -43,6 +43,25 @@
         />
       </template>
 
+      <template
+        v-if="filters?.length"
+        #control
+      >
+        <div
+          class="row q-gutter-sm linid-smart-filter--chips"
+          data-cy="linid-smart-filter-chips"
+        >
+          <linid-filter-chip
+            v-for="filter in filters"
+            :key="filter.id"
+            :filter="filter"
+            :ui-namespace="localUiNamespace"
+            :i18n-scope="localI18nScope"
+            @remove="onChipRemove"
+          />
+        </div>
+      </template>
+
       <template #append>
         <q-icon
           v-if="!isFilterMenuOpen"
@@ -55,13 +74,34 @@
           v-bind="uiProps.iconMenuClose"
         />
       </template>
+
       <q-menu
         v-model="isFilterMenuOpen"
         class="linid-smart-filter--menu"
         data-cy="linid-smart-filter-menu"
         v-bind="uiProps.menu"
       >
-        <span>Work in progress</span>
+        <linid-filter-panel
+          v-model:selected="selectedFilterId"
+          :filters="options?.filters ?? []"
+          :ui-namespace="localUiNamespace"
+          :i18n-scope="localI18nScope"
+          data-cy="linid-smart-filter-panel"
+        >
+          <template
+            v-for="(panelComponent, type) in PANEL_COMPONENTS"
+            :key="type"
+            #[`filter-${type}`]
+          >
+            <component
+              :is="panelComponent"
+              v-if="panelComponent"
+              :key="selectedFilterId"
+              v-bind="currentPanelProps"
+              @search="onSearch"
+            />
+          </template>
+        </linid-filter-panel>
       </q-menu>
     </q-field>
   </div>
@@ -69,22 +109,62 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
-import type { LinidSmartFilterProps } from '../../types/smartFilter';
 import type {
+  LinidFilterType,
   LinidQFieldProps,
   LinidQIconProps,
   LinidQMenuProps,
 } from '@linagora/linid-im-front-corelib';
-import { useScopedI18n, useUiDesign } from '@linagora/linid-im-front-corelib';
+import {
+  LinidFilter,
+  useScopedI18n,
+  useUiDesign,
+} from '@linagora/linid-im-front-corelib';
+import type { Component } from 'vue';
+import { computed, ref, watch } from 'vue';
+import type { LinidFilterPanelSearchPayload } from '../../types/linidFilterPanel';
+import type {
+  LinidSmartFilterOutputs,
+  LinidSmartFilterProps,
+} from '../../types/smartFilter';
+import LinidFilterChip from '../chip/LinidFilterChip.vue';
+import DateSearchFilterPanel from './DateSearchFilterPanel.vue';
+import LinidFilterPanel from './LinidFilterPanel.vue';
+import ListSearchFilterPanel from './ListSearchFilterPanel.vue';
+import NumberSearchFilterPanel from './NumberSearchFilterPanel.vue';
+import TextSearchFilterPanel from './TextSearchFilterPanel.vue';
+import TreeSearchFilterPanel from './TreeSearchFilterPanel.vue';
+
+const PANEL_COMPONENTS: Record<LinidFilterType, Component> = {
+  text: TextSearchFilterPanel,
+  number: NumberSearchFilterPanel,
+  date: DateSearchFilterPanel,
+  list: ListSearchFilterPanel,
+  tree: TreeSearchFilterPanel,
+};
 
 const props = defineProps<LinidSmartFilterProps>();
+const emit = defineEmits<LinidSmartFilterOutputs>();
 
 const localUiNamespace = `${props.uiNamespace}.linid-smart-filter`;
 const { ui } = useUiDesign();
 const localI18nScope = `${props.i18nScope}.LinidSmartFilter`;
 const { translateOrDefault } = useScopedI18n(localI18nScope);
+
 const isFilterMenuOpen = ref(false);
+const selectedFilterId = ref('');
+
+let activeFilters: LinidFilter[] = [];
+
+watch(
+  () => props.filters,
+  (newFilters) => {
+    activeFilters = (newFilters ?? []).map((f) =>
+      Object.assign(Object.create(Object.getPrototypeOf(f)), f)
+    );
+  },
+  { immediate: true }
+);
 
 const uiProps = {
   field: ui<LinidQFieldProps>(`${localUiNamespace}`, 'q-field'),
@@ -99,6 +179,63 @@ const uiProps = {
     'q-icon'
   ),
 };
+
+/** The filter object corresponding to the currently selected id in the panel. */
+const selectedFilter = computed<LinidFilter | undefined>(() =>
+  (props.options?.filters ?? []).find((f) => f.id === selectedFilterId.value)
+);
+
+/** Props forwarded to the active search panel, derived from the selected filter's options. */
+const currentPanelProps = computed(() => ({
+  ...(selectedFilter.value?.options as Record<string, unknown>),
+  fieldName: selectedFilter.value?.name,
+  uiNamespace: localUiNamespace,
+  i18nScope: localI18nScope,
+}));
+
+/**
+ * Called when a search panel emits a `search` event.
+ * Always pushes a new `LinidFilter` entry to `activeFilters`, even if one with the same field name
+ * already exists — each search produces its own chip with its own values. No-ops when no filter is
+ * selected or values is empty.
+ * @param payload - The search payload carrying the target field and new values.
+ */
+function onSearch(payload: LinidFilterPanelSearchPayload): void {
+  if (!selectedFilter.value || payload.values.length === 0) {
+    return;
+  }
+
+  activeFilters.push(
+    new LinidFilter(
+      payload.field,
+      selectedFilter.value?.type,
+      selectedFilter.value?.options,
+      payload.values
+    )
+  );
+  emitFilters();
+  isFilterMenuOpen.value = false;
+}
+
+/**
+ * Called when the user removes a filter chip.
+ * Clears all values for the corresponding filter.
+ * @param filterId - The id of the filter whose values should be cleared.
+ */
+function onChipRemove(filterId: string): void {
+  activeFilters = activeFilters.filter((filter) => filter.id !== filterId);
+  emitFilters();
+}
+
+/**
+ * Emits `update:filters` with all filters that currently have applied values.
+ */
+function emitFilters(): void {
+  emit(
+    'update:filters',
+    activeFilters.filter((f) => f.values.length > 0)
+  );
+}
 </script>
 
 <style lang="scss" scoped></style>

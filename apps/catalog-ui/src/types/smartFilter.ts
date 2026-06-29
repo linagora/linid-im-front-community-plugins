@@ -54,3 +54,10 @@ export interface LinidSmartFilterProps extends CommonComponentProps {
     filterSets?: LinidFilterSet[];
   };
 }
+
+/**
+ * Defines the events emitted by the LinidSmartFilter component.
+ */
+export type LinidSmartFilterOutputs = {
+  (e: 'update:filters', filters: LinidFilter[]): void;
+};

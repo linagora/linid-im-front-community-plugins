@@ -15,18 +15,170 @@ The **LinidSmartFilter** component provides a filtering interface with a toggle-
 
 ## **Props**
 
-| Prop          | Type                                                         | Required | Default | Description                                                                              |
-| ------------- | ------------------------------------------------------------ | -------- | ------- | ---------------------------------------------------------------------------------------- |
-| `uiNamespace` | `string`                                                     | Yes      | -       | UI design namespace for styling and configuring the component through the design system. |
-| `i18nScope`   | `string`                                                     | Yes      | -       | i18n scope for localizing strings within the component.                                  |
-| `filters`     | `LinidFilter[]`                                              | Yes      | -       | Array of currently active filters. Represents the filter state applied to data.          |
-| `options`     | `{ filters?: LinidFilter[]; filterSets?: LinidFilterSet[] }` | Yes      | -       | Available filter definitions and saved filter configurations.                            |
+| Prop          | Type                                                         | Required | Default | Description                                                                                                                                                                       |
+| ------------- | ------------------------------------------------------------ | -------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `uiNamespace` | `string`                                                     | Yes      | -       | UI design namespace for styling and configuring the component through the design system.                                                                                          |
+| `i18nScope`   | `string`                                                     | Yes      | -       | i18n scope for localizing strings within the component.                                                                                                                           |
+| `filters`     | `LinidFilter[]`                                              | No       | -       | Active filters currently applied. This is the controlled state: the parent passes back the array received from `update:filters`. Only filters with non-empty values are included. |
+| `options`     | `{ filters?: LinidFilter[]; filterSets?: LinidFilterSet[] }` | No       | -       | Available filter definitions (`options.filters`) and saved filter configurations (`options.filterSets`). `options.filters` is the full catalog of filters the user can apply.     |
 
 ---
 
 ## **Events**
 
-Currently, the `LinidSmartFilter` component does not emit custom events.
+| Event            | Payload         | Description                                                                                                                               |
+| ---------------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `update:filters` | `LinidFilter[]` | Emitted whenever the user applies or removes a filter. The payload contains only the filters that have at least one active value applied. |
+
+---
+
+## **Architecture Overview**
+
+The component separates two concerns that are easy to conflate:
+
+- **`options.filters`** defines _which filters exist_ — their type, their label, and any type-specific configuration (e.g. the list of items for a `list` filter). This is the catalog. It is provided once by the parent and never changes at runtime.
+- **`filters`** carries _which filters are active_ — only those to which the user has applied at least one value. This is the controlled state: the parent receives it via `update:filters` and passes it back as a prop on the next render.
+
+When the user applies or removes a filter, the component emits `update:filters`. The parent must pass the updated array back via the `filters` prop for the chips to reflect the new state.
+
+### Component structure
+
+```
+LinidSmartFilter
+├── Search field (always visible)
+│   ├── Search icon (left)
+│   ├── Active filter chips (one per applied filter)
+│   └── Dropdown arrow (right)
+└── Dropdown menu (opens on click)
+    └── Filter panel
+        ├── Filter list (left column — one entry per available filter)
+        └── Filter editor (right column — changes based on the selected filter type)
+```
+
+---
+
+## **Filter Type → Panel Mapping**
+
+When the user selects a filter in the left column, the editor on the right displays a panel adapted to the filter's type:
+
+| Filter type | Editor UI                                                                                   |
+| ----------- | ------------------------------------------------------------------------------------------- |
+| `text`      | Text input with operator options (contains, starts with, …) and a negation toggle           |
+| `number`    | Numeric input with operator options (less than, greater than, equals) and a negation toggle |
+| `date`      | Date input with a date picker, operator options, and a negation toggle                      |
+| `list`      | Checkbox list of predefined items                                                           |
+| `tree`      | Hierarchical tree selector                                                                  |
+
+Switching from one filter to another always resets the editor to its initial state, even if both filters share the same type.
+
+---
+
+## **Event Flow**
+
+### Applying a filter
+
+1. The user selects a filter in the left column, fills in the editor, and clicks **Search**.
+2. The component emits `update:filters` with all currently active filters (including the newly applied one).
+3. The parent updates its state and passes the new array back as `:filters`.
+4. The chip for that filter appears.
+
+### Switching between filters
+
+1. The user clicks a different filter name in the left column.
+2. The editor on the right is replaced with a fresh panel for the newly selected filter.
+3. Any previously typed values in the old panel are discarded — they are not applied until the user explicitly clicks **Search**.
+
+---
+
+## **Chip Lifecycle**
+
+Each applied filter is displayed as a chip in the search field. The chip shows the filter label and its current value(s).
+
+**A chip appears** when the user clicks **Search** in the editor with at least one value entered — a new, independent chip, even if a chip for the same filter already exists. Searching the same filter multiple times produces multiple separate chips, each with its own value(s), rather than merging into a single chip. Clicking **Search** with an empty editor has no effect — no chip is created.
+
+**A chip disappears** when the user clicks × on it. This is the only way to remove an active filter. The filter's values are cleared and `update:filters` is emitted with the remaining active filters.
+
+---
+
+## **Example Usage**
+
+### Minimal
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue';
+import { LinidFilter } from '@linagora/linid-im-front-corelib';
+
+const filters = ref([]);
+
+const filterDefinitions = [new LinidFilter('firstname', 'text', { fieldName: 'firstname' }, []), new LinidFilter('lastname', 'text', { fieldName: 'lastname' }, [])];
+
+function onUpdateFilters(updated) {
+  filters.value = updated;
+}
+</script>
+
+<template>
+  <linid-smart-filter
+    ui-namespace="myApp"
+    i18n-scope="myScope"
+    :filters="filters"
+    :options="{ filters: filterDefinitions }"
+    @update:filters="onUpdateFilters"
+  />
+</template>
+```
+
+### With all filter types
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue';
+import { LinidFilter } from '@linagora/linid-im-front-corelib';
+
+const filters = ref([]);
+
+const filterDefinitions = [
+  new LinidFilter('username', 'text', { fieldName: 'username' }, []),
+  new LinidFilter('age', 'number', { fieldName: 'age' }, []),
+  new LinidFilter('createdAt', 'date', { fieldName: 'createdAt', maskI18NKey: 'application.dateFormat' }, []),
+  new LinidFilter(
+    'status',
+    'list',
+    {
+      fieldName: 'status',
+      items: [
+        { label: 'Active', value: 'active' },
+        { label: 'Suspended', value: 'suspended' },
+        { label: 'Deactivated', value: 'deactivated' },
+      ],
+    },
+    []
+  ),
+  new LinidFilter(
+    'ou',
+    'tree',
+    {
+      fieldName: 'ou',
+      items: [{ type: 'ou', key: 'ou=root', value: 'Root', nodes: [{ type: 'ou', key: 'ou=engineering', value: 'Engineering', nodes: [] }] }],
+    },
+    []
+  ),
+];
+</script>
+
+<template>
+  <linid-smart-filter
+    ui-namespace="myApp"
+    i18n-scope="myScope"
+    :filters="filters"
+    :options="{ filters: filterDefinitions }"
+    @update:filters="filters = $event"
+  />
+</template>
+```
+
+> **Note:** `LinidFilter` auto-generates a stable `id` via `crypto.randomUUID()` at construction time. Define the filter instances once (outside `setup` or in a constant) to prevent `id` regeneration on every render.
 
 ---
 
@@ -41,7 +193,8 @@ Extends `CommonComponentProps` from the corelib:
 ```typescript
 export interface LinidSmartFilterProps extends CommonComponentProps {
   /**
-   * Represents the active filter state
+   * Active filters currently applied. Only filters with non-empty values are included.
+   * This is the controlled state: the parent passes back the value received from `update:filters`.
    */
   filters?: LinidFilter[];
 
@@ -50,17 +203,32 @@ export interface LinidSmartFilterProps extends CommonComponentProps {
    */
   options?: {
     /**
-     * Represents all usable filters.
+     * Full catalog of filters the user can apply. Each entry defines the filter type,
+     * its field name, and any type-specific options (e.g. list items, date mask).
      */
     filters?: LinidFilter[];
 
     /**
-     * Represents saved search configurations.
+     * Saved search configurations the user can restore.
      */
     filterSets?: LinidFilterSet[];
   };
 }
 ```
+
+### `LinidSmartFilterOutputs`
+
+```typescript
+export type LinidSmartFilterOutputs = {
+  /**
+   * Emitted when the user applies or removes a filter.
+   * The payload contains only the filters with at least one active value.
+   */
+  (e: 'update:filters', filters: LinidFilter[]): void;
+};
+```
+
+---
 
 ## **UI Customization**
 
