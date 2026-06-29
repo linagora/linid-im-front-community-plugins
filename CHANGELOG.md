@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.49](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.48...v0.2.49) (2026-06-29)
+
+
+### Features
+
+* **catalog-ui:** add "Date Search Filter Panel" component ([5f93af1](https://github.com/linagora/linid-im-front-community-plugins/commit/5f93af18e013b4f69188ea6a25bb0c469e1785f6)), closes [#164](https://github.com/linagora/linid-im-front-community-plugins/issues/164)
+
 ### [0.2.48](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.47...v0.2.48) (2026-06-29)
 
 
