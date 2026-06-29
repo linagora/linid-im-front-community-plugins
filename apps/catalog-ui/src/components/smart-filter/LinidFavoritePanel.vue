@@ -38,6 +38,22 @@
       {{ t('title') }}
     </div>
 
+    <div class="q-gutter-sm q-pa-sm linid-favorite-panel--action-buttons">
+      <q-btn
+        v-bind="uiProps.createButton"
+        :label="t('createFavorite')"
+        :data-cy="`button_create`"
+        @click="emit('create')"
+      />
+      <q-btn
+        v-bind="uiProps.overrideButton"
+        :label="t('overrideFavorite')"
+        :disable="favorites.length === 0"
+        :data-cy="`button_override`"
+        @click="emit('override')"
+      />
+    </div>
+
     <q-separator v-bind="uiProps.titleSeparator" />
 
     <div class="row no-wrap linid-favorite-panel--content">
@@ -157,6 +173,14 @@ const uiProps = computed<LinidFavoritePanelUIProps>(() => ({
   ),
   deleteButton: ui<LinidQBtnProps>(
     `${contentUiNamespace}.delete-section`,
+    'q-btn'
+  ),
+  createButton: ui<LinidQBtnProps>(
+    `${contentUiNamespace}.create-button`,
+    'q-btn'
+  ),
+  overrideButton: ui<LinidQBtnProps>(
+    `${contentUiNamespace}.override-button`,
     'q-btn'
   ),
 }));
