@@ -353,6 +353,7 @@ The component uses scoped i18n with the following translation keys:
 | `[INSTANCE_ID].LinidSmartFilter.DateSearchFilterPanel.operators.notInferior`   | Negated "inferior" label                                     | Radio option label     | -          |
 | `[INSTANCE_ID].LinidSmartFilter.DateSearchFilterPanel.operators.notSuperior`   | Negated "superior" label                                     | Radio option label     | -          |
 | `[INSTANCE_ID].LinidSmartFilter.DateSearchFilterPanel.operators.notEquals`     | Negated "equals" label                                       | Radio option label     | -          |
+| `[INSTANCE_ID].LinidSmartFilter.DateSearchFilterPanel.validation.invalidDate`  | Invalid date format error message                            | QInput validation rule | `format`   |
 
 Example:
 
@@ -434,6 +435,9 @@ Example:
           "notInferior": "not inferior",
           "notSuperior": "not superior",
           "notEquals": "not equals"
+        },
+        "validation": {
+          "invalidDate": "Invalid date. Expected format: {format}"
         }
       }
     }
