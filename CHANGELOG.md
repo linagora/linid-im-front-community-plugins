@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.50](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.49...v0.2.50) (2026-06-29)
+
+
+### Features
+
+* **catalog-ui:** add create ans override favorite buttons ([38f46c0](https://github.com/linagora/linid-im-front-community-plugins/commit/38f46c01451e05cedcd878ed42a052079aedcb6a))
+
 ### [0.2.49](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.48...v0.2.49) (2026-06-29)
 
 
