@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.51](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.50...v0.2.51) (2026-06-30)
+
+
+### Features
+
+* **catalog-ui:** add interactive filter panel to LinidSmartFilter ([86bb2a8](https://github.com/linagora/linid-im-front-community-plugins/commit/86bb2a80720530e98392a1b63ddfb391476c0d3d)), closes [#168](https://github.com/linagora/linid-im-front-community-plugins/issues/168)
+
 ### [0.2.50](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.49...v0.2.50) (2026-06-29)
 
 
