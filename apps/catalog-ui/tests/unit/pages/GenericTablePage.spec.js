@@ -34,10 +34,36 @@ const mockRoute = {
     instanceId: 'test-instance-id',
   },
   matched: [{ path: '/page' }],
+  query: {},
 };
 
 const mockNotify = vi.fn();
 const mockRouterPush = vi.fn();
+const mockModuleOptions = {
+  idKey: 'id',
+  creationPagePath: '/new',
+  columns: [
+    { name: 'id', label: 'ID', field: 'id' },
+    { name: 'name', label: 'Name', field: 'name' },
+  ],
+};
+const mockSetFiltersInUrl = vi.fn();
+const mockGetFiltersFromUrl = vi.fn(() => []);
+
+const { MockLinidFilter } = vi.hoisted(() => ({
+  MockLinidFilter: class MockLinidFilter {
+    constructor(name, type, options, values) {
+      this.name = name;
+      this.type = type;
+      this.options = options;
+      this.values = values;
+    }
+
+    toString() {
+      return this.values.join('|');
+    }
+  },
+}));
 
 vi.mock('@linagora/linid-im-front-corelib', () => ({
   getEntities: vi.fn(() =>
@@ -50,25 +76,24 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
   ),
   useScopedI18n: () => ({
     t: vi.fn((v) => v),
+    te: vi.fn(() => false),
   }),
   useNotify: () => ({
     Notify: mockNotify,
   }),
   getModuleHostConfiguration: () => ({
-    options: {
-      idKey: 'id',
-      creationPagePath: '/new',
-      columns: [
-        { name: 'id', label: 'ID', field: 'id' },
-        { name: 'name', label: 'Name', field: 'name' },
-      ],
-    },
+    options: mockModuleOptions,
   }),
   usePagination: () => ({
     toPagination: (p) => p,
     toQuasarPagination: () => 'Updated pagination',
   }),
   useUiDesign: () => ({ ui: () => ({}) }),
+  useLinidFilterUrl: () => ({
+    setFiltersInUrl: mockSetFiltersInUrl,
+    getFiltersFromUrl: mockGetFiltersFromUrl,
+  }),
+  LinidFilter: MockLinidFilter,
 }));
 
 vi.mock('vue-router', () => ({
@@ -216,6 +241,74 @@ describe('Test component: GenericTablePage', () => {
 
       expect(mockRouterPush).toHaveBeenCalledTimes(1);
       expect(mockRouterPush).toHaveBeenCalledWith({ path: '/new' });
+    });
+  });
+
+  describe('Test function: onFiltersChange', () => {
+    it('should update filters, reset pagination, sync URL and reload data', async () => {
+      vi.clearAllMocks();
+      wrapper.vm.pagination.page = 3;
+      const newFilters = [new MockLinidFilter('name', 'text', {}, ['paris'])];
+
+      await wrapper.vm.onFiltersChange(newFilters);
+
+      expect(wrapper.vm.filters).toEqual(newFilters);
+      expect(wrapper.vm.pagination.page).toBe(1);
+      expect(mockSetFiltersInUrl).toHaveBeenCalledWith(newFilters, []);
+      expect(getEntities).toHaveBeenCalledWith(
+        'test-instance-id',
+        { name: 'paris' },
+        expect.objectContaining({ page: 1 })
+      );
+    });
+
+    it('should pass keepQueryParams to setFiltersInUrl when configured', async () => {
+      mockModuleOptions.keepQueryParams = ['node'];
+      wrapper = shallowMount(GenericTablePage, {
+        global: { stubs: ['GenericEntityTable'] },
+      });
+      const newFilters = [new MockLinidFilter('name', 'text', {}, ['paris'])];
+
+      await wrapper.vm.onFiltersChange(newFilters);
+
+      expect(mockSetFiltersInUrl).toHaveBeenCalledWith(newFilters, ['node']);
+
+      mockModuleOptions.keepQueryParams = undefined;
+    });
+  });
+
+  describe('Test function: toQueryFilter', () => {
+    it('should build a query filter from the active filters', () => {
+      wrapper.vm.filters = [
+        new MockLinidFilter('name', 'text', {}, ['paris', 'lyon']),
+      ];
+
+      expect(wrapper.vm.toQueryFilter()).toEqual({ name: 'paris|lyon' });
+    });
+
+    it('should return an empty object when there are no active filters', () => {
+      wrapper.vm.filters = [];
+
+      expect(wrapper.vm.toQueryFilter()).toEqual({});
+    });
+  });
+
+  describe('Test constant: filters', () => {
+    it('should initialize filters from the URL using the configured filter definitions', () => {
+      const urlFilters = [new MockLinidFilter('name', 'text', {}, ['paris'])];
+      mockGetFiltersFromUrl.mockReturnValueOnce(urlFilters);
+      mockModuleOptions.filters = [new MockLinidFilter('name', 'text', {}, [])];
+
+      const localWrapper = shallowMount(GenericTablePage, {
+        global: { stubs: ['GenericEntityTable'] },
+      });
+
+      expect(mockGetFiltersFromUrl).toHaveBeenCalledWith(
+        mockModuleOptions.filters
+      );
+      expect(localWrapper.vm.filters).toEqual(urlFilters);
+
+      mockModuleOptions.filters = undefined;
     });
   });
 });

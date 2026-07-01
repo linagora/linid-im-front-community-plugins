@@ -24,6 +24,7 @@
  * LinID Identity Manager software.
  */
 
+import type { LinidFilter } from '@linagora/linid-im-front-corelib';
 import type { QTableColumn } from 'quasar';
 import type { ModulePageOptions } from './ModulePageOptions';
 
@@ -60,4 +61,23 @@ export interface ModuleGenericTablePageOptions extends ModulePageOptions {
    * This should correspond to a valid route exposed by the module.
    */
   creationPagePath: string;
+
+  /**
+   * URL query parameter keys to preserve when filter state is synced to the URL.
+   * Keys listed here are kept as-is. All other keys are replaced with the serialized filter values.
+   *
+   * Use this when the page shares the URL with other components that own
+   * their own query parameters (e.g. A tree panel that writes a `node` key).
+   */
+  keepQueryParams?: string[];
+
+  /**
+   * Filter definitions exposed through the LinidSmartFilter component.
+   *
+   * When provided and non-empty, the smart filter is rendered above the
+   * table, filter changes are reflected in the URL query params, and the
+   * table data is reloaded with the active filters. When omitted or empty,
+   * no smart filter is rendered.
+   */
+  filters?: LinidFilter[];
 }

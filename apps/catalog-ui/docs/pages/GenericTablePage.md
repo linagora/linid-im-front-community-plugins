@@ -8,6 +8,7 @@ It is designed to work with Module Federation-based modules and relies on a host
 - data loading
 - navigation behavior
 - optional action panel
+- optional, URL-synced filter panel
 
 ---
 
@@ -17,6 +18,7 @@ It is designed to work with Module Federation-based modules and relies on a host
 - Abstract pagination, data fetching, and routing logic
 - Integrate seamlessly with Module Federation configuration
 - Support optional actions via a configurable action card
+- Support optional filtering via a configurable smart filter, synced with the URL
 - Enable consistent navigation to entity creation and detail pages
 - Ensure full compatibility with Quasar QTable ecosystem
 
@@ -32,23 +34,27 @@ interface ModuleGenericTablePageOptions {
   columns: QTableColumn[];
   enableActions: boolean;
   creationPagePath: string;
+  keepQueryParams?: string[];
+  filters?: LinidFilter[];
 }
 ```
 
 ### **Options**
 
-| Option             | Type             | Description                                           |
-| ------------------ | ---------------- | ----------------------------------------------------- |
-| `idKey`            | `string`         | Key used to identify each row and build detail routes |
-| `columns`          | `QTableColumn[]` | Table column definitions (Quasar format)              |
-| `enableActions`    | `boolean`        | Enables or disables the actions card above the table  |
-| `creationPagePath` | `string`         | Route path used for the "create" button navigation    |
+| Option             | Type             | Description                                                                                             |
+| ------------------ | ---------------- | ------------------------------------------------------------------------------------------------------- |
+| `idKey`            | `string`         | Key used to identify each row and build detail routes                                                   |
+| `columns`          | `QTableColumn[]` | Table column definitions (Quasar format)                                                                |
+| `enableActions`    | `boolean`        | Enables or disables the actions card above the table                                                    |
+| `creationPagePath` | `string`         | Route path used for the "create" button navigation                                                      |
+| `keepQueryParams`  | `string[]`       | Optional. URL query parameter keys to preserve as-is when the active filters are synced to the URL      |
+| `filters`          | `LinidFilter[]`  | Optional. Filter definitions rendered by `LinidSmartFilter`. Omitted or empty disables the smart filter |
 
 ---
 
 ## **Layout Structure**
 
-The page is composed of three main sections:
+The page is composed of four main sections:
 
 ### **1. Header (optional)**
 
@@ -77,7 +83,21 @@ Includes:
 
 ---
 
-### **3. Table Section**
+### **3. Filter Section (optional)**
+
+Rendered only when `options.filters` is a non-empty array.
+
+Includes:
+
+- `LinidSmartFilter` (federated component)
+- Active filters are initialized from the URL query params on mount
+- Filter changes reset pagination to page 1, sync the URL, and reload the table data
+
+See [LinidSmartFilter](../components/smart-filter/LinidSmartFilter.md) for the filtering UI itself.
+
+---
+
+### **4. Table Section**
 
 Renders a table component:
 
@@ -148,6 +168,22 @@ The component supports full server-side pagination:
 
 ---
 
+## **Filtering**
+
+Rendered only when `options.filters` is provided and non-empty.
+
+- Filter definitions (`options.filters`) are passed as the catalog to `LinidSmartFilter`
+- Active filters are initialized on mount from the URL via `getFiltersFromUrl` (from `useLinidFilterUrl`), matched against the configured filter definitions
+- On `update:filters`:
+  1. The active filters are updated
+  2. Pagination is reset to page 1
+  3. The URL is updated via `setFiltersInUrl`, preserving any keys listed in `keepQueryParams`
+  4. `loadData()` is called, sending the active filters as a query filter (built by `toQueryFilter`) to `getEntities`
+
+Each active filter is serialized to a query param using `filter.toString()`, keyed by `filter.name`. See `useLinidFilterUrl` in `@linagora/linid-im-front-corelib` for the exact URL format, and [LinidSmartFilter](../components/smart-filter/LinidSmartFilter.md) for the filtering UI and supported filter types.
+
+---
+
 ## **Internationalization**
 
 - Scoped by `instanceId`
@@ -201,6 +237,7 @@ Instead, it relies on:
 - `GenericEntityTable` (local `catalog-ui` component)
 - `ButtonsCard` (local `catalog-ui` component, optional)
 - `LinidZoneRenderer` from `@linagora/linid-im-front-corelib` (renders the federated `extraButtons` zone)
+- `catalogUI/LinidSmartFilter` (optional)
 - `@linagora/linid-im-front-corelib`
 - Quasar Framework
 
@@ -213,4 +250,5 @@ The **GenericTablePage** is a fully generic, federated CRUD-like table page that
 - abstracts data loading and pagination
 - standardizes navigation patterns
 - supports optional action zones
+- supports optional, URL-synced filtering via `LinidSmartFilter`
 - integrates tightly with Module Federation architecture

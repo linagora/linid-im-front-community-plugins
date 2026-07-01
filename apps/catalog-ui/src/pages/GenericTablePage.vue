@@ -69,6 +69,16 @@
       </template>
     </ButtonsCard>
 
+    <LinidSmartFilter
+      v-if="options.filters?.length"
+      :filters="filters"
+      :options="{ filters: options.filters }"
+      :ui-namespace="uiNamespace"
+      :i18n-scope="i18nScope"
+      class="q-mb-md"
+      @update:filters="onFiltersChange"
+    />
+
     <GenericEntityTable
       v-model:pagination="pagination"
       :ui-namespace="uiNamespace"
@@ -116,10 +126,13 @@ import { computed, onMounted, ref } from 'vue';
 import {
   getEntities,
   getModuleHostConfiguration,
+  type LinidFilter,
   type LinidQBtnProps,
   LinidZoneRenderer,
   type QTableRequestEvent,
+  type QueryFilter,
   type QuasarPagination,
+  useLinidFilterUrl,
   useNotify,
   usePagination,
   useScopedI18n,
@@ -129,6 +142,7 @@ import type { ModuleGenericTablePageOptions } from '../types/ModuleGenericTableP
 import type { QTableColumn } from 'quasar';
 import ButtonsCard from '../components/card/ButtonsCard.vue';
 import GenericEntityTable from '../components/table/GenericEntityTable.vue';
+import LinidSmartFilter from '../components/smart-filter/LinidSmartFilter.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -146,6 +160,10 @@ const { t, te } = useScopedI18n(i18nScope.value);
 const items = ref<Record<string, unknown>[]>([]);
 const isLoading = ref<boolean>(false);
 const { Notify } = useNotify();
+const { setFiltersInUrl, getFiltersFromUrl } = useLinidFilterUrl(router, route);
+const filters = ref<LinidFilter[]>(
+  getFiltersFromUrl(options.value.filters ?? [])
+);
 
 const { toPagination, toQuasarPagination } = usePagination();
 const pagination = ref<QuasarPagination>({
@@ -203,6 +221,30 @@ async function onRequest(props: QTableRequestEvent) {
 }
 
 /**
+ * Handles filter changes emitted by the smart filter. Resets pagination to
+ * the first page, reflects the new filters in the URL, and reloads data.
+ * @param newFilters - The updated list of active filters.
+ * @returns A promise that resolves when the data has been loaded.
+ */
+function onFiltersChange(newFilters: LinidFilter[]): Promise<void> {
+  filters.value = newFilters;
+  pagination.value.page = 1;
+  setFiltersInUrl(newFilters, options.value.keepQueryParams ?? []);
+  return loadData();
+}
+
+/**
+ * Converts the active filters into a query filter object, ready to be sent
+ * to the entities API.
+ * @returns A query filter built from the active filters.
+ */
+function toQueryFilter(): QueryFilter {
+  return Object.fromEntries(
+    filters.value.map((filter) => [filter.name, filter.toString()])
+  );
+}
+
+/**
  * Loads a paginated list of entities and updates the reactive items state.
  * @returns A promise that resolves when the data has been loaded and the loading state has been updated.
  */
@@ -211,7 +253,7 @@ function loadData(): Promise<void> {
 
   return getEntities<Record<string, unknown>>(
     instanceId.value,
-    {},
+    toQueryFilter(),
     toPagination(pagination.value)
   )
     .then((data) => {
