@@ -42,41 +42,34 @@
       </h1>
     </div>
 
-    <div
+    <ButtonsCard
       v-if="options.enableActions"
       class="generics-table-page--actions"
+      :ui-namespace="uiNamespace"
+      :i18n-scope="i18nScope"
+      :show-confirm-button="false"
+      :show-cancel-button="false"
     >
-      <component
-        :is="buttonsCard"
-        v-if="buttonsCard"
-        :ui-namespace="uiNamespace"
-        :i18n-scope="i18nScope"
-        :show-confirm-button="false"
-        :show-cancel-button="false"
-      >
-        <template #append-buttons>
-          <!-- eslint-disable vue/attribute-hyphenation -->
-          <LinidZoneRenderer
-            :zone="`${instanceId}.extraButtons`"
-            :uiNamespace="`${uiNamespace}.buttons-card`"
-            :i18nScope="`${i18nScope}.ButtonsCard`"
-            :instanceId
-          />
-          <!-- eslint-enable vue/attribute-hyphenation -->
-          <q-btn
-            v-bind="uiProps.createButton"
-            :label="t('ButtonsCard.create')"
-            class="buttons-card--create-button"
-            data-cy="button_create"
-            @click="goToCreate"
-          />
-        </template>
-      </component>
-    </div>
+      <template #append-buttons>
+        <!-- eslint-disable vue/attribute-hyphenation -->
+        <LinidZoneRenderer
+          :zone="`${instanceId}.extraButtons`"
+          :uiNamespace="`${uiNamespace}.buttons-card`"
+          :i18nScope="`${i18nScope}.ButtonsCard`"
+          :instanceId
+        />
+        <!-- eslint-enable vue/attribute-hyphenation -->
+        <q-btn
+          v-bind="uiProps.createButton"
+          :label="t('ButtonsCard.create')"
+          class="buttons-card--create-button"
+          data-cy="button_create"
+          @click="goToCreate"
+        />
+      </template>
+    </ButtonsCard>
 
-    <component
-      :is="tableComponent"
-      v-if="tableComponent"
+    <GenericEntityTable
       v-model:pagination="pagination"
       :ui-namespace="uiNamespace"
       :rows="items"
@@ -112,7 +105,7 @@
           </q-td>
         </q-tr>
       </template>
-    </component>
+    </GenericEntityTable>
   </q-page>
   <!-- v8 ignore stop -->
 </template>
@@ -125,7 +118,6 @@ import {
   getModuleHostConfiguration,
   type LinidQBtnProps,
   LinidZoneRenderer,
-  loadAsyncComponent,
   type QTableRequestEvent,
   type QuasarPagination,
   useNotify,
@@ -135,6 +127,8 @@ import {
 } from '@linagora/linid-im-front-corelib';
 import type { ModuleGenericTablePageOptions } from '../types/ModuleGenericTablePageOptions';
 import type { QTableColumn } from 'quasar';
+import ButtonsCard from '../components/card/ButtonsCard.vue';
+import GenericEntityTable from '../components/table/GenericEntityTable.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -175,15 +169,6 @@ const uiProps = computed(() => ({
     'q-btn'
   ),
 }));
-
-const buttonsCard = computed(() => {
-  if (!options.value.enableActions) {
-    return null;
-  }
-
-  return loadAsyncComponent('catalogUI/ButtonsCard');
-});
-const tableComponent = loadAsyncComponent('catalogUI/GenericEntityTable');
 
 /**
  * Navigate to the new item creation page.

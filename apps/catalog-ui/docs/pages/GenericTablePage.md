@@ -65,8 +65,8 @@ Rendered only when `enableActions = true`.
 
 Includes:
 
-- `ButtonsCard` (federated component)
-- Extension zone for additional buttons
+- `ButtonsCard` (local `catalog-ui` component, directly imported)
+- Extension zone for additional buttons, rendered via `LinidZoneRenderer` (Module Federation)
 - A default **Create button**
 
 #### **Create button behavior**
@@ -79,9 +79,9 @@ Includes:
 
 ### **3. Table Section**
 
-Renders a federated table component:
+Renders a table component:
 
-- `GenericEntityTable` from `catalogUI`
+- `GenericEntityTable` (local `catalog-ui` component, directly imported)
 - Supports pagination
 - Supports dynamic column labels (i18n scoped)
 - Uses `idKey` to identify rows
@@ -198,8 +198,9 @@ Instead, it relies on:
 
 ## **Dependencies**
 
-- `catalogUI/GenericEntityTable`
-- `catalogUI/ButtonsCard` (optional)
+- `GenericEntityTable` (local `catalog-ui` component)
+- `ButtonsCard` (local `catalog-ui` component, optional)
+- `LinidZoneRenderer` from `@linagora/linid-im-front-corelib` (renders the federated `extraButtons` zone)
 - `@linagora/linid-im-front-corelib`
 - Quasar Framework
 

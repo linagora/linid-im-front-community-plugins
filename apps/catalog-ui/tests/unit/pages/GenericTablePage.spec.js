@@ -64,7 +64,6 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
       ],
     },
   }),
-  loadAsyncComponent: () => ({}),
   usePagination: () => ({
     toPagination: (p) => p,
     toQuasarPagination: () => 'Updated pagination',
