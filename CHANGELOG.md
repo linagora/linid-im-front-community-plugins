@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.56](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.55...v0.2.56) (2026-07-02)
+
+
+### Features
+
+* **catalog-ui:** apply favorite on event ([884cd77](https://github.com/linagora/linid-im-front-community-plugins/commit/884cd77b5ec102d4439852cf41ce1307edbb8ce2))
+* **catalog-ui:** integrate favorite in generic-table-page ([38a2ffb](https://github.com/linagora/linid-im-front-community-plugins/commit/38a2ffb8252447c3028b50f46dde9d32ead4dfdd))
+
 ### [0.2.55](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.54...v0.2.55) (2026-07-02)
 
 
