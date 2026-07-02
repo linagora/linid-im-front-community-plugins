@@ -72,11 +72,12 @@
     <LinidSmartFilter
       v-if="options.filters?.length"
       :filters="filters"
-      :options="{ filters: options.filters }"
+      :options="{ filters: options.filters, filterSets: favorites }"
       :ui-namespace="uiNamespace"
       :i18n-scope="i18nScope"
       class="q-mb-md"
       @update:filters="onFiltersChange"
+      @apply:favorite="onFavoriteApply"
     />
 
     <GenericEntityTable
@@ -123,20 +124,25 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
 import { computed, onMounted, ref } from 'vue';
+import type {
+  LinidFilter,
+  LinidQBtnProps,
+  QTableRequestEvent,
+  QueryFilter,
+  QuasarPagination,
+  LinidFilterSetUserPreference,
+} from '@linagora/linid-im-front-corelib';
 import {
   getEntities,
   getModuleHostConfiguration,
-  type LinidFilter,
-  type LinidQBtnProps,
   LinidZoneRenderer,
-  type QTableRequestEvent,
-  type QueryFilter,
-  type QuasarPagination,
+  LinidFilterSet,
   useLinidFilterUrl,
   useNotify,
   usePagination,
   useScopedI18n,
   useUiDesign,
+  useLinidUserPreference,
 } from '@linagora/linid-im-front-corelib';
 import type { ModuleGenericTablePageOptions } from '../types/ModuleGenericTablePageOptions';
 import type { QTableColumn } from 'quasar';
@@ -157,12 +163,23 @@ const options = computed(
 );
 
 const { t, te } = useScopedI18n(i18nScope.value);
+const { userPreferenceStore } = useLinidUserPreference();
 const items = ref<Record<string, unknown>[]>([]);
 const isLoading = ref<boolean>(false);
 const { Notify } = useNotify();
 const { setFiltersInUrl, getFiltersFromUrl } = useLinidFilterUrl(router, route);
 const filters = ref<LinidFilter[]>(
   getFiltersFromUrl(options.value.filters ?? [])
+);
+const favoritesBaseConfigurationKey = computed(
+  () => `ui.${instanceId.value}.favorites.`
+);
+const favorites = computed<LinidFilterSet[]>(() =>
+  Object.keys(userPreferenceStore.userPreferences)
+    .filter((key) => key.indexOf(favoritesBaseConfigurationKey.value) === 0)
+    .map((key) => parseFavorite(userPreferenceStore.userPreferences[key]))
+    .filter((data) => data !== null)
+    .map((data) => LinidFilterSet.fromString(data.id, data.label, data.value))
 );
 
 const { toPagination, toQuasarPagination } = usePagination();
@@ -242,6 +259,53 @@ function toQueryFilter(): QueryFilter {
   return Object.fromEntries(
     filters.value.map((filter) => [filter.name, filter.toString()])
   );
+}
+
+/**
+ * Applies a saved favorite filter set by forwarding its filters to the global filter change handler.
+ * @param favorite - The selected filter set to apply.
+ */
+function onFavoriteApply(favorite: LinidFilterSet) {
+  onFiltersChange(favorite.filters);
+}
+
+/**
+ * Parses a serialized favorite filter set from a JSON string and validates its structure.
+ *
+ * The function expects a JSON string representing a `LinidFilterSetUserPreference`-like object.
+ * It performs both deserialization and structural validation, ensuring that the value is valid JSON,
+ * that the result is a non-null object, that it contains `id`, `label`, and `value` properties,
+ * and that all of these properties are non-empty strings after trimming whitespace.
+ *
+ * If the input is valid, the parsed object is returned. Otherwise, the function returns `null`.
+ * @param value - JSON string representing a saved favorite filter set.
+ * @returns A validated `LinidFilterSetUserPreference` object, or `null` if invalid or unparsable.
+ */
+function parseFavorite(value: string): LinidFilterSetUserPreference | null {
+  let obj;
+  try {
+    obj = JSON.parse(value);
+  } catch {
+    return null;
+  }
+
+  if (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'id' in obj &&
+    'label' in obj &&
+    'value' in obj &&
+    typeof obj.id === 'string' &&
+    typeof obj.label === 'string' &&
+    typeof obj.value === 'string' &&
+    obj.id.trim().length > 0 &&
+    obj.label.trim().length > 0 &&
+    obj.value.trim().length > 0
+  ) {
+    return obj;
+  }
+
+  return null;
 }
 
 /**
