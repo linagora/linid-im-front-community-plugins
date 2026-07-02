@@ -77,6 +77,7 @@
       :i18n-scope="i18nScope"
       class="q-mb-md"
       @update:filters="onFiltersChange"
+      @apply:favorite="onFavoriteApply"
     />
 
     <GenericEntityTable
@@ -258,6 +259,14 @@ function toQueryFilter(): QueryFilter {
   return Object.fromEntries(
     filters.value.map((filter) => [filter.name, filter.toString()])
   );
+}
+
+/**
+ * Applies a saved favorite filter set by forwarding its filters to the global filter change handler.
+ * @param favorite - The selected filter set to apply.
+ */
+function onFavoriteApply(favorite: LinidFilterSet) {
+  onFiltersChange(favorite.filters);
 }
 
 /**
