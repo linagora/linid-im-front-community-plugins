@@ -24,7 +24,7 @@
  * LinID Identity Manager software.
  */
 
-import { getEntities } from '@linagora/linid-im-front-corelib';
+import { getEntities, LinidFilterSet } from '@linagora/linid-im-front-corelib';
 import { shallowMount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import GenericTablePage from '../../../src/pages/GenericTablePage.vue';
@@ -49,7 +49,6 @@ const mockModuleOptions = {
 };
 const mockSetFiltersInUrl = vi.fn();
 const mockGetFiltersFromUrl = vi.fn(() => []);
-
 const { MockLinidFilter } = vi.hoisted(() => ({
   MockLinidFilter: class MockLinidFilter {
     constructor(name, type, options, values) {
@@ -61,6 +60,23 @@ const { MockLinidFilter } = vi.hoisted(() => ({
 
     toString() {
       return this.values.join('|');
+    }
+  },
+}));
+const { MockLinidFilterSet } = vi.hoisted(() => ({
+  MockLinidFilterSet: class MockLinidFilterSet {
+    constructor(id, label, filters) {
+      this.id = id;
+      this.label = label;
+      this.filters = filters;
+    }
+
+    static fromString(id, label, value) {
+      return {
+        id,
+        label,
+        value,
+      };
     }
   },
 }));
@@ -89,11 +105,22 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
     toQuasarPagination: () => 'Updated pagination',
   }),
   useUiDesign: () => ({ ui: () => ({}) }),
+  useLinidUserPreference: vi.fn(() => ({
+    userPreferenceStore: {
+      userPreferences: {
+        'unused.key': 'test',
+        'ui.test-instance-id.favorites.1': 'invalid data',
+        'ui.test-instance-id.favorites.2':
+          '{ "id": "2", "label": "Test", "value": "name=value" }',
+      },
+    },
+  })),
   useLinidFilterUrl: () => ({
     setFiltersInUrl: mockSetFiltersInUrl,
     getFiltersFromUrl: mockGetFiltersFromUrl,
   }),
   LinidFilter: MockLinidFilter,
+  LinidFilterSet: MockLinidFilterSet,
 }));
 
 vi.mock('vue-router', () => ({
@@ -309,6 +336,60 @@ describe('Test component: GenericTablePage', () => {
       expect(localWrapper.vm.filters).toEqual(urlFilters);
 
       mockModuleOptions.filters = undefined;
+    });
+  });
+
+  describe('Test function: parseFavorite', () => {
+    it('should return object for a valid favorite object', () => {
+      const valid = {
+        id: '1',
+        label: 'Test',
+        value: 'value',
+      };
+
+      expect(
+        wrapper.vm.parseFavorite(
+          '{ "id": "1", "label": "Test", "value": "value" }'
+        )
+      ).toEqual(valid);
+    });
+
+    it('should return null when object is invalid', () => {
+      expect(wrapper.vm.parseFavorite('{!')).toBe(null);
+      expect(wrapper.vm.parseFavorite('null')).toBe(null);
+      expect(wrapper.vm.parseFavorite('{}')).toBe(null);
+      expect(wrapper.vm.parseFavorite('{ "id "label": null": null }')).toBe(
+        null
+      );
+      expect(wrapper.vm.parseFavorite('{ "id": null, "label": null }')).toBe(
+        null
+      );
+      expect(
+        wrapper.vm.parseFavorite('{ "id": null, "label": null, "value": null }')
+      ).toBe(null);
+      expect(
+        wrapper.vm.parseFavorite('{ "id": "", "label": null, "value": null }')
+      ).toBe(null);
+      expect(
+        wrapper.vm.parseFavorite('{ "id": "", "label": "Test", "value": null }')
+      ).toBe(null);
+      expect(
+        wrapper.vm.parseFavorite('{ "id": "", "label": "", "value": "" }')
+      ).toBe(null);
+      expect(
+        wrapper.vm.parseFavorite('{ "id": "1", "label": "", "value": "" }')
+      ).toBe(null);
+      expect(
+        wrapper.vm.parseFavorite('{ "id": "", "label": "Test", "value": "" }')
+      ).toBe(null);
+    });
+  });
+
+  describe('Test computed: favorites', () => {
+    it('should set the favorites', () => {
+      expect(wrapper.vm.favorites).toEqual([
+        LinidFilterSet.fromString('2', 'Test', 'name=value'),
+      ]);
     });
   });
 });
