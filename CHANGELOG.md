@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.53](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.52...v0.2.53) (2026-07-02)
+
+
+### Bug Fixes
+
+* **catalog-ui:** stop click propagation when tree tickeable ([029ae0b](https://github.com/linagora/linid-im-front-community-plugins/commit/029ae0baa700fbabef77bacce9a9121f9591d66f))
+
 ### [0.2.52](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.51...v0.2.52) (2026-07-02)
 
 
