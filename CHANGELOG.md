@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.52](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.51...v0.2.52) (2026-07-02)
+
+
+### Features
+
+* **catalog-ui:** add LinidSmartFilter with URL sync to GenericTablePage ([eba5138](https://github.com/linagora/linid-im-front-community-plugins/commit/eba5138e4b7bf2740013da56856682d36548aa02)), closes [#196](https://github.com/linagora/linid-im-front-community-plugins/issues/196)
+
 ### [0.2.51](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.50...v0.2.51) (2026-06-30)
 
 
