@@ -26,9 +26,13 @@ The **LinidSmartFilter** component provides a filtering interface with a toggle-
 
 ## **Events**
 
-| Event            | Payload         | Description                                                                                                                               |
-| ---------------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `update:filters` | `LinidFilter[]` | Emitted whenever the user applies or removes a filter. The payload contains only the filters that have at least one active value applied. |
+| Event               | Payload          | Description                                                                                                                               |
+| ------------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `update:filters`    | `LinidFilter[]`  | Emitted whenever the user applies or removes a filter. The payload contains only the filters that have at least one active value applied. |
+| `apply:favorite`    | `LinidFilterSet` | Emitted when a favorite filter set is applied. The payload contains the applied favorite filter set.                                      |
+| `delete:favorite`   | `LinidFilterSet` | Emitted when a favorite filter set is deleted. The payload contains the deleted favorite filter set.                                      |
+| `create:favorite`   | -                | Emitted when the user wants to create a new favorite filter set.                                                                          |
+| `override:favorite` | -                | Emitted when the user wants to override an existing favorite filter set.                                                                  |
 
 ---
 
@@ -107,11 +111,12 @@ Each applied filter is displayed as a chip in the search field. The chip shows t
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue';
-import { LinidFilter } from '@linagora/linid-im-front-corelib';
+import { LinidFilter, LinidFilterSet } from '@linagora/linid-im-front-corelib';
 
 const filters = ref([]);
 
 const filterDefinitions = [new LinidFilter('firstname', 'text', { fieldName: 'firstname' }, []), new LinidFilter('lastname', 'text', { fieldName: 'lastname' }, [])];
+const filterSet = [new LinidFilterSet('id', 'label', [])];
 
 function onUpdateFilters(updated) {
   filters.value = updated;
@@ -123,7 +128,7 @@ function onUpdateFilters(updated) {
     ui-namespace="myApp"
     i18n-scope="myScope"
     :filters="filters"
-    :options="{ filters: filterDefinitions }"
+    :options="{ filters: filterDefinitions, filterSet: filterSets }"
     @update:filters="onUpdateFilters"
   />
 </template>
@@ -134,7 +139,7 @@ function onUpdateFilters(updated) {
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue';
-import { LinidFilter } from '@linagora/linid-im-front-corelib';
+import { LinidFilter, LinidFilterSet } from '@linagora/linid-im-front-corelib';
 
 const filters = ref([]);
 
@@ -165,6 +170,7 @@ const filterDefinitions = [
     []
   ),
 ];
+const filterSet = [new LinidFilterSet('id', 'label', [])];
 </script>
 
 <template>
@@ -172,7 +178,7 @@ const filterDefinitions = [
     ui-namespace="myApp"
     i18n-scope="myScope"
     :filters="filters"
-    :options="{ filters: filterDefinitions }"
+    :options="{ filters: filterDefinitions, filterSet: filterSets }"
     @update:filters="filters = $event"
   />
 </template>
@@ -238,6 +244,7 @@ The component uses the LinID design system through `useUiDesign()` and applies p
 | ------------------------------------------------------------------------------------- | ---------------- | ----------------------------------------------------------------------------------------------------------- |
 | `{uiNamespace}.linid-smart-filter`                                                    | `q-field`        | Filter field container styling and configuration                                                            |
 | `{uiNamespace}.linid-smart-filter`                                                    | `q-menu`         | Dropdown menu styling and configuration                                                                     |
+| `{uiNamespace}.linid-smart-filter`                                                    | `q-separator`    | Separator between panel in menu.                                                                            |
 | `{uiNamespace}.linid-smart-filter.iconSearch`                                         | `q-icon`         | Search icon styling                                                                                         |
 | `{uiNamespace}.linid-smart-filter.iconMenuClose`                                      | `q-icon`         | Right dropdown icon styling (menu open)                                                                     |
 | `{uiNamespace}.linid-smart-filter.iconMenuOpen`                                       | `q-icon`         | Right dropdown icon styling (menu closed)                                                                   |

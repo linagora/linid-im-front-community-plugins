@@ -339,6 +339,7 @@ Smart filtering component with toggle-able menu for managing active filters and 
       "q-menu": {
         "autoClose": true
       },
+      "q-separator": {},
       "iconSearch": {
         "q-icon": {
           "name": "search"
@@ -773,6 +774,7 @@ A full example showing all CatalogUI components configured together:
       "linid-smart-filter": {
         "q-field": { "outlined": true, "dense": true },
         "q-menu": { "autoClose": true },
+        "q-separator": {},
         "iconSearch": {
           "q-icon": { "name": "search" }
         },

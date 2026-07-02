@@ -77,7 +77,7 @@
 
       <q-menu
         v-model="isFilterMenuOpen"
-        class="linid-smart-filter--menu"
+        class="row linid-smart-filter--menu"
         data-cy="linid-smart-filter-menu"
         v-bind="uiProps.menu"
       >
@@ -102,6 +102,22 @@
             />
           </template>
         </linid-filter-panel>
+
+        <q-separator
+          v-bind="uiProps.separator"
+          vertical
+        />
+
+        <linid-favorite-panel
+          :favorites="options?.filterSets ?? []"
+          :ui-namespace="localUiNamespace"
+          :i18n-scope="localI18nScope"
+          data-cy="linid-smart-favorite-panel"
+          @apply="(data) => emit('apply:favorite', data)"
+          @delete="(data) => emit('delete:favorite', data)"
+          @create="emit('create:favorite')"
+          @override="emit('override:favorite')"
+        />
       </q-menu>
     </q-field>
   </div>
@@ -134,6 +150,7 @@ import ListSearchFilterPanel from './ListSearchFilterPanel.vue';
 import NumberSearchFilterPanel from './NumberSearchFilterPanel.vue';
 import TextSearchFilterPanel from './TextSearchFilterPanel.vue';
 import TreeSearchFilterPanel from './TreeSearchFilterPanel.vue';
+import LinidFavoritePanel from './LinidFavoritePanel.vue';
 
 const PANEL_COMPONENTS: Record<LinidFilterType, Component> = {
   text: TextSearchFilterPanel,
@@ -170,6 +187,7 @@ const uiProps = {
   field: ui<LinidQFieldProps>(`${localUiNamespace}`, 'q-field'),
   menu: ui<LinidQMenuProps>(`${localUiNamespace}`, 'q-menu'),
   iconSearch: ui<LinidQIconProps>(`${localUiNamespace}.iconSearch`, 'q-icon'),
+  separator: ui<LinidQIconProps>(`${localUiNamespace}`, 'q-separator'),
   iconMenuClose: ui<LinidQIconProps>(
     `${localUiNamespace}.iconMenuClose`,
     'q-icon'

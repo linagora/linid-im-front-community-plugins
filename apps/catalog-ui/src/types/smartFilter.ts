@@ -60,4 +60,8 @@ export interface LinidSmartFilterProps extends CommonComponentProps {
  */
 export type LinidSmartFilterOutputs = {
   (e: 'update:filters', filters: LinidFilter[]): void;
+  (e: 'apply:favorite', favorite: LinidFilterSet): void;
+  (e: 'delete:favorite', favorite: LinidFilterSet): void;
+  (e: 'create:favorite'): void;
+  (e: 'override:favorite'): void;
 };
