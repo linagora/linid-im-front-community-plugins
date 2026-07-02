@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.55](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.54...v0.2.55) (2026-07-02)
+
+
+### Features
+
+* update asset file naming convention to include hash ([5fcd41a](https://github.com/linagora/linid-im-front-community-plugins/commit/5fcd41af2bd10e2813202fa6a7c47a5ecf41ba0a))
+
 ### [0.2.54](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.53...v0.2.54) (2026-07-02)
 
 
