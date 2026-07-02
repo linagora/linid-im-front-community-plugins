@@ -78,6 +78,7 @@
       class="q-mb-md"
       @update:filters="onFiltersChange"
       @apply:favorite="onFavoriteApply"
+      @delete:favorite="openDeleteFavoriteDialog"
     />
 
     <GenericEntityTable
@@ -143,6 +144,7 @@ import {
   useScopedI18n,
   useUiDesign,
   useLinidUserPreference,
+  uiEventSubject,
 } from '@linagora/linid-im-front-corelib';
 import type { ModuleGenericTablePageOptions } from '../types/ModuleGenericTablePageOptions';
 import type { QTableColumn } from 'quasar';
@@ -163,7 +165,7 @@ const options = computed(
 );
 
 const { t, te } = useScopedI18n(i18nScope.value);
-const { userPreferenceStore } = useLinidUserPreference();
+const { userPreferenceStore, deleteUserPreference } = useLinidUserPreference();
 const items = ref<Record<string, unknown>[]>([]);
 const isLoading = ref<boolean>(false);
 const { Notify } = useNotify();
@@ -267,6 +269,32 @@ function toQueryFilter(): QueryFilter {
  */
 function onFavoriteApply(favorite: LinidFilterSet) {
   onFiltersChange(favorite.filters);
+}
+
+/**
+ * Opens a confirmation dialog to delete a saved favorite filter set.
+ *
+ * If the user confirms the action, the corresponding favorite is removed from
+ * the user preferences store using its identifier.
+ * @param favorite - The favorite filter set to delete.
+ */
+function openDeleteFavoriteDialog(favorite: LinidFilterSet): void {
+  uiEventSubject.next({
+    key: 'confirmation',
+    data: {
+      type: 'open',
+      title: t('ConfirmationDialog.title'),
+      content: t('ConfirmationDialog.content', {
+        label: favorite.label,
+      }),
+      uiNamespace: uiNamespace.value,
+      i18nScope: `${i18nScope.value}.ConfirmationDialog`,
+      onConfirm: () =>
+        deleteUserPreference(
+          `${favoritesBaseConfigurationKey.value}${favorite.id}`
+        ),
+    },
+  });
 }
 
 /**

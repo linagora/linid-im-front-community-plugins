@@ -795,6 +795,19 @@ A full example showing all CatalogUI components configured together:
             }
           }
         },
+        "confirmation-dialog": {
+          "q-dialog": { "persistent": false },
+          "q-card": { "flat": true, "bordered": true },
+          "buttons-card": {
+            "q-card": { "flat": true },
+            "confirm-button": {
+              "q-btn": { "color": "primary", "icon": "check" }
+            },
+            "cancel-button": {
+              "q-btn": { "color": "negative", "outline": true }
+            }
+          }
+        },
         "linid-filter-panel": {
           "header": {
             "q-icon": { "name": "filter_alt" },

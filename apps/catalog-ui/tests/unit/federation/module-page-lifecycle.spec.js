@@ -31,11 +31,18 @@ const mockT = vi.fn((key) => `translated_${key}`);
 
 vi.mock('@linagora/linid-im-front-corelib', async () => {
   const actual = await vi.importActual('@linagora/linid-im-front-corelib');
+
   return {
     ...actual,
+
     useLinidUiStore: () => ({
       addMainNavigationMenuItems: mockAddMainNavigationMenuItems,
     }),
+
+    useLinidZoneStore: () => ({
+      registerOnce: vi.fn(),
+    }),
+
     getI18nInstance: () => ({
       global: {
         t: mockT,
