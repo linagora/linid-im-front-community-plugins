@@ -171,9 +171,9 @@ export default defineConfig({
     rollupOptions: {
       input: path.resolve(__dirname, 'src/index.ts'),
       output: {
-        entryFileNames: '[name].js',
-        chunkFileNames: '[name].js',
-        assetFileNames: '[name].[ext]',
+        entryFileNames: 'assets/[name].[hash:8].js',
+        chunkFileNames: 'assets/[name].[hash:8].js',
+        assetFileNames: 'assets/[name].[hash:8].[ext]',
       },
     },
     commonjsOptions: { transformMixedEsModules: true },
