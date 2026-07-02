@@ -53,7 +53,7 @@
       <template #default-header="prop">
         <div
           :class="`row items-center full-width tree-header-type-${prop.node.type} tree-header-key-${prop.node.key}`"
-          @click.stop="toggleNodeSelection(prop.node.key)"
+          @click="toggleNodeSelection(prop.node.key, $event)"
         >
           <q-checkbox
             v-if="props.tickeable"
@@ -61,7 +61,7 @@
             v-bind="uiProps.checkbox"
             class="tree-header-checkbox"
             :data-cy="`generic-tree-checkbox-${prop.node.key}`"
-            @click="toggleNodeSelection(prop.node.key)"
+            @click="toggleNodeSelection(prop.node.key, $event)"
           />
           <q-icon
             v-if="uiProps.types[prop.node.type]?.icon?.name"
@@ -138,6 +138,7 @@ import type {
   UiPropsAction,
   UiPropsTypes,
 } from '../../types/genericTree';
+import type { MouseEvent } from 'happy-dom';
 
 const props = defineProps<TreeProps<unknown>>();
 const filter = ref<string>('');
@@ -152,11 +153,13 @@ const { toQTreeNodes } = useTree();
 /**
  * Toggles the selection state of a node.
  * @param nodeKey The key of the node to toggle.
+ * @param event The mouse event on the checkbox or on the node.
  */
-function toggleNodeSelection(nodeKey: string): void {
+function toggleNodeSelection(nodeKey: string, event: MouseEvent): void {
   if (!props.tickeable) {
     return;
   }
+  event.stopPropagation();
   const index = tickedNodes.value.indexOf(nodeKey);
   if (index > -1) {
     tickedNodes.value.splice(index, 1);

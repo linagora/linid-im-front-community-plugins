@@ -290,49 +290,98 @@ describe('Test component: GenericTree', () => {
       selectableWrapper = mountComponent({ tickeable: true });
     });
 
+    /**
+     * Helper function to create a mock event object with spied stopPropagation
+     */
+    function createMockEvent() {
+      return {
+        stopPropagation: vi.fn(),
+      };
+    }
+
+    it('should call event.stopPropagation() to prevent event bubbling', () => {
+      const event = createMockEvent();
+      selectableWrapper.vm.toggleNodeSelection('folder-1', event);
+
+      expect(event.stopPropagation).toHaveBeenCalledOnce();
+    });
+
     it('should add a node to tickedNodes when not already selected', () => {
-      selectableWrapper.vm.toggleNodeSelection('folder-1');
+      const event = createMockEvent();
+      selectableWrapper.vm.toggleNodeSelection('folder-1', event);
 
       expect(selectableWrapper.vm.tickedNodes).toContain('folder-1');
+      expect(event.stopPropagation).toHaveBeenCalledOnce();
     });
 
     it('should remove a node from tickedNodes when already selected', () => {
-      selectableWrapper.vm.toggleNodeSelection('folder-1');
-      selectableWrapper.vm.toggleNodeSelection('folder-1');
+      const event = createMockEvent();
+      selectableWrapper.vm.toggleNodeSelection('folder-1', event);
+      selectableWrapper.vm.toggleNodeSelection('folder-1', event);
 
       expect(selectableWrapper.vm.tickedNodes).not.toContain('folder-1');
+      expect(event.stopPropagation).toHaveBeenCalledTimes(2);
     });
 
-    it('should handle multiple node selections', () => {
-      selectableWrapper.vm.toggleNodeSelection('folder-1');
-      selectableWrapper.vm.toggleNodeSelection('file-1');
+    it('should handle multiple node selections with different events', () => {
+      const event1 = createMockEvent();
+      const event2 = createMockEvent();
+      selectableWrapper.vm.toggleNodeSelection('folder-1', event1);
+      selectableWrapper.vm.toggleNodeSelection('file-1', event2);
 
       expect(selectableWrapper.vm.tickedNodes).toContain('folder-1');
       expect(selectableWrapper.vm.tickedNodes).toContain('file-1');
       expect(selectableWrapper.vm.tickedNodes).toHaveLength(2);
+      expect(event1.stopPropagation).toHaveBeenCalledOnce();
+      expect(event2.stopPropagation).toHaveBeenCalledOnce();
     });
 
     it('should maintain other selections when toggling a new node', () => {
-      selectableWrapper.vm.toggleNodeSelection('folder-1');
-      selectableWrapper.vm.toggleNodeSelection('file-1');
-      selectableWrapper.vm.toggleNodeSelection('file-1');
+      const event = createMockEvent();
+      selectableWrapper.vm.toggleNodeSelection('folder-1', event);
+      selectableWrapper.vm.toggleNodeSelection('file-1', event);
+      selectableWrapper.vm.toggleNodeSelection('file-1', event);
 
       expect(selectableWrapper.vm.tickedNodes).toEqual(['folder-1']);
+      expect(event.stopPropagation).toHaveBeenCalledTimes(3);
     });
 
-    it('should not toggle when tickeable is false', () => {
+    it('should not toggle and not call stopPropagation when tickeable is false', () => {
+      const event = createMockEvent();
       const nonSelectableWrapper = mountComponent({ tickeable: false });
-      nonSelectableWrapper.vm.toggleNodeSelection('folder-1');
+      nonSelectableWrapper.vm.toggleNodeSelection('folder-1', event);
 
       expect(nonSelectableWrapper.vm.tickedNodes).not.toContain('folder-1');
+      expect(event.stopPropagation).not.toHaveBeenCalled();
     });
 
-    it('should emit update:ticked even for a single node toggle', () => {
-      selectableWrapper.vm.toggleNodeSelection('folder-1');
+    it('should emit update:ticked with correct payload after adding a node', () => {
+      const event = createMockEvent();
+      selectableWrapper.vm.toggleNodeSelection('folder-1', event);
 
       const emitted = selectableWrapper.emitted('update:ticked');
       expect(emitted).toBeTruthy();
-      expect(emitted.length).toBeGreaterThan(0);
+      expect(emitted[0][0]).toEqual(['folder-1']);
+    });
+
+    it('should emit update:ticked with empty array when toggling off the last node', () => {
+      const event = createMockEvent();
+      selectableWrapper.vm.toggleNodeSelection('folder-1', event);
+      selectableWrapper.vm.toggleNodeSelection('folder-1', event);
+
+      const emitted = selectableWrapper.emitted('update:ticked');
+      expect(emitted[emitted.length - 1][0]).toEqual([]);
+    });
+
+    it('should correctly handle sequential toggles with event stopPropagation', () => {
+      const event = createMockEvent();
+
+      selectableWrapper.vm.toggleNodeSelection('folder-1', event);
+      selectableWrapper.vm.toggleNodeSelection('file-1', event);
+      selectableWrapper.vm.toggleNodeSelection('folder-1', event);
+
+      expect(event.stopPropagation).toHaveBeenCalledTimes(3);
+      expect(selectableWrapper.vm.tickedNodes).toEqual(['file-1']);
     });
   });
 
