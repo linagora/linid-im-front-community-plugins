@@ -32,6 +32,7 @@ import {
   BasicRemoteModule,
   getI18nInstance,
   useLinidUiStore,
+  useLinidZoneStore,
 } from '@linagora/linid-im-front-corelib';
 import type { ModulePageOptions } from '../types/ModulePageOptions';
 
@@ -73,12 +74,17 @@ class ModulePage extends BasicRemoteModule<ModulePageOptions> {
     config: ModuleHostConfig<ModulePageOptions>
   ): Promise<ModuleLifecycleResult> {
     const uiStore = useLinidUiStore();
+    const linidZoneStore = useLinidZoneStore();
     const { t } = getI18nInstance().global;
 
     uiStore.addMainNavigationMenuItems({
       id: config.instanceId,
       label: t(`${config.instanceId}.NavigationMenu.label`),
       path: config.basePath,
+    });
+
+    linidZoneStore.registerOnce('base-layout.dialogComponent', {
+      plugin: 'catalogUI/ConfirmationDialog',
     });
 
     return { success: true };
