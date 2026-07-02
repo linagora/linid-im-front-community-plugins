@@ -38,6 +38,8 @@
       {{ t('title') }}
     </div>
 
+    <q-separator v-bind="uiProps.titleSeparator" />
+
     <div class="q-gutter-sm q-pa-sm linid-favorite-panel--action-buttons">
       <q-btn
         v-bind="uiProps.createButton"
@@ -53,8 +55,6 @@
         @click="emit('override')"
       />
     </div>
-
-    <q-separator v-bind="uiProps.titleSeparator" />
 
     <div class="row no-wrap linid-favorite-panel--content">
       <q-list
