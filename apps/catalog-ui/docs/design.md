@@ -63,7 +63,7 @@ The main application layout with header, toolbar, and navigation.
 
 ### HeaderProfile
 
-User profile button displayed in the application header. This component is a child of BaseLayout.
+User profile button displayed in the application header, including a language switcher. This component is a child of BaseLayout.
 
 **Namespace:** `{uiNamespace}.header-profile`
 
@@ -80,6 +80,8 @@ User profile button displayed in the application header. This component is a chi
   }
 }
 ```
+
+> **Note:** The language switcher (`q-select`) is not configurable through the design system. The flags are static SVG files served by the host at `/icons/{locale}.svg`, and the language names come from i18n (`application.languages.{locale}`). See the HeaderProfile component documentation for details.
 
 ---
 

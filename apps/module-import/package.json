@@ -9,7 +9,7 @@
     "papaparse": "5.5.4",
     "p-limit": "7.3.0",
     "quasar": "2.21.1",
-    "@linagora/linid-im-front-corelib": "0.0.82",
+    "@linagora/linid-im-front-corelib": "0.0.83",
     "vue-router": "5.1.0"
   },
   "devDependencies": {
