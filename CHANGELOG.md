@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.57](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.56...v0.2.57) (2026-07-03)
+
+
+### Features
+
+* **catalog-ui:** delete favorite from smart-filter ([c426996](https://github.com/linagora/linid-im-front-community-plugins/commit/c426996bbe8d822469509d54f7ba460fcfffd134))
+
 ### [0.2.56](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.55...v0.2.56) (2026-07-02)
 
 
