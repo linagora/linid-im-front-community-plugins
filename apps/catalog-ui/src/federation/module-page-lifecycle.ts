@@ -87,6 +87,10 @@ class ModulePage extends BasicRemoteModule<ModulePageOptions> {
       plugin: 'catalogUI/ConfirmationDialog',
     });
 
+    linidZoneStore.registerOnce('base-layout.dialogComponent', {
+      plugin: 'catalogUI/FormDialog',
+    });
+
     return { success: true };
   }
 }

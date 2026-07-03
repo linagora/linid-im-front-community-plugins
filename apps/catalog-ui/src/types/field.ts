@@ -211,6 +211,11 @@ export interface FieldListValue {
  */
 export interface FieldListSettings extends FieldSettings {
   /**
+   * Optional key used to display a label for the field in the UI.
+   * If omitted, the field's `value` property will be used as the label.
+   */
+  optionLabel?: string;
+  /**
    * List of possible values for the field.
    * Use `string[]` for a flat list with no filtering.
    * Use `FieldListValue[]` to configure conditional visibility via `filterContext`.

@@ -79,6 +79,7 @@
       @update:filters="onFiltersChange"
       @apply:favorite="onFavoriteApply"
       @delete:favorite="openDeleteFavoriteDialog"
+      @override:favorite="openOverrideFavoriteDialog"
     />
 
     <GenericEntityTable
@@ -123,34 +124,34 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute, useRouter } from 'vue-router';
-import { computed, onMounted, ref } from 'vue';
 import type {
   LinidFilter,
+  LinidFilterSetUserPreference,
   LinidQBtnProps,
   QTableRequestEvent,
-  QueryFilter,
   QuasarPagination,
-  LinidFilterSetUserPreference,
+  QueryFilter,
 } from '@linagora/linid-im-front-corelib';
 import {
   getEntities,
   getModuleHostConfiguration,
-  LinidZoneRenderer,
   LinidFilterSet,
+  LinidZoneRenderer,
+  uiEventSubject,
   useLinidFilterUrl,
+  useLinidUserPreference,
   useNotify,
   usePagination,
   useScopedI18n,
   useUiDesign,
-  useLinidUserPreference,
-  uiEventSubject,
 } from '@linagora/linid-im-front-corelib';
-import type { ModuleGenericTablePageOptions } from '../types/ModuleGenericTablePageOptions';
 import type { QTableColumn } from 'quasar';
+import { computed, onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import ButtonsCard from '../components/card/ButtonsCard.vue';
-import GenericEntityTable from '../components/table/GenericEntityTable.vue';
 import LinidSmartFilter from '../components/smart-filter/LinidSmartFilter.vue';
+import GenericEntityTable from '../components/table/GenericEntityTable.vue';
+import type { ModuleGenericTablePageOptions } from '../types/ModuleGenericTablePageOptions';
 
 const router = useRouter();
 const route = useRoute();
@@ -165,7 +166,8 @@ const options = computed(
 );
 
 const { t, te } = useScopedI18n(i18nScope.value);
-const { userPreferenceStore, deleteUserPreference } = useLinidUserPreference();
+const { userPreferenceStore, deleteUserPreference, saveUserPreference } =
+  useLinidUserPreference();
 const items = ref<Record<string, unknown>[]>([]);
 const isLoading = ref<boolean>(false);
 const { Notify } = useNotify();
@@ -292,6 +294,51 @@ function openDeleteFavoriteDialog(favorite: LinidFilterSet): void {
       onConfirm: () =>
         deleteUserPreference(
           `${favoritesBaseConfigurationKey.value}${favorite.id}`
+        ),
+    },
+  });
+}
+
+/**
+ * Opens a confirmation dialog to override an existing favorite filter set with the current filters.
+ */
+function openOverrideFavoriteDialog(): void {
+  uiEventSubject.next({
+    key: 'form',
+    data: {
+      type: 'open',
+      title: t('FormDialog.overrideTitle'),
+      content: t('FormDialog.overrideContent'),
+      uiNamespace: uiNamespace.value,
+      i18nScope: `${i18nScope.value}.FormDialog`,
+      formFields: [
+        {
+          name: 'favorite',
+          type: 'String',
+          input: 'List',
+          required: true,
+          inputSettings: {
+            values: favorites.value.map((f) => ({
+              label: f.label,
+              value: f,
+            })),
+            optionLabel: 'label',
+          },
+        },
+      ],
+      // eslint-disable-next-line jsdoc/require-jsdoc
+      onSubmit: (formData: { favorite: LinidFilterSet }) =>
+        saveUserPreference(
+          `${favoritesBaseConfigurationKey.value}${formData.favorite.id}`,
+          JSON.stringify({
+            id: formData.favorite.id,
+            label: formData.favorite.label,
+            value: new LinidFilterSet(
+              formData.favorite.id,
+              formData.favorite.label,
+              filters.value
+            ).toString(),
+          })
         ),
     },
   });
