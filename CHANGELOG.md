@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.58](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.57...v0.2.58) (2026-07-03)
+
+
+### Features
+
+* **catalog-ui:** add optionLabel prop to list field for customizable UI options labels ([d7631c0](https://github.com/linagora/linid-im-front-community-plugins/commit/d7631c0404bc0c5d682a4df43d5241f399170bea))
+* **catalog-ui:** override favorite from smart-filter ([b2831c7](https://github.com/linagora/linid-im-front-community-plugins/commit/b2831c773cb237449b16d878dd4d75faab5d5cf5)), closes [#197](https://github.com/linagora/linid-im-front-community-plugins/issues/197)
+
 ### [0.2.57](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.56...v0.2.57) (2026-07-03)
 
 
