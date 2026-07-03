@@ -38,7 +38,7 @@
     :suffix="translateOrDefault('', 'suffix')"
     :options="options"
     option-value="value"
-    option-label="value"
+    :option-label="optionLabel"
     emit-value
     map-options
     :rules="rules"
@@ -83,6 +83,8 @@ const normalizedValues: FieldListValue[] = (() => {
   }
   return values as FieldListValue[];
 })();
+
+const optionLabel = props.definition.inputSettings?.optionLabel ?? 'value';
 
 const defaultValue =
   props.definition.inputSettings?.defaultValue &&
