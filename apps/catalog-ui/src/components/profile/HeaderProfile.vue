@@ -32,7 +32,10 @@
     :label="name"
     data-cy="header_profile_button"
   >
-    <q-menu data-cy="header_profile_menu">
+    <q-menu
+      ref="profileMenu"
+      data-cy="header_profile_menu"
+    >
       <q-list>
         <q-item data-cy="header_profile_info">
           <q-item-section v-bind="uiProps.itemSection">
@@ -50,6 +53,47 @@
           </q-item-section>
         </q-item>
         <q-separator />
+        <q-item data-cy="header_profile_language">
+          <q-item-section>
+            <q-item-label>{{ t('language.title') }}</q-item-label>
+          </q-item-section>
+          <q-item-section class="col-auto">
+            <q-select
+              v-bind="uiProps.select"
+              v-model="selectedLanguage"
+              :options="availableLocales"
+              :option-disable="(code) => code === selectedLanguage"
+              data-cy="header_profile_language_select"
+            >
+              <template #selected>
+                <div class="row items-center no-wrap">
+                  <q-img
+                    v-bind="uiProps.flag"
+                    :src="`/icons/${selectedLanguage}.svg`"
+                    class="q-mr-sm"
+                  />
+                  <span>{{ t(`languages.${selectedLanguage}`) }}</span>
+                </div>
+              </template>
+              <template #option="scope">
+                <q-item
+                  v-bind="{ ...uiProps.item, ...scope.itemProps }"
+                  :data-cy="`header_profile_language_option_${scope.opt}`"
+                >
+                  <q-item-section avatar>
+                    <q-img
+                      v-bind="uiProps.flag"
+                      :src="`/icons/${scope.opt}.svg`"
+                    />
+                  </q-item-section>
+                  <q-item-section>
+                    {{ t(`languages.${scope.opt}`) }}
+                  </q-item-section>
+                </q-item>
+              </template>
+            </q-select>
+          </q-item-section>
+        </q-item>
         <LinidZoneRenderer :zone="`${localUiNamespace}.menu-items`" />
       </q-list>
     </q-menu>
@@ -60,28 +104,73 @@
 <script setup lang="ts">
 import type {
   LinidQBtnProps,
+  LinidQImgProps,
   LinidQItemLabelProps,
+  LinidQItemProps,
+  LinidQSelectProps,
   LinidQItemSectionProps,
 } from '@linagora/linid-im-front-corelib';
 import {
   LinidZoneRenderer,
   useLinidUserStore,
+  useLinidUiStore,
   useUiDesign,
+  useScopedI18n,
+  changeLocale,
 } from '@linagora/linid-im-front-corelib';
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 import type { CommonComponentProps } from '../../types/common';
+import type { QMenu } from 'quasar';
 
 const props = defineProps<CommonComponentProps>();
 
 const { ui } = useUiDesign();
+const { t } = useScopedI18n('application');
 const userStore = useLinidUserStore();
+const uiStore = useLinidUiStore();
 const name = computed(() => userStore.user.fullName);
 const email = computed(() => userStore.user.email);
+const availableLocales = computed(() => uiStore.i18n.languages);
 
 const localUiNamespace = `${props.uiNamespace}.header-profile`;
+
 const uiProps = {
   btn: ui<LinidQBtnProps>(localUiNamespace, 'q-btn'),
   itemSection: ui<LinidQItemSectionProps>(localUiNamespace, 'q-item-section'),
   itemLabel: ui<LinidQItemLabelProps>(localUiNamespace, 'q-item-label'),
+  flag: ui<LinidQImgProps>(localUiNamespace, 'q-img'),
+  select: ui<LinidQSelectProps>(localUiNamespace, 'q-select'),
+  item: ui<LinidQItemProps>(localUiNamespace, 'q-item'),
 };
+
+const selectedLanguage = ref(uiStore.i18n.locale);
+const profileMenu = ref<QMenu>();
+
+/**
+ * Keeps the selector in sync when the locale changes outside the component,
+ * such as when the user preference is resolved after mount.
+ */
+watch(
+  () => uiStore.i18n.locale,
+  (locale) => {
+    selectedLanguage.value = locale;
+  }
+);
+
+/**
+ * Applies the selected locale and closes the profile menu when the user picks a language.
+ * Skips changes coming from the store sync above, and reverts the selection if the locale
+ * could not be applied.
+ */
+watch(selectedLanguage, (code) => {
+  if (code === uiStore.i18n.locale) {
+    return;
+  }
+
+  profileMenu.value?.hide();
+  changeLocale(code).catch((e) => {
+    console.error('changeLocale failed', e);
+    selectedLanguage.value = uiStore.i18n.locale;
+  });
+});
 </script>
