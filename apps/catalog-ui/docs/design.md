@@ -64,7 +64,7 @@ The main application layout with header, toolbar, and navigation.
 
 ### HeaderProfile
 
-User profile button displayed in the application header. This component is a child of BaseLayout.
+User profile button displayed in the application header, including a language switcher. This component is a child of BaseLayout.
 
 **Namespace:** `{uiNamespace}.header-profile`
 
@@ -75,12 +75,17 @@ User profile button displayed in the application header. This component is a chi
       "header-profile": {
         "q-btn": { "flat": true, "round": false, "color": "white", "noCaps": true },
         "q-item-section": { "avatar": true },
-        "q-item-label": { "caption": true }
+        "q-item-label": { "caption": true },
+        "q-img": {},
+        "q-select": {},
+        "q-item": {}
       }
     }
   }
 }
 ```
+
+> **Note:** Flags are static SVG files served by the host at `/icons/{locale}.svg`; language names come from i18n (`application.languages.{locale}`).
 
 ---
 
@@ -1243,7 +1248,10 @@ A full example showing all CatalogUI components configured together:
       "header-profile": {
         "q-btn": { "flat": true, "color": "white", "noCaps": true },
         "q-item-section": { "avatar": true },
-        "q-item-label": { "caption": true }
+        "q-item-label": { "caption": true },
+        "q-img": {},
+        "q-select": {},
+        "q-item": {}
       },
       "navigation-menu": {
         "q-tabs": { "dense": false, "align": "left", "noCaps": true },

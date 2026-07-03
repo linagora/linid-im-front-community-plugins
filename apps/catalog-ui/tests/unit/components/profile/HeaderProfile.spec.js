@@ -24,9 +24,10 @@
  * LinID Identity Manager software.
  */
 
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount, flushPromises } from '@vue/test-utils';
 import { reactive } from 'vue';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { changeLocale } from '@linagora/linid-im-front-corelib';
 import HeaderProfile from '../../../../src/components/profile/HeaderProfile.vue';
 
 const mockUserStore = reactive({
@@ -40,10 +41,16 @@ const mockUserStore = reactive({
 });
 
 const mockUi = vi.fn(() => ({}));
+const mockUiStore = reactive({
+  i18n: { locale: 'fr-FR', languages: ['fr-FR', 'en-US'] },
+});
 
 vi.mock('@linagora/linid-im-front-corelib', () => ({
   useLinidUserStore: () => mockUserStore,
+  useLinidUiStore: () => mockUiStore,
   useUiDesign: () => ({ ui: mockUi }),
+  useScopedI18n: () => ({ t: (key) => key }),
+  changeLocale: vi.fn(() => Promise.resolve()),
   LinidZoneRenderer: { template: '<div />' },
 }));
 
@@ -64,6 +71,8 @@ describe('Test component: HeaderProfile', () => {
       roles: [],
     };
     mockUserStore.isAuthenticated = true;
+
+    mockUiStore.i18n = { locale: 'fr-FR', languages: ['fr-FR', 'en-US'] };
 
     wrapper = shallowMount(HeaderProfile, {
       props: defaultProps,
@@ -107,6 +116,90 @@ describe('Test component: HeaderProfile', () => {
 
     it('should call ui with header-profile.email namespace for q-item-label', () => {
       expect(mockUi).toHaveBeenCalledWith(localUiNamespace, 'q-item-label');
+    });
+  });
+
+  describe('Test computed: availableLocales', () => {
+    it('should return the languages from the ui store', () => {
+      expect(wrapper.vm.availableLocales).toEqual(['fr-FR', 'en-US']);
+    });
+  });
+
+  describe('Test watch: selectedLanguage', () => {
+    it('should call changeLocale when the selected language changes', async () => {
+      wrapper.vm.selectedLanguage = 'en-US';
+      await wrapper.vm.$nextTick();
+
+      expect(vi.mocked(changeLocale)).toHaveBeenCalledWith('en-US');
+    });
+
+    it('should hide the profile menu when the selected language changes', async () => {
+      const hide = vi.fn();
+      wrapper.vm.profileMenu = { hide };
+
+      wrapper.vm.selectedLanguage = 'en-US';
+      await wrapper.vm.$nextTick();
+
+      expect(hide).toHaveBeenCalled();
+    });
+
+    it('should log an error when changeLocale fails', async () => {
+      const error = new Error('boom');
+      vi.mocked(changeLocale).mockRejectedValueOnce(error);
+      const consoleError = vi
+        .spyOn(console, 'error')
+        .mockImplementation(vi.fn());
+
+      wrapper.vm.selectedLanguage = 'en-US';
+      await wrapper.vm.$nextTick();
+      await flushPromises();
+
+      expect(consoleError).toHaveBeenCalledWith('changeLocale failed', error);
+
+      consoleError.mockRestore();
+    });
+
+    it('should revert the selection to the store locale when changeLocale fails', async () => {
+      vi.mocked(changeLocale).mockRejectedValueOnce(new Error('boom'));
+      const consoleError = vi
+        .spyOn(console, 'error')
+        .mockImplementation(vi.fn());
+
+      wrapper.vm.selectedLanguage = 'en-US';
+      await wrapper.vm.$nextTick();
+      await flushPromises();
+
+      expect(wrapper.vm.selectedLanguage).toBe('fr-FR');
+
+      consoleError.mockRestore();
+    });
+
+    it('should not call changeLocale when the selection is synced from the store', async () => {
+      mockUiStore.i18n.locale = 'en-US';
+      await wrapper.vm.$nextTick();
+      await wrapper.vm.$nextTick();
+
+      expect(vi.mocked(changeLocale)).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Test watch: uiStore.i18n.locale', () => {
+    it('should sync selectedLanguage when the store locale changes', async () => {
+      mockUiStore.i18n.locale = 'en-US';
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.selectedLanguage).toBe('en-US');
+    });
+
+    it('should not hide the profile menu when the store locale changes', async () => {
+      const hide = vi.fn();
+      wrapper.vm.profileMenu = { hide };
+
+      mockUiStore.i18n.locale = 'en-US';
+      await wrapper.vm.$nextTick();
+      await wrapper.vm.$nextTick();
+
+      expect(hide).not.toHaveBeenCalled();
     });
   });
 });
