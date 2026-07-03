@@ -24,71 +24,12 @@
  * LinID Identity Manager software.
  */
 
-import type {
-  ModuleHostConfig,
-  ModuleLifecycleResult,
-} from '@linagora/linid-im-front-corelib';
-import {
-  BasicRemoteModule,
-  getI18nInstance,
-  useLinidUiStore,
-  useLinidZoneStore,
-} from '@linagora/linid-im-front-corelib';
-import type { ModulePageOptions } from '../types/ModulePageOptions';
-
 /**
- * Remote module responsible for page integration.
- *
- * This module acts as a federated entry point for a generic page and is
- * responsible for integrating it into the host application.
- *
- * It extends {@link BasicRemoteModule} to inherit the standard metadata and
- * lifecycle behavior expected by the host application.
+ * Defines the structure of the createDialogType object, which represents the data required to create a favorite filter set.
  */
-class ModulePage extends BasicRemoteModule<ModulePageOptions> {
+export type createDialogType = {
   /**
-   * Creates a new page module instance.
-   *
-   * Registers the module metadata used by the host application, including
-   * its identifier, display name, version, and description.
+   * The name of the favorite filter set to be created.
    */
-  constructor() {
-    super(
-      'modulePage',
-      'Page module',
-      '0.0.1',
-      'Module to manage page entity.'
-    );
-  }
-
-  /**
-   * Performs post-initialization tasks for the page module.
-   *
-   * Once the module has been initialized, it registers an entry in the host
-   * application's main navigation menu using the configured module path and
-   * localized label.
-   * @param config - The configuration object provided by the host application.
-   * @returns A promise that resolves to the result of the module lifecycle operation.
-   */
-  override async postInit(
-    config: ModuleHostConfig<ModulePageOptions>
-  ): Promise<ModuleLifecycleResult> {
-    const uiStore = useLinidUiStore();
-    const linidZoneStore = useLinidZoneStore();
-    const { t } = getI18nInstance().global;
-
-    uiStore.addMainNavigationMenuItems({
-      id: config.instanceId,
-      label: t(`${config.instanceId}.NavigationMenu.label`),
-      path: config.basePath,
-    });
-
-    linidZoneStore.registerOnce('base-layout.dialogComponent', {
-      plugin: 'catalogUI/FormDialog',
-    });
-
-    return { success: true };
-  }
-}
-
-export default new ModulePage();
+  favoriteName: string;
+};

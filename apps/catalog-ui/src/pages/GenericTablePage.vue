@@ -78,6 +78,7 @@
       class="q-mb-md"
       @update:filters="onFiltersChange"
       @apply:favorite="onFavoriteApply"
+      @create:favorite="openCreateFavoriteDialog"
     />
 
     <GenericEntityTable
@@ -126,29 +127,31 @@ import { useRoute, useRouter } from 'vue-router';
 import { computed, onMounted, ref } from 'vue';
 import type {
   LinidFilter,
+  LinidFilterSetUserPreference,
   LinidQBtnProps,
   QTableRequestEvent,
-  QueryFilter,
   QuasarPagination,
-  LinidFilterSetUserPreference,
+  QueryFilter,
 } from '@linagora/linid-im-front-corelib';
 import {
   getEntities,
   getModuleHostConfiguration,
-  LinidZoneRenderer,
   LinidFilterSet,
+  LinidZoneRenderer,
+  uiEventSubject,
   useLinidFilterUrl,
+  useLinidUserPreference,
   useNotify,
   usePagination,
   useScopedI18n,
   useUiDesign,
-  useLinidUserPreference,
 } from '@linagora/linid-im-front-corelib';
 import type { ModuleGenericTablePageOptions } from '../types/ModuleGenericTablePageOptions';
 import type { QTableColumn } from 'quasar';
 import ButtonsCard from '../components/card/ButtonsCard.vue';
 import GenericEntityTable from '../components/table/GenericEntityTable.vue';
 import LinidSmartFilter from '../components/smart-filter/LinidSmartFilter.vue';
+import { createDialogType } from '../types/genericTablePage';
 
 const router = useRouter();
 const route = useRoute();
@@ -163,7 +166,8 @@ const options = computed(
 );
 
 const { t, te } = useScopedI18n(i18nScope.value);
-const { userPreferenceStore } = useLinidUserPreference();
+const { userPreferenceStore, saveUserPreference, init } =
+  useLinidUserPreference();
 const items = ref<Record<string, unknown>[]>([]);
 const isLoading = ref<boolean>(false);
 const { Notify } = useNotify();
@@ -193,6 +197,7 @@ const pagination = ref<QuasarPagination>({
 const columns = computed<QTableColumn[]>(() =>
   options.value.columns.map((column) => ({
     ...column,
+    ...column,
     label: t(column.label),
   }))
 );
@@ -204,6 +209,39 @@ const uiProps = computed(() => ({
     'q-btn'
   ),
 }));
+
+/**
+ * Opens a form dialog to create a new favorite filter set.
+ */
+function openCreateFavoriteDialog(): void {
+  uiEventSubject.next({
+    key: 'form',
+    data: {
+      type: 'open',
+      title: t('create-favorite-dialog.title'),
+      content: t('create-favorite-dialog.content'),
+      uiNamespace: uiNamespace,
+      i18nScope: i18nScope,
+      instanceId: instanceId,
+      formFields: [
+        {
+          name: 'favoriteName',
+          input: 'Text',
+          type: 'String',
+          required: true,
+          hasValidations: false,
+          inputSettings: {},
+        },
+      ],
+      onSubmit: async (formData: createDialogType) => {
+        await saveUserPreference(
+          `ui.${instanceId.value}.favorites.${formData.favoriteName}`,
+          JSON.stringify(filters.value)
+        );
+      },
+    },
+  });
+}
 
 /**
  * Navigate to the new item creation page.
@@ -337,6 +375,7 @@ function loadData(): Promise<void> {
 }
 
 onMounted(async () => {
+  await init();
   await loadData();
 });
 </script>
