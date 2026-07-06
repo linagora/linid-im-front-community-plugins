@@ -63,7 +63,7 @@
             <q-icon v-bind="uiProps.types[filter.type].icon" />
           </q-item-section>
           <q-item-section v-bind="uiProps.labelSection">
-            {{ filter.name }}
+            {{ t(`columnFilter.${filter.name}`) }}
           </q-item-section>
         </q-item>
       </q-list>
