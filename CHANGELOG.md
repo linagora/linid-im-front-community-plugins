@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.62](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.61...v0.2.62) (2026-07-06)
+
+
+### Features
+
+* **catalog-ui:** add design documentation for linid-smart-filter ([4919294](https://github.com/linagora/linid-im-front-community-plugins/commit/4919294ba0ec7c64844d9fcf26696a578f95f7d0))
+* **catalog-ui:** add i18N keys for column filters ([5aa9c17](https://github.com/linagora/linid-im-front-community-plugins/commit/5aa9c1718a6307f85f0a660d6f5ab5f26fad50c2))
+* **catalog-ui:** disable override favorite button when there is no filter ([ca6317e](https://github.com/linagora/linid-im-front-community-plugins/commit/ca6317efbcffa1b886beae95f33c60fc6f826049))
+* **catalog-ui:** put i18nscope for entityTable in genericTablePage ([66351cc](https://github.com/linagora/linid-im-front-community-plugins/commit/66351ccdc7033a137581fcd3bbdfb95a89ffb90d))
+
+
+### Bug Fixes
+
+* **catalog-ui:** change favorite dialogs i18n keys ([b80d689](https://github.com/linagora/linid-im-front-community-plugins/commit/b80d6894edc9f870eea168bd55685087f50298ac))
+
 ### [0.2.61](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.60...v0.2.61) (2026-07-06)
 
 
