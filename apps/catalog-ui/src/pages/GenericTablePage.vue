@@ -86,6 +86,7 @@
     <GenericEntityTable
       v-model:pagination="pagination"
       :ui-namespace="uiNamespace"
+      :i18n-scope="i18nScope"
       :rows="items"
       :columns="columns"
       :loading="isLoading"
