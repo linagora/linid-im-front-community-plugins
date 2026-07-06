@@ -8,8 +8,7 @@
       "vite/client",
       "node",
       "vitest"
-    ],
-    "baseUrl": "."
+    ]
   },
   "include": [
     "vite.config.ts",
