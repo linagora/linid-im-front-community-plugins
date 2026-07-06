@@ -80,6 +80,7 @@
       @apply:favorite="onFavoriteApply"
       @delete:favorite="openDeleteFavoriteDialog"
       @override:favorite="openOverrideFavoriteDialog"
+      @create:favorite="openCreateFavoriteDialog"
     />
 
     <GenericEntityTable
@@ -340,6 +341,59 @@ function openOverrideFavoriteDialog(): void {
             ).toString(),
           })
         ),
+    },
+  });
+}
+
+/**
+ * Generates a unique favorite ID by looping on crypto.randomUUID until an ID is found.
+ * @returns A unique UUID string that is not already used in favorites.
+ */
+function generateUniqueFavoriteId(): string {
+  let newId = crypto.randomUUID();
+  while (favorites.value.some((fav) => fav.id === newId)) {
+    newId = crypto.randomUUID();
+  }
+  return newId;
+}
+
+/**
+ * Opens a confirmation dialog to create a favorite filter set with the current filters.
+ */
+function openCreateFavoriteDialog(): void {
+  uiEventSubject.next({
+    key: 'form',
+    data: {
+      type: 'open',
+      title: t('CreateDialog.Title'),
+      content: t('CreateDialog.Content'),
+      uiNamespace: uiNamespace.value,
+      i18nScope: `${i18nScope.value}.CreateDialog`,
+      formFields: [
+        {
+          name: 'favoriteName',
+          type: 'String',
+          input: 'Text',
+          required: true,
+          inputSettings: {},
+        },
+      ],
+      // eslint-disable-next-line jsdoc/require-jsdoc
+      onSubmit: (formData: { favoriteName: string }) => {
+        const favoriteId = generateUniqueFavoriteId();
+        saveUserPreference(
+          `${favoritesBaseConfigurationKey.value}${favoriteId}`,
+          JSON.stringify({
+            id: favoriteId,
+            label: formData.favoriteName,
+            value: new LinidFilterSet(
+              favoriteId,
+              formData.favoriteName,
+              filters.value
+            ).toString(),
+          })
+        );
+      },
     },
   });
 }
