@@ -195,8 +195,8 @@ Each active filter is serialized to a query param using `filter.toString()`, key
   - `ButtonsCard.create`
   - `DeleteDialog.title` — title of the delete-favorite confirmation dialog
   - `DeleteDialog.content` — body of the delete-favorite confirmation dialog (`{label}` placeholder available)
-  - `FormDialog.overrideTitle` — title of the override-favorite form dialog
-  - `FormDialog.overrideContent` — body of the override-favorite form dialog
+  - `OverrideDialog.title` — title of the override-favorite form dialog
+  - `OverrideDialog.content` — body of the override-favorite form dialog
 
 ---
 
