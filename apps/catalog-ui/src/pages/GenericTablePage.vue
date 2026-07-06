@@ -285,12 +285,12 @@ function openDeleteFavoriteDialog(favorite: LinidFilterSet): void {
     key: 'confirmation',
     data: {
       type: 'open',
-      title: t('ConfirmationDialog.title'),
-      content: t('ConfirmationDialog.content', {
+      title: t('DeleteDialog.title'),
+      content: t('DeleteDialog.content', {
         label: favorite.label,
       }),
       uiNamespace: uiNamespace.value,
-      i18nScope: `${i18nScope.value}.ConfirmationDialog`,
+      i18nScope: `${i18nScope.value}.DeleteDialog`,
       onConfirm: () =>
         deleteUserPreference(
           `${favoritesBaseConfigurationKey.value}${favorite.id}`
