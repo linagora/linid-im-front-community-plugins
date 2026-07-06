@@ -291,7 +291,7 @@ function openDeleteFavoriteDialog(favorite: LinidFilterSet): void {
       content: t('DeleteFavoriteDialog.content', {
         label: favorite.label,
       }),
-      uiNamespace: uiNamespace.value,
+      uiNamespace: `${uiNamespace.value}.delete-favorite-dialog`,
       i18nScope: `${i18nScope.value}.DeleteFavoriteDialog`,
       onConfirm: () =>
         deleteUserPreference(
@@ -311,7 +311,7 @@ function openOverrideFavoriteDialog(): void {
       type: 'open',
       title: t('OverrideFavoriteDialog.title'),
       content: t('OverrideFavoriteDialog.content'),
-      uiNamespace: uiNamespace.value,
+      uiNamespace: `${uiNamespace.value}.override-favorite-dialog`,
       i18nScope: `${i18nScope.value}.OverrideFavoriteDialog`,
       formFields: [
         {
@@ -368,7 +368,7 @@ function openCreateFavoriteDialog(): void {
       type: 'open',
       title: t('CreateFavoriteDialog.title'),
       content: t('CreateFavoriteDialog.content'),
-      uiNamespace: uiNamespace.value,
+      uiNamespace: `${uiNamespace.value}.create-favorite-dialog`,
       i18nScope: `${i18nScope.value}.CreateFavoriteDialog`,
       formFields: [
         {
