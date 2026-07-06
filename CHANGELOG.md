@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.61](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.60...v0.2.61) (2026-07-06)
+
+
+### Features
+
+* **catalog-ui:** reset selected filter when menu closes ([01117ee](https://github.com/linagora/linid-im-front-community-plugins/commit/01117eedd81a38ae437f762575e94686d40a63bc))
+
+
+### Bug Fixes
+
+* **catalog-ui:** use filter name for selection in LinidFilterPanel ([0b38a7b](https://github.com/linagora/linid-im-front-community-plugins/commit/0b38a7bbc76a324b5ba70eb1c696231c82819e64))
+
 ### [0.2.60](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.59...v0.2.60) (2026-07-06)
 
 
