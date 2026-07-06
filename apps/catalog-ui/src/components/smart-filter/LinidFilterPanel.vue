@@ -48,12 +48,12 @@
       >
         <q-item
           v-for="filter in props.filters"
-          :key="filter.id"
+          :key="filter.name"
           v-bind="uiProps.item"
           clickable
-          :active="filter.id === selectedFilterId"
-          :data-cy="`linid-filter-panel_item-${filter.id}`"
-          @click="selectFilter(filter.id)"
+          :active="filter.name === selectedFilterName"
+          :data-cy="`linid-filter-panel_item-${filter.name}`"
+          @click="selectFilter(filter.name)"
         >
           <q-item-section
             v-if="uiProps.types[filter.type]?.icon?.name"
@@ -149,11 +149,11 @@ const uiProps = computed<LinidFilterPanelUIProps>(() => ({
  * Identifier of the filter that should currently be active.
  * Falls back to the first available filter when `selected` does not match any filter.
  */
-const selectedFilterId = computed<string>(() => {
-  if (props.filters.some((filter) => filter.id === props.selected)) {
+const selectedFilterName = computed<string>(() => {
+  if (props.filters.some((filter) => filter.name === props.selected)) {
     return props.selected;
   }
-  return props.filters[0]?.id ?? '';
+  return props.filters[0]?.name ?? '';
 });
 
 /**
@@ -161,22 +161,22 @@ const selectedFilterId = computed<string>(() => {
  * Used to determine which filter editor slot to render.
  */
 const selectedFilter = computed(() =>
-  props.filters.find((filter) => filter.id === selectedFilterId.value)
+  props.filters.find((filter) => filter.name === selectedFilterName.value)
 );
 
 /**
  * Selects a filter by its identifier.
- * @param filterId The identifier of the filter to select.
+ * @param filterName The identifier of the filter to select.
  */
-function selectFilter(filterId: string): void {
-  emit('update:selected', filterId);
+function selectFilter(filterName: string): void {
+  emit('update:selected', filterName);
 }
 
 watch(
-  selectedFilterId,
-  (filterId) => {
-    if (filterId !== props.selected) {
-      emit('update:selected', filterId);
+  selectedFilterName,
+  (filterName) => {
+    if (filterName !== props.selected) {
+      emit('update:selected', filterName);
     }
   },
   { immediate: true }

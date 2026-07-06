@@ -60,7 +60,7 @@ const defaultProps = {
   uiNamespace: 'Homepage',
   i18nScope: 'myScope',
   filters,
-  selected: DATE_FILTER_ID,
+  selected: 'createdAt',
 };
 
 function mountComponent(props = {}) {
@@ -76,23 +76,23 @@ describe('Test component: LinidFilterPanel', () => {
     vi.clearAllMocks();
   });
 
-  describe('Test computed: selectedFilterId', () => {
+  describe('Test computed: selectedFilterName', () => {
     it('should use the selected prop when it matches an existing filter', () => {
-      wrapper = mountComponent({ selected: DATE_FILTER_ID });
+      wrapper = mountComponent({ selected: 'createdAt' });
 
-      expect(wrapper.vm.selectedFilterId).toBe(DATE_FILTER_ID);
+      expect(wrapper.vm.selectedFilterName).toBe('createdAt');
     });
 
     it('should fall back to the first filter when selected does not match any filter', () => {
       wrapper = mountComponent({ selected: 'unknown-filter' });
 
-      expect(wrapper.vm.selectedFilterId).toBe(TEXT_FILTER_ID);
+      expect(wrapper.vm.selectedFilterName).toBe('textFilter');
     });
 
     it('should fall back to an empty string when there is no filter', () => {
       wrapper = mountComponent({ filters: [], selected: 'unknown-filter' });
 
-      expect(wrapper.vm.selectedFilterId).toBe('');
+      expect(wrapper.vm.selectedFilterName).toBe('');
     });
   });
 
@@ -162,8 +162,8 @@ describe('Test component: LinidFilterPanel', () => {
   });
 
   describe('Test computed: selectedFilter', () => {
-    it('should resolve the filter object matching selectedFilterId', () => {
-      wrapper = mountComponent({ selected: DATE_FILTER_ID });
+    it('should resolve the filter object matching selectedFilterName', () => {
+      wrapper = mountComponent({ selected: 'createdAt' });
 
       expect(wrapper.vm.selectedFilter).toEqual(filters[1]);
     });
@@ -176,16 +176,14 @@ describe('Test component: LinidFilterPanel', () => {
   });
 
   describe('Test function: selectFilter', () => {
-    it('should emit update:selected with the given filter id', () => {
-      wrapper = mountComponent({ selected: DATE_FILTER_ID });
+    it('should emit update:selected with the given filter name', () => {
+      wrapper = mountComponent({ selected: 'createdAt' });
       vi.clearAllMocks();
 
-      wrapper.vm.selectFilter(TEXT_FILTER_ID);
+      wrapper.vm.selectFilter('textFilter');
 
       expect(wrapper.emitted('update:selected')).toBeTruthy();
-      expect(wrapper.emitted('update:selected').at(-1)).toEqual([
-        TEXT_FILTER_ID,
-      ]);
+      expect(wrapper.emitted('update:selected').at(-1)).toEqual(['textFilter']);
     });
   });
 
@@ -194,25 +192,23 @@ describe('Test component: LinidFilterPanel', () => {
       wrapper = mountComponent({ selected: 'unknown-filter' });
 
       expect(wrapper.emitted('update:selected')).toBeTruthy();
-      expect(wrapper.emitted('update:selected')[0]).toEqual([TEXT_FILTER_ID]);
+      expect(wrapper.emitted('update:selected')[0]).toEqual(['textFilter']);
     });
 
     it('should not emit update:selected on mount when selected already matches a filter', () => {
-      wrapper = mountComponent({ selected: DATE_FILTER_ID });
+      wrapper = mountComponent({ selected: 'createdAt' });
 
       expect(wrapper.emitted('update:selected')).toBeFalsy();
     });
 
     it('should emit update:selected when the selected filter is removed from filters', async () => {
-      wrapper = mountComponent({ selected: DATE_FILTER_ID });
+      wrapper = mountComponent({ selected: 'createdAt' });
       vi.clearAllMocks();
 
       await wrapper.setProps({ filters: [filters[0]] });
 
       expect(wrapper.emitted('update:selected')).toBeTruthy();
-      expect(wrapper.emitted('update:selected').at(-1)).toEqual([
-        TEXT_FILTER_ID,
-      ]);
+      expect(wrapper.emitted('update:selected').at(-1)).toEqual(['textFilter']);
     });
 
     it('should not emit update:selected when filters is empty and selected is already empty', () => {
