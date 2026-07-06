@@ -83,7 +83,7 @@
         v-bind="uiProps.menu"
       >
         <linid-filter-panel
-          v-model:selected="selectedFilterId"
+          v-model:selected="selectedFilterName"
           :filters="options?.filters ?? []"
           :ui-namespace="localUiNamespace"
           :i18n-scope="localI18nScope"
@@ -97,7 +97,7 @@
             <component
               :is="panelComponent"
               v-if="panelComponent"
-              :key="selectedFilterId"
+              :key="selectedFilterName"
               v-bind="currentPanelProps"
               @search="onSearch"
             />
@@ -146,12 +146,12 @@ import type {
 } from '../../types/smartFilter';
 import LinidFilterChip from '../chip/LinidFilterChip.vue';
 import DateSearchFilterPanel from './DateSearchFilterPanel.vue';
+import LinidFavoritePanel from './LinidFavoritePanel.vue';
 import LinidFilterPanel from './LinidFilterPanel.vue';
 import ListSearchFilterPanel from './ListSearchFilterPanel.vue';
 import NumberSearchFilterPanel from './NumberSearchFilterPanel.vue';
 import TextSearchFilterPanel from './TextSearchFilterPanel.vue';
 import TreeSearchFilterPanel from './TreeSearchFilterPanel.vue';
-import LinidFavoritePanel from './LinidFavoritePanel.vue';
 
 const PANEL_COMPONENTS: Record<LinidFilterType, Component> = {
   text: TextSearchFilterPanel,
@@ -170,7 +170,7 @@ const localI18nScope = `${props.i18nScope}.LinidSmartFilter`;
 const { translateOrDefault } = useScopedI18n(localI18nScope);
 
 const isFilterMenuOpen = ref(false);
-const selectedFilterId = ref('');
+const selectedFilterName = ref('');
 
 let activeFilters: LinidFilter[] = [];
 
@@ -199,9 +199,11 @@ const uiProps = {
   ),
 };
 
-/** The filter object corresponding to the currently selected id in the panel. */
+/** The filter object corresponding to the currently selected name in the panel. */
 const selectedFilter = computed<LinidFilter | undefined>(() =>
-  (props.options?.filters ?? []).find((f) => f.id === selectedFilterId.value)
+  (props.options?.filters ?? []).find(
+    (f) => f.name === selectedFilterName.value
+  )
 );
 
 /** Props forwarded to the active search panel, derived from the selected filter's options. */

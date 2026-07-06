@@ -180,14 +180,14 @@ describe('Test component: LinidSmartFilter', () => {
       expect(wrapper.vm.selectedFilter).toBeUndefined();
     });
 
-    it('should return the matching filter when selectedFilterId is set', () => {
-      wrapper.vm.selectedFilterId = TEXT_FILTER_ID;
+    it('should return the matching filter when selectedFilterName is set', () => {
+      wrapper.vm.selectedFilterName = 'username';
 
       expect(wrapper.vm.selectedFilter).toEqual(textFilter);
     });
 
-    it('should return undefined when selectedFilterId does not match any filter', () => {
-      wrapper.vm.selectedFilterId = 'unknown-id';
+    it('should return undefined when selectedFilterName does not match any filter', () => {
+      wrapper.vm.selectedFilterName = 'unknown-name';
 
       expect(wrapper.vm.selectedFilter).toBeUndefined();
     });
@@ -212,7 +212,7 @@ describe('Test component: LinidSmartFilter', () => {
       const w = mountComponent({
         options: { filters: [filterWithExtraOptions, dateFilter] },
       });
-      w.vm.selectedFilterId = TEXT_FILTER_ID;
+      w.vm.selectedFilterName = 'username';
 
       expect(w.vm.currentPanelProps).toEqual({
         fieldName: 'username',
@@ -225,7 +225,7 @@ describe('Test component: LinidSmartFilter', () => {
 
   describe('Test function: onSearch', () => {
     it('should do nothing when no filter is selected', () => {
-      wrapper.vm.selectedFilterId = '';
+      wrapper.vm.selectedFilterName = '';
 
       wrapper.vm.onSearch({ field: 'username', values: [{ value: 'alice' }] });
 
@@ -233,7 +233,7 @@ describe('Test component: LinidSmartFilter', () => {
     });
 
     it('should do nothing when payload values is empty', () => {
-      wrapper.vm.selectedFilterId = TEXT_FILTER_ID;
+      wrapper.vm.selectedFilterName = 'username';
 
       wrapper.vm.onSearch({ field: 'username', values: [] });
 
@@ -241,7 +241,7 @@ describe('Test component: LinidSmartFilter', () => {
     });
 
     it('should add a new filter entry for the searched field', () => {
-      wrapper.vm.selectedFilterId = TEXT_FILTER_ID;
+      wrapper.vm.selectedFilterName = 'username';
       const values = [{ value: 'alice' }];
 
       wrapper.vm.onSearch({ field: 'username', values });
@@ -254,7 +254,7 @@ describe('Test component: LinidSmartFilter', () => {
     });
 
     it('should always push a new entry, even when one with the same field name already exists', () => {
-      wrapper.vm.selectedFilterId = TEXT_FILTER_ID;
+      wrapper.vm.selectedFilterName = 'username';
       wrapper.vm.activeFilters.push({
         ...textFilter,
         values: [{ value: 'old' }],
@@ -272,7 +272,7 @@ describe('Test component: LinidSmartFilter', () => {
     });
 
     it('should copy the type and options from the selected filter onto the new entry', () => {
-      wrapper.vm.selectedFilterId = TEXT_FILTER_ID;
+      wrapper.vm.selectedFilterName = 'username';
 
       wrapper.vm.onSearch({ field: 'username', values: [{ value: 'alice' }] });
 
@@ -284,7 +284,7 @@ describe('Test component: LinidSmartFilter', () => {
     });
 
     it('should emit update:filters after applying values', () => {
-      wrapper.vm.selectedFilterId = TEXT_FILTER_ID;
+      wrapper.vm.selectedFilterName = 'username';
 
       wrapper.vm.onSearch({ field: 'username', values: [{ value: 'alice' }] });
 
@@ -292,7 +292,7 @@ describe('Test component: LinidSmartFilter', () => {
     });
 
     it('should emit only filters with non-empty values', () => {
-      wrapper.vm.selectedFilterId = TEXT_FILTER_ID;
+      wrapper.vm.selectedFilterName = 'username';
       const values = [{ value: 'alice' }];
 
       wrapper.vm.onSearch({ field: 'username', values });

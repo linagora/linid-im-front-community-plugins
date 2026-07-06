@@ -129,5 +129,5 @@ export type LinidFilterPanelSearchOutputs<
  * Defines the events emitted by the LinidFilterPanel component.
  */
 export type LinidFilterPanelOutputs = {
-  (e: 'update:selected', filterId: string): void;
+  (e: 'update:selected', filterName: string): void;
 };

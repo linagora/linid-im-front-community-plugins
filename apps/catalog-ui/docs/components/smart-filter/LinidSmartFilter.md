@@ -184,7 +184,7 @@ const filterSet = [new LinidFilterSet('id', 'label', [])];
 </template>
 ```
 
-> **Note:** `LinidFilter` auto-generates a stable `id` via `crypto.randomUUID()` at construction time. Define the filter instances once (outside `setup` or in a constant) to prevent `id` regeneration on every render.
+> **Note:** `LinidFilter` auto-generates a stable `id` via `crypto.randomUUID()` at construction time. Define the filter instances once (outside `setup` or in a constant) to prevent `id` regeneration on every render — each active filter chip is keyed by `id`, so regeneration would cause the chip list to unnecessarily re-render.
 
 ---
 
