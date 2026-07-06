@@ -28,6 +28,7 @@
   <!-- v8 ignore start -->
   <div class="linid-smart-filter">
     <q-field
+      :stack-label="(filters?.length || 0) > 0"
       v-bind="uiProps.field"
       class="linid-smart-filter--field"
       data-cy="linid-smart-filter-field"
@@ -48,7 +49,7 @@
         #control
       >
         <div
-          class="row q-gutter-sm linid-smart-filter--chips"
+          class="row justify-center q-gutter-sm q-pt-sm linid-smart-filter--chips"
           data-cy="linid-smart-filter-chips"
         >
           <linid-filter-chip
