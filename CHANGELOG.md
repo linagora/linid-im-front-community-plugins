@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.60](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.59...v0.2.60) (2026-07-06)
+
+
+### Bug Fixes
+
+* **catalog-ui:** by default table take all width ([bbe7728](https://github.com/linagora/linid-im-front-community-plugins/commit/bbe7728f5630b15001b98b75228a8f86f92fb465))
+* **catalog-ui:** favorite item take all width ([3c58c6b](https://github.com/linagora/linid-im-front-community-plugins/commit/3c58c6b3025d03d5564ea4daec582af27c69c92d))
+* **catalog-ui:** fix stack-label for chip in smart-filter ([b5e3aab](https://github.com/linagora/linid-im-front-community-plugins/commit/b5e3aab3389a88a70574369a51b0a046d86dfded))
+* **catalog-ui:** smart-filter should be center and not take all width ([9525107](https://github.com/linagora/linid-im-front-community-plugins/commit/9525107de0b27b4e12bb203811ccac523aa7729e))
+
 ### [0.2.59](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.58...v0.2.59) (2026-07-06)
 
 
