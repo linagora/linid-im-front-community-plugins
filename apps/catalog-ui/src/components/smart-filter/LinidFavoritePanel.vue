@@ -59,7 +59,7 @@
     <div class="row no-wrap linid-favorite-panel--content">
       <q-list
         v-bind="uiProps.list"
-        class="col-auto linid-favorite-panel--list"
+        class="full-width col-auto linid-favorite-panel--list"
         data-cy="linid-favorite-panel_list"
       >
         <q-item
@@ -80,7 +80,10 @@
           <q-item-section v-bind="uiProps.labelSection">
             {{ favorite.label }}
           </q-item-section>
-          <q-item-section v-bind="uiProps.deleteSection">
+          <q-item-section
+            v-bind="uiProps.deleteSection"
+            class="row items-end"
+          >
             <q-btn
               v-bind="uiProps.deleteButton"
               :label="translateOrDefault('', 'deleteButton')"
