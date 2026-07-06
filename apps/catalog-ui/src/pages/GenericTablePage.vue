@@ -286,12 +286,12 @@ function openDeleteFavoriteDialog(favorite: LinidFilterSet): void {
     key: 'confirmation',
     data: {
       type: 'open',
-      title: t('DeleteDialog.title'),
-      content: t('DeleteDialog.content', {
+      title: t('DeleteFavoriteDialog.title'),
+      content: t('DeleteFavoriteDialog.content', {
         label: favorite.label,
       }),
       uiNamespace: uiNamespace.value,
-      i18nScope: `${i18nScope.value}.DeleteDialog`,
+      i18nScope: `${i18nScope.value}.DeleteFavoriteDialog`,
       onConfirm: () =>
         deleteUserPreference(
           `${favoritesBaseConfigurationKey.value}${favorite.id}`
@@ -308,10 +308,10 @@ function openOverrideFavoriteDialog(): void {
     key: 'form',
     data: {
       type: 'open',
-      title: t('OverrideDialog.title'),
-      content: t('OverrideDialog.content'),
+      title: t('OverrideFavoriteDialog.title'),
+      content: t('OverrideFavoriteDialog.content'),
       uiNamespace: uiNamespace.value,
-      i18nScope: `${i18nScope.value}.OverrideDialog`,
+      i18nScope: `${i18nScope.value}.OverrideFavoriteDialog`,
       formFields: [
         {
           name: 'favorite',
@@ -365,10 +365,10 @@ function openCreateFavoriteDialog(): void {
     key: 'form',
     data: {
       type: 'open',
-      title: t('CreateDialog.title'),
-      content: t('CreateDialog.content'),
+      title: t('CreateFavoriteDialog.title'),
+      content: t('CreateFavoriteDialog.content'),
       uiNamespace: uiNamespace.value,
-      i18nScope: `${i18nScope.value}.CreateDialog`,
+      i18nScope: `${i18nScope.value}.CreateFavoriteDialog`,
       formFields: [
         {
           name: 'favoriteName',
@@ -384,7 +384,7 @@ function openCreateFavoriteDialog(): void {
         if (favorites.value.some((fav) => fav.label === trimmedFavoriteName)) {
           Notify({
             type: 'negative',
-            message: t('CreateDialog.duplicateName', {
+            message: t('CreateFavoriteDialog.duplicateName', {
               name: trimmedFavoriteName,
             }),
           });
