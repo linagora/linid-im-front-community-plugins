@@ -85,12 +85,17 @@ Switching from one filter to another always resets the editor to its initial sta
 2. The component emits `update:filters` with all currently active filters (including the newly applied one).
 3. The parent updates its state and passes the new array back as `:filters`.
 4. The chip for that filter appears.
+5. The menu closes and the filter selection is reset — reopening the menu shows no filter pre-selected.
 
 ### Switching between filters
 
 1. The user clicks a different filter name in the left column.
 2. The editor on the right is replaced with a fresh panel for the newly selected filter.
 3. Any previously typed values in the old panel are discarded — they are not applied until the user explicitly clicks **Search**.
+
+### Closing the menu without applying
+
+If the user closes the menu without clicking **Search** (clicking outside, pressing Escape), the filter selection is reset. Reopening the menu shows no filter pre-selected, and any values typed in the editor are lost.
 
 ---
 
