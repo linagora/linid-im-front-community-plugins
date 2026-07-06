@@ -28,7 +28,7 @@
   <!-- v8 ignore start -->
   <q-page
     data-cy="generics-table-page"
-    class="q-pa-md generics-table-page"
+    class="q-pa-md flex column items-center generics-table-page"
   >
     <div
       v-if="te('title')"
@@ -480,3 +480,10 @@ onMounted(async () => {
   await loadData();
 });
 </script>
+
+<style lang="scss" scoped>
+.linid-smart-filter {
+  width: 50%;
+  min-width: 50%;
+}
+</style>
