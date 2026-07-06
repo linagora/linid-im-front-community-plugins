@@ -126,6 +126,30 @@ describe('Test component: LinidSmartFilter', () => {
     wrapper = mountComponent();
   });
 
+  describe('Test watcher: isFilterMenuOpen', () => {
+    it('should reset selectedFilterName to empty string when the menu closes', async () => {
+      wrapper.vm.selectedFilterName = 'username';
+      wrapper.vm.isFilterMenuOpen = true;
+
+      await wrapper.vm.$nextTick();
+      wrapper.vm.isFilterMenuOpen = false;
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.selectedFilterName).toBe('');
+    });
+
+    it('should not reset selectedFilterName when the menu opens', async () => {
+      wrapper.vm.selectedFilterName = 'username';
+      wrapper.vm.isFilterMenuOpen = false;
+
+      await wrapper.vm.$nextTick();
+      wrapper.vm.isFilterMenuOpen = true;
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.selectedFilterName).toBe('username');
+    });
+  });
+
   describe('Test watcher: filters', () => {
     it('should initialize activeFilters as an empty array when no filters prop is provided', () => {
       expect(wrapper.vm.activeFilters).toHaveLength(0);

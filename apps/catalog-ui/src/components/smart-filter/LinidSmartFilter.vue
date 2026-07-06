@@ -184,6 +184,12 @@ watch(
   { immediate: true }
 );
 
+watch(isFilterMenuOpen, (isOpen) => {
+  if (!isOpen) {
+    selectedFilterName.value = '';
+  }
+});
+
 const uiProps = {
   field: ui<LinidQFieldProps>(`${localUiNamespace}`, 'q-field'),
   menu: ui<LinidQMenuProps>(`${localUiNamespace}`, 'q-menu'),
