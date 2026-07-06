@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.59](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.58...v0.2.59) (2026-07-06)
+
+
+### Features
+
+* **catalog-ui:** add create favorite form dailog ([4143754](https://github.com/linagora/linid-im-front-community-plugins/commit/414375426dc7fcf57bc42263ac2393f6f58b2bc2))
+* **catalog-ui:** change favorite deleteDialog i18n keys ([25a3080](https://github.com/linagora/linid-im-front-community-plugins/commit/25a308011bd1ab6ef32aeee657d09eb891776d1c))
+* **catalog-ui:** change favorite overrideDialog i18n keys ([b1982a8](https://github.com/linagora/linid-im-front-community-plugins/commit/b1982a85180e322f6edb8ff441313a7cd28250f4))
+
 ### [0.2.58](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.57...v0.2.58) (2026-07-03)
 
 
