@@ -319,6 +319,7 @@ The component uses scoped i18n with the following translation keys:
 | `[INSTANCE_ID].LinidSmartFilter.LinidFilterChip.[FILTER].type`                 | Filter type label (optional, default filter.name)            | Filter label           | -          |
 | `[INSTANCE_ID].LinidSmartFilter.LinidFilterChip.[FILTER].separator`            | Separator between filter values                              | Filter separator label | -          |
 | `[INSTANCE_ID].LinidSmartFilter.LinidFilterPanel.title`                        | Panel section title                                          | Header title           | -          |
+| `[INSTANCE_ID].LinidSmartFilter.LinidFilterPanel.columnFilter.[columnName]`    | Column filter label                                          | Column filter label    | -          |
 | `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.inputLabel`              | Text input label (optional, defaults to empty string)        | QInput label           | -          |
 | `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.inputHint`               | Text input hint (optional, defaults to empty string)         | QInput hint            | -          |
 | `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.inputPrefix`             | Text input prefix (optional, defaults to empty string)       | QInput prefix          | -          |
