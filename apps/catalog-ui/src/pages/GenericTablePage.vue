@@ -307,10 +307,10 @@ function openOverrideFavoriteDialog(): void {
     key: 'form',
     data: {
       type: 'open',
-      title: t('FormDialog.overrideTitle'),
-      content: t('FormDialog.overrideContent'),
+      title: t('OverrideDialog.title'),
+      content: t('OverrideDialog.content'),
       uiNamespace: uiNamespace.value,
-      i18nScope: `${i18nScope.value}.FormDialog`,
+      i18nScope: `${i18nScope.value}.OverrideDialog`,
       formFields: [
         {
           name: 'favorite',
