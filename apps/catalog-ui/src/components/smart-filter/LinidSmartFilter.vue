@@ -111,6 +111,7 @@
 
         <linid-favorite-panel
           :favorites="options?.filterSets ?? []"
+          :filters="options?.filters ?? []"
           :ui-namespace="localUiNamespace"
           :i18n-scope="localI18nScope"
           data-cy="linid-smart-favorite-panel"

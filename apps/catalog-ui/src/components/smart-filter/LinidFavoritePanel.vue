@@ -50,7 +50,7 @@
       <q-btn
         v-bind="uiProps.overrideButton"
         :label="t('overrideFavorite')"
-        :disable="favorites.length === 0"
+        :disable="props.filters?.length === 0 || favorites.length === 0"
         :data-cy="`button_override`"
         @click="emit('override')"
       />

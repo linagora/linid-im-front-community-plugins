@@ -25,6 +25,7 @@
  */
 
 import type {
+  LinidFilter,
   LinidFilterSet,
   LinidQBtnProps,
   LinidQIconProps,
@@ -43,6 +44,10 @@ export interface LinidFavoritePanelProps extends CommonComponentProps {
    * Available favorites to display in the navigation list.
    */
   favorites: LinidFilterSet[];
+  /**
+   * Filters used.
+   */
+  filters: LinidFilter[];
 }
 
 /**
