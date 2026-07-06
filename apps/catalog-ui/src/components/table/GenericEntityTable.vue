@@ -26,7 +26,7 @@
 
 <template>
   <q-table
-    class="generic-entity-table"
+    class="full-width generic-entity-table"
     :columns="columns"
     :rows="rows"
     :row-key="props.rowKey"
