@@ -40,6 +40,7 @@
       :suffix="translateOrDefault('', 'inputSuffix')"
       :rules="rules"
       data-cy="date-search-filter-panel_input"
+      autofocus
     >
       <template #append>
         <q-icon

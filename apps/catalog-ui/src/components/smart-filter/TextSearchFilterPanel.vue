@@ -38,6 +38,7 @@
       :prefix="translateOrDefault('', 'inputPrefix')"
       :suffix="translateOrDefault('', 'inputSuffix')"
       data-cy="text-search-filter-panel_input"
+      autofocus
     />
 
     <q-checkbox
