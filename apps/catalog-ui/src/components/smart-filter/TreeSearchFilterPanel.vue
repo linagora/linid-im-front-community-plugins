@@ -32,7 +32,7 @@
       :tickeable="true"
       :ui-namespace="localUiNamespace"
       :i18n-scope="localI18n"
-      :nodes="props.items"
+      :nodes="items"
       :node-types="[]"
     />
     <q-btn
@@ -47,12 +47,22 @@
 </template>
 
 <script setup lang="ts">
-import type { LinidQBtnProps } from '@linagora/linid-im-front-corelib';
-import { LinidFilterValue } from '@linagora/linid-im-front-corelib';
-import { useScopedI18n, useUiDesign } from '@linagora/linid-im-front-corelib';
+import type {
+  LinidQBtnProps,
+  Page,
+  Pagination,
+  TreeNode,
+} from '@linagora/linid-im-front-corelib';
+import {
+  useNotify,
+  getHttpClient,
+  LinidFilterValue,
+  useScopedI18n,
+  useUiDesign,
+} from '@linagora/linid-im-front-corelib';
 import GenericTree from '../tree/GenericTree.vue';
 import type { TreeSearchFilterProps } from '../../types/TreeSearchFilterPanel';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import type { LinidFilterPanelSearchOutputs } from '../../types/linidFilterPanel';
 
 const props = defineProps<TreeSearchFilterProps>();
@@ -64,6 +74,8 @@ const { t } = useScopedI18n(localI18n);
 const localUiNamespace = `${props.uiNamespace}.tree-search-filter-panel`;
 
 const tickedNodeKeys = ref<string[]>([]);
+const items = ref<TreeNode<Record<string, unknown>>[]>([]);
+const { Notify } = useNotify();
 
 const uiProps = {
   searchButton: ui<LinidQBtnProps>(localUiNamespace, 'q-btn'),
@@ -83,6 +95,121 @@ function onSearch() {
     values: filterValues,
   });
 }
+
+/**
+ * Fetches nodes from the specified URL with pagination.
+ * @param pagination - Pagination parameters for the request.
+ * @returns A promise that resolves to a page of nodes.
+ */
+async function getNodes(pagination: Pagination) {
+  const response = await getHttpClient().get<Page<Record<string, unknown>>>(
+    props.url,
+    { params: { ...pagination } }
+  );
+  if (!response || !response.data) {
+    return { content: [], last: true };
+  }
+  const { data } = response;
+  return data;
+}
+
+/**
+ * Fetches all nodes from the specified URL by iterating through paginated results.
+ * @returns A promise that resolves to an array of all nodes.
+ */
+async function getAllNodes(): Promise<Record<string, unknown>[]> {
+  const result: Record<string, unknown>[] = [];
+  let page = 0;
+  let isLast = false;
+
+  while (!isLast) {
+    const response = await getNodes({ page, size: props.nodesQuerySize });
+
+    if (!response || !response.content) {
+      break;
+    }
+
+    result.push(...response.content);
+    isLast = response.last ?? true;
+    page++;
+  }
+
+  return result;
+}
+
+/**
+ * Maps an array of nodes to an array of TreeNode objects.
+ * @param nodes - The array of nodes to map.
+ * @param idKey - The key used to identify each node.
+ * @returns An array of TreeNode objects.
+ */
+function toTreeNode(
+  nodes: Record<string, unknown>[],
+  idKey: string
+): TreeNode<Record<string, unknown>>[] {
+  const childNodes = nodes.filter((item) => {
+    const parentValue = item[props.parentsKey];
+    return (
+      Array.isArray(parentValue) &&
+      parentValue.some((parent) => parent[props.parentIdKey] === idKey)
+    );
+  });
+  if (childNodes && childNodes.length > 0) {
+    const result: TreeNode<Record<string, unknown>>[] = [];
+    childNodes.forEach((childNode: Record<string, unknown>) => {
+      result.push({
+        key: String(childNode[props.idKey]),
+        value: childNode,
+        nodes: toTreeNode(nodes, String(childNode[props.idKey])),
+        type:
+          (childNode[props.typeKey] as string) || props.defaultTypeValue || '',
+      });
+    });
+    return result;
+  }
+  return [];
+}
+
+/**
+ * Fetches all nodes, identifies the root node, and constructs the tree structure for the component.
+ */
+async function loadData() {
+  try {
+    const nodes: Record<string, unknown>[] = await getAllNodes();
+
+    if (!nodes || nodes.length === 0) {
+      return;
+    }
+
+    const root = nodes.find((item) => {
+      const parentValue = item[props.parentsKey];
+      return (
+        Array.isArray(parentValue) &&
+        parentValue.length > 0 &&
+        parentValue[0][props.parentIdKey] === null
+      );
+    });
+
+    if (root) {
+      items.value.push({
+        key: String(root[props.idKey]),
+        value: root,
+        nodes: toTreeNode(nodes, String(root[props.idKey])),
+        type: 'root',
+      });
+    }
+  } catch (error) {
+    Notify({
+      type: 'negative',
+      message: t('errorLoadingData'),
+    });
+    throw error;
+  }
+}
+
+onMounted(() => {
+  loadData();
+});
 </script>
 
 <style scoped></style>

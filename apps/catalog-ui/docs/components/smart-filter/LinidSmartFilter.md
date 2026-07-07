@@ -352,6 +352,7 @@ The component uses scoped i18n with the following translation keys:
 | `[INSTANCE_ID].LinidSmartFilter.LinidFavoritePanel.overrideFavorite`           | Label for override button                                    | QBtn label             | -          |
 | `[INSTANCE_ID].LinidSmartFilter.LinidFavoritePanel.deleteButton`               | Label for delete button (optional, defaults to empty string) | QBtn label             | -          |
 | `[INSTANCE_ID].LinidSmartFilter.TreeSearchFilterPanel.searchButton`            | Search button label                                          | QBtn label             | -          |
+| `[INSTANCE_ID].LinidSmartFilter.TreeSearchFilterPanel.errorLoadingData`        | Error message when failing to load tree data                 | Notification message   | -          |
 | `[INSTANCE_ID].LinidSmartFilter.ListSearchFilterPanel.searchButton`            | Search button label                                          | QBtn label             | -          |
 | `[INSTANCE_ID].LinidSmartFilter.DateSearchFilterPanel.inputLabel`              | Date input label (optional, defaults to empty string)        | QInput label           | -          |
 | `[INSTANCE_ID].LinidSmartFilter.DateSearchFilterPanel.inputHint`               | Date input hint (optional, defaults to empty string)         | QInput hint            | -          |
@@ -428,7 +429,8 @@ Example:
         }
       },
       "TreeSearchFilterPanel": {
-        "searchButton": "Search"
+        "searchButton": "Search",
+        "errorLoadingData": "Failed to load tree data."
       },
       "ListSearchFilterPanel": {
         "searchButton": "Search"
