@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.65](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.64...v0.2.65) (2026-07-07)
+
+
+### Features
+
+* **catalog-ui:** use url to fetch treeNode for tree search filter ([dae821d](https://github.com/linagora/linid-im-front-community-plugins/commit/dae821d7ca562be4391beb70d975c2c8daa95680))
+
 ### [0.2.64](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.63...v0.2.64) (2026-07-07)
 
 
