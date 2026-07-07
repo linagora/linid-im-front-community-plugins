@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.63](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.62...v0.2.63) (2026-07-07)
+
+
+### Bug Fixes
+
+* **catalog-ui:** remount page on route change so reused federated instance uses the correct scope ([92d552f](https://github.com/linagora/linid-im-front-community-plugins/commit/92d552f95dfc51406fb49bc3818476bae4ff760a))
+
 ### [0.2.62](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.61...v0.2.62) (2026-07-06)
 
 
