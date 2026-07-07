@@ -73,7 +73,12 @@
     </q-header>
 
     <q-page-container>
-      <router-view />
+      <router-view v-slot="{ Component, route }">
+        <component
+          :is="Component"
+          :key="(route.meta.instanceId as string | undefined) ?? route.path"
+        />
+      </router-view>
     </q-page-container>
 
     <LinidZoneRenderer zone="base-layout.dialogComponent" />
