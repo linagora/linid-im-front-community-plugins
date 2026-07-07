@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.64](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.63...v0.2.64) (2026-07-07)
+
+
+### Features
+
+* **catalog-ui:** auto focus on input filter search ([8be3537](https://github.com/linagora/linid-im-front-community-plugins/commit/8be3537c56dcc5f335985a2a64f98449d0ac742f))
+
 ### [0.2.63](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.62...v0.2.63) (2026-07-07)
 
 
