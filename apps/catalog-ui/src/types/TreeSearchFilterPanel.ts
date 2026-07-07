@@ -25,7 +25,6 @@
  */
 
 import type { CommonComponentProps } from './common';
-import type { TreeNode } from '@linagora/linid-im-front-corelib';
 
 /**
  * Props definition for the TreeSearchFilter component.
@@ -37,7 +36,37 @@ export interface TreeSearchFilterProps extends CommonComponentProps {
   fieldName: string;
 
   /**
-   * Hierarchical tree structure used by GenericTree.
+   * URL endpoint to fetch tree data.
    */
-  items: TreeNode<unknown>[];
+  url: string;
+
+  /**
+   * Property name used as the node identifier.
+   */
+  idKey: string;
+
+  /**
+   * Property name used as the parent reference in hierarchical relationships.
+   */
+  parentsKey: string;
+
+  /**
+   * Property name used as the parent id in the parentsKey value.
+   */
+  parentIdKey: string;
+
+  /**
+   * Number of nodes to fetch per page when querying the API.
+   */
+  nodesQuerySize: number;
+
+  /**
+   * Property name used as the node type.
+   */
+  typeKey: string;
+
+  /**
+   * Property name used as the node type.
+   */
+  defaultTypeValue?: string;
 }
