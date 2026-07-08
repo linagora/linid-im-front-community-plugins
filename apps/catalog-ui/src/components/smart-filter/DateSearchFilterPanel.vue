@@ -42,6 +42,7 @@
       data-cy="date-search-filter-panel_input"
       class="q-mb-md"
       autofocus
+      @keyup.enter="onSearch"
     >
       <template #append>
         <q-icon
