@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.69](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.68...v0.2.69) (2026-07-08)
+
+
+### Features
+
+* **catalog-ui:** add max-height and overflow styles for filters panel ([abb8141](https://github.com/linagora/linid-im-front-community-plugins/commit/abb81417f6df2b34bdc49b5bb0e49c1a83c852df))
+
 ### [0.2.68](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.67...v0.2.68) (2026-07-08)
 
 
