@@ -218,4 +218,8 @@ onMounted(() => {
 .generic-tree-container {
   padding: 0;
 }
+.tree-search-filter-panel .generic-tree-container {
+  max-height: 13rem;
+  overflow-y: auto;
+}
 </style>
