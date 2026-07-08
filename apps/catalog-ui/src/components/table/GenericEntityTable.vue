@@ -32,6 +32,7 @@
     :row-key="props.rowKey"
     :rows-per-page-label="translateOrDefault('', 'rowsPerPage')"
     :no-data-label="t('noData')"
+    :rows-per-page-options="[5, 7, 10, 15, 20, 25, 50]"
     :pagination-label="
       (firstRowIndex, endRowIndex, totalRowsNumber) =>
         translateOrDefault('', 'paginationLabel', {
