@@ -189,4 +189,9 @@ const uiProps = computed<LinidFavoritePanelUIProps>(() => ({
 }));
 </script>
 
-<style></style>
+<style>
+.linid-favorite-panel--list {
+  max-height: 14rem;
+  overflow-y: auto;
+}
+</style>

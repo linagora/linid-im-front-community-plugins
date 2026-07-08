@@ -27,7 +27,10 @@
 <template>
   <!-- v8 ignore start -->
   <div class="list-search-filter-panel">
-    <q-list v-bind="uiProps.list">
+    <q-list
+      v-bind="uiProps.list"
+      class="list-search-filter-panel--list"
+    >
       <q-item
         v-for="item in props.items"
         :key="item.value"
@@ -108,4 +111,9 @@ function onSearch() {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.list-search-filter-panel .list-search-filter-panel--list {
+  max-height: 13rem;
+  overflow-y: auto;
+}
+</style>
