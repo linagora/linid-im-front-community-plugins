@@ -135,15 +135,15 @@ export default defineConfig({
       shared: {
         vue: {
           singleton: true,
-          requiredVersion: '3.5.30',
+          requiredVersion: '3.5.39',
         },
         quasar: {
           singleton: true,
-          requiredVersion: '2.18.6',
+          requiredVersion: '2.21.1',
         },
         axios: {
           singleton: true,
-          requiredVersion: '1.13.6',
+          requiredVersion: '1.18.1',
         },
         '@linagora/linid-im-front-corelib': {
           singleton: true,
@@ -151,7 +151,7 @@ export default defineConfig({
         },
         'vue-router': {
           singleton: true,
-          requiredVersion: '5.0.3',
+          requiredVersion: '5.1.0',
         },
         pinia: {
           singleton: true,
@@ -159,7 +159,7 @@ export default defineConfig({
         },
         '@vueuse/core': {
           singleton: true,
-          requiredVersion: '14.2.1',
+          requiredVersion: '14.3.0',
         },
       },
     }),
