@@ -42,47 +42,47 @@
       </h1>
     </div>
 
-    <ButtonsCard
-      v-if="options.enableActions"
-      class="generics-table-page--actions"
-      :ui-namespace="uiNamespace"
-      :i18n-scope="i18nScope"
-      :show-confirm-button="false"
-      :show-cancel-button="false"
-    >
-      <template #append-buttons>
-        <!-- eslint-disable vue/attribute-hyphenation -->
-        <LinidZoneRenderer
-          :zone="`${instanceId}.extraButtons`"
-          :uiNamespace="`${uiNamespace}.buttons-card`"
-          :i18nScope="`${i18nScope}.ButtonsCard`"
-          :instanceId
-        />
-        <!-- eslint-enable vue/attribute-hyphenation -->
-        <q-btn
-          v-bind="uiProps.createButton"
-          :label="t('ButtonsCard.create')"
-          class="buttons-card--create-button"
-          data-cy="button_create"
-          @click="goToCreate"
-        />
-      </template>
-    </ButtonsCard>
-
-    <LinidSmartFilter
-      v-if="options.filters?.length"
-      :filters="filters"
-      :options="{ filters: options.filters, filterSets: favorites }"
-      :ui-namespace="uiNamespace"
-      :i18n-scope="i18nScope"
-      :is-menu-persistent="isSmartFilterMenuPersistent"
-      class="q-mb-md"
-      @update:filters="onFiltersChange"
-      @apply:favorite="onFavoriteApply"
-      @delete:favorite="openDeleteFavoriteDialog"
-      @override:favorite="openOverrideFavoriteDialog"
-      @create:favorite="openCreateFavoriteDialog"
-    />
+    <div class="row relative-position justify-center full-width q-mb-md">
+      <LinidSmartFilter
+        v-if="options.filters?.length"
+        :filters="filters"
+        :options="{ filters: options.filters, filterSets: favorites }"
+        :ui-namespace="uiNamespace"
+        :i18n-scope="i18nScope"
+        :is-menu-persistent="isSmartFilterMenuPersistent"
+        @update:filters="onFiltersChange"
+        @apply:favorite="onFavoriteApply"
+        @delete:favorite="openDeleteFavoriteDialog"
+        @override:favorite="openOverrideFavoriteDialog"
+        @create:favorite="openCreateFavoriteDialog"
+      />
+      <ButtonsCard
+        v-if="options.enableActions"
+        class="absolute-right generics-table-page--actions"
+        :ui-namespace="uiNamespace"
+        :i18n-scope="i18nScope"
+        :show-confirm-button="false"
+        :show-cancel-button="false"
+      >
+        <template #append-buttons>
+          <!-- eslint-disable vue/attribute-hyphenation -->
+          <LinidZoneRenderer
+            :zone="`${instanceId}.extraButtons`"
+            :uiNamespace="`${uiNamespace}.buttons-card`"
+            :i18nScope="`${i18nScope}.ButtonsCard`"
+            :instanceId
+          />
+          <!-- eslint-enable vue/attribute-hyphenation -->
+          <q-btn
+            v-bind="uiProps.createButton"
+            :label="t('ButtonsCard.create')"
+            class="buttons-card--create-button"
+            data-cy="button_create"
+            @click="goToCreate"
+          />
+        </template>
+      </ButtonsCard>
+    </div>
 
     <GenericEntityTable
       v-model:pagination="pagination"
@@ -492,5 +492,8 @@ onMounted(async () => {
 .linid-smart-filter {
   width: 50%;
   min-width: 50%;
+}
+.generics-table-page--actions > :first-child {
+  padding-right: 0;
 }
 </style>
