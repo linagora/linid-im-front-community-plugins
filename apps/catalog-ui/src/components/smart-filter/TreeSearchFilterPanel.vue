@@ -28,6 +28,7 @@
   <!-- v8 ignore start -->
   <div class="tree-search-filter-panel">
     <generic-tree
+      v-if="items.length > 0"
       v-model:ticked="tickedNodeKeys"
       :tickeable="true"
       :ui-namespace="localUiNamespace"
@@ -213,4 +214,8 @@ onMounted(() => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.generic-tree-container {
+  padding: 0;
+}
+</style>
