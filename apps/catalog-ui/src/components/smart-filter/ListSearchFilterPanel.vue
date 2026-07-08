@@ -45,11 +45,12 @@
         </q-item-section>
       </q-item>
     </q-list>
+
     <q-btn
       v-bind="uiProps.filterButton"
       :label="t('searchButton')"
-      data-cy="button_search"
-      class="search-button"
+      data-cy="list-search-filter-panel_search"
+      class="q-mt-sm float-right list-search-filter-panel_search"
       @click="onSearch"
     />
   </div>
