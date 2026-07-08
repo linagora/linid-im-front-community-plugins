@@ -80,6 +80,8 @@
         v-model="isFilterMenuOpen"
         :persistent="isMenuPersistent ?? false"
         class="row linid-smart-filter--menu"
+        anchor="bottom middle"
+        self="top middle"
         data-cy="linid-smart-filter-menu"
         v-bind="uiProps.menu"
       >

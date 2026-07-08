@@ -27,7 +27,7 @@
 <template>
   <!-- v8 ignore start -->
   <div
-    class="linid-filter-panel"
+    class="column col-grow linid-filter-panel"
     data-cy="linid-filter-panel"
   >
     <div class="text-weight-bold q-pa-sm linid-filter-panel--title">
@@ -40,7 +40,7 @@
 
     <q-separator v-bind="uiProps.titleSeparator" />
 
-    <div class="row no-wrap linid-filter-panel--content">
+    <div class="row col-grow no-wrap linid-filter-panel--content">
       <q-list
         v-bind="uiProps.list"
         class="col-auto linid-filter-panel--list"
