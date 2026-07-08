@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.66](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.65...v0.2.66) (2026-07-08)
+
+
+### Bug Fixes
+
+* **catalog-ui:** center smart filter and make panels grow ([3ce333c](https://github.com/linagora/linid-im-front-community-plugins/commit/3ce333ca4b6ad468f562c9a130ca38b1e2bc0902))
+* **catalog-ui:** keep filter menu open while q-select in override dialog is closing ([c61cd19](https://github.com/linagora/linid-im-front-community-plugins/commit/c61cd19741f824cd99e390011bf9d7d569c5816a))
+
 ### [0.2.65](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.64...v0.2.65) (2026-07-07)
 
 
