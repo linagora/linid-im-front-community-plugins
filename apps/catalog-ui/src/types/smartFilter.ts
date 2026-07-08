@@ -24,11 +24,11 @@
  * LinID Identity Manager software.
  */
 
-import type { CommonComponentProps } from './common';
 import type {
   LinidFilter,
   LinidFilterSet,
 } from '@linagora/linid-im-front-corelib';
+import type { CommonComponentProps } from './common';
 
 /**
  * Props for the LinidSmartFilter component.
@@ -53,6 +53,11 @@ export interface LinidSmartFilterProps extends CommonComponentProps {
      */
     filterSets?: LinidFilterSet[];
   };
+
+  /**
+   * Determines whether the filter menu should remain open.
+   */
+  isMenuPersistent?: boolean;
 }
 
 /**

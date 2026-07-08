@@ -98,4 +98,9 @@ export interface FormDialogEvent extends BaseDialogEvent {
    * If the Promise resolves, the dialog considers the submission successful and closes.
    */
   onSubmit?: (formData: Record<string, unknown>) => Promise<void>;
+
+  /**
+   * Callback triggered after the form dialog closes, whether by submission or cancellation.
+   */
+  afterClose?: () => void;
 }

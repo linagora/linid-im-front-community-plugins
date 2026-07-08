@@ -15,12 +15,13 @@ The **LinidSmartFilter** component provides a filtering interface with a toggle-
 
 ## **Props**
 
-| Prop          | Type                                                         | Required | Default | Description                                                                                                                                                                       |
-| ------------- | ------------------------------------------------------------ | -------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `uiNamespace` | `string`                                                     | Yes      | -       | UI design namespace for styling and configuring the component through the design system.                                                                                          |
-| `i18nScope`   | `string`                                                     | Yes      | -       | i18n scope for localizing strings within the component.                                                                                                                           |
-| `filters`     | `LinidFilter[]`                                              | No       | -       | Active filters currently applied. This is the controlled state: the parent passes back the array received from `update:filters`. Only filters with non-empty values are included. |
-| `options`     | `{ filters?: LinidFilter[]; filterSets?: LinidFilterSet[] }` | No       | -       | Available filter definitions (`options.filters`) and saved filter configurations (`options.filterSets`). `options.filters` is the full catalog of filters the user can apply.     |
+| Prop               | Type                                                         | Required | Default | Description                                                                                                                                                                                          |
+| ------------------ | ------------------------------------------------------------ | -------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `uiNamespace`      | `string`                                                     | Yes      | -       | UI design namespace for styling and configuring the component through the design system.                                                                                                             |
+| `i18nScope`        | `string`                                                     | Yes      | -       | i18n scope for localizing strings within the component.                                                                                                                                              |
+| `filters`          | `LinidFilter[]`                                              | No       | -       | Active filters currently applied. This is the controlled state: the parent passes back the array received from `update:filters`. Only filters with non-empty values are included.                    |
+| `options`          | `{ filters?: LinidFilter[]; filterSets?: LinidFilterSet[] }` | No       | -       | Available filter definitions (`options.filters`) and saved filter configurations (`options.filterSets`). `options.filters` is the full catalog of filters the user can apply.                        |
+| `isMenuPersistent` | `boolean`                                                    | No       | `false` | When `true`, the dropdown menu ignores outside clicks and stays open. Useful when a dialog opened from inside the menu (e.g. a confirmation or form dialog) would otherwise cause the menu to close. |
 
 ---
 
@@ -224,6 +225,14 @@ export interface LinidSmartFilterProps extends CommonComponentProps {
      */
     filterSets?: LinidFilterSet[];
   };
+
+  /**
+   * Determines whether the filter menu should remain open.
+   * Set to `true` before opening a dialog triggered from inside the menu to prevent
+   * the menu from closing when focus moves to the dialog. Reset to `false` in the
+   * dialog's `afterClose` callback.
+   */
+  isMenuPersistent?: boolean;
 }
 ```
 

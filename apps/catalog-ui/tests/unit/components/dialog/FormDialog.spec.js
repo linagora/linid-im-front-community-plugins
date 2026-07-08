@@ -64,6 +64,8 @@ describe('Test component: FormDialog', () => {
         },
       },
     });
+
+    wrapper.vm.afterClose = vi.fn();
   });
 
   describe('Test computed: localUiNamespace', () => {
@@ -134,6 +136,28 @@ describe('Test component: FormDialog', () => {
       expect(wrapper.vm.show).toBe(true);
       expect(wrapper.vm.formData).toEqual({ name: 'test' });
     });
+
+    it('should call afterClose on successful submit', async () => {
+      const mockAfterClose = vi.fn();
+      wrapper.vm.onSubmit = vi.fn(() => Promise.resolve());
+      wrapper.vm.afterClose = mockAfterClose;
+
+      await wrapper.vm.handleSubmit();
+
+      expect(mockAfterClose).toHaveBeenCalledOnce();
+    });
+
+    it('should not call afterClose when onSubmit rejects', async () => {
+      const mockAfterClose = vi.fn();
+      wrapper.vm.onSubmit = vi.fn(() =>
+        Promise.reject(new Error('submit failed'))
+      );
+      wrapper.vm.afterClose = mockAfterClose;
+
+      await wrapper.vm.handleSubmit();
+
+      expect(mockAfterClose).not.toHaveBeenCalled();
+    });
   });
 
   describe('Test function: onClose', () => {
@@ -147,6 +171,15 @@ describe('Test component: FormDialog', () => {
       expect(wrapper.vm.show).toBe(false);
       expect(wrapper.vm.formData).toEqual({});
       expect(wrapper.vm.isLoading).toBe(false);
+    });
+
+    it('should call afterClose', () => {
+      const mockAfterClose = vi.fn();
+      wrapper.vm.afterClose = mockAfterClose;
+
+      wrapper.vm.onClose();
+
+      expect(mockAfterClose).toHaveBeenCalledOnce();
     });
   });
 
@@ -164,6 +197,28 @@ describe('Test component: FormDialog', () => {
       expect(wrapper.vm.instanceId).toBe('');
       expect(wrapper.vm.formFields).toEqual([]);
       expect(wrapper.vm.formData).toEqual({});
+    });
+
+    it('should set afterClose from dialogData when provided', () => {
+      const mockAfterClose = vi.fn();
+
+      wrapper.vm.onOpen({
+        uiNamespace: 'test-namespace',
+        i18nScope: 'test-scope',
+        afterClose: mockAfterClose,
+      });
+      wrapper.vm.onClose();
+
+      expect(mockAfterClose).toHaveBeenCalledOnce();
+    });
+
+    it('should use a no-op afterClose when not provided', () => {
+      wrapper.vm.onOpen({
+        uiNamespace: 'test-namespace',
+        i18nScope: 'test-scope',
+      });
+
+      expect(() => wrapper.vm.onClose()).not.toThrow();
     });
 
     it('should initialize formData with initialFormData when provided', () => {

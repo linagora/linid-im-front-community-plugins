@@ -75,6 +75,7 @@
       :options="{ filters: options.filters, filterSets: favorites }"
       :ui-namespace="uiNamespace"
       :i18n-scope="i18nScope"
+      :is-menu-persistent="isSmartFilterMenuPersistent"
       class="q-mb-md"
       @update:filters="onFiltersChange"
       @apply:favorite="onFavoriteApply"
@@ -172,6 +173,7 @@ const { userPreferenceStore, deleteUserPreference, saveUserPreference } =
   useLinidUserPreference();
 const items = ref<Record<string, unknown>[]>([]);
 const isLoading = ref<boolean>(false);
+const isSmartFilterMenuPersistent = ref(false);
 const { Notify } = useNotify();
 const { setFiltersInUrl, getFiltersFromUrl } = useLinidFilterUrl(router, route);
 const filters = ref<LinidFilter[]>(
@@ -305,6 +307,7 @@ function openDeleteFavoriteDialog(favorite: LinidFilterSet): void {
  * Opens a confirmation dialog to override an existing favorite filter set with the current filters.
  */
 function openOverrideFavoriteDialog(): void {
+  isSmartFilterMenuPersistent.value = true;
   uiEventSubject.next({
     key: 'form',
     data: {
@@ -342,6 +345,9 @@ function openOverrideFavoriteDialog(): void {
             ).toString(),
           })
         ),
+      afterClose: () => {
+        isSmartFilterMenuPersistent.value = false;
+      },
     },
   });
 }

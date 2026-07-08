@@ -78,6 +78,7 @@
 
       <q-menu
         v-model="isFilterMenuOpen"
+        :persistent="isMenuPersistent ?? false"
         class="row linid-smart-filter--menu"
         data-cy="linid-smart-filter-menu"
         v-bind="uiProps.menu"

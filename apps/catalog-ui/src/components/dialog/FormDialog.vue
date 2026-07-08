@@ -117,6 +117,7 @@ const formFields = ref<LinidAttributeConfiguration[]>([]);
 const isLoading = ref(false);
 const formData = ref<Record<string, unknown>>({});
 let onSubmit: (formData: Record<string, unknown>) => Promise<void>;
+let afterClose: () => void;
 
 const { ui } = useUiDesign();
 
@@ -146,8 +147,7 @@ async function handleSubmit() {
   isLoading.value = true;
   try {
     await onSubmit(formData.value);
-    formData.value = {};
-    show.value = false;
+    onClose();
   } catch {
     // onSubmit handles its own errors; keep the dialog open for correction
   } finally {
@@ -162,6 +162,7 @@ function onClose() {
   formData.value = {};
   isLoading.value = false;
   show.value = false;
+  afterClose();
 }
 
 /**
@@ -178,6 +179,7 @@ function onOpen(dialogData: FormDialogEvent) {
   formFields.value = dialogData.formFields || [];
   formData.value = dialogData.initialFormData || {};
   onSubmit = dialogData.onSubmit || (() => Promise.resolve());
+  afterClose = dialogData.afterClose || (() => {});
 }
 </script>
 
