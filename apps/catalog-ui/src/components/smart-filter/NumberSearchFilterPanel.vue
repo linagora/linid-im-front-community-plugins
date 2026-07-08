@@ -39,6 +39,7 @@
       :suffix="translateOrDefault('', 'inputSuffix')"
       data-cy="number-search-filter-panel_input"
       autofocus
+      @keyup.enter="onSearch"
     />
 
     <q-checkbox
