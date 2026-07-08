@@ -34,6 +34,7 @@ import {
   useLinidUiStore,
 } from '@linagora/linid-im-front-corelib';
 import type { ModuleUsersOptions } from './types/moduleUsers';
+import type { ComposerTranslation } from 'vue-i18n';
 
 /**
  * Remote module responsible for user-related features.
@@ -71,7 +72,8 @@ class ModuleUsers extends BasicRemoteModule<ModuleUsersOptions> {
     config: ModuleHostConfig<ModuleUsersOptions>
   ): Promise<ModuleLifecycleResult> {
     const uiStore = useLinidUiStore();
-    const { t } = getI18nInstance().global;
+
+    const t = getI18nInstance().global.t as ComposerTranslation;
 
     uiStore.addMainNavigationMenuItems({
       id: config.instanceId,

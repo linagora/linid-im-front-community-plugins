@@ -120,6 +120,7 @@ import {
 } from '@linagora/linid-im-front-corelib';
 import type { ValidationRule } from 'quasar';
 import { computed, ref } from 'vue';
+import type { ComposerTranslation } from 'vue-i18n';
 import type {
   DateFilterOperatorKey,
   DateSearchFilterPanelProps,
@@ -164,9 +165,10 @@ const isNegation = ref(false);
 const selectedOperatorKey = ref<DateFilterOperatorKey>('equals');
 
 const computedMask = computed(() => {
-  const { te, t } = getI18nInstance().global;
-  if (props.maskI18NKey && te(props.maskI18NKey)) {
-    return t(props.maskI18NKey);
+  const globalT = getI18nInstance().global.t as ComposerTranslation;
+  const globalTe = getI18nInstance().global.te;
+  if (props.maskI18NKey && globalTe(props.maskI18NKey)) {
+    return globalT(props.maskI18NKey);
   }
   return props.mask ?? QDATE_DEFAULT_MASK;
 });

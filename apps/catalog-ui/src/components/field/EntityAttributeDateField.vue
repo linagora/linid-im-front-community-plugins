@@ -95,6 +95,7 @@ import {
 import type { Dayjs } from 'dayjs';
 import type { ValidationRule } from 'quasar';
 import { computed, ref, watch } from 'vue';
+import type { ComposerTranslation } from 'vue-i18n';
 import type {
   AttributeFieldProps,
   EntityAttributeFieldOutputs,
@@ -125,7 +126,7 @@ const {
   upToDate,
   validateFromApi,
 } = useQuasarFieldValidation(localI18nScope);
-const globalT = getI18nInstance().global.t;
+const globalT = getI18nInstance().global.t as ComposerTranslation;
 
 const localValue = ref(props.entity[props.definition.name] ?? null);
 
@@ -156,8 +157,9 @@ watch(
 );
 
 const mask = computed(() => {
-  const maskI18NKey = props.definition.inputSettings?.maskI18NKey;
+  const maskI18NKey = props.definition.inputSettings?.maskI18NKey as string;
   if (getI18nInstance().global.te(maskI18NKey)) {
+    // @ts-expect-error - dynamic key, ComposerTranslation blows up type instantiation depth
     return globalT(maskI18NKey);
   }
   return props.definition.inputSettings?.mask || QDATE_DEFAULT_MASK;

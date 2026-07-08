@@ -35,6 +35,7 @@ import {
   useLinidZoneStore,
 } from '@linagora/linid-im-front-corelib';
 import type { ModulePageOptions } from '../types/ModulePageOptions';
+import type { ComposerTranslation } from 'vue-i18n';
 
 /**
  * Remote module responsible for page integration.
@@ -75,7 +76,7 @@ class ModulePage extends BasicRemoteModule<ModulePageOptions> {
   ): Promise<ModuleLifecycleResult> {
     const uiStore = useLinidUiStore();
     const linidZoneStore = useLinidZoneStore();
-    const { t } = getI18nInstance().global;
+    const t = getI18nInstance().global.t as ComposerTranslation;
 
     uiStore.addMainNavigationMenuItems({
       id: config.instanceId,
