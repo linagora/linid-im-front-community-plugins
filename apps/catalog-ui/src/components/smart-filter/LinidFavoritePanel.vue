@@ -27,7 +27,7 @@
 <template>
   <!-- v8 ignore start -->
   <div
-    class="linid-favorite-panel"
+    class="col-grow linid-favorite-panel"
     data-cy="linid-favorite-panel"
   >
     <div class="text-weight-bold q-pa-sm linid-favorite-panel--title">
