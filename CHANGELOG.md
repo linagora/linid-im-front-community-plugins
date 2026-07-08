@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.67](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.66...v0.2.67) (2026-07-08)
+
+
+### Features
+
+* **catalog-ui:** add enter key search functionality to input filter fields ([12bdd67](https://github.com/linagora/linid-im-front-community-plugins/commit/12bdd674c6d9f1e18a263addbd83a3338243a6ea))
+* **catalog-ui:** add space between date filter input and checkbox ([b3014d6](https://github.com/linagora/linid-im-front-community-plugins/commit/b3014d61dd877fefc649723769c5735cb5d8ad14))
+* **catalog-ui:** align search buttons to the right in filter panels ([ad20a79](https://github.com/linagora/linid-im-front-community-plugins/commit/ad20a79cacbc71c529d49479637bfa0830ae3524))
+* **catalog-ui:** generic-table put buttons-card on the right of the screen ([9fd92a2](https://github.com/linagora/linid-im-front-community-plugins/commit/9fd92a297a9cafab0cd416b3f537c87d89542295))
+* **catalog-ui:** remove "All" option of the genericTable ([406e837](https://github.com/linagora/linid-im-front-community-plugins/commit/406e837382b54db118062f17de017267923898e0))
+* **catalog-ui:** render tree in tree filter only when having data ([a1ee697](https://github.com/linagora/linid-im-front-community-plugins/commit/a1ee697c497231275e511e57d6dadbd17e8b50d8))
+
 ### [0.2.66](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.65...v0.2.66) (2026-07-08)
 
 
