@@ -61,6 +61,7 @@
       v-bind="uiProps.searchButton"
       :label="t('searchButton')"
       data-cy="text-search-filter-panel_search"
+      class="q-mt-sm float-right text-search-filter-panel_search"
       @click="onSearch"
     />
   </div>

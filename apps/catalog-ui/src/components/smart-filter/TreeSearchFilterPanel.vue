@@ -26,7 +26,7 @@
 
 <template>
   <!-- v8 ignore start -->
-  <div class="column tree-search-filter-panel">
+  <div class="tree-search-filter-panel">
     <generic-tree
       v-model:ticked="tickedNodeKeys"
       :tickeable="true"
@@ -35,11 +35,12 @@
       :nodes="items"
       :node-types="[]"
     />
+
     <q-btn
       v-bind="uiProps.searchButton"
       :label="t('searchButton')"
-      data-cy="button_search"
-      class="search-button"
+      data-cy="tree-search-filter-panel_search"
+      class="q-mt-sm float-right tree-search-filter-panel_search"
       @click="onSearch"
     />
   </div>
