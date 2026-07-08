@@ -256,7 +256,7 @@ describe('Test component: GenericTablePage', () => {
       expect(getEntities).toHaveBeenCalledTimes(1);
       expect(getEntities).toHaveBeenCalledWith(
         'test-instance-id',
-        {},
+        { dateFormat: 'yyyy/MM/dd HH:mm:ss' },
         paginationEvent.pagination
       );
     });
@@ -284,7 +284,7 @@ describe('Test component: GenericTablePage', () => {
       expect(mockSetFiltersInUrl).toHaveBeenCalledWith(newFilters, []);
       expect(getEntities).toHaveBeenCalledWith(
         'test-instance-id',
-        { name: 'paris' },
+        { name: 'paris', dateFormat: 'yyyy/MM/dd HH:mm:ss' },
         expect.objectContaining({ page: 1 })
       );
     });
@@ -310,13 +310,18 @@ describe('Test component: GenericTablePage', () => {
         new MockLinidFilter('name', 'text', {}, ['paris', 'lyon']),
       ];
 
-      expect(wrapper.vm.toQueryFilter()).toEqual({ name: 'paris|lyon' });
+      expect(wrapper.vm.toQueryFilter()).toEqual({
+        name: 'paris|lyon',
+        dateFormat: 'yyyy/MM/dd HH:mm:ss',
+      });
     });
 
     it('should return an empty object when there are no active filters', () => {
       wrapper.vm.filters = [];
 
-      expect(wrapper.vm.toQueryFilter()).toEqual({});
+      expect(wrapper.vm.toQueryFilter()).toEqual({
+        dateFormat: 'yyyy/MM/dd HH:mm:ss',
+      });
     });
   });
 

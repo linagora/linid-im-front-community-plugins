@@ -264,9 +264,12 @@ function onFiltersChange(newFilters: LinidFilter[]): Promise<void> {
  * @returns A query filter built from the active filters.
  */
 function toQueryFilter(): QueryFilter {
-  return Object.fromEntries(
-    filters.value.map((filter) => [filter.name, filter.toString()])
-  );
+  return {
+    ...Object.fromEntries(
+      filters.value.map((filter) => [filter.name, filter.toString()])
+    ),
+    dateFormat: 'yyyy/MM/dd HH:mm:ss',
+  };
 }
 
 /**
