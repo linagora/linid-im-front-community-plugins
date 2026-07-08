@@ -44,6 +44,7 @@
       <q-btn
         v-bind="uiProps.createButton"
         :label="t('createFavorite')"
+        :disable="props.filters?.length === 0"
         :data-cy="`button_create`"
         @click="emit('create')"
       />
