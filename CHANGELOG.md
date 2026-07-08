@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.68](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.67...v0.2.68) (2026-07-08)
+
+
+### Features
+
+* update dependencies ([a635eea](https://github.com/linagora/linid-im-front-community-plugins/commit/a635eea7f683012cb36ad0f1115e903a3fbd1903))
+
+
+### Bug Fixes
+
+* typescript error on i18n ([cb17c6d](https://github.com/linagora/linid-im-front-community-plugins/commit/cb17c6d32b3c1a2835240e65984edd1532283730))
+
 ### [0.2.67](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.66...v0.2.67) (2026-07-08)
 
 
