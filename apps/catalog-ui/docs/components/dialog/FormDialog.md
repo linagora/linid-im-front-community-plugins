@@ -50,6 +50,12 @@ export interface FormDialogEvent extends BaseDialogEvent {
    *   Handle the error yourself (e.g. display a notification) before re-throwing.
    */
   onSubmit?: (formData: Record<string, unknown>) => Promise<void>;
+  /**
+   * Callback triggered after the dialog closes, whether by successful submission or cancellation.
+   * Use this to perform any cleanup or side effects that must happen after the dialog is gone,
+   * regardless of how it was closed.
+   */
+  afterClose?: () => void;
 }
 ```
 
@@ -173,6 +179,9 @@ When the user cancels or the dialog fires `@hide`:
 - `formData` is reset to `{}`
 - `isLoading` is reset to `false`
 - The dialog closes
+- `afterClose()` is called (no-op if not provided)
+
+The same `onClose` path is taken after a successful submit, so `afterClose` is always called exactly once whenever the dialog disappears — whether by submission or cancellation.
 
 ## **🎨 UI Customization**
 
