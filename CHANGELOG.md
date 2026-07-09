@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.70](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.69...v0.2.70) (2026-07-09)
+
+
+### Features
+
+* **catalog-ui:** add dateFormat to query filter output ([061dd56](https://github.com/linagora/linid-im-front-community-plugins/commit/061dd56fdba30a7419793edf3bd44d6a093871b9))
+* **catalog-ui:** disable create button when no filters are present ([5334dd1](https://github.com/linagora/linid-im-front-community-plugins/commit/5334dd1d9ac8bfcffa551f0bfff7e7310ac2ab0e))
+
 ### [0.2.69](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.68...v0.2.69) (2026-07-08)
 
 
