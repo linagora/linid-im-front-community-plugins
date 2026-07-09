@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.72](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.71...v0.2.72) (2026-07-09)
+
+
+### Features
+
+* **catalog-ui:** add notifications for favorite filter actions ([05beaa7](https://github.com/linagora/linid-im-front-community-plugins/commit/05beaa75cede40e1c6a57707787b8e5fd3e6d250))
+
 ### [0.2.71](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.70...v0.2.71) (2026-07-09)
 
 
