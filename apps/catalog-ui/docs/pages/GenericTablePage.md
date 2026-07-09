@@ -199,6 +199,9 @@ Each active filter is serialized to a query param using `filter.toString()`, key
   - `OverrideFavoriteDialog.content` — body of the override-favorite form dialog
   - `CreateFavoriteDialog.title` — title of the create-favorite form dialog
   - `CreateFavoriteDialog.content` — body of the create-favorite form dialog
+  - `RemoveFavoriteNotifyMessage` — notification message displayed when a favorite filter set is successfully deleted
+  - `CreateFavoriteNotifyMessage` — notification message displayed when a new favorite filter set is successfully created
+  - `OverrideFavoriteNotifyMessage` — notification message displayed when an existing favorite filter set is successfully updated with new filters
 
 ---
 

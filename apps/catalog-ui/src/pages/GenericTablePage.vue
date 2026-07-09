@@ -298,10 +298,15 @@ function openDeleteFavoriteDialog(favorite: LinidFilterSet): void {
       }),
       uiNamespace: `${uiNamespace.value}.delete-favorite-dialog`,
       i18nScope: `${i18nScope.value}.DeleteFavoriteDialog`,
-      onConfirm: () =>
+      onConfirm: () => {
         deleteUserPreference(
           `${favoritesBaseConfigurationKey.value}${favorite.id}`
-        ),
+        );
+        Notify({
+          type: 'positive',
+          message: t('RemoveFavoriteNotifyMessage', { name: favorite.label }),
+        });
+      },
     },
   });
 }
@@ -335,7 +340,7 @@ function openOverrideFavoriteDialog(): void {
         },
       ],
       // eslint-disable-next-line jsdoc/require-jsdoc
-      onSubmit: (formData: { favorite: LinidFilterSet }) =>
+      onSubmit: (formData: { favorite: LinidFilterSet }) => {
         saveUserPreference(
           `${favoritesBaseConfigurationKey.value}${formData.favorite.id}`,
           JSON.stringify({
@@ -347,7 +352,14 @@ function openOverrideFavoriteDialog(): void {
               filters.value
             ).toString(),
           })
-        ),
+        );
+        Notify({
+          type: 'positive',
+          message: t('OverrideFavoriteNotifyMessage', {
+            name: formData.favorite.label,
+          }),
+        });
+      },
       afterClose: () => {
         isSmartFilterMenuPersistent.value = false;
       },
@@ -414,6 +426,12 @@ function openCreateFavoriteDialog(): void {
             ).toString(),
           })
         );
+        Notify({
+          type: 'positive',
+          message: t('CreateFavoriteNotifyMessage', {
+            name: trimmedFavoriteName,
+          }),
+        });
       },
     },
   });
