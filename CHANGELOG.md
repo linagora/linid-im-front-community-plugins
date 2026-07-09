@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.71](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.70...v0.2.71) (2026-07-09)
+
+
+### Bug Fixes
+
+* missing required version in vite-config ([1562d36](https://github.com/linagora/linid-im-front-community-plugins/commit/1562d3652175ac596f4670ff11168c5727d9fb45))
+
 ### [0.2.70](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.69...v0.2.70) (2026-07-09)
 
 
