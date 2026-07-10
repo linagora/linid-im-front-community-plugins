@@ -130,7 +130,7 @@
           @rename="(data) => emit('rename:favorite', data)"
           @delete="(data) => emit('delete:favorite', data)"
           @create="emit('create:favorite')"
-          @override="emit('override:favorite')"
+          @override="(data) => emit('override:favorite', data)"
         />
       </q-menu>
     </q-field>

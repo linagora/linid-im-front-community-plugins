@@ -69,5 +69,5 @@ export type LinidSmartFilterOutputs = {
   (e: 'rename:favorite', favorite: LinidFilterSet): void;
   (e: 'delete:favorite', favorite: LinidFilterSet): void;
   (e: 'create:favorite'): void;
-  (e: 'override:favorite'): void;
+  (e: 'override:favorite', favorite: LinidFilterSet): void;
 };

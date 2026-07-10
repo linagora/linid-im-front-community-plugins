@@ -103,6 +103,14 @@ export interface LinidFavoritePanelUIProps {
    */
   renameButton: LinidQBtnProps;
   /**
+   * The UI properties for the override item section.
+   */
+  overrideSection: LinidQItemSectionProps;
+  /**
+   * The UI properties for the override button.
+   */
+  overrideButton: LinidQBtnProps;
+  /**
    * The UI properties for the delete item section.
    */
   deleteSection: LinidQItemSectionProps;
@@ -114,10 +122,6 @@ export interface LinidFavoritePanelUIProps {
    * The UI properties for the create button.
    */
   createButton: LinidQBtnProps;
-  /**
-   * The UI properties for the override button.
-   */
-  overrideButton: LinidQBtnProps;
 }
 
 /**
@@ -128,5 +132,5 @@ export type LinidFavoritePanelOutputs = {
   (e: 'delete', favorite: LinidFilterSet): void;
   (e: 'rename', favorite: LinidFilterSet): void;
   (e: 'create'): void;
-  (e: 'override'): void;
+  (e: 'override', favorite: LinidFilterSet): void;
 };

@@ -372,42 +372,30 @@ function openRenameFavoriteDialog(favorite: LinidFilterSet): void {
 
 /**
  * Opens a confirmation dialog to override an existing favorite filter set with the current filters.
+ * @param favorite - The favorite filter set to override.
  */
-function openOverrideFavoriteDialog(): void {
+function openOverrideFavoriteDialog(favorite: LinidFilterSet): void {
   isSmartFilterMenuPersistent.value = true;
+
   uiEventSubject.next({
-    key: 'form',
+    key: 'confirmation',
     data: {
       type: 'open',
       title: t('OverrideFavoriteDialog.title'),
-      content: t('OverrideFavoriteDialog.content'),
+      content: t('OverrideFavoriteDialog.content', {
+        label: favorite.label,
+      }),
       uiNamespace: `${uiNamespace.value}.override-favorite-dialog`,
       i18nScope: `${i18nScope.value}.OverrideFavoriteDialog`,
-      formFields: [
-        {
-          name: 'favorite',
-          type: 'String',
-          input: 'List',
-          required: true,
-          inputSettings: {
-            values: favorites.value.map((f) => ({
-              label: f.label,
-              value: f,
-            })),
-            optionLabel: 'label',
-          },
-        },
-      ],
-      // eslint-disable-next-line jsdoc/require-jsdoc
-      onSubmit: (formData: { favorite: LinidFilterSet }) => {
+      onConfirm: () => {
         saveUserPreference(
-          `${favoritesBaseConfigurationKey.value}${formData.favorite.id}`,
+          `${favoritesBaseConfigurationKey.value}${favorite.id}`,
           JSON.stringify({
-            id: formData.favorite.id,
-            label: formData.favorite.label,
+            id: favorite.id,
+            label: favorite.label,
             value: new LinidFilterSet(
-              formData.favorite.id,
-              formData.favorite.label,
+              favorite.id,
+              favorite.label,
               filters.value
             ).toString(),
           })
@@ -415,7 +403,7 @@ function openOverrideFavoriteDialog(): void {
         Notify({
           type: 'positive',
           message: t('OverrideFavoriteNotifyMessage', {
-            name: formData.favorite.label,
+            name: favorite.label,
           }),
         });
       },
