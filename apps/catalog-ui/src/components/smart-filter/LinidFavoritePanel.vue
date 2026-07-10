@@ -82,6 +82,18 @@
             {{ favorite.label }}
           </q-item-section>
           <q-item-section
+            v-bind="uiProps.renameSection"
+            class="row items-end"
+          >
+            <q-btn
+              v-bind="uiProps.renameButton"
+              :label="translateOrDefault('', 'renameButton')"
+              class="delete-rename"
+              :data-cy="`button_rename_${index}`"
+              @click.stop="emit('rename', favorite)"
+            />
+          </q-item-section>
+          <q-item-section
             v-bind="uiProps.deleteSection"
             class="row items-end"
           >
@@ -170,6 +182,14 @@ const uiProps = computed<LinidFavoritePanelUIProps>(() => ({
   noDataLabelSection: ui<LinidQItemSectionProps>(
     `${contentUiNamespace}.no-data-label-section`,
     'q-item-section'
+  ),
+  renameSection: ui<LinidQItemSectionProps>(
+    `${contentUiNamespace}.rename-section`,
+    'q-item-section'
+  ),
+  renameButton: ui<LinidQBtnProps>(
+    `${contentUiNamespace}.rename-section`,
+    'q-btn'
   ),
   deleteSection: ui<LinidQItemSectionProps>(
     `${contentUiNamespace}.delete-section`,
