@@ -127,6 +127,7 @@
           :i18n-scope="localI18nScope"
           data-cy="linid-smart-favorite-panel"
           @apply="(data) => emit('apply:favorite', data)"
+          @rename="(data) => emit('rename:favorite', data)"
           @delete="(data) => emit('delete:favorite', data)"
           @create="emit('create:favorite')"
           @override="emit('override:favorite')"

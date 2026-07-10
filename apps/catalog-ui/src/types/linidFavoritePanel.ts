@@ -95,6 +95,14 @@ export interface LinidFavoritePanelUIProps {
    */
   titleSeparator: LinidQSeparatorProps;
   /**
+   * The UI properties for the rename item section.
+   */
+  renameSection: LinidQItemSectionProps;
+  /**
+   * The UI properties for the rename button.
+   */
+  renameButton: LinidQBtnProps;
+  /**
    * The UI properties for the delete item section.
    */
   deleteSection: LinidQItemSectionProps;
@@ -118,6 +126,7 @@ export interface LinidFavoritePanelUIProps {
 export type LinidFavoritePanelOutputs = {
   (e: 'apply', favorite: LinidFilterSet): void;
   (e: 'delete', favorite: LinidFilterSet): void;
+  (e: 'rename', favorite: LinidFilterSet): void;
   (e: 'create'): void;
   (e: 'override'): void;
 };

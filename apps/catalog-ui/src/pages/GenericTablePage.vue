@@ -52,6 +52,7 @@
         :is-menu-persistent="isSmartFilterMenuPersistent"
         @update:filters="onFiltersChange"
         @apply:favorite="onFavoriteApply"
+        @rename:favorite="openRenameFavoriteDialog"
         @delete:favorite="openDeleteFavoriteDialog"
         @override:favorite="openOverrideFavoriteDialog"
         @create:favorite="openCreateFavoriteDialog"
@@ -305,6 +306,64 @@ function openDeleteFavoriteDialog(favorite: LinidFilterSet): void {
         Notify({
           type: 'positive',
           message: t('RemoveFavoriteNotifyMessage', { name: favorite.label }),
+        });
+      },
+    },
+  });
+}
+
+/**
+ * Opens a form dialog to rename a favorite filter set.
+ * @param favorite - The favorite filter set to rename.
+ */
+function openRenameFavoriteDialog(favorite: LinidFilterSet): void {
+  uiEventSubject.next({
+    key: 'form',
+    data: {
+      type: 'open',
+      title: t('RenameFavoriteDialog.title'),
+      content: t('RenameFavoriteDialog.content'),
+      uiNamespace: `${uiNamespace.value}.rename-favorite-dialog`,
+      i18nScope: `${i18nScope.value}.RenameFavoriteDialog`,
+      formFields: [
+        {
+          name: 'favoriteName',
+          type: 'String',
+          input: 'Text',
+          required: true,
+          inputSettings: {},
+        },
+      ],
+      // eslint-disable-next-line jsdoc/require-jsdoc
+      onSubmit: (formData: { favoriteName: string }) => {
+        const trimmedFavoriteName = formData.favoriteName.trim();
+        if (favorites.value.some((fav) => fav.label === trimmedFavoriteName)) {
+          Notify({
+            type: 'negative',
+            message: t('RenameFavoriteDialog.duplicateName', {
+              name: trimmedFavoriteName,
+            }),
+          });
+          return;
+        }
+
+        saveUserPreference(
+          `${favoritesBaseConfigurationKey.value}${favorite.id}`,
+          JSON.stringify({
+            id: favorite.id,
+            label: trimmedFavoriteName,
+            value: new LinidFilterSet(
+              favorite.id,
+              trimmedFavoriteName,
+              filters.value
+            ).toString(),
+          })
+        );
+        Notify({
+          type: 'positive',
+          message: t('RenameFavoriteNotifyMessage', {
+            name: trimmedFavoriteName,
+          }),
         });
       },
     },
