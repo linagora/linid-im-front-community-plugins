@@ -48,13 +48,6 @@
         :data-cy="`button_create`"
         @click="emit('create')"
       />
-      <q-btn
-        v-bind="uiProps.overrideButton"
-        :label="t('overrideFavorite')"
-        :disable="props.filters?.length === 0 || favorites.length === 0"
-        :data-cy="`button_override`"
-        @click="emit('override')"
-      />
     </div>
 
     <div class="row no-wrap linid-favorite-panel--content">
@@ -80,6 +73,18 @@
           </q-item-section>
           <q-item-section v-bind="uiProps.labelSection">
             {{ favorite.label }}
+          </q-item-section>
+          <q-item-section
+            v-bind="uiProps.overrideSection"
+            class="row items-end"
+          >
+            <q-btn
+              v-bind="uiProps.overrideButton"
+              :label="translateOrDefault('', 'overrideButton')"
+              :disable="props.filters?.length === 0"
+              :data-cy="`button_override_${index}`"
+              @click.stop="emit('override', favorite)"
+            />
           </q-item-section>
           <q-item-section
             v-bind="uiProps.renameSection"
@@ -203,8 +208,12 @@ const uiProps = computed<LinidFavoritePanelUIProps>(() => ({
     `${contentUiNamespace}.create-button`,
     'q-btn'
   ),
+  overrideSection: ui<LinidQItemSectionProps>(
+    `${contentUiNamespace}.override-section`,
+    'q-item-section'
+  ),
   overrideButton: ui<LinidQBtnProps>(
-    `${contentUiNamespace}.override-button`,
+    `${contentUiNamespace}.override-section`,
     'q-btn'
   ),
 }));

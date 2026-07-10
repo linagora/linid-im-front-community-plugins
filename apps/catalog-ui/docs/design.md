@@ -427,9 +427,17 @@ Smart filtering component with toggle-able menu for managing active filters and 
           "label-section": {
             "q-item-section": {}
           },
+          "override-section": {
+            "q-item-section": {},
+            "q-btn": { "icon": "swap_horiz", "flat": true, "round": true }
+          },
+          "rename-section": {
+            "q-item-section": {},
+            "q-btn": { "icon": "edit", "flat": true, "round": true }
+          },
           "delete-section": {
             "q-item-section": {},
-            "q-btn": {}
+            "q-btn": { "icon": "delete", "flat": true, "round": true }
           },
           "no-data-icon-section": {
             "q-item-section": {},
@@ -439,9 +447,6 @@ Smart filtering component with toggle-able menu for managing active filters and 
             "q-item-section": {}
           },
           "create-button": {
-            "q-btn": {}
-          },
-          "override-button": {
             "q-btn": {}
           }
         }
@@ -846,9 +851,29 @@ Page that contain table with search and filtering capabilities.
           "label-section": {
             "q-item-section": {}
           },
+          "override-section": {
+            "q-item-section": {},
+            "q-btn": {
+              "icon": "swap_horiz",
+              "flat": true,
+              "round": true
+            }
+          },
+          "rename-section": {
+            "q-item-section": {},
+            "q-btn": {
+              "icon": "edit",
+              "flat": true,
+              "round": true
+            }
+          },
           "delete-section": {
             "q-item-section": {},
-            "q-btn": {}
+            "q-btn": {
+              "icon": "delete",
+              "flat": true,
+              "round": true
+            }
           },
           "no-data-icon-section": {
             "q-item-section": {},
@@ -861,9 +886,6 @@ Page that contain table with search and filtering capabilities.
             "q-item-section": {}
           },
           "create-button": {
-            "q-btn": {}
-          },
-          "override-button": {
             "q-btn": {}
           }
         }
@@ -1163,9 +1185,29 @@ A full example showing all CatalogUI components configured together:
             "label-section": {
               "q-item-section": {}
             },
+            "override-section": {
+              "q-item-section": {},
+              "q-btn": {
+                "icon": "swap_horiz",
+                "flat": true,
+                "round": true
+              }
+            },
+            "rename-section": {
+              "q-item-section": {},
+              "q-btn": {
+                "icon": "edit",
+                "flat": true,
+                "round": true
+              }
+            },
             "delete-section": {
               "q-item-section": {},
-              "q-btn": {}
+              "q-btn": {
+                "icon": "delete",
+                "flat": true,
+                "round": true
+              }
             },
             "no-data-icon-section": {
               "q-item-section": {},
@@ -1175,9 +1217,6 @@ A full example showing all CatalogUI components configured together:
               "q-item-section": {}
             },
             "create-button": {
-              "q-btn": {}
-            },
-            "override-button": {
               "q-btn": {}
             }
           }
