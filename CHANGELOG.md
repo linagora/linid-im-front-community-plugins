@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.73](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.72...v0.2.73) (2026-07-17)
+
+
+### Features
+
+* **catalog-ui:** add data-cy to GenericEntityTable root ([2659b2f](https://github.com/linagora/linid-im-front-community-plugins/commit/2659b2f4cef132420041ded0b4aaeb69a1ccd713))
+
 ### [0.2.72](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.71...v0.2.72) (2026-07-09)
 
 
