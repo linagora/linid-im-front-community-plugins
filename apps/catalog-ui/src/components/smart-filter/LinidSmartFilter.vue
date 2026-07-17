@@ -65,6 +65,14 @@
 
       <template #append>
         <q-icon
+          v-if="filters?.length"
+          name="close"
+          class="cursor-pointer linid-smart-filter--clear"
+          data-cy="linid-smart-filter-clear"
+          v-bind="uiProps.iconClear"
+          @click.stop="onClearFilters"
+        />
+        <q-icon
           v-if="!isFilterMenuOpen"
           name="arrow_drop_down"
           v-bind="uiProps.iconMenuOpen"
@@ -198,6 +206,7 @@ const uiProps = {
   field: ui<LinidQFieldProps>(`${localUiNamespace}`, 'q-field'),
   menu: ui<LinidQMenuProps>(`${localUiNamespace}`, 'q-menu'),
   iconSearch: ui<LinidQIconProps>(`${localUiNamespace}.iconSearch`, 'q-icon'),
+  iconClear: ui<LinidQIconProps>(`${localUiNamespace}.iconClear`, 'q-icon'),
   separator: ui<LinidQIconProps>(`${localUiNamespace}`, 'q-separator'),
   iconMenuClose: ui<LinidQIconProps>(
     `${localUiNamespace}.iconMenuClose`,
@@ -255,6 +264,15 @@ function onSearch(payload: LinidFilterPanelSearchPayload): void {
  */
 function onChipRemove(filterId: string): void {
   activeFilters = activeFilters.filter((filter) => filter.id !== filterId);
+  emitFilters();
+}
+
+/**
+ * Called when the user clears the whole search.
+ * Removes every active filter at once.
+ */
+function onClearFilters(): void {
+  activeFilters = [];
   emitFilters();
 }
 
