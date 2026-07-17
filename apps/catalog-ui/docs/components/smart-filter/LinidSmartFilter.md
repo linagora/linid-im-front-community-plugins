@@ -27,13 +27,13 @@ The **LinidSmartFilter** component provides a filtering interface with a toggle-
 
 ## **Events**
 
-| Event               | Payload          | Description                                                                                                                               |
-| ------------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `update:filters`    | `LinidFilter[]`  | Emitted whenever the user applies or removes a filter. The payload contains only the filters that have at least one active value applied. |
-| `apply:favorite`    | `LinidFilterSet` | Emitted when a favorite filter set is applied. The payload contains the applied favorite filter set.                                      |
-| `delete:favorite`   | `LinidFilterSet` | Emitted when a favorite filter set is deleted. The payload contains the deleted favorite filter set.                                      |
-| `create:favorite`   | -                | Emitted when the user wants to create a new favorite filter set.                                                                          |
-| `override:favorite` | -                | Emitted when the user wants to override an existing favorite filter set.                                                                  |
+| Event               | Payload          | Description                                                                                                                                                     |
+| ------------------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `update:filters`    | `LinidFilter[]`  | Emitted whenever the user applies a filter, removes one, or clears them all. The payload contains only the filters that have at least one active value applied. |
+| `apply:favorite`    | `LinidFilterSet` | Emitted when a favorite filter set is applied. The payload contains the applied favorite filter set.                                                            |
+| `delete:favorite`   | `LinidFilterSet` | Emitted when a favorite filter set is deleted. The payload contains the deleted favorite filter set.                                                            |
+| `create:favorite`   | -                | Emitted when the user wants to create a new favorite filter set.                                                                                                |
+| `override:favorite` | -                | Emitted when the user wants to override an existing favorite filter set.                                                                                        |
 
 ---
 
@@ -106,7 +106,9 @@ Each applied filter is displayed as a chip in the search field. The chip shows t
 
 **A chip appears** when the user clicks **Search** in the editor with at least one value entered — a new, independent chip, even if a chip for the same filter already exists. Searching the same filter multiple times produces multiple separate chips, each with its own value(s), rather than merging into a single chip. Clicking **Search** with an empty editor has no effect — no chip is created.
 
-**A chip disappears** when the user clicks × on it. This is the only way to remove an active filter. The filter's values are cleared and `update:filters` is emitted with the remaining active filters.
+**A chip disappears** when the user clicks × on it. The filter's values are cleared and `update:filters` is emitted with the remaining active filters.
+
+**All chips disappear at once** when the user clicks the × displayed at the right of the search field. That icon is only rendered while at least one filter is active, and clicking it emits `update:filters` with an empty array without opening the menu.
 
 ---
 
@@ -260,6 +262,7 @@ The component uses the LinID design system through `useUiDesign()` and applies p
 | `{uiNamespace}.linid-smart-filter`                                                    | `q-menu`         | Dropdown menu styling and configuration                                                                     |
 | `{uiNamespace}.linid-smart-filter`                                                    | `q-separator`    | Separator between panel in menu.                                                                            |
 | `{uiNamespace}.linid-smart-filter.iconSearch`                                         | `q-icon`         | Search icon styling                                                                                         |
+| `{uiNamespace}.linid-smart-filter.iconClear`                                          | `q-icon`         | Clear icon styling (removes every active filter)                                                            |
 | `{uiNamespace}.linid-smart-filter.iconMenuClose`                                      | `q-icon`         | Right dropdown icon styling (menu open)                                                                     |
 | `{uiNamespace}.linid-smart-filter.iconMenuOpen`                                       | `q-icon`         | Right dropdown icon styling (menu closed)                                                                   |
 | `{uiNamespace}.linid-smart-filter.linid-filter-chip.[FILTER]`                         | `q-chip`         | Configures the chip container that displays the selected values associated with a specific filter field.    |

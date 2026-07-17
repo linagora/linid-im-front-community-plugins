@@ -372,6 +372,40 @@ describe('Test component: LinidSmartFilter', () => {
     });
   });
 
+  describe('Test function: onClearFilters', () => {
+    it('should remove every filter from the state', () => {
+      wrapper.vm.activeFilters.push({
+        ...textFilter,
+        values: [{ value: 'alice' }],
+      });
+      wrapper.vm.activeFilters.push({
+        ...dateFilter,
+        values: [{ value: '2026-01-01' }],
+      });
+
+      wrapper.vm.onClearFilters();
+
+      expect(wrapper.vm.activeFilters).toHaveLength(0);
+    });
+
+    it('should emit update:filters with an empty array', () => {
+      wrapper.vm.activeFilters.push({
+        ...textFilter,
+        values: [{ value: 'alice' }],
+      });
+
+      wrapper.vm.onClearFilters();
+
+      expect(wrapper.emitted('update:filters')[0][0]).toHaveLength(0);
+    });
+
+    it('should emit update:filters even when there is no active filter', () => {
+      wrapper.vm.onClearFilters();
+
+      expect(wrapper.emitted('update:filters')).toBeTruthy();
+    });
+  });
+
   describe('Test function: emitFilters', () => {
     it('should emit only filters that have active values', () => {
       wrapper.vm.activeFilters.push({
