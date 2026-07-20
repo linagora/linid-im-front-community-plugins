@@ -71,7 +71,10 @@
           >
             <q-icon v-bind="uiProps.icon" />
           </q-item-section>
-          <q-item-section v-bind="uiProps.labelSection">
+          <q-item-section
+            v-bind="uiProps.labelSection"
+            :data-cy="`favorite-label_${index}`"
+          >
             {{ favorite.label }}
           </q-item-section>
           <q-item-section
