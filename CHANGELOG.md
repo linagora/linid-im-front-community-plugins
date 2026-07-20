@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.75](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.74...v0.2.75) (2026-07-20)
+
+
+### Features
+
+* **catalog-ui:** add rename favorite button and dialog ([5adf7dd](https://github.com/linagora/linid-im-front-community-plugins/commit/5adf7dd18752e224677028c04b0b23f747e6d76e))
+
 ### [0.2.74](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.73...v0.2.74) (2026-07-20)
 
 
