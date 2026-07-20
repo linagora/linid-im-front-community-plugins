@@ -29,6 +29,7 @@
     removable
     v-bind="uiProps.chip"
     :class="['linid-filter-chip', `linid-filter-chip--${filter.name}`]"
+    :data-cy="`linid-filter-chip_${filter.name}`"
     @remove="emits('remove', filter.id)"
   >
     <q-avatar
