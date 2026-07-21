@@ -131,7 +131,20 @@
           @delete="(data) => emit('delete:favorite', data)"
           @create="emit('create:favorite')"
           @override="(data) => emit('override:favorite', data)"
-        />
+        >
+          <template #default="{ favorite }">
+            {{ favorite.label }}
+            <q-tooltip>
+              <linid-filter-chip
+                v-for="filter in favorite.filters"
+                :key="filter.id"
+                :filter="filter"
+                :ui-namespace="localUiNamespace"
+                :i18n-scope="localI18nScope"
+              />
+            </q-tooltip>
+          </template>
+        </linid-favorite-panel>
       </q-menu>
     </q-field>
   </div>
