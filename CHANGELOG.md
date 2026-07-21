@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.77](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.76...v0.2.77) (2026-07-21)
+
+
+### Features
+
+* **catalog-ui:** enhance favorite panel with filter chips tooltip ([a0ba086](https://github.com/linagora/linid-im-front-community-plugins/commit/a0ba086946bdaeb8600b5412c8f424d86e520f0c))
+
+
+### Bug Fixes
+
+* **catalog-ui:** no change smartFilterPersistant when override a favorite ([b1e534b](https://github.com/linagora/linid-im-front-community-plugins/commit/b1e534b0bdd15f89982354614892e9bb3b733848))
+
 ### [0.2.76](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.75...v0.2.76) (2026-07-20)
 
 
