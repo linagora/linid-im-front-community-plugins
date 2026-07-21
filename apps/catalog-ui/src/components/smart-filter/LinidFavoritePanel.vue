@@ -75,7 +75,9 @@
             v-bind="uiProps.labelSection"
             :data-cy="`favorite-label_${index}`"
           >
-            {{ favorite.label }}
+            <slot :favorite="favorite">
+              {{ favorite.label }}
+            </slot>
           </q-item-section>
           <q-item-section
             v-bind="uiProps.overrideSection"
