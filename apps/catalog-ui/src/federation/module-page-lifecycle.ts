@@ -64,10 +64,15 @@ class ModulePage extends BasicRemoteModule<ModulePageOptions> {
 
   /**
    * Performs post-initialization tasks for the page module.
+   * After the module has been initialized, this method:
+   * - Optionally registers an entry in the host application's main navigation menu.
+   * - Registers shared dialog components in the LinID zone registry, making them
+   * available to the host application layout.
    *
-   * Once the module has been initialized, it registers an entry in the host
-   * application's main navigation menu using the configured module path and
-   * localized label.
+   * Navigation menu registration is controlled by the
+   * {@link ModulePageOptions.addNavigationMenu} option. When enabled, the menu
+   * item uses the module instance identifier for its id, a localized label, and
+   * the configured base path as its navigation target.
    * @param config - The configuration object provided by the host application.
    * @returns A promise that resolves to the result of the module lifecycle operation.
    */
@@ -78,11 +83,13 @@ class ModulePage extends BasicRemoteModule<ModulePageOptions> {
     const linidZoneStore = useLinidZoneStore();
     const t = getI18nInstance().global.t as ComposerTranslation;
 
-    uiStore.addMainNavigationMenuItems({
-      id: config.instanceId,
-      label: t(`${config.instanceId}.NavigationMenu.label`),
-      path: config.basePath,
-    });
+    if (config.options?.addNavigationMenu) {
+      uiStore.addMainNavigationMenuItems({
+        id: config.instanceId,
+        label: t(`${config.instanceId}.NavigationMenu.label`),
+        path: config.basePath,
+      });
+    }
 
     linidZoneStore.registerOnce('base-layout.dialogComponent', {
       plugin: 'catalogUI/ConfirmationDialog',

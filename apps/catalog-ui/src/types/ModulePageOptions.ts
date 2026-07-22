@@ -32,6 +32,12 @@
  */
 export interface ModulePageOptions {
   /**
+   * Indicates whether the module should automatically register an entry
+   * in the host application's main navigation menu during its lifecycle
+   * initialization.
+   */
+  addNavigationMenu?: boolean;
+  /**
    * Module Federation remote/component used to resolve the layout.
    *
    * This value points to an exposed module (remote entry + exposed path)

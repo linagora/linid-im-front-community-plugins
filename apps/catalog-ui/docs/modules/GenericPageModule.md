@@ -86,6 +86,7 @@ The module is configured using `ModulePageOptions`:
 
 ```ts
 interface ModulePageOptions {
+  addNavigationMenu?: boolean; // default false
   layout: string; // MF remote/component for layout
   page: string; // MF remote/component for page
   pagePath: string; // route path inside the module
@@ -97,7 +98,7 @@ interface ModulePageOptions {
 ## **🔗 Module Lifecycle Summary**
 
 1. Module is initialized via `BasicRemoteModule`
-2. `postInit` registers navigation entry
+2. `postInit` registers navigation entry only if `addNavigationMenu` is set to true.
 3. Routes are exposed via `PageRoutes`
 4. Lifecycle logic is exposed via `PageLifecycle`
 5. Page is rendered using federated layout + page components
