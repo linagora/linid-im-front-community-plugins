@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.78](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.77...v0.2.78) (2026-07-22)
+
+
+### Features
+
+* **catalog-ui:** add action scopes to generic entity table ([d6285b9](https://github.com/linagora/linid-im-front-community-plugins/commit/d6285b90c4a06a77252a5a8b38366410d9260fa5))
+
 ### [0.2.77](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.76...v0.2.77) (2026-07-21)
 
 
