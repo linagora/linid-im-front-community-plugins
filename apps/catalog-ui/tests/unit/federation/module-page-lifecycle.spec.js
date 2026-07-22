@@ -69,10 +69,25 @@ describe('Test module lifecycle: ModulePage', () => {
   });
 
   describe('Test function: postInit', () => {
+    it('should not add navigation item', async () => {
+      const config = {
+        instanceId: 'page-instance-2',
+        basePath: '/custom-page-path',
+      };
+
+      const result = await modulePage.postInit(config);
+
+      expect(mockAddMainNavigationMenuItems).toHaveBeenCalledTimes(0);
+      expect(result).toEqual({ success: true });
+    });
+
     it('should add navigation item with custom basePath when provided', async () => {
       const config = {
         instanceId: 'page-instance-2',
         basePath: '/custom-page-path',
+        options: {
+          addNavigationMenu: true,
+        },
       };
 
       const result = await modulePage.postInit(config);
