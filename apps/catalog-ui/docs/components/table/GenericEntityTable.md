@@ -74,6 +74,31 @@ The `GenericEntityTable` supports **forwarding slots from the parent component t
 
 ---
 
+## **🧩 Actions Scope**
+
+The component exposes an `actions` scope rendered inside the **actions column** (the column named
+`table_actions`), so consumers can contribute action buttons without overriding the whole `body`
+slot. The scope receives the current `row` and its resolved `rowKey` as slot props.
+
+When the scope is provided (and no `body` slot overrides it), the component renders a built-in
+body: each row gets a `data-cy="entity-row"` attribute, each cell gets
+`data-cy="entity-cell-{column}_{rowKey}"`, and the actions cell wraps the scope in a
+`data-cy="entity-actions_{rowKey}"` container. When the scope is not provided, the behavior is
+unchanged.
+
+### **Example Usage**
+
+```vue
+<GenericEntityTable :columns="columns" :rows="rows" ui-namespace="catalogUI" i18n-scope="myScope">
+  <template #actions="{ row }">
+    <q-btn label="Edit" @click="edit(row)" />
+    <q-btn label="Delete" color="negative" @click="remove(row)" />
+  </template>
+</GenericEntityTable>
+```
+
+---
+
 ## **🎨 UI Customization**
 
 The component uses the LinID design system through `useUiDesign()` and applies

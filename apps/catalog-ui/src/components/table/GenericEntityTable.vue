@@ -45,13 +45,46 @@
     v-bind="uiProps"
   >
     <template
-      v-for="(_slotFn, name) in $slots"
+      v-for="name in forwardedSlotNames"
       #[name]="slotProps"
     >
       <slot
         :name="name"
         v-bind="slotProps"
       />
+    </template>
+
+    <template
+      v-if="hasActionScope && !$slots.body"
+      #body="bodyProps"
+    >
+      <q-tr
+        :props="bodyProps"
+        data-cy="entity-row"
+      >
+        <q-td
+          v-for="col in bodyProps.cols"
+          :key="col.name"
+          :props="bodyProps"
+          :data-cy="`entity-cell-${col.name}_${bodyProps.key}`"
+        >
+          <template v-if="col.name === 'table_actions'">
+            <div
+              class="flex justify-end q-gutter-x-sm generic-entity-table--actions"
+              :data-cy="`entity-actions_${bodyProps.key}`"
+            >
+              <slot
+                name="actions"
+                :row="bodyProps.row"
+                :row-key="bodyProps.key"
+              />
+            </div>
+          </template>
+          <template v-else>
+            {{ col.value }}
+          </template>
+        </q-td>
+      </q-tr>
     </template>
   </q-table>
 </template>
@@ -62,7 +95,14 @@ import {
   useScopedI18n,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
+import { computed, useSlots } from 'vue';
 import type { GenericEntityTableProps } from '../../types/genericEntityTable';
+
+/**
+ * Name of the action scope rendered by the built-in body inside the actions column. It is consumed locally and must
+ * not be forwarded to the underlying QTable.
+ */
+const ACTION_SCOPE_NAME = 'actions';
 
 const props = withDefaults(defineProps<GenericEntityTableProps>(), {
   rowKey: 'id',
@@ -72,9 +112,16 @@ const { t, translateOrDefault } = useScopedI18n(
 );
 
 const { ui } = useUiDesign();
+const slots = useSlots();
 
 const uiProps = ui<LinidQTableProps>(
   `${props.uiNamespace}.generic-entity-table`,
   'q-table'
 );
+
+const forwardedSlotNames = computed(() =>
+  Object.keys(slots).filter((name) => name !== ACTION_SCOPE_NAME)
+);
+
+const hasActionScope = computed(() => Boolean(slots[ACTION_SCOPE_NAME]));
 </script>
