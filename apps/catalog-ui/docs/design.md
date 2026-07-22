@@ -515,6 +515,37 @@ Smart filtering component with toggle-able menu for managing active filters and 
 
 ---
 
+### GenericCreationPage
+
+Generic page to create entity.
+
+**Namespace:** `{uiNamespace}` (direct, no suffix)
+
+```json
+{
+  "[INSTANCE_ID]": {
+    "form-section-[FIELD_SECTION]": {
+      // q-card
+    },
+    "ButtonActions": {
+      "q-btn": {
+        "flat": true,
+        "round": true,
+        "dense": true,
+        "icon": "more_vert"
+      }
+    },
+    "EntityAttributeField": {
+      "[FIELD_NAME]": {
+        "q-input": { "outlined": true, "dense": true }
+      }
+    }
+  }
+}
+```
+
+---
+
 ### EntityAttributeTextField / EntityAttributeTextAreaField / EntityAttributeNumberField
 
 Number, text, textarea input fields for entity attributes.
@@ -1093,6 +1124,24 @@ A full example showing all CatalogUI components configured together:
         "route-[ROUTE_ID]": {
           "q-route-tab": { "icon": "person", "noCaps": true }
         }
+      }
+    }
+  },
+  "[GENERIC_CREATION_PAGE_ID]": {
+    "form-section-[FIELD_SECTION]": {
+      // q-card
+    },
+    "ButtonActions": {
+      "q-btn": {
+        "flat": true,
+        "round": true,
+        "dense": true,
+        "icon": "more_vert"
+      }
+    },
+    "EntityAttributeField": {
+      "[FIELD_NAME]": {
+        "q-input": { "outlined": true, "dense": true }
       }
     }
   },
