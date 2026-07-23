@@ -25,8 +25,8 @@
  */
 
 import type { LinidAttributeConfiguration } from '@linagora/linid-im-front-corelib';
-import type { QTableColumn } from 'quasar';
 import type { CommonComponentProps } from './common';
+import type { GenericTableColumn } from './ModuleGenericTablePageOptions';
 
 /**
  * API endpoints used by the GenericEditableTableCard component.
@@ -77,7 +77,7 @@ export interface GenericEditableTableCardProps extends CommonComponentProps {
    * A `table_actions` column is automatically appended when not declared, to host
    * the per-row delete button.
    */
-  columns: QTableColumn[];
+  columns: GenericTableColumn[];
 
   /**
    * Form fields rendered in the creation form dialog, defined as an array of

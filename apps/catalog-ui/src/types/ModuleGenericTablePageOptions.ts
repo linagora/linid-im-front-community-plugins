@@ -29,6 +29,21 @@ import type { QTableColumn } from 'quasar';
 import type { ModulePageOptions } from './ModulePageOptions';
 
 /**
+ * Represents a column configuration for a generic table page.
+ * Extends Quasar's QTableColumn with additional properties for formatting.
+ */
+export interface GenericTableColumn extends QTableColumn {
+  /**
+   * The formatter function name to be used for this column.
+   */
+  formatter?: string;
+  /**
+   * Options to be passed to the formatter function.
+   */
+  formatOptions?: Record<string, unknown>;
+}
+
+/**
  * Configuration options for a generic table page.
  *
  * Defines how a table-based page is rendered, including its columns,
@@ -44,7 +59,7 @@ export interface ModuleGenericTablePageOptions extends ModulePageOptions {
    * The columns configuration for the table.
    * Each column should follow Quasar's QTableColumn definition.
    */
-  columns: QTableColumn[];
+  columns: GenericTableColumn[];
 
   /**
    * Whether the actions card should be displayed on the page.
