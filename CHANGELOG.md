@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.79](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.78...v0.2.79) (2026-07-23)
+
+
+### Features
+
+* manage navigation menu with configuration in PageLifecycle ([4a4f3be](https://github.com/linagora/linid-im-front-community-plugins/commit/4a4f3bea9b22fc91f1721c31e2081a658e10a424))
+
 ### [0.2.78](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.77...v0.2.78) (2026-07-22)
 
 
