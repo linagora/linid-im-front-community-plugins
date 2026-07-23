@@ -27,6 +27,7 @@
 import { shallowMount } from '@vue/test-utils';
 import { reactive } from 'vue';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { changeLocale } from '@linagora/linid-im-front-corelib';
 import HeaderProfile from '../../../../src/components/profile/HeaderProfile.vue';
 
 const mockUserStore = reactive({
@@ -40,10 +41,16 @@ const mockUserStore = reactive({
 });
 
 const mockUi = vi.fn(() => ({}));
+const mockUiStore = reactive({
+  i18n: { locale: 'fr-FR', languages: ['fr-FR', 'en-US'] },
+});
 
 vi.mock('@linagora/linid-im-front-corelib', () => ({
   useLinidUserStore: () => mockUserStore,
+  useLinidUiStore: () => mockUiStore,
   useUiDesign: () => ({ ui: mockUi }),
+  useScopedI18n: () => ({ t: (key) => key }),
+  changeLocale: vi.fn(() => Promise.resolve()),
   LinidZoneRenderer: { template: '<div />' },
 }));
 
@@ -107,6 +114,25 @@ describe('Test component: HeaderProfile', () => {
 
     it('should call ui with header-profile.email namespace for q-item-label', () => {
       expect(mockUi).toHaveBeenCalledWith(localUiNamespace, 'q-item-label');
+    });
+  });
+
+  describe('Test computed: availableLocales', () => {
+    it('should return the languages from the ui store', () => {
+      expect(wrapper.vm.availableLocales).toEqual(['fr-FR', 'en-US']);
+    });
+  });
+
+  describe('Test watch: selectedLanguage', () => {
+    it('should call changeLocale when the selected language changes', async () => {
+      wrapper.vm.selectedLanguage = 'en-US';
+      await wrapper.vm.$nextTick();
+
+      expect(vi.mocked(changeLocale)).toHaveBeenCalledWith('en-US');
+    });
+
+    it('should initialise selectedLanguage from the ui store locale', () => {
+      expect(wrapper.vm.selectedLanguage).toBe('fr-FR');
     });
   });
 });

@@ -35,7 +35,7 @@ minimumReleaseAgeExclude:
   - '@module-federation/sdk@2.7.0'
   - '@module-federation/third-party-dts-extractor@2.7.0'
   - '@module-federation/webpack-bundler-runtime@2.7.0'
-  - '@linagora/linid-im-front-corelib@0.0.82'
+  - '@linagora/linid-im-front-corelib@0.0.82 || 0.0.83'
   - '@types/node@26.1.1'
   - '@vue/language-core@3.3.7'
   - vue-tsc@3.3.7
