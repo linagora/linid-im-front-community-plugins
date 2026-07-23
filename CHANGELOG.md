@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.80](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.79...v0.2.80) (2026-07-23)
+
+
+### Features
+
+* **catalog-ui:** add generic entity details page ([ce700ef](https://github.com/linagora/linid-im-front-community-plugins/commit/ce700ef0b8e867fe6d3bdee579578160d2fce91d))
+* **catalog-ui:** improve entity details rendering defaults ([f56da01](https://github.com/linagora/linid-im-front-community-plugins/commit/f56da01bff2a446010937d83362e933022803056))
+
 ### [0.2.79](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.78...v0.2.79) (2026-07-23)
 
 
