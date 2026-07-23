@@ -30,7 +30,7 @@ import EntityDetailsCard from '../../../../src/components/card/EntityDetailsCard
 
 vi.mock('@linagora/linid-im-front-corelib', () => ({
   useUiDesign: () => ({ ui: vi.fn() }),
-  useScopedI18n: () => ({ t: vi.fn() }),
+  useScopedI18n: () => ({ t: vi.fn(), te: vi.fn(() => true) }),
 }));
 
 describe('Test component: EntityDetailsCard', () => {
