@@ -148,13 +148,16 @@ import {
   useScopedI18n,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
-import type { QTableColumn } from 'quasar';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import ButtonsCard from '../components/card/ButtonsCard.vue';
 import LinidSmartFilter from '../components/smart-filter/LinidSmartFilter.vue';
 import GenericEntityTable from '../components/table/GenericEntityTable.vue';
-import type { ModuleGenericTablePageOptions } from '../types/ModuleGenericTablePageOptions';
+import type {
+  GenericTableColumn,
+  ModuleGenericTablePageOptions,
+} from '../types/ModuleGenericTablePageOptions';
+import dayjs from 'dayjs';
 
 const router = useRouter();
 const route = useRoute();
@@ -197,7 +200,7 @@ const pagination = ref<QuasarPagination>({
   rowsPerPage: 10,
   descending: true,
 });
-const columns = computed<QTableColumn[]>(() =>
+const columns = computed<GenericTableColumn[]>(() =>
   options.value.columns.map((column) => ({
     ...column,
     label: t(column.label),
@@ -220,6 +223,27 @@ function goToCreate() {
   return router.push({
     path: options.value.creationPagePath,
   });
+}
+
+/**
+ *
+ * @param datarows
+ */
+function getDisplayValue(datarows: Record<string, unknown>[]) {
+  datarows.forEach((datarow) => {
+    Object.keys(datarow).forEach((key) => {
+      if (datarow[key] === null || datarow[key] === undefined) {
+        return;
+      }
+      const column = columns.value.find((col) => col.name === key);
+      if (column && column.formatDate) {
+        datarow[key] = dayjs(datarow[key] as string).format(
+          t(`${column.formatDate}`)
+        );
+      }
+    });
+  });
+  return datarows;
 }
 
 /**
@@ -529,7 +553,7 @@ function loadData(): Promise<void> {
     toPagination(pagination.value)
   )
     .then((data) => {
-      items.value = data.content;
+      items.value = getDisplayValue(data.content);
       pagination.value = toQuasarPagination(data);
     })
     .catch(() => {

@@ -31,7 +31,7 @@ The component is driven by `ModuleGenericTablePageOptions`:
 ```ts
 interface ModuleGenericTablePageOptions {
   idKey: string;
-  columns: QTableColumn[];
+  columns: GenericTableColumn[];
   enableActions: boolean;
   creationPagePath: string;
   keepQueryParams?: string[];
@@ -41,14 +41,81 @@ interface ModuleGenericTablePageOptions {
 
 ### **Options**
 
-| Option             | Type             | Description                                                                                             |
-| ------------------ | ---------------- | ------------------------------------------------------------------------------------------------------- |
-| `idKey`            | `string`         | Key used to identify each row and build detail routes                                                   |
-| `columns`          | `QTableColumn[]` | Table column definitions (Quasar format)                                                                |
-| `enableActions`    | `boolean`        | Enables or disables the actions card above the table                                                    |
-| `creationPagePath` | `string`         | Route path used for the "create" button navigation                                                      |
-| `keepQueryParams`  | `string[]`       | Optional. URL query parameter keys to preserve as-is when the active filters are synced to the URL      |
-| `filters`          | `LinidFilter[]`  | Optional. Filter definitions rendered by `LinidSmartFilter`. Omitted or empty disables the smart filter |
+| Option             | Type                   | Description                                                                                             |
+| ------------------ | ---------------------- | ------------------------------------------------------------------------------------------------------- |
+| `idKey`            | `string`               | Key used to identify each row and build detail routes                                                   |
+| `columns`          | `GenericTableColumn[]` | Table column definitions (extends Quasar QTableColumn with formatting options)                          |
+| `enableActions`    | `boolean`              | Enables or disables the actions card above the table                                                    |
+| `creationPagePath` | `string`               | Route path used for the "create" button navigation                                                      |
+| `keepQueryParams`  | `string[]`             | Optional. URL query parameter keys to preserve as-is when the active filters are synced to the URL      |
+| `filters`          | `LinidFilter[]`        | Optional. Filter definitions rendered by `LinidSmartFilter`. Omitted or empty disables the smart filter |
+
+---
+
+## **Column Formatting**
+
+### **GenericTableColumn**
+
+Each column definition can be enhanced with optional formatting properties:
+
+```ts
+interface GenericTableColumn extends QTableColumn {
+  /**
+   * A translation key used to specify the desired date format to display.
+   * When provided, the cell value will be formatted as a date using dayjs.
+   * The translation key should resolve to a dayjs-compatible format string (e.g., 'YYYY/MM/DD HH:mm:ss').
+   * @example formatDate: 'dateFormat.full' // resolves to 'yyyy/MM/dd HH:mm:ss'
+   */
+  formatDate?: string;
+}
+```
+
+### **Date Formatting**
+
+To format date values in table cells:
+
+1. Add a `formatDate` property to your column definition
+2. Provide a translation key that resolves to a dayjs-compatible format string
+3. The cell value will automatically be formatted when rendered
+
+#### **Example Configuration**
+
+```ts
+{
+  columns: [
+    {
+      name: 'id',
+      label: 'generic.table.columns.id',
+      field: 'id',
+    },
+    {
+      name: 'createdAt',
+      label: 'generic.table.columns.createdAt',
+      field: 'createdAt',
+      formatDate: 'dateFormat.full', // translation key
+    },
+    {
+      name: 'updatedAt',
+      label: 'generic.table.columns.updatedAt',
+      field: 'updatedAt',
+      formatDate: 'dateFormat.short', // translation key
+    },
+  ];
+}
+```
+
+#### **Example i18n Configuration**
+
+```json
+{
+  "dateFormat": {
+    "full": "yyyy/MM/dd HH:mm:ss",
+    "short": "yyyy/MM/dd"
+  }
+}
+```
+
+The formatting is applied automatically during data loading, ensuring all date values are properly formatted before rendering in the table.
 
 ---
 
