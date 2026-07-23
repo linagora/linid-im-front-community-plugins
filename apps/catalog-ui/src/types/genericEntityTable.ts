@@ -24,8 +24,9 @@
  * LinID Identity Manager software.
  */
 
-import type { QTableColumn, QTableProps } from 'quasar';
+import type { QTableProps } from 'quasar';
 import type { CommonComponentProps } from './common';
+import type { GenericTableColumn } from './ModuleGenericTablePageOptions';
 
 /**
  * Props for the GenericEntityTable component.
@@ -34,7 +35,7 @@ export interface GenericEntityTableProps extends CommonComponentProps {
   /**
    * Array of columns as expected by Quasar QTable.
    */
-  columns: QTableColumn[];
+  columns: GenericTableColumn[];
   /**
    * Array of entity objects to display as rows in the table.
    */

@@ -29,7 +29,7 @@
     class="full-width generic-entity-table"
     data-cy="generic-entity-table"
     :columns="columns"
-    :rows="rows"
+    :rows="props.rows"
     :row-key="props.rowKey"
     :rows-per-page-label="translateOrDefault('', 'rowsPerPage')"
     :no-data-label="t('noData')"
@@ -80,6 +80,7 @@
               />
             </div>
           </template>
+
           <template v-else>
             {{ col.value }}
           </template>
@@ -92,26 +93,25 @@
 <script setup lang="ts">
 import {
   type LinidQTableProps,
+  useCommonMapper,
   useScopedI18n,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
 import { computed, useSlots } from 'vue';
 import type { GenericEntityTableProps } from '../../types/genericEntityTable';
 
-/**
- * Name of the action scope rendered by the built-in body inside the actions column. It is consumed locally and must
- * not be forwarded to the underlying QTable.
- */
 const ACTION_SCOPE_NAME = 'actions';
 
 const props = withDefaults(defineProps<GenericEntityTableProps>(), {
   rowKey: 'id',
 });
+
 const { t, translateOrDefault } = useScopedI18n(
   `${props.i18nScope}.GenericEntityTable`
 );
 
 const { ui } = useUiDesign();
+const { toDate } = useCommonMapper();
 const slots = useSlots();
 
 const uiProps = ui<LinidQTableProps>(
@@ -121,6 +121,61 @@ const uiProps = ui<LinidQTableProps>(
 
 const forwardedSlotNames = computed(() =>
   Object.keys(slots).filter((name) => name !== ACTION_SCOPE_NAME)
+);
+
+const formatters: Record<
+  string,
+  (value: unknown, options?: Record<string, unknown>) => unknown
+> = {
+  toDate: (value, options) => {
+    if (!options?.formatKey || typeof options.formatKey !== 'string') {
+      return value;
+    }
+
+    return toDate(value, options.formatKey);
+  },
+};
+
+/**
+ * Formats a value using the specified formatter and options.
+ * @param value - The raw value to format.
+ * @param formatter - The name of the formatter to apply.
+ * @param options - Additional options passed to the formatter.
+ * @returns The formatted value, or the original value if no formatter is found.
+ */
+const formatValue = (
+  value: unknown,
+  formatter?: string,
+  options?: Record<string, unknown>
+): unknown => {
+  if (value == null || !formatter) {
+    return value;
+  }
+
+  const formatterFunction = formatters[formatter];
+
+  if (!formatterFunction) {
+    return value;
+  }
+
+  return formatterFunction(value, options);
+};
+
+/**
+ * Adds Quasar column formatters without mutating rows.
+ */
+const columns = computed(() =>
+  props.columns.map((column) => {
+    if (!column.formatter) {
+      return column;
+    }
+
+    return {
+      ...column,
+      format: (value: unknown) =>
+        formatValue(value, column.formatter, column.formatOptions),
+    };
+  })
 );
 
 const hasActionScope = computed(() => Boolean(slots[ACTION_SCOPE_NAME]));

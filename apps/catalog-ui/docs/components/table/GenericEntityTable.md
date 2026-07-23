@@ -26,6 +26,51 @@ It renders a simple table from provided columns and rows, without slots, actions
 
 ---
 
+## **🎨 Column Formatting**
+
+Each column definition can be enhanced with optional formatting properties to automatically format cell values when data is displayed.
+
+See [Column Formatting](../../column-formatting.md) for details on supported formatters and configuration.
+
+### **Example Configuration**
+
+```ts
+const columns = [
+  {
+    name: 'id',
+    label: 'ID',
+    field: 'id',
+  },
+  {
+    name: 'createdAt',
+    label: 'Created',
+    field: 'createdAt',
+    formatter: 'toDate',
+    formatOptions: { formatKey: 'application.dateTimeFormat' },
+  },
+  {
+    name: 'updatedAt',
+    label: 'Updated',
+    field: 'updatedAt',
+    formatter: 'toDate',
+    formatOptions: { formatKey: 'application.dateFormat' },
+  },
+];
+```
+
+#### **Example i18n Configuration**
+
+```json
+{
+  "application": {
+    "dateTimeFormat": "DD/MM/YYYY HH:mm:ss",
+    "dateFormat": "DD/MM/YYYY"
+  }
+}
+```
+
+---
+
 ## **🔗 Slot Forwarding**
 
 The `GenericEntityTable` supports **forwarding slots from the parent component to the underlying Quasar `QTable`**.

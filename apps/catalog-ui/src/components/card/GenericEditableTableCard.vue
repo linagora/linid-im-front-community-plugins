@@ -123,7 +123,6 @@ import {
   useScopedI18n,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
-import type { QTableColumn } from 'quasar';
 import { computed, ref, watch } from 'vue';
 import { DialogKey } from '../../types/dialog';
 import type {
@@ -132,6 +131,7 @@ import type {
 } from '../../types/genericEditableTableCard';
 import GenericEntityTable from '../table/GenericEntityTable.vue';
 import ButtonsCard from './ButtonsCard.vue';
+import type { GenericTableColumn } from '../../types/ModuleGenericTablePageOptions';
 
 /**
  * Name of the column hosting the per-row delete button. It matches the action scope column
@@ -164,8 +164,8 @@ const nunjucksContext = computed(() => ({
   entity: props.entity ?? {},
 }));
 
-const columns = computed<QTableColumn[]>(() => {
-  const translated: QTableColumn[] = props.columns.map((column) => ({
+const columns = computed<GenericTableColumn[]>(() => {
+  const translated: GenericTableColumn[] = props.columns.map((column) => ({
     ...column,
     label: t(column.label),
   }));

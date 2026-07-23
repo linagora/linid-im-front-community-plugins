@@ -53,6 +53,50 @@ collection. The `delete` endpoint context additionally contains `item`, the row 
 }
 ```
 
+### Column Formatting
+
+See [Column Formatting](../../column-formatting.md) for details on supported formatters and configuration.
+
+#### **Example Configuration**
+
+```ts
+{
+  columns: [
+    {
+      name: 'name',
+      label: 'columns.name',
+      field: 'name',
+      align: 'left',
+    },
+    {
+      name: 'createdAt',
+      label: 'columns.createdAt',
+      field: 'createdAt',
+      formatter: 'toDate',
+      formatOptions: { formatKey: 'application.dateTimeFormat' },
+    },
+    {
+      name: 'updatedAt',
+      label: 'columns.updatedAt',
+      field: 'updatedAt',
+      formatter: 'toDate',
+      formatOptions: { formatKey: 'application.dateFormat' },
+    },
+  ];
+}
+```
+
+#### **Example i18n Configuration**
+
+```json
+{
+  "application": {
+    "dateTimeFormat": "DD/MM/YYYY HH:mm:ss",
+    "dateFormat": "DD/MM/YYYY"
+  }
+}
+```
+
 ---
 
 ## **📤 Events**

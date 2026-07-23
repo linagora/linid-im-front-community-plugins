@@ -184,13 +184,15 @@ import {
   useScopedI18n,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
-import type { QTableColumn } from 'quasar';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import ButtonsCard from '../components/card/ButtonsCard.vue';
 import LinidSmartFilter from '../components/smart-filter/LinidSmartFilter.vue';
 import GenericEntityTable from '../components/table/GenericEntityTable.vue';
-import type { ModuleGenericTablePageOptions } from '../types/ModuleGenericTablePageOptions';
+import type {
+  GenericTableColumn,
+  ModuleGenericTablePageOptions,
+} from '../types/ModuleGenericTablePageOptions';
 
 const router = useRouter();
 const route = useRoute();
@@ -233,7 +235,7 @@ const pagination = ref<QuasarPagination>({
   rowsPerPage: 10,
   descending: true,
 });
-const columns = computed<QTableColumn[]>(() =>
+const columns = computed<GenericTableColumn[]>(() =>
   options.value.columns.map((column) => ({
     ...column,
     label: t(column.label),

@@ -28,6 +28,8 @@ import { shallowMount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import GenericEntityTable from '../../../../src/components/table/GenericEntityTable.vue';
 
+const mockToDate = vi.fn((value, format) => `${value}_formatted_${format}`);
+
 vi.mock('@linagora/linid-im-front-corelib', () => ({
   useScopedI18n: () => ({
     t: vi.fn((v) => v),
@@ -35,6 +37,9 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
   }),
   useUiDesign: () => ({
     ui: vi.fn(() => ({})),
+  }),
+  useCommonMapper: () => ({
+    toDate: mockToDate,
   }),
 }));
 
@@ -114,6 +119,220 @@ describe('Test component: GenericEntityTable', () => {
       });
 
       expect(wrapper.vm.forwardedSlotNames).toEqual(['top-row']);
+    });
+  });
+
+  describe('Test computed: columns', () => {
+    beforeEach(() => {
+      mockToDate.mockClear();
+    });
+
+    it('should add format functions to columns with formatter', () => {
+      const columns = [
+        { name: 'name', label: 'Name', field: 'name' },
+        {
+          name: 'date',
+          label: 'Date',
+          field: 'date',
+          formatter: 'toDate',
+          formatOptions: { formatKey: 'application.dateFormat' },
+        },
+      ];
+      wrapper = shallowMount(GenericEntityTable, {
+        props: { ...defaultProps, columns },
+      });
+
+      const computedColumns = wrapper.vm.columns;
+      expect(computedColumns).toHaveLength(2);
+      expect(computedColumns[0]).not.toHaveProperty('format');
+      expect(computedColumns[1]).toHaveProperty('format');
+    });
+
+    it('should call toDate formatter with correct arguments', () => {
+      const columns = [
+        {
+          name: 'date',
+          label: 'Date',
+          field: 'date',
+          formatter: 'toDate',
+          formatOptions: { formatKey: 'application.dateFormat' },
+        },
+      ];
+      wrapper = shallowMount(GenericEntityTable, {
+        props: { ...defaultProps, columns },
+      });
+
+      const formatFn = wrapper.vm.columns[0].format;
+      const result = formatFn('2026-07-30');
+
+      expect(result).toEqual('2026-07-30_formatted_application.dateFormat');
+      expect(mockToDate).toHaveBeenCalledWith(
+        '2026-07-30',
+        'application.dateFormat'
+      );
+    });
+
+    it('should handle null values without calling formatter', () => {
+      const columns = [
+        {
+          name: 'date',
+          label: 'Date',
+          field: 'date',
+          formatter: 'toDate',
+          formatOptions: { formatKey: 'application.dateFormat' },
+        },
+      ];
+      wrapper = shallowMount(GenericEntityTable, {
+        props: { ...defaultProps, columns },
+      });
+
+      const formatFn = wrapper.vm.columns[0].format;
+      const result = formatFn(null);
+
+      expect(result).toBeNull();
+      expect(mockToDate).not.toHaveBeenCalled();
+    });
+
+    it('should handle undefined values without calling formatter', () => {
+      const columns = [
+        {
+          name: 'date',
+          label: 'Date',
+          field: 'date',
+          formatter: 'toDate',
+          formatOptions: { formatKey: 'application.dateFormat' },
+        },
+      ];
+      wrapper = shallowMount(GenericEntityTable, {
+        props: { ...defaultProps, columns },
+      });
+
+      const formatFn = wrapper.vm.columns[0].format;
+      const result = formatFn(undefined);
+
+      expect(result).toBeUndefined();
+      expect(mockToDate).not.toHaveBeenCalled();
+    });
+
+    it('should return value unchanged for unknown formatters', () => {
+      const columns = [
+        {
+          name: 'name',
+          label: 'Name',
+          field: 'name',
+          formatter: 'unknownFormatter',
+        },
+      ];
+      wrapper = shallowMount(GenericEntityTable, {
+        props: { ...defaultProps, columns },
+      });
+
+      const computedColumns = wrapper.vm.columns;
+      expect(computedColumns[0]).toHaveProperty('format');
+
+      const formatFn = computedColumns[0].format;
+      const result = formatFn('test value');
+
+      expect(result).toEqual('test value');
+    });
+
+    it('should not format when formatKey is not provided', () => {
+      const columns = [
+        {
+          name: 'date',
+          label: 'Date',
+          field: 'date',
+          formatter: 'toDate',
+        },
+      ];
+      wrapper = shallowMount(GenericEntityTable, {
+        props: { ...defaultProps, columns },
+      });
+
+      const formatFn = wrapper.vm.columns[0].format;
+      const result = formatFn('2026-07-30');
+
+      expect(result).toEqual('2026-07-30');
+      expect(mockToDate).not.toHaveBeenCalled();
+    });
+
+    it('should preserve column properties when adding formatter', () => {
+      const columns = [
+        {
+          name: 'date',
+          label: 'Date',
+          field: 'date',
+          align: 'right',
+          formatter: 'toDate',
+          formatOptions: { formatKey: 'application.dateFormat' },
+        },
+      ];
+      wrapper = shallowMount(GenericEntityTable, {
+        props: { ...defaultProps, columns },
+      });
+
+      const computedColumn = wrapper.vm.columns[0];
+      expect(computedColumn.name).toEqual('date');
+      expect(computedColumn.label).toEqual('Date');
+      expect(computedColumn.field).toEqual('date');
+      expect(computedColumn.align).toEqual('right');
+      expect(computedColumn).toHaveProperty('format');
+    });
+
+    it('should handle multiple columns with mixed formatters', () => {
+      const columns = [
+        { name: 'name', label: 'Name', field: 'name' },
+        {
+          name: 'createdAt',
+          label: 'Created',
+          field: 'createdAt',
+          formatter: 'toDate',
+          formatOptions: { formatKey: 'application.dateTimeFormat' },
+        },
+        {
+          name: 'updatedAt',
+          label: 'Updated',
+          field: 'updatedAt',
+          formatter: 'toDate',
+          formatOptions: { formatKey: 'application.dateFormat' },
+        },
+      ];
+      wrapper = shallowMount(GenericEntityTable, {
+        props: { ...defaultProps, columns },
+      });
+
+      const computedColumns = wrapper.vm.columns;
+      expect(computedColumns).toHaveLength(3);
+      expect(computedColumns[0]).not.toHaveProperty('format');
+      expect(computedColumns[1]).toHaveProperty('format');
+      expect(computedColumns[2]).toHaveProperty('format');
+
+      const format1 = computedColumns[1].format('2026-07-30');
+      const format2 = computedColumns[2].format('2026-08-15');
+
+      expect(format1).toEqual(
+        '2026-07-30_formatted_application.dateTimeFormat'
+      );
+      expect(format2).toEqual('2026-08-15_formatted_application.dateFormat');
+      expect(mockToDate).toHaveBeenCalledTimes(2);
+    });
+
+    it('should support a column with a function field', () => {
+      const fieldFunction = (row) => row.firstName + ' ' + row.lastName;
+      const columns = [
+        {
+          name: 'fullName',
+          label: 'Full Name',
+          field: fieldFunction,
+        },
+      ];
+      wrapper = shallowMount(GenericEntityTable, {
+        props: { ...defaultProps, columns },
+      });
+
+      const computedColumns = wrapper.vm.columns;
+      expect(computedColumns[0].field).toBe(fieldFunction);
+      expect(computedColumns[0]).not.toHaveProperty('format');
     });
   });
 });
