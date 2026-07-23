@@ -30,7 +30,10 @@
     class="entity-details-card"
     v-bind="uiCardProps"
   >
-    <q-card-section class="entity-details-card--title">
+    <q-card-section
+      v-if="te('title')"
+      class="entity-details-card--title"
+    >
       <h4 class="text-subtitle1">
         {{ t('title') }}
       </h4>
@@ -67,7 +70,7 @@ const props = withDefaults(defineProps<EntityDetailsCardProps>(), {
 });
 
 const { ui } = useUiDesign();
-const { t } = useScopedI18n(`${props.i18nScope}.EntityDetailsCard`);
+const { t, te } = useScopedI18n(`${props.i18nScope}.EntityDetailsCard`);
 
 const fieldNames = computed<string[]>(() => {
   const entityFieldNames = Object.keys(props.entity);

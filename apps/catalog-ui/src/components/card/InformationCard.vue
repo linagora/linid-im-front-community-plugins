@@ -56,7 +56,7 @@
           class="text-bold information-card--content"
           data-cy="value"
         >
-          {{ value }}
+          {{ displayValue }}
         </span>
       </slot>
     </q-card-section>
@@ -70,6 +70,7 @@ import type {
   LinidQIconProps,
 } from '@linagora/linid-im-front-corelib';
 import { useUiDesign } from '@linagora/linid-im-front-corelib';
+import { computed } from 'vue';
 import type { InformationCardProps } from '../../types/InformationCard';
 import BlurLoader from '../loader/BlurLoader.vue';
 
@@ -77,6 +78,18 @@ const props = withDefaults(defineProps<InformationCardProps>(), {
   label: '',
   value: '',
   isLoading: false,
+});
+
+/**
+ * Value rendered in the content section: falls back to a dash when the value is empty, so empty attributes remain
+ * visible.
+ */
+const displayValue = computed(() => {
+  if (props.value === undefined || props.value === null || props.value === '') {
+    return '-';
+  }
+
+  return props.value;
 });
 
 const { ui } = useUiDesign();
