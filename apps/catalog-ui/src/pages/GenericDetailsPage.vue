@@ -27,7 +27,7 @@
 <template>
   <!-- v8 ignore start -->
   <q-page
-    class="justify-center q-pa-md generic-details-page"
+    class="row justify-center q-pa-md generic-details-page"
     data-cy="generic-details-page"
   >
     <div class="col-12 col-md-10 col-lg-10">
