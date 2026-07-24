@@ -34,13 +34,24 @@
       <div
         class="row items-center justify-between q-mb-md generic-details-page--header"
       >
-        <h1
-          v-if="te('title')"
-          class="q-ma-none text-h5 generic-details-page--title"
-          data-cy="generic-details-page_title"
-        >
-          {{ t('title') }}
-        </h1>
+        <div class="row items-center q-gutter-x-md">
+          <h1
+            v-if="te('title')"
+            class="q-ma-none text-h5 generic-details-page--title"
+            data-cy="generic-details-page_title"
+          >
+            {{ t('title') }}
+          </h1>
+          <!-- eslint-disable vue/attribute-hyphenation -->
+          <LinidZoneRenderer
+            :zone="`${instanceId}.titleAppend`"
+            :entity="entity || {}"
+            :instanceId
+            :uiNamespace
+            :i18nScope
+          />
+          <!-- eslint-enable vue/attribute-hyphenation -->
+        </div>
         <div class="generic-details-page--actions">
           <ButtonsCard
             :ui-namespace="uiNamespace"
@@ -49,6 +60,15 @@
             @cancel="goBack"
           >
             <template #append-buttons>
+              <!-- eslint-disable vue/attribute-hyphenation -->
+              <LinidZoneRenderer
+                :zone="`${instanceId}.extraButtons`"
+                :entity="entity || {}"
+                :instanceId
+                :uiNamespace
+                :i18nScope
+              />
+              <!-- eslint-enable vue/attribute-hyphenation -->
               <q-btn
                 v-if="options.editPath"
                 v-bind="uiProps.editButton"
@@ -61,6 +81,18 @@
           </ButtonsCard>
         </div>
       </div>
+
+      <!-- eslint-disable vue/attribute-hyphenation -->
+      <LinidZoneRenderer
+        :zone="`${instanceId}.extraContent`"
+        :entity="entity || {}"
+        :entityId
+        :instanceId
+        :uiNamespace
+        :i18nScope
+        :isLoading
+      />
+      <!-- eslint-enable vue/attribute-hyphenation -->
 
       <EntityDetailsCard
         v-for="section in options.sections"
@@ -84,6 +116,7 @@ import type { LinidQBtnProps, UiEvent } from '@linagora/linid-im-front-corelib';
 import {
   getEntityById,
   getModuleHostConfiguration,
+  LinidZoneRenderer,
   uiEventSubject,
   useNotify,
   useNunjucks,

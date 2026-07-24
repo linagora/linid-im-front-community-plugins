@@ -113,8 +113,28 @@ The page uses the LinID design system through `useUiDesign()`:
 
 ---
 
+## **Zones**
+
+The page exposes three zones through `LinidZoneRenderer`, allowing the host application or other modules to inject
+components (federated plugins via `registerPlugin`, or local Vue components via `registerComponent`):
+
+| Zone                        | Location                                        | Typical Use                        |
+| --------------------------- | ----------------------------------------------- | ---------------------------------- |
+| `{instanceId}.titleAppend`  | Next to the page title                          | Status badge                       |
+| `{instanceId}.extraButtons` | Inside the actions card, before the edit button | Extra navigation or action buttons |
+| `{instanceId}.extraContent` | Between the header and the details sections     | Banners, contextual action panels  |
+
+All zones receive the following props through attribute forwarding: `entity`, `instanceId`, `uiNamespace` and
+`i18nScope`. The `extraContent` zone additionally receives `entityId` and `isLoading`.
+
+Injected components can trigger an entity reload by emitting a UI event listed in the `reloadDetailsOn` module option
+(see **Data Loading**).
+
+---
+
 ## **Dependencies**
 
+- `LinidZoneRenderer` (zone injection points)
 - `EntityDetailsCard` (attribute rendering)
 - `ButtonsCard` (navigation actions)
 - `getEntityById` / `getModuleHostConfiguration` / `uiEventSubject` from `@linagora/linid-im-front-corelib`
