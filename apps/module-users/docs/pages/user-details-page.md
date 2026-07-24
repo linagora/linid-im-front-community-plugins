@@ -176,13 +176,9 @@ Zone for displaying relationship data (e.g., list of groups, assigned roles).
 
 ```ts
 const zoneStore = useLinidZoneStore();
-zoneStore.registerOnce('users.UserDetailsPage.relationshipForms', {
-  plugin: 'myModule/UserGroupsForm',
-});
+zoneStore.registerPluginOnce('users.UserDetailsPage.relationshipForms', 'myModule/UserGroupsForm');
 
-zoneStore.registerOnce('users.UserDetailsPage.relationshipData', {
-  plugin: 'myModule/UserGroupsList',
-});
+zoneStore.registerPluginOnce('users.UserDetailsPage.relationshipData', 'myModule/UserGroupsList');
 ```
 
 **Example zone component receiving props:**
