@@ -135,6 +135,10 @@ export default defineConfig({
           __dirname,
           'src/components/smart-filter/LinidSmartFilter.vue'
         ),
+        './GenericEditableTableCard': resolve(
+          __dirname,
+          'src/components/card/GenericEditableTableCard.vue'
+        ),
       },
       shared: {
         vue: {
