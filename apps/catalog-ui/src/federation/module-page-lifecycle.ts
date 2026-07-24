@@ -91,13 +91,15 @@ class ModulePage extends BasicRemoteModule<ModulePageOptions> {
       });
     }
 
-    linidZoneStore.registerOnce('base-layout.dialogComponent', {
-      plugin: 'catalogUI/ConfirmationDialog',
-    });
+    linidZoneStore.registerPluginOnce(
+      'base-layout.dialogComponent',
+      'catalogUI/ConfirmationDialog'
+    );
 
-    linidZoneStore.registerOnce('base-layout.dialogComponent', {
-      plugin: 'catalogUI/FormDialog',
-    });
+    linidZoneStore.registerPluginOnce(
+      'base-layout.dialogComponent',
+      'catalogUI/FormDialog'
+    );
 
     return { success: true };
   }

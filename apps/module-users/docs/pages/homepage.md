@@ -336,13 +336,11 @@ This zone allows adding custom actions to the header action area.
 A module can dynamically register a component in this zone using `linidZoneStore`:
 
 ```ts
-linidZoneStore.register(
+linidZoneStore.registerPlugin(
   `${ModuleInstanceId}.HomePage.extraButtons`,
+  'remote/Component',
   {
-    plugin: 'remote/Component',
-    props: {
-      ...
-    },
+    ...
   }
 );
 ```
