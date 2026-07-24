@@ -30,16 +30,33 @@
     data-cy="generics-table-page"
     class="q-pa-md flex column items-center generics-table-page"
   >
-    <div
-      v-if="te('title')"
-      class="generics-table-page--header"
-    >
+    <LinidZoneRenderer
+      :zone="`${instanceId}.header.before`"
+      :instance-id="instanceId"
+      :ui-namespace="uiNamespace"
+      :i18n-scope="i18nScope"
+    />
+
+    <div class="row items-center generics-table-page--header">
+      <LinidZoneRenderer
+        :zone="`${instanceId}.header.prefix`"
+        :instance-id="instanceId"
+        :ui-namespace="uiNamespace"
+        :i18n-scope="i18nScope"
+      />
       <h1
+        v-if="te('title')"
         class="generics-table-page--title"
         data-cy="generics-table-page-title"
       >
         {{ t('title') }}
       </h1>
+      <LinidZoneRenderer
+        :zone="`${instanceId}.header.suffix`"
+        :instance-id="instanceId"
+        :ui-namespace="uiNamespace"
+        :i18n-scope="i18nScope"
+      />
     </div>
 
     <div class="row relative-position justify-center full-width q-mb-md">
@@ -65,14 +82,12 @@
         :show-cancel-button="false"
       >
         <template #append-buttons>
-          <!-- eslint-disable vue/attribute-hyphenation -->
           <LinidZoneRenderer
-            :zone="`${instanceId}.extraButtons`"
-            :uiNamespace="`${uiNamespace}.buttons-card`"
-            :i18nScope="`${i18nScope}.ButtonsCard`"
-            :instanceId
+            :zone="`${instanceId}.header.actions`"
+            :ui-namespace="`${uiNamespace}.buttons-card`"
+            :i18n-scope="`${i18nScope}.ButtonsCard`"
+            :instance-id="instanceId"
           />
-          <!-- eslint-enable vue/attribute-hyphenation -->
           <q-btn
             v-bind="uiProps.createButton"
             :label="t('ButtonsCard.create')"
@@ -83,6 +98,20 @@
         </template>
       </ButtonsCard>
     </div>
+    <LinidZoneRenderer
+      :zone="`${instanceId}.header.after`"
+      :instance-id="instanceId"
+      :ui-namespace="uiNamespace"
+      :i18n-scope="i18nScope"
+    />
+
+    <LinidZoneRenderer
+      :zone="`${instanceId}.content.before`"
+      :instance-id="instanceId"
+      :ui-namespace="uiNamespace"
+      :i18n-scope="i18nScope"
+      :is-loading="isLoading"
+    />
 
     <GenericEntityTable
       v-model:pagination="pagination"
@@ -122,6 +151,13 @@
         </q-tr>
       </template>
     </GenericEntityTable>
+    <LinidZoneRenderer
+      :zone="`${instanceId}.content.after`"
+      :instance-id="instanceId"
+      :ui-namespace="uiNamespace"
+      :i18n-scope="i18nScope"
+      :is-loading="isLoading"
+    />
   </q-page>
   <!-- v8 ignore stop -->
 </template>

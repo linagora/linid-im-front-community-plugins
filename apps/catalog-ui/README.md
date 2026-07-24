@@ -90,10 +90,7 @@ These modules define the standard federation contracts for page routing and life
 
 These components are intended to be combined with page modules to accelerate development of standard UI patterns.
 
-- 📊 **GenericTablePage** — Generic table-based page component for displaying and managing tabular data
-  → Exposed as: `catalogUI/GenericTablePage`
-
-> Detailed documentation is available in the dedicated [generic table page documentation](./docs/pages/GenericTablePage.md).
+→ **[Generic Pages Guide](./docs/generic-pages.md)**
 
 ## **📚 Components**
 
@@ -211,3 +208,9 @@ Additional documentation for the library is located in the `apps/catalog-ui/docs
 For information on how to customize the visual appearance of CatalogUI components using the `design.json` configuration system, see:
 
 → **[Design Configuration Guide](./docs/design.md)**
+
+### **Translation Keys**
+
+For the list of translation keys expected by the CatalogUI components, see:
+
+→ **[Translation Keys Guide](./docs/i18n.md)**

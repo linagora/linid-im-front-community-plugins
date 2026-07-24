@@ -91,6 +91,15 @@ Each section card receives:
 
 ---
 
+## **Zones**
+
+This page exposes all default generic page zones described in the main **Zones** documentation.
+
+No additional page-specific zones are provided. Every zone additionally receives the loaded `entity`, and the
+`content.before` and `content.after` zones also receive `entityId` and `isLoading`.
+
+---
+
 ## **Internationalization**
 
 | Key                                                                | Description                       |
@@ -115,6 +124,7 @@ The page uses the LinID design system through `useUiDesign()`:
 
 ## **Dependencies**
 
+- `LinidZoneRenderer` (zone injection points)
 - `EntityDetailsCard` (attribute rendering)
 - `ButtonsCard` (navigation actions)
 - `getEntityById` / `getModuleHostConfiguration` / `uiEventSubject` from `@linagora/linid-im-front-corelib`
