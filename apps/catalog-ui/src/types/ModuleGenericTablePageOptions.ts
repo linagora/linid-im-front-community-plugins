@@ -29,6 +29,16 @@ import type { QTableColumn } from 'quasar';
 import type { ModulePageOptions } from './ModulePageOptions';
 
 /**
+ * Interface for a generic table column, extending Quasar's QTableColumn with an optional formatDate property.
+ */
+export interface GenericTableColumn extends QTableColumn {
+  /**
+   * A translation key used by toDate to specify the desired date format to display.
+   */
+  formatDate?: string;
+}
+
+/**
  * Configuration options for a generic table page.
  *
  * Defines how a table-based page is rendered, including its columns,
@@ -44,7 +54,7 @@ export interface ModuleGenericTablePageOptions extends ModulePageOptions {
    * The columns configuration for the table.
    * Each column should follow Quasar's QTableColumn definition.
    */
-  columns: QTableColumn[];
+  columns: GenericTableColumn[];
 
   /**
    * Whether the actions card should be displayed on the page.
