@@ -184,6 +184,16 @@ Each active filter is serialized to a query param using `filter.toString()`, key
 
 ---
 
+## **Zones**
+
+This page exposes all default generic page zones described in the main **Zones** documentation.
+
+No additional page-specific zones are provided. The `header.actions` zone is rendered inside the actions card, before
+the create button, and therefore receives a `uiNamespace` scoped to `.buttons-card` and an `i18nScope` scoped to
+`.ButtonsCard`.
+
+---
+
 ## **Internationalization**
 
 - Scoped by `instanceId`
@@ -216,20 +226,6 @@ Uses LinID design system via:
 
 ---
 
-## **Slots / Extension Points**
-
-### **Extra Buttons Zone**
-
-Allows injection of custom actions:
-
-```vue
-<LinidZoneRenderer zone="{instanceId}.extraButtons" />
-```
-
-Used for extending the action bar without modifying the component.
-
----
-
 ## **Events**
 
 This component does not emit events directly.
@@ -245,7 +241,7 @@ Instead, it relies on:
 
 - `GenericEntityTable` (local `catalog-ui` component)
 - `ButtonsCard` (local `catalog-ui` component, optional)
-- `LinidZoneRenderer` from `@linagora/linid-im-front-corelib` (renders the federated `extraButtons` zone)
+- `LinidZoneRenderer` from `@linagora/linid-im-front-corelib` (renders the zones)
 - `catalogUI/LinidSmartFilter` (optional)
 - `@linagora/linid-im-front-corelib`
 - Quasar Framework

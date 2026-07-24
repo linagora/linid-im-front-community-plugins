@@ -55,6 +55,7 @@ const mockModuleOptions = {
 };
 
 vi.mock('@linagora/linid-im-front-corelib', () => ({
+  LinidZoneRenderer: { template: '<div />' },
   getEntityById: vi.fn(() => Promise.resolve({ id: 'test-entity-id' })),
   getModuleHostConfiguration: () => ({
     options: mockModuleOptions,

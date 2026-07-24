@@ -31,16 +31,40 @@
     data-cy="generic-details-page"
   >
     <div class="col-12 col-md-10 col-lg-10">
+      <LinidZoneRenderer
+        :zone="`${instanceId}.header.before`"
+        :entity="entity || {}"
+        :instance-id="instanceId"
+        :ui-namespace="uiNamespace"
+        :i18n-scope="i18nScope"
+      />
+
       <div
         class="row items-center justify-between q-mb-md generic-details-page--header"
       >
-        <h1
-          v-if="te('title')"
-          class="q-ma-none text-h5 generic-details-page--title"
-          data-cy="generic-details-page_title"
-        >
-          {{ t('title') }}
-        </h1>
+        <div class="row items-center q-gutter-x-md">
+          <LinidZoneRenderer
+            :zone="`${instanceId}.header.prefix`"
+            :entity="entity || {}"
+            :instance-id="instanceId"
+            :ui-namespace="uiNamespace"
+            :i18n-scope="i18nScope"
+          />
+          <h1
+            v-if="te('title')"
+            class="q-ma-none text-h5 generic-details-page--title"
+            data-cy="generic-details-page_title"
+          >
+            {{ t('title') }}
+          </h1>
+          <LinidZoneRenderer
+            :zone="`${instanceId}.header.suffix`"
+            :entity="entity || {}"
+            :instance-id="instanceId"
+            :ui-namespace="uiNamespace"
+            :i18n-scope="i18nScope"
+          />
+        </div>
         <div class="generic-details-page--actions">
           <ButtonsCard
             :ui-namespace="uiNamespace"
@@ -49,6 +73,13 @@
             @cancel="goBack"
           >
             <template #append-buttons>
+              <LinidZoneRenderer
+                :zone="`${instanceId}.header.actions`"
+                :entity="entity || {}"
+                :instance-id="instanceId"
+                :ui-namespace="uiNamespace"
+                :i18n-scope="i18nScope"
+              />
               <q-btn
                 v-if="options.editPath"
                 v-bind="uiProps.editButton"
@@ -62,6 +93,24 @@
         </div>
       </div>
 
+      <LinidZoneRenderer
+        :zone="`${instanceId}.header.after`"
+        :entity="entity || {}"
+        :instance-id="instanceId"
+        :ui-namespace="uiNamespace"
+        :i18n-scope="i18nScope"
+      />
+
+      <LinidZoneRenderer
+        :zone="`${instanceId}.content.before`"
+        :entity="entity || {}"
+        :entity-id="entityId"
+        :instance-id="instanceId"
+        :ui-namespace="uiNamespace"
+        :i18n-scope="i18nScope"
+        :is-loading="isLoading"
+      />
+
       <EntityDetailsCard
         v-for="section in options.sections"
         :key="section.key"
@@ -74,6 +123,15 @@
         class="q-mb-md q-px-md generic-details-page--section"
         :data-cy="`details-section_${section.key}`"
       />
+      <LinidZoneRenderer
+        :zone="`${instanceId}.content.after`"
+        :entity="entity || {}"
+        :entity-id="entityId"
+        :instance-id="instanceId"
+        :ui-namespace="uiNamespace"
+        :i18n-scope="i18nScope"
+        :is-loading="isLoading"
+      />
     </div>
   </q-page>
   <!-- v8 ignore stop -->
@@ -84,6 +142,7 @@ import type { LinidQBtnProps, UiEvent } from '@linagora/linid-im-front-corelib';
 import {
   getEntityById,
   getModuleHostConfiguration,
+  LinidZoneRenderer,
   uiEventSubject,
   useNotify,
   useNunjucks,
