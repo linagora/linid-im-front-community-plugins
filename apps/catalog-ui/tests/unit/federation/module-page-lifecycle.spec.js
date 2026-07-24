@@ -40,7 +40,7 @@ vi.mock('@linagora/linid-im-front-corelib', async () => {
     }),
 
     useLinidZoneStore: () => ({
-      registerOnce: vi.fn(),
+      registerPluginOnce: vi.fn(),
     }),
 
     getI18nInstance: () => ({

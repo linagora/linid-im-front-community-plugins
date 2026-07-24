@@ -8,7 +8,7 @@
     "vue-i18n": "11.4.6",
     "vue-router": "5.1.0",
     "quasar": "2.21.1",
-    "@linagora/linid-im-front-corelib": "0.0.82",
+    "@linagora/linid-im-front-corelib": "0.0.84",
     "@vueuse/core": "14.3.0"
   }
 }

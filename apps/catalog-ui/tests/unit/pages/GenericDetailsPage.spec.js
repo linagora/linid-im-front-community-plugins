@@ -55,6 +55,11 @@ const mockModuleOptions = {
 };
 
 vi.mock('@linagora/linid-im-front-corelib', () => ({
+  LinidZoneRenderer: {
+    name: 'LinidZoneRenderer',
+    props: ['zone'],
+    template: '<div />',
+  },
   getEntityById: vi.fn(() => Promise.resolve({ id: 'test-entity-id' })),
   getModuleHostConfiguration: () => ({
     options: mockModuleOptions,
@@ -93,7 +98,18 @@ describe('Test component: GenericDetailsPage', () => {
     mockRouterHistoryState.back = null;
     wrapper = shallowMount(GenericDetailsPage, {
       global: {
-        stubs: ['ButtonsCard', 'EntityDetailsCard'],
+        stubs: {
+          QPage: {
+            name: 'QPage',
+            template: '<div><slot /></div>',
+          },
+          ButtonsCard: {
+            name: 'ButtonsCard',
+            template: '<div><slot name="append-buttons" /></div>',
+          },
+          EntityDetailsCard: true,
+          LinidZoneRenderer: false,
+        },
       },
     });
   });
@@ -182,6 +198,37 @@ describe('Test component: GenericDetailsPage', () => {
       wrapper.unmount();
 
       expect(mockSubscription.unsubscribe).toHaveBeenCalled();
+    });
+  });
+
+  describe('Test zones: LinidZoneRenderer', () => {
+    it('should expose the titleAppend, extraButtons and extraContent zones', async () => {
+      await flushPromises();
+
+      const renderers = wrapper.findAllComponents({
+        name: 'LinidZoneRenderer',
+      });
+      const zones = renderers.map((renderer) => renderer.props('zone'));
+
+      expect(zones).toEqual([
+        'test-instance-id.titleAppend',
+        'test-instance-id.extraButtons',
+        'test-instance-id.extraContent',
+      ]);
+    });
+
+    it('should forward the instance context to the zone renderers', async () => {
+      await flushPromises();
+
+      const renderers = wrapper.findAllComponents({
+        name: 'LinidZoneRenderer',
+      });
+
+      renderers.forEach((renderer) => {
+        expect(renderer.attributes()).toMatchObject({
+          instanceid: 'test-instance-id',
+        });
+      });
     });
   });
 });

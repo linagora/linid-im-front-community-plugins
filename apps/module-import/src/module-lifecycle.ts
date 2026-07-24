@@ -72,11 +72,8 @@ class ModuleImport extends BasicRemoteModule<ModuleImportOptions> {
     const linidZoneStore = useLinidZoneStore();
 
     config.options.zones.forEach((zone) =>
-      linidZoneStore.register(zone, {
-        plugin: 'moduleImport/ImportButton',
-        props: {
-          instanceId: config.instanceId,
-        },
+      linidZoneStore.registerPlugin(zone, 'moduleImport/ImportButton', {
+        instanceId: config.instanceId,
       })
     );
 
