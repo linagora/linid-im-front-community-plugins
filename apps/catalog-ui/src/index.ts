@@ -30,3 +30,4 @@ export { default as InformationCard } from './components/card/InformationCard.vu
 export { default as EntityDetailsCard } from './components/card/EntityDetailsCard.vue';
 export { default as AdvancedSearchCard } from './components/card/AdvancedSearchCard.vue';
 export { default as ConfirmationDialog } from './components/dialog/ConfirmationDialog.vue';
+export { default as GenericEditableTableCard } from './components/card/GenericEditableTableCard.vue';

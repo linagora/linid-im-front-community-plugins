@@ -278,6 +278,45 @@ Card for displaying entity attribute details. Fields inside the card can be conf
 
 ---
 
+### GenericEditableTableCard
+
+Card managing a simple collection: a table, an add button opening a `FormDialog`, and a per-row delete button guarded
+by a `ConfirmationDialog`. The add button is rendered through a nested `ButtonsCard`, and both dialogs inherit this
+namespace.
+
+**Namespace:** `{uiNamespace}.generic-editable-table-card`
+
+```json
+{
+  "[PARENT_NAMESPACE]": {
+    "generic-editable-table-card": {
+      "q-card": { "flat": true, "bordered": true },
+      "buttons-card": {
+        "q-card": { "flat": true },
+        "add-button": {
+          "q-btn": { "color": "primary", "icon": "add", "dense": true }
+        }
+      },
+      "delete-button": {
+        "q-btn": { "color": "negative", "icon": "delete", "flat": true }
+      },
+      "generic-entity-table": {
+        "q-table": { "flat": true }
+      },
+      "form-dialog": {
+        "q-dialog": { "persistent": false },
+        "q-card": { "flat": true, "bordered": true }
+      },
+      "confirmation-dialog": {
+        "q-dialog": { "persistent": false }
+      }
+    }
+  }
+}
+```
+
+---
+
 ### AdvancedSearchCard
 
 Expandable search card with default and advanced filters.
@@ -1264,6 +1303,28 @@ A full example showing all CatalogUI components configured together:
             "q-card": { "flat": true },
             "q-icon": { "name": "info", "color": "info" }
           }
+        }
+      },
+      "generic-editable-table-card": {
+        "q-card": { "flat": true, "bordered": true },
+        "buttons-card": {
+          "q-card": { "flat": true },
+          "add-button": {
+            "q-btn": { "color": "primary", "icon": "add", "dense": true }
+          }
+        },
+        "delete-button": {
+          "q-btn": { "color": "negative", "icon": "delete", "flat": true }
+        },
+        "generic-entity-table": {
+          "q-table": { "flat": true }
+        },
+        "form-dialog": {
+          "q-dialog": { "persistent": false },
+          "q-card": { "flat": true, "bordered": true }
+        },
+        "confirmation-dialog": {
+          "q-dialog": { "persistent": false }
         }
       },
       "buttons-card": {
