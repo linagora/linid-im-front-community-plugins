@@ -73,27 +73,24 @@
         data-cy="user-details-card"
       />
     </div>
-
-    <!-- eslint-disable vue/attribute-hyphenation -->
     <LinidZoneRenderer
       :zone="`${instanceId}.${pageName}.relationshipForms`"
       :user
-      :userId
+      :user-id="userId"
       :entity="moduleHostConfig.entity"
-      :instanceId
-      :uiNamespace
-      :i18nScope
+      :instance-id="instanceId"
+      :ui-namespace="uiNamespace"
+      :i18n-scope="i18nScope"
     />
     <LinidZoneRenderer
       :zone="`${instanceId}.${pageName}.relationshipData`"
       :user
-      :userId
+      :user-id="userId"
       :entity="moduleHostConfig.entity"
-      :instanceId
-      :uiNamespace
-      :i18nScope
+      :instance-id="instanceId"
+      :ui-namespace="uiNamespace"
+      :i18n-scope="i18nScope"
     />
-    <!-- eslint-enable vue/attribute-hyphenation -->
   </q-page>
   <!-- v8 ignore stop -->
 </template>

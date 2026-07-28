@@ -45,14 +45,12 @@
             :show-cancel-button="false"
           >
             <template #append-buttons>
-              <!-- eslint-disable vue/attribute-hyphenation -->
               <LinidZoneRenderer
                 :zone="`${instanceId}.HomePage.extraButtons`"
-                :uiNamespace="`${uiNamespace}.buttons-card`"
-                :i18nScope="`${i18nScope}.ButtonsCard`"
-                :instanceId
+                :ui-namespace="`${uiNamespace}.buttons-card`"
+                :i18n-scope="`${i18nScope}.ButtonsCard`"
+                :instance-id="instanceId"
               />
-              <!-- eslint-enable vue/attribute-hyphenation -->
               <q-btn
                 v-bind="uiProps.createButton"
                 :label="t('ButtonsCard.create')"
