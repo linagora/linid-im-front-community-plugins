@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.81](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.80...v0.2.81) (2026-07-28)
+
+
+### Features
+
+* **catalog-ui:** expose zones on generic pages ([c50cbc6](https://github.com/linagora/linid-im-front-community-plugins/commit/c50cbc6018221a078252d2c86728f11ef9b0d822))
+
+
+### Bug Fixes
+
+* **catalog-ui:** center the generic details page content ([51ae861](https://github.com/linagora/linid-im-front-community-plugins/commit/51ae861a1d8952ad3aa05321b366c56d3ab995dd))
+
 ### [0.2.80](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.79...v0.2.80) (2026-07-23)
 
 
