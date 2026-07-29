@@ -11,11 +11,12 @@ Generic pages are fully driven by the module host configuration: a module declar
 
 ## **📋 Overview**
 
-| Page                                                  | Exposed as                      | Purpose                                                      |
-| ----------------------------------------------------- | ------------------------------- | ------------------------------------------------------------ |
-| [GenericTablePage](./pages/GenericTablePage.md)       | `catalogUI/GenericTablePage`    | Paginated, filterable list of entities                       |
-| [GenericDetailsPage](./pages/GenericDetailsPage.md)   | `catalogUI/GenericDetailsPage`  | Details of a single entity, grouped in sections              |
-| [GenericCreationPage](./pages/GenericCreationPage.md) | `catalogUI/GenericCreationPage` | Creation of a single entity, with fields grouped in sections |
+| Page                                                  | Exposed as                      | Purpose                                                        |
+| ----------------------------------------------------- | ------------------------------- | -------------------------------------------------------------- |
+| [GenericTablePage](./pages/GenericTablePage.md)       | `catalogUI/GenericTablePage`    | Paginated, filterable list of entities                         |
+| [GenericDetailsPage](./pages/GenericDetailsPage.md)   | `catalogUI/GenericDetailsPage`  | Details of a single entity, grouped in sections                |
+| [GenericCreationPage](./pages/GenericCreationPage.md) | `catalogUI/GenericCreationPage` | Creation of a single entity, with fields grouped in sections   |
+| [GenericEditionPage](./pages/GenericEditionPage.md)   | `catalogUI/GenericEditionPage`  | Edition of an existing entity, with fields grouped in sections |
 
 These pages are used together with the generic page modules documented in
 [GenericPageModule.md](./modules/GenericPageModule.md).
@@ -125,6 +126,7 @@ counterpart: calling it twice for the same zone renders the component twice.
 - [GenericTablePage](./pages/GenericTablePage.md) — table page component
 - [GenericDetailsPage](./pages/GenericDetailsPage.md) — details page component
 - [GenericCreationPage](./pages/GenericCreationPage.md) — creation page component
+- [GenericEditionPage](./pages/GenericEditionPage.md) — edition page component
 - [GenericPageModule](./modules/GenericPageModule.md) — page routes and lifecycle federation modules
 - [Design Configuration](./design.md) — UI design namespaces
 - [Translation Keys](./i18n.md) — i18n scopes
