@@ -590,10 +590,31 @@ Generic page to create entity.
         "dense": true,
         "icon": "more_vert"
       }
-    },
-    "EntityAttributeField": {
-      "[FIELD_NAME]": {
-        "q-input": { "outlined": true, "dense": true }
+    }
+  }
+}
+```
+
+---
+
+### GenericEditionPage
+
+Generic page to edit an existing entity.
+
+**Namespace:** `{uiNamespace}` (direct, no suffix)
+
+```json
+{
+  "[INSTANCE_ID]": {
+    "form-section-[FIELD_SECTION]": {
+      // q-card
+      "EntityAttributeField": {
+        "[FIELD_NAME]": {
+          "q-input": {
+            "outlined": true,
+            "dense": true
+          }
+        }
       }
     }
   }
@@ -1220,10 +1241,18 @@ A full example showing all CatalogUI components configured together:
         "dense": true,
         "icon": "more_vert"
       }
-    },
-    "EntityAttributeField": {
-      "[FIELD_NAME]": {
-        "q-input": { "outlined": true, "dense": true }
+    }
+  },
+  "[GENERIC_EDITION_PAGE_ID]": {
+    "form-section-[FIELD_SECTION]": {
+      // q-card
+      "EntityAttributeField": {
+        "[FIELD_NAME]": {
+          "q-input": {
+            "outlined": true,
+            "dense": true
+          }
+        }
       }
     }
   },

@@ -135,6 +135,10 @@ export default defineConfig({
           __dirname,
           'src/pages/GenericCreationPage.vue'
         ),
+        './GenericEditionPage': resolve(
+          __dirname,
+          'src/pages/GenericEditionPage.vue'
+        ),
         './LinidSmartFilter': resolve(
           __dirname,
           'src/components/smart-filter/LinidSmartFilter.vue'
