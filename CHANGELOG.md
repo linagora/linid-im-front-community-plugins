@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.82](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.81...v0.2.82) (2026-07-29)
+
+
+### Features
+
+* **catalog-ui:** add generic editable table card component ([0ecb6cf](https://github.com/linagora/linid-im-front-community-plugins/commit/0ecb6cfc7075916faf56df857630a4b39fb529a6))
+
 ### [0.2.81](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.80...v0.2.81) (2026-07-28)
 
 
