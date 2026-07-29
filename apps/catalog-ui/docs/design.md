@@ -33,6 +33,7 @@ The examples in this document use placeholders that should be replaced with actu
 | `[FORM_DIALOG_NAMESPACE]`         | The namespace for a specific form dialog instance         | `create-user-dialog`, `edit-user-dialog`                |
 | `[FILTER]`                        | The filter name for LinidSmartFilter instance             | `insertDate`, `email`                                   |
 | `[FILTER_TYPE]`                   | The filter type for LinidFilterPanel icon configuration   | `text`, `date`, `number`, `list`, `tree`                |
+| `[SECTION_KEY]`                   | The section key of a generic details page                 | `identity`, `audit`                                     |
 
 ---
 
@@ -1021,6 +1022,48 @@ Page that contain table with search and filtering capabilities.
 
 ---
 
+### Generic details page
+
+Page displaying the details of a single entity, grouped in configurable sections.
+
+**Namespace:** `{uiNamespace}`
+
+The section keys come from the `options.sections` module configuration: each `key` becomes a design sub-namespace
+under `sections`, applied to the `EntityDetailsCard` rendering that section.
+
+```json
+{
+  "[NAMESPACE]": {
+    "buttons-card": {
+      "q-card": { "flat": true },
+      "cancel-button": {
+        "q-btn": { "color": "negative", "outline": true }
+      },
+      "edit-button": {
+        "q-btn": { "color": "primary", "icon": "edit" }
+      }
+    },
+    "sections": {
+      "[SECTION_KEY]": {
+        "entity-details-card": {
+          "q-card": { "flat": true, "bordered": true },
+          "[FIELD_NAME]": {
+            "information-card": {
+              "q-card": { "flat": true },
+              "q-icon": { "name": "info", "color": "primary" }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+The `edit-button` namespace only applies when `editPath` is configured on the module.
+
+---
+
 ## **💡 Complete Configuration Example**
 
 A full example showing all CatalogUI components configured together:
@@ -1388,6 +1431,19 @@ A full example showing all CatalogUI components configured together:
           },
           "cancel-button": {
             "q-btn": { "color": "negative", "outline": true }
+          }
+        }
+      }
+    },
+    "sections": {
+      "[SECTION_KEY]": {
+        "entity-details-card": {
+          "q-card": { "flat": true, "bordered": true },
+          "[FIELD_NAME]": {
+            "information-card": {
+              "q-card": { "flat": true },
+              "q-icon": { "name": "info", "color": "primary" }
+            }
           }
         }
       }
