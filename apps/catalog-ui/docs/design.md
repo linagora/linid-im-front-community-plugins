@@ -546,6 +546,32 @@ Generic page to create entity.
 
 ---
 
+### GenericTablePage
+
+Generic page to display entity inside table.
+
+**Namespace:** `{uiNamespace}` (direct, no suffix)
+
+```json
+{
+  "[INSTANCE_ID]": {
+    "ButtonActions": {
+      "q-btn": {
+        "flat": true,
+        "round": true,
+        "dense": true,
+        "icon": "more_vert"
+      }
+    },
+    "generic-entity-table": {
+      "q-table": { "dense": true, "bordered": true, "flat": true }
+    }
+  }
+}
+```
+
+---
+
 ### EntityAttributeTextField / EntityAttributeTextAreaField / EntityAttributeNumberField
 
 Number, text, textarea input fields for entity attributes.
@@ -1143,6 +1169,19 @@ A full example showing all CatalogUI components configured together:
       "[FIELD_NAME]": {
         "q-input": { "outlined": true, "dense": true }
       }
+    }
+  },
+  "[GENERIC_TABLE_PAGE_ID]": {
+    "ButtonActions": {
+      "q-btn": {
+        "flat": true,
+        "round": true,
+        "dense": true,
+        "icon": "more_vert"
+      }
+    },
+    "generic-entity-table": {
+      "q-table": { "dense": true, "bordered": true, "flat": true }
     }
   },
   "[INSTANCE_ID]": {
