@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.85](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.84...v0.2.85) (2026-07-30)
+
+
+### Features
+
+* add parentPath on Details and Creation page ([ff62a96](https://github.com/linagora/linid-im-front-community-plugins/commit/ff62a96d719cc8893e555625b813d5efea635e3d))
+* **catalog-ui:** add generic entity creation page ([0841215](https://github.com/linagora/linid-im-front-community-plugins/commit/08412153ce3af46a4f1264e80ca79c332c43fba3))
+
 ### [0.2.84](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.83...v0.2.84) (2026-07-30)
 
 
