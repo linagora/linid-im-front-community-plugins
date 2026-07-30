@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.84](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.83...v0.2.84) (2026-07-30)
+
+
+### Features
+
+* **catalog-ui:** add date formatting options to generic entity table ([c5a6a7b](https://github.com/linagora/linid-im-front-community-plugins/commit/c5a6a7b0355b5ac852c372df3aeea5056f4c8e28))
+
 ### [0.2.83](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.82...v0.2.83) (2026-07-29)
 
 ### [0.2.82](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.81...v0.2.82) (2026-07-29)
