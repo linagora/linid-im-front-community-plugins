@@ -33,7 +33,6 @@ const mockRoute = {
   meta: {
     instanceId: 'test-instance-id',
   },
-  matched: [{ path: '/page' }],
   params: {
     id: 'test-entity-id',
   },
@@ -51,6 +50,7 @@ const mockModuleOptions = {
     { key: 'audit', fieldOrder: ['createdBy'], showRemainingFields: true },
   ],
   editPath: '/page/{{ entity.id }}/edit',
+  parentPath: '/page',
   reloadDetailsOn: ['form'],
 };
 

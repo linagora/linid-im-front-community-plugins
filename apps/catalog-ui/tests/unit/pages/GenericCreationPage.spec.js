@@ -28,7 +28,6 @@ const mockRoute = {
   meta: {
     instanceId: 'test-instance-id',
   },
-  matched: [{ path: '/page' }],
 };
 
 const mockNotify = vi.fn();
@@ -36,6 +35,7 @@ const mockRouterPush = vi.fn();
 
 const mockModuleOptions = {
   idKey: 'id',
+  parentPath: '/page',
   formSections: [
     {
       id: 'identity',

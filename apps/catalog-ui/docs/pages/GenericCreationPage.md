@@ -24,6 +24,7 @@ The page resolves its options from the module host configuration (`getModuleHost
 | -------------- | --------------- | -------- | ----------------------------------------------------------------------------------- |
 | `formSections` | `FormSection[]` | Yes      | Sections grouping the entity attributes displayed in the creation form              |
 | `idKey`        | `string`        | Yes      | Entity attribute used to retrieve the identifier of the created entity after saving |
+| `parentPath`   | `string`        | Yes      | Route path used to navigate back to the previous page after saving the entity       |
 
 Each `FormSection` defines a group of fields rendered in the form.
 
@@ -44,6 +45,7 @@ Example module configuration:
     "layout": "catalogUI/BaseLayout",
     "page": "catalogUI/GenericCreationPage",
     "pagePath": "create",
+    "parentPath": "/applications",
     "idKey": "id",
     "formSections": [
       {

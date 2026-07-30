@@ -197,7 +197,6 @@ import EntityAttributeField from '../components/field/EntityAttributeField.vue';
 const router = useRouter();
 const route = useRoute();
 
-const parentPath = computed(() => route.matched[0]?.path);
 const instanceId = computed<string>(() => route.meta.instanceId as string);
 const i18nScope = computed<string>(() => `${instanceId.value}`);
 const uiNamespace = computed<string>(() => `${instanceId.value}`);
@@ -205,6 +204,7 @@ const moduleConfig = computed(() =>
   getModuleHostConfiguration<ModuleGenericCreationPageOptions>(instanceId.value)
 );
 const options = computed(() => moduleConfig.value.options);
+const parentPath = computed(() => options.value.parentPath);
 
 const entity = ref<Record<string, unknown>>({});
 const isLoading = ref(false);
