@@ -91,6 +91,14 @@
             :i18n-scope="localI18nScope"
           />
           <q-btn
+            v-if="endpoints.update"
+            v-bind="uiProps.editButton"
+            :label="t('editButton')"
+            class="generic-editable-table-card--edit-button"
+            :data-cy="`edit-button_${key}`"
+            @click="openEditDialog(row)"
+          />
+          <q-btn
             v-bind="uiProps.deleteButton"
             :label="t('deleteButton')"
             class="generic-editable-table-card--delete-button"
@@ -134,7 +142,7 @@ import ButtonsCard from './ButtonsCard.vue';
 import type { GenericTableColumn } from '../../types/ModuleGenericTablePageOptions';
 
 /**
- * Name of the column hosting the per-row delete button. It matches the action scope column
+ * Name of the column hosting the per-row edit and delete buttons. It matches the action scope column
  * of the GenericEntityTable and is automatically appended when not declared in the columns prop.
  */
 const ACTIONS_COLUMN_NAME = 'table_actions';
@@ -186,6 +194,10 @@ const uiProps = computed(() => ({
   card: ui<LinidQCardProps>(localUiNamespace.value, 'q-card'),
   addButton: ui<LinidQBtnProps>(
     `${localUiNamespace.value}.buttons-card.add-button`,
+    'q-btn'
+  ),
+  editButton: ui<LinidQBtnProps>(
+    `${localUiNamespace.value}.edit-button`,
     'q-btn'
   ),
   deleteButton: ui<LinidQBtnProps>(
@@ -253,6 +265,67 @@ async function createItem(formData: Record<string, unknown>): Promise<void> {
 
   Notify({ type: 'positive', message: t('createSuccess') });
   emit('created', formData);
+  await loadData();
+}
+
+/**
+ * Opens the form dialog used to edit an existing item, pre-filled with its current values. The item
+ * properties are available as named parameters in the dialog title and content translations.
+ * @param item - The item to edit.
+ */
+function openEditDialog(item: Record<string, unknown>): void {
+  uiEventSubject.next({
+    key: DialogKey.Form,
+    data: {
+      type: 'open',
+      title: t('EditFormDialog.title', item),
+      content: translateOrDefault('', 'EditFormDialog.content', item),
+      uiNamespace: localUiNamespace.value,
+      i18nScope: `${localI18nScope.value}.EditFormDialog`,
+      instanceId: props.instanceId,
+      formFields: props.formFields,
+      initialFormData: item,
+      onSubmit: (formData: Record<string, unknown>) =>
+        updateItem(item, formData),
+    },
+  });
+}
+
+/**
+ * Updates an item by sending the submitted form data to the update endpoint, then notifies the user,
+ * emits the `updated` event with the updated item returned by the API and reloads the items.
+ * Does nothing when the update endpoint is not configured.
+ * @param item - The item being edited, available as `item` in the endpoint template context.
+ * @param formData - The submitted form data, sent as the request body.
+ * @returns A promise that resolves when the update handling is complete. The promise rejects when the
+ * update fails, so the form dialog stays open for correction.
+ */
+async function updateItem(
+  item: Record<string, unknown>,
+  formData: Record<string, unknown>
+): Promise<void> {
+  if (!props.endpoints.update) {
+    return;
+  }
+
+  let updated: Record<string, unknown>;
+
+  try {
+    const { data } = await getHttpClient().put(
+      render(props.endpoints.update, {
+        ...nunjucksContext.value,
+        item,
+      }),
+      formData
+    );
+    updated = data;
+  } catch (error) {
+    Notify({ type: 'negative', message: t('updateError') });
+    throw error;
+  }
+
+  Notify({ type: 'positive', message: t('updateSuccess') });
+  emit('updated', updated);
   await loadData();
 }
 
