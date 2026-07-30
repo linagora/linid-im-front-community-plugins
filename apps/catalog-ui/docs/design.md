@@ -322,6 +322,58 @@ when the `update` endpoint is configured.
 
 ---
 
+### GenericSortableListCard
+
+Card managing a drag-and-drop sortable collection: a scrollable list with a drag handle per item, an add button
+opening a `FormDialog`, per-item edit and delete buttons, and a save button to persist the new order. The add, edit
+and delete dialogs inherit this namespace.
+
+**Namespace:** `{uiNamespace}.generic-sortable-list-card`
+
+```json
+{
+  "[PARENT_NAMESPACE]": {
+    "generic-sortable-list-card": {
+      "q-card": { "flat": true, "bordered": true },
+      "q-scroll-area": { "style": "height: 400px" },
+      "q-list": { "bordered": false, "separator": true },
+      "q-item": { "dense": false },
+      "draggable": { "handle": ".drag-handle", "animation": 150 },
+      "icon-section": {
+        "q-item-section": { "avatar": true },
+        "q-icon": { "name": "drag_indicator", "color": "grey-6", "size": "sm" }
+      },
+      "label-section": {
+        "q-item-section": {}
+      },
+      "no-data-icon-section": {
+        "q-item-section": { "avatar": true },
+        "q-icon": { "name": "inbox", "color": "grey-5", "size": "md" }
+      },
+      "no-data-label-section": {
+        "q-item-section": {}
+      },
+      "edit-section": {
+        "q-item-section": { "side": true },
+        "q-btn": { "icon": "edit", "flat": true, "round": true, "dense": true, "color": "primary" }
+      },
+      "delete-section": {
+        "q-item-section": { "side": true },
+        "q-btn": { "icon": "delete", "flat": true, "round": true, "dense": true, "color": "negative" }
+      },
+      "add-button": {
+        "q-btn": { "color": "primary", "icon": "add", "dense": true, "unelevated": true }
+      },
+      "save-button": {
+        "q-btn": { "color": "positive", "icon": "save", "dense": true, "unelevated": true }
+      }
+    }
+  }
+}
+```
+
+---
+
 ### AdvancedSearchCard
 
 Expandable search card with default and advanced filters.
@@ -1400,6 +1452,41 @@ A full example showing all CatalogUI components configured together:
           "GenericTree": {
             "q-tree": {}
           }
+        }
+      },
+      "generic-sortable-list-card": {
+        "q-card": { "flat": true, "bordered": true },
+        "q-scroll-area": { "style": "height: 400px" },
+        "q-list": { "bordered": false, "separator": true },
+        "q-item": { "dense": false },
+        "draggable": { "handle": ".drag-handle", "animation": 150 },
+        "icon-section": {
+          "q-item-section": { "avatar": true },
+          "q-icon": { "name": "drag_indicator", "color": "grey-6", "size": "sm" }
+        },
+        "label-section": {
+          "q-item-section": {}
+        },
+        "no-data-icon-section": {
+          "q-item-section": { "avatar": true },
+          "q-icon": { "name": "inbox", "color": "grey-5", "size": "md" }
+        },
+        "no-data-label-section": {
+          "q-item-section": {}
+        },
+        "edit-section": {
+          "q-item-section": { "side": true },
+          "q-btn": { "icon": "edit", "flat": true, "round": true, "dense": true, "color": "primary" }
+        },
+        "delete-section": {
+          "q-item-section": { "side": true },
+          "q-btn": { "icon": "delete", "flat": true, "round": true, "dense": true, "color": "negative" }
+        },
+        "add-button": {
+          "q-btn": { "color": "primary", "icon": "add", "dense": true, "unelevated": true }
+        },
+        "save-button": {
+          "q-btn": { "color": "positive", "icon": "save", "dense": true, "unelevated": true }
         }
       },
       "generic-entity-table": {

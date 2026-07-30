@@ -9,7 +9,8 @@
     "quasar": "2.21.1",
     "@linagora/linid-im-front-corelib": "0.0.86",
     "@vueuse/core": "14.3.0",
-    "interactjs": "1.10.27"
+    "interactjs": "1.10.27",
+    "vuedraggable": "4.1.0"
   },
   "devDependencies": {
     "dayjs": "1.11.21"
