@@ -17,7 +17,7 @@ Generic pages are fully driven by the module host configuration: a module declar
 | [GenericDetailsPage](./pages/GenericDetailsPage.md)   | `catalogUI/GenericDetailsPage`  | Details of a single entity, grouped in sections              |
 | [GenericCreationPage](./pages/GenericCreationPage.md) | `catalogUI/GenericCreationPage` | Creation of a single entity, with fields grouped in sections |
 
-Both pages are used together with the generic page modules documented in
+These pages are used together with the generic page modules documented in
 [GenericPageModule.md](./modules/GenericPageModule.md).
 
 ---
