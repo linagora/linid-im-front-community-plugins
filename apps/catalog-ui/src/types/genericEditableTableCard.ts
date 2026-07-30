@@ -32,7 +32,8 @@ import type { GenericTableColumn } from './ModuleGenericTablePageOptions';
  * API endpoints used by the GenericEditableTableCard component.
  *
  * Each endpoint is a Nunjucks template rendered with a context containing `entity`, the entity owning
- * the collection. The `delete` endpoint context additionally contains `item`, the row being removed.
+ * the collection. The `update` and `delete` endpoint contexts additionally contain `item`, the row
+ * being edited or removed.
  */
 export interface GenericEditableTableCardEndpoints {
   /**
@@ -44,6 +45,14 @@ export interface GenericEditableTableCardEndpoints {
    * Endpoint used to create a new item (POST). The submitted form data is sent as the request body.
    */
   create: string;
+
+  /**
+   * Endpoint used to update an item (PUT). The submitted form data is sent as the request body, and
+   * the row being edited is available in the template context as `item`.
+   *
+   * Optional: the per-row edit button is only rendered when this endpoint is configured.
+   */
+  update?: string;
 
   /**
    * Endpoint used to delete an item (DELETE). The row being removed is available in the
@@ -80,13 +89,13 @@ export interface GenericEditableTableCardProps extends CommonComponentProps {
   columns: GenericTableColumn[];
 
   /**
-   * Form fields rendered in the creation form dialog, defined as an array of
+   * Form fields rendered in the creation and edition form dialogs, defined as an array of
    * LinidAttributeConfiguration objects (see FormDialog).
    */
   formFields: LinidAttributeConfiguration[];
 
   /**
-   * API endpoints used to fetch, create and delete items.
+   * API endpoints used to fetch, create, update and delete items.
    */
   endpoints: GenericEditableTableCardEndpoints;
 
@@ -105,6 +114,11 @@ export interface GenericEditableTableCardOutputs {
    * Emitted with the submitted form data after a successful creation.
    */
   created: [item: Record<string, unknown>];
+
+  /**
+   * Emitted with the updated item returned by the API after a successful update.
+   */
+  updated: [item: Record<string, unknown>];
 
   /**
    * Emitted with the removed row after a successful deletion.
