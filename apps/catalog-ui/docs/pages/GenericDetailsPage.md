@@ -24,6 +24,7 @@ The page resolves its options from the module host configuration (`getModuleHost
 | `sections`        | `DetailSection[]` | Yes      | Sections grouping the displayed attributes by category, rendered in the declared order                                       |
 | `editPath`        | `string`          | No       | Nunjucks template of the edit page path, rendered with the loaded `entity` as context; when set, an edit button is displayed |
 | `reloadDetailsOn` | `string[]`        | No       | UI event keys (from the `uiEventSubject` bus) triggering a reload of the entity                                              |
+| `parentPath`      | `string`          | Yes      | Route path used to navigate back to the previous page after saving the entity                                                |
 
 Each `DetailSection` is defined as:
 
@@ -45,6 +46,7 @@ Example module configuration:
     "layout": "catalogUI/BaseLayout",
     "page": "catalogUI/GenericDetailsPage",
     "pagePath": ":id",
+    "parentPath": "/applications",
     "sections": [
       { "key": "identity", "fieldOrder": ["code", "name", "description"] },
       {

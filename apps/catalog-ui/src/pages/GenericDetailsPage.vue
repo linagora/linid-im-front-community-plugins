@@ -159,7 +159,6 @@ import type { ModuleGenericDetailsPageOptions } from '../types/ModuleGenericDeta
 const route = useRoute();
 const router = useRouter();
 const instanceId = computed<string>(() => route.meta.instanceId as string);
-const parentPath = computed(() => route.matched[0]?.path);
 const entityId = computed(() => route.params.id as string);
 const i18nScope = computed<string>(() => `${instanceId.value}`);
 const uiNamespace = computed(() => `${instanceId.value}`);
@@ -169,6 +168,7 @@ const options = computed(
       instanceId.value
     )!.options
 );
+const parentPath = computed(() => options.value.parentPath);
 
 const { t, te } = useScopedI18n(i18nScope.value);
 const { Notify } = useNotify();

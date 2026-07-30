@@ -54,6 +54,13 @@ export interface ModulePageOptions {
   page: string;
 
   /**
+   * Parent route path associated with the page.
+   *
+   * Defines the route to navigate to when returning to the previous page.
+   */
+  parentPath: string;
+
+  /**
    * Route path associated with the page.
    *
    * Defines the URL at which the page will be mounted in the host routing
