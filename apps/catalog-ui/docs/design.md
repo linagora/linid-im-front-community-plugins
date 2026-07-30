@@ -281,9 +281,10 @@ Card for displaying entity attribute details. Fields inside the card can be conf
 
 ### GenericEditableTableCard
 
-Card managing a simple collection: a table, an add button opening a `FormDialog`, and a per-row delete button guarded
-by a `ConfirmationDialog`. The add button is rendered through a nested `ButtonsCard`, and both dialogs inherit this
-namespace.
+Card managing a simple collection: a table, an add button opening a `FormDialog`, an optional per-row edit button
+reopening the same `FormDialog`, and a per-row delete button guarded by a `ConfirmationDialog`. The add button is
+rendered through a nested `ButtonsCard`, and both dialogs inherit this namespace. The edit button is only rendered
+when the `update` endpoint is configured.
 
 **Namespace:** `{uiNamespace}.generic-editable-table-card`
 
@@ -297,6 +298,9 @@ namespace.
         "add-button": {
           "q-btn": { "color": "primary", "icon": "add", "dense": true }
         }
+      },
+      "edit-button": {
+        "q-btn": { "color": "primary", "icon": "edit", "flat": true }
       },
       "delete-button": {
         "q-btn": { "color": "negative", "icon": "delete", "flat": true }
@@ -1443,6 +1447,9 @@ A full example showing all CatalogUI components configured together:
           "add-button": {
             "q-btn": { "color": "primary", "icon": "add", "dense": true }
           }
+        },
+        "edit-button": {
+          "q-btn": { "color": "primary", "icon": "edit", "flat": true }
         },
         "delete-button": {
           "q-btn": { "color": "negative", "icon": "delete", "flat": true }
