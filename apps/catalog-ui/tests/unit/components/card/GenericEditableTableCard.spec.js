@@ -32,6 +32,9 @@ import GenericEditableTableCard from '../../../../src/components/card/GenericEdi
 const mockNotify = vi.fn();
 const mockHttpGet = vi.fn(() => Promise.resolve({ data: [] }));
 const mockHttpPost = vi.fn(() => Promise.resolve({ data: {} }));
+const mockHttpPut = vi.fn(() => Promise.resolve({ data: {} }));
+const mockT = vi.fn((key) => key);
+const mockTranslateOrDefault = vi.fn((defaultValue) => defaultValue);
 const mockHttpDelete = vi.fn(() => Promise.resolve({ data: {} }));
 
 vi.mock('@linagora/linid-im-front-corelib', () => ({
@@ -39,12 +42,13 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
   getHttpClient: () => ({
     get: mockHttpGet,
     post: mockHttpPost,
+    put: mockHttpPut,
     delete: mockHttpDelete,
   }),
   useScopedI18n: () => ({
-    t: vi.fn((key) => key),
+    t: mockT,
     te: vi.fn(() => false),
-    translateOrDefault: vi.fn((defaultValue) => defaultValue),
+    translateOrDefault: mockTranslateOrDefault,
   }),
   useNotify: () => ({
     Notify: mockNotify,
@@ -82,6 +86,7 @@ describe('Test component: GenericEditableTableCard', () => {
     endpoints: {
       find: '/api/parents/{{ entity.id }}/items',
       create: '/api/parents/{{ entity.id }}/items',
+      update: '/api/parents/{{ entity.id }}/items/{{ item.id }}',
       delete: '/api/parents/{{ entity.id }}/items/{{ item.id }}',
     },
   };
@@ -264,6 +269,104 @@ describe('Test component: GenericEditableTableCard', () => {
         message: 'createError',
       });
       expect(wrapper.emitted('created')).toBeUndefined();
+      expect(mockHttpGet).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Test function: openEditDialog', () => {
+    it('should open the form dialog pre-filled with the edited item', () => {
+      const item = { id: 'item-1', name: 'current name' };
+
+      wrapper.vm.openEditDialog(item);
+
+      expect(uiEventSubject.next).toHaveBeenCalledOnce();
+      const event = uiEventSubject.next.mock.calls[0][0];
+      expect(event.key).toBe('form');
+      expect(event.data.type).toBe('open');
+      expect(event.data.title).toBe('EditFormDialog.title');
+      expect(event.data.content).toBe('');
+      expect(event.data.uiNamespace).toBe(
+        'test-namespace.generic-editable-table-card'
+      );
+      expect(event.data.i18nScope).toBe(
+        'test-scope.GenericEditableTableCard.EditFormDialog'
+      );
+      expect(event.data.instanceId).toBe('test-instance');
+      expect(event.data.formFields).toEqual(defaultProps.formFields);
+      expect(event.data.initialFormData).toBe(item);
+      expect(mockT).toHaveBeenCalledWith('EditFormDialog.title', item);
+      expect(mockTranslateOrDefault).toHaveBeenCalledWith(
+        '',
+        'EditFormDialog.content',
+        item
+      );
+    });
+
+    it('should submit the form data against the edited item', async () => {
+      wrapper.vm.openEditDialog({ id: 'item-1' });
+      const event = uiEventSubject.next.mock.calls[0][0];
+
+      await event.data.onSubmit({ name: 'new name' });
+
+      expect(mockHttpPut).toHaveBeenCalledWith(
+        '/api/parents/parent-1/items/item-1',
+        { name: 'new name' }
+      );
+    });
+  });
+
+  describe('Test function: updateItem', () => {
+    it('should put the form data, notify, emit the updated item and reload items', async () => {
+      const updated = { id: 'item-1', name: 'new name' };
+      mockHttpPut.mockImplementationOnce(() =>
+        Promise.resolve({ data: updated })
+      );
+      mockHttpGet.mockClear();
+
+      await wrapper.vm.updateItem({ id: 'item-1' }, { name: 'new name' });
+
+      expect(mockHttpPut).toHaveBeenCalledWith(
+        '/api/parents/parent-1/items/item-1',
+        { name: 'new name' }
+      );
+      expect(mockNotify).toHaveBeenCalledWith({
+        type: 'positive',
+        message: 'updateSuccess',
+      });
+      // the API response is the source of truth for the emitted item.
+      expect(wrapper.emitted('updated')).toEqual([[updated]]);
+      expect(mockHttpGet).toHaveBeenCalledOnce();
+    });
+
+    it('should notify and rethrow on update error without reloading', async () => {
+      const error = new Error('update failed');
+      mockHttpPut.mockImplementationOnce(() => Promise.reject(error));
+      mockHttpGet.mockClear();
+
+      await expect(
+        wrapper.vm.updateItem({ id: 'item-1' }, { name: 'new name' })
+      ).rejects.toBe(error);
+
+      expect(mockNotify).toHaveBeenCalledWith({
+        type: 'negative',
+        message: 'updateError',
+      });
+      expect(wrapper.emitted('updated')).toBeUndefined();
+      expect(mockHttpGet).not.toHaveBeenCalled();
+    });
+
+    it('should not call the API when the update endpoint is not configured', async () => {
+      wrapper = mountComponent({
+        endpoints: { ...defaultProps.endpoints, update: undefined },
+      });
+      await flushPromises();
+      mockHttpGet.mockClear();
+
+      await wrapper.vm.updateItem({ id: 'item-1' }, { name: 'new name' });
+
+      expect(mockHttpPut).not.toHaveBeenCalled();
+      expect(mockNotify).not.toHaveBeenCalled();
+      expect(wrapper.emitted('updated')).toBeUndefined();
       expect(mockHttpGet).not.toHaveBeenCalled();
     });
   });
