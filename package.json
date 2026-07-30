@@ -19,14 +19,15 @@
   },
   "private": true,
   "dependencies": {
-    "@linagora/linid-im-front-corelib": "0.0.85",
+    "@linagora/linid-im-front-corelib": "0.0.86",
     "@vueuse/core": "14.3.0",
     "axios": "1.18.1",
     "pinia": "3.0.4",
     "quasar": "2.21.1",
     "vue": "3.5.39",
     "vue-i18n": "11.4.6",
-    "vue-router": "5.1.0"
+    "vue-router": "5.1.0",
+    "vuedraggable": "4.1.0"
   },
   "devDependencies": {
     "@changesets/cli": "2.31.0",
