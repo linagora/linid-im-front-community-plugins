@@ -143,6 +143,10 @@ export default defineConfig({
           __dirname,
           'src/components/card/GenericEditableTableCard.vue'
         ),
+        './GenericSortableListCard': resolve(
+          __dirname,
+          'src/components/card/GenericSortableListCard.vue'
+        ),
       },
       shared: {
         vue: {
