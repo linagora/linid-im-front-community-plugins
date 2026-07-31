@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.88](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.87...v0.2.88) (2026-07-31)
+
+
+### Features
+
+* **catalog-ui:** add GenericSortableListCard component ([d1a0e87](https://github.com/linagora/linid-im-front-community-plugins/commit/d1a0e878ac224d9e058cb0423ed5626ac104bb01)), closes [#241](https://github.com/linagora/linid-im-front-community-plugins/issues/241)
+
 ### [0.2.87](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.86...v0.2.87) (2026-07-31)
 
 
