@@ -161,6 +161,8 @@ See [Generic Pages](../../generic-pages.md) for how to register a component in a
 
 - Items are loaded from the rendered `find` endpoint, and reloaded whenever the rendered endpoint changes.
   This lets the card be rendered by a zone before the hosting page has resolved its entity
+- No request is sent while the `entity` prop is provided but empty, as the endpoints would render with
+  a missing identifier. A card configured without an `entity` prop loads its static endpoint as usual
 - Both plain array responses and paginated responses exposing a `content` array are supported
 - On failure, the items are cleared and a negative notification is displayed
 

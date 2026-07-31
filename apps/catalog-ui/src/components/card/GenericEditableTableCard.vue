@@ -172,6 +172,16 @@ const nunjucksContext = computed(() => ({
   entity: props.entity ?? {},
 }));
 
+/**
+ * Whether the entity owning the collection is resolved. A card hosted by a details page is rendered
+ * before the page has loaded its entity, and receives an empty object in the meantime: rendering the
+ * endpoints at that point would produce a malformed URL. Cards configured without a parent entity
+ * are always considered resolved, so that their static endpoints are loaded as usual.
+ */
+const isEntityResolved = computed(
+  () => props.entity === undefined || Object.keys(props.entity).length > 0
+);
+
 const columns = computed<GenericTableColumn[]>(() => {
   const translated: GenericTableColumn[] = props.columns.map((column) => ({
     ...column,
@@ -373,8 +383,15 @@ async function deleteItem(item: Record<string, unknown>): Promise<void> {
 }
 
 watch(
-  () => render(props.endpoints.find, nunjucksContext.value),
-  () => {
+  () =>
+    isEntityResolved.value
+      ? render(props.endpoints.find, nunjucksContext.value)
+      : null,
+  (endpoint) => {
+    if (endpoint === null) {
+      return;
+    }
+
     loadData();
   },
   { immediate: true }
