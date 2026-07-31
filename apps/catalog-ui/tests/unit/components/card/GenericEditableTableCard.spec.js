@@ -179,6 +179,31 @@ describe('Test component: GenericEditableTableCard', () => {
       expect(wrapper.vm.items).toEqual([]);
     });
 
+    it('should not load nor notify while the parent entity is not resolved', async () => {
+      mockHttpGet.mockClear();
+      mockNotify.mockClear();
+      wrapper = mountComponent({ entity: {} });
+
+      await flushPromises();
+
+      expect(mockHttpGet).not.toHaveBeenCalled();
+      expect(mockNotify).not.toHaveBeenCalled();
+      expect(wrapper.vm.items).toEqual([]);
+      expect(wrapper.vm.isLoading).toBe(false);
+    });
+
+    it('should load on mount when no parent entity is provided', async () => {
+      mockHttpGet.mockClear();
+      wrapper = mountComponent({
+        entity: undefined,
+        endpoints: { ...defaultProps.endpoints, find: '/api/items' },
+      });
+
+      await flushPromises();
+
+      expect(mockHttpGet).toHaveBeenCalledWith('/api/items');
+    });
+
     it('should reload when the entity is resolved asynchronously by the hosting page', async () => {
       wrapper = mountComponent({ entity: {} });
       await flushPromises();
