@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.87](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.86...v0.2.87) (2026-07-31)
+
+
+### Bug Fixes
+
+* **catalog-ui:** skip generic editable table card loading until entity is resolved ([940c4e2](https://github.com/linagora/linid-im-front-community-plugins/commit/940c4e2bbd1363d1ce5a39529dbe9bc869a961ed))
+
 ### [0.2.86](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.85...v0.2.86) (2026-07-31)
 
 
