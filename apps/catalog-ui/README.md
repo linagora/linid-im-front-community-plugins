@@ -217,3 +217,9 @@ For information on how to customize the visual appearance of CatalogUI component
 For the list of translation keys expected by the CatalogUI components, see:
 
 → **[Translation Keys Guide](./docs/i18n.md)**
+
+### **Value Formatting**
+
+For the declarative `formatter` / `formatOptions` configuration shared by the table and list components, see:
+
+→ **[Value Formatting Guide](./docs/value-formatting.md)**
