@@ -107,7 +107,7 @@
         v-bind="uiProps.card[formSection.id]"
         :key="formSection.id"
         :data-cy="`form-section-card_${formSection.id}`"
-        class="column justify-centerq-mb-md form-fields-grid generic-creation-page--form-section"
+        class="column justify-center q-mb-md form-fields-grid generic-creation-page--form-section"
       >
         <q-card-section
           v-if="te(`formSections.${formSection.id}.title`)"
