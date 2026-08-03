@@ -499,6 +499,19 @@ async function getAllItems(): Promise<Record<string, unknown>[]> {
  * Opens the form dialog used to create a new item.
  */
 function openCreateDialog(): void {
+  const initialFormData = props.formFields.reduce<Record<string, unknown>>(
+    (acc, field) => {
+      if (
+        field.name !== props.orderKey &&
+        field.inputSettings?.defaultValue !== undefined
+      ) {
+        acc[field.name] = field.inputSettings.defaultValue;
+      }
+      return acc;
+    },
+    { [props.orderKey]: items.value.length + 1 }
+  );
+
   uiEventSubject.next({
     key: DialogKey.Form,
     data: {
@@ -509,7 +522,7 @@ function openCreateDialog(): void {
       i18nScope: `${localI18nScope.value}.CreateFormDialog`,
       instanceId: props.instanceId,
       formFields: props.formFields,
-      initialFormData: { [props.orderKey]: items.value.length + 1 },
+      initialFormData,
       onSubmit: createItem,
     },
   });
