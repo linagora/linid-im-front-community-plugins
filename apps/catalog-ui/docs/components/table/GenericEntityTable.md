@@ -38,7 +38,7 @@ mutated.
 Nullish values, unknown formatter names and missing formatter options are handled by corelib, which
 returns the value unchanged rather than throwing.
 
-See [Column Formatting](../../column-formatting.md) for details on supported formatters and configuration.
+See [Value Formatting](../../value-formatting.md) for details on supported formatters and configuration.
 
 ### **Example Configuration**
 
