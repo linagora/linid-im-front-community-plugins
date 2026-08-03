@@ -24,19 +24,19 @@ list, action buttons, dialogs, and order-save flows.
 
 ## **⚙️ Props**
 
-| Prop name        | Type                                                         | Default  | Description                                                                                                   |
-| ---------------- | ------------------------------------------------------------ | -------- | ------------------------------------------------------------------------------------------------------------- |
-| `formFields`     | `LinidAttributeConfiguration[]`                              | —        | Form fields rendered in the create and edit form dialogs (see `FormDialog`)                                   |
-| `endpoints`      | `GenericSortableListCardEndpoints`                           | —        | Nunjucks templates of the `find`, `create`, `update` and `delete` endpoints                                   |
-| `orderKey`       | `string`                                                     | —        | Name of the item property that stores the sort order index (1-based integer)                                  |
-| `fields`         | `GenericListField[]`                                         | —        | Fields rendered for each item and in the header row (see [Fields](#fields))                                   |
-| `itemKey`        | `string`                                                     | `'id'`   | Name of the item property used as the unique key for the draggable list                                       |
-| `itemsQuerySize` | `number`                                                     | `50`     | Number of items fetched per page when paginating through the `find` endpoint                                  |
-| `itemMapperFn`   | `(item: Record<string, unknown>) => Record<string, unknown>` | identity | Optional function applied to each item after fetching, used to transform or normalize data                    |
-| `entity`         | `Record<string, unknown>`                                    | `{}`     | Entity owning the collection, provided to the Nunjucks context. Injected by the hosting zone                  |
-| `instanceId`     | `string`                                                     | —        | Instance identifier passed to form dialog fields, and fallback prefix for the UI namespace and the i18n scope |
-| `uiNamespace`    | `string`                                                     | —        | Base UI namespace used for design system customization **and as the plugin zone prefix**                      |
-| `i18nScope`      | `string`                                                     | —        | Identifier used to scope translations. Falls back to `instanceId` when not provided                           |
+| Prop name        | Type                                                         | Default  | Description                                                                                                                  |
+| ---------------- | ------------------------------------------------------------ | -------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `formFields`     | `LinidAttributeConfiguration[]`                              | —        | Form fields rendered in the create and edit form dialogs (see `FormDialog`). Also drives the initial data of the create form |
+| `endpoints`      | `GenericSortableListCardEndpoints`                           | —        | Nunjucks templates of the `find`, `create`, `update` and `delete` endpoints                                                  |
+| `orderKey`       | `string`                                                     | —        | Name of the item property that stores the sort order index (1-based integer)                                                 |
+| `fields`         | `GenericListField[]`                                         | —        | Fields rendered for each item and in the header row (see [Fields](#fields))                                                  |
+| `itemKey`        | `string`                                                     | `'id'`   | Name of the item property used as the unique key for the draggable list                                                      |
+| `itemsQuerySize` | `number`                                                     | `50`     | Number of items fetched per page when paginating through the `find` endpoint                                                 |
+| `itemMapperFn`   | `(item: Record<string, unknown>) => Record<string, unknown>` | identity | Optional function applied to each item after fetching, used to transform or normalize data                                   |
+| `entity`         | `Record<string, unknown>`                                    | `{}`     | Entity owning the collection, provided to the Nunjucks context. Injected by the hosting zone                                 |
+| `instanceId`     | `string`                                                     | —        | Instance identifier passed to form dialog fields, and fallback prefix for the UI namespace and the i18n scope                |
+| `uiNamespace`    | `string`                                                     | —        | Base UI namespace used for design system customization **and as the plugin zone prefix**                                     |
+| `i18nScope`      | `string`                                                     | —        | Identifier used to scope translations. Falls back to `instanceId` when not provided                                          |
 
 ### Endpoints
 
@@ -157,7 +157,12 @@ reserves the section on both rows — the header and the items never drift out o
 ### Add item
 
 - The add button opens the shared `FormDialog` with the configured `formFields`
-- The form is pre-filled with `{ [orderKey]: items.length + 1 }` so the new item lands at the end
+- The form is pre-filled with `{ [orderKey]: items.length + 1 }`, so the new item lands at the end,
+  then completed by walking `formFields`: a field is added **only when it declares an
+  `inputSettings.defaultValue`**. Fields without one are left out, so the dialog renders them empty
+- `orderKey` is always pre-filled, whether or not it appears in `formFields`. A field named after
+  `orderKey` is skipped by the walk, so **its `defaultValue` never overrides the computed position**
+- The presence test is `!== undefined`, so `false`, `0` and `""` are valid defaults and are kept
 - On submit, the form data is posted to the rendered `create` endpoint
 - On success: positive notification, `created` event with the server response (transformed by `itemMapperFn` if provided), items reload, dialog closes
 - On failure: negative notification, the dialog stays open for correction

@@ -98,6 +98,13 @@ describe('Test component: GenericSortableListCard', () => {
         required: true,
         inputSettings: {},
       },
+      {
+        name: 'order',
+        type: 'Number',
+        input: 'Number',
+        required: true,
+        inputSettings: {},
+      },
     ],
     endpoints: {
       find: '/api/parents/{{ entity.id }}/items',
@@ -604,6 +611,86 @@ describe('Test component: GenericSortableListCard', () => {
 
       const event = uiEventSubject.next.mock.calls[0][0];
       expect(event.data.initialFormData).toEqual({ order: 1 });
+    });
+
+    it('should prefill each field with the default value of its input settings', () => {
+      wrapper = mountComponent({
+        formFields: [
+          {
+            name: 'name',
+            type: 'String',
+            input: 'Text',
+            required: true,
+            inputSettings: { defaultValue: 'unnamed' },
+          },
+          ...defaultProps.formFields.slice(1),
+        ],
+      });
+
+      wrapper.vm.openCreateDialog();
+
+      const event = uiEventSubject.next.mock.calls[0][0];
+      expect(event.data.initialFormData).toEqual({ name: 'unnamed', order: 1 });
+    });
+
+    it('should prefill the order even when it is not declared in the form fields', () => {
+      wrapper = mountComponent({ formFields: [defaultProps.formFields[0]] });
+
+      wrapper.vm.openCreateDialog();
+
+      const event = uiEventSubject.next.mock.calls[0][0];
+      expect(event.data.initialFormData).toEqual({ order: 1 });
+    });
+
+    it('should keep the computed order over the default value of the order field', () => {
+      wrapper = mountComponent({
+        formFields: [
+          defaultProps.formFields[0],
+          {
+            ...defaultProps.formFields[1],
+            inputSettings: { defaultValue: 99 },
+          },
+        ],
+      });
+
+      wrapper.vm.openCreateDialog();
+
+      const event = uiEventSubject.next.mock.calls[0][0];
+      expect(event.data.initialFormData).toEqual({ order: 1 });
+    });
+
+    it('should omit a field declaring no default value', () => {
+      wrapper = mountComponent({
+        formFields: [{ name: 'name', type: 'String', input: 'Text' }],
+      });
+
+      wrapper.vm.openCreateDialog();
+
+      const event = uiEventSubject.next.mock.calls[0][0];
+      expect(event.data.initialFormData).toEqual({ order: 1 });
+    });
+
+    it.each([
+      ['false', false],
+      ['zero', 0],
+      ['an empty string', ''],
+    ])('should keep %s as a default value', (_label, defaultValue) => {
+      wrapper = mountComponent({
+        formFields: [
+          {
+            ...defaultProps.formFields[0],
+            inputSettings: { defaultValue },
+          },
+        ],
+      });
+
+      wrapper.vm.openCreateDialog();
+
+      const event = uiEventSubject.next.mock.calls[0][0];
+      expect(event.data.initialFormData).toEqual({
+        name: defaultValue,
+        order: 1,
+      });
     });
   });
 
