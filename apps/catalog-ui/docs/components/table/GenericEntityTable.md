@@ -16,19 +16,27 @@ It renders a simple table from provided columns and rows, without slots, actions
 
 ## **⚙️ Props**
 
-| Prop          | Type                        | Required | Default | Description                            |
-| ------------- | --------------------------- | -------- | ------- | -------------------------------------- |
-| `columns`     | `QTableColumn[]`            | Yes      | -       | Column definitions for Quasar QTable   |
-| `rows`        | `Record<string, unknown>[]` | Yes      | -       | Table row data                         |
-| `rowKey`      | `QTableProps['rowKey']`     | No       | `id`    | Row key for Quasar QTable              |
-| `uiNamespace` | `string`                    | Yes      | -       | UI design namespace for custom styling |
-| `i18nScope`   | `string`                    | Yes      | -       | i18n scope for translations            |
+| Prop          | Type                        | Required | Default | Description                                                     |
+| ------------- | --------------------------- | -------- | ------- | --------------------------------------------------------------- |
+| `columns`     | `GenericTableColumn[]`      | Yes      | -       | Column definitions (Quasar `QTableColumn` + formatting options) |
+| `rows`        | `Record<string, unknown>[]` | Yes      | -       | Table row data                                                  |
+| `rowKey`      | `QTableProps['rowKey']`     | No       | `id`    | Row key for Quasar QTable                                       |
+| `uiNamespace` | `string`                    | Yes      | -       | UI design namespace for custom styling                          |
+| `i18nScope`   | `string`                    | Yes      | -       | i18n scope for translations                                     |
 
 ---
 
 ## **🎨 Column Formatting**
 
 Each column definition can be enhanced with optional formatting properties to automatically format cell values when data is displayed.
+
+The component does not implement the formatters itself: it resolves them through corelib's
+`useValueFormatter()`, and injects the result as Quasar's native `format` function on the column.
+Columns without a `formatter` are forwarded to `QTable` untouched, and the `columns` prop is never
+mutated.
+
+Nullish values, unknown formatter names and missing formatter options are handled by corelib, which
+returns the value unchanged rather than throwing.
 
 See [Column Formatting](../../column-formatting.md) for details on supported formatters and configuration.
 
