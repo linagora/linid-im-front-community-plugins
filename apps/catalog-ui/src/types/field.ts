@@ -186,7 +186,12 @@ export interface FieldDateOptions {
 /**
  * Settings for input boolean fields.
  */
-export type FieldBooleanSettings = FieldSettings;
+export interface FieldBooleanSettings extends FieldSettings {
+  /**
+   * Default value for the boolean field. When provided, this value will be used as the initial state of the field.
+   */
+  defaultValue?: unknown;
+}
 
 /**
  * Represents a single option in a filtered list field.
