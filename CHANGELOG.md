@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.89](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.88...v0.2.89) (2026-08-03)
+
+
+### Features
+
+* **catalog-ui:** add generic entity edition page ([3c46483](https://github.com/linagora/linid-im-front-community-plugins/commit/3c46483cb90a600b2f06fda27cf04c6039a77b2b))
+
+
+### Bug Fixes
+
+* **catalog-ui:** add space between two class in generic creation page ([d1471ea](https://github.com/linagora/linid-im-front-community-plugins/commit/d1471ead23f5c041aae818c1f34517d4cc55af65))
+
 ### [0.2.88](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.87...v0.2.88) (2026-07-31)
 
 
