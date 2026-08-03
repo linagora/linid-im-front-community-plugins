@@ -58,7 +58,11 @@ const emits = defineEmits<EntityAttributeFieldOutputs>();
 
 const { ui } = useUiDesign();
 
-const localValue = ref(props.entity[props.definition.name] ?? null);
+const localValue = ref(
+  props.entity[props.definition.name] ??
+    props.definition.inputSettings?.defaultValue ??
+    null
+);
 const uiProps = ui<LinidQToggleProps>(
   `${props.uiNamespace}.${props.definition.name}`,
   'q-toggle'
@@ -70,7 +74,8 @@ const { translateOrDefault } = useScopedI18n(
 watch(
   () => props.entity[props.definition.name],
   (newValue) => {
-    localValue.value = newValue ?? null;
+    localValue.value =
+      newValue ?? props.definition.inputSettings?.defaultValue ?? null;
   }
 );
 

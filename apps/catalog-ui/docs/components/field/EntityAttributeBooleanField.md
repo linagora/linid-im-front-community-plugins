@@ -16,6 +16,7 @@ consistent, configurable, and localized boolean input.
 - Supports scoped translations for labels
 - Integrates UI customization through the design system
 - Supports disabling the field via `inputSettings.disable`
+- Supports an initial state via `inputSettings.defaultValue` when the entity has no value
 
 ---
 
@@ -57,14 +58,24 @@ export interface AttributeFieldProps<T = Record<string, unknown>> extends Common
 ### FieldBooleanSettings
 
 ```ts
-export interface FieldBooleanSettings extends FieldSettings {
+export interface FieldSettings extends Record<string, unknown> {
   /** Indicates whether to bypass validation rules for this field. */
   ignoreRules?: boolean;
 
   /** When true, the toggle is rendered as non-interactive (disabled state). */
   disable?: boolean;
 }
+
+export interface FieldBooleanSettings extends FieldSettings {
+  /**
+   * Default value for the boolean field. When provided, this value will be used as the
+   * initial state of the field.
+   */
+  defaultValue?: unknown;
+}
 ```
+
+`ignoreRules` and `disable` come from the shared `FieldSettings`; `defaultValue` is specific to boolean fields.
 
 ---
 
@@ -134,7 +145,8 @@ This allows fine-grained styling and behavior customization per attribute.
 
 ## **🔁 Data Flow**
 
-1. The toggle initializes its value from `entity[definition.name]`
+1. The toggle initializes its value from `entity[definition.name]`, falling back to
+   `definition.inputSettings.defaultValue`, then to `null`
 2. The user toggles the switch
 3. `localValue` is updated via `v-model`
 4. `updateValue()` emits `update:entity` with a new entity object
@@ -148,12 +160,31 @@ QToggle → localValue → updateValue → update:entity
 ## **🧠 Internal State Management**
 
 ```ts
-const localValue = ref(props.entity[props.definition.name] ?? null);
+const localValue = ref(props.entity[props.definition.name] ?? props.definition.inputSettings?.defaultValue ?? null);
 ```
 
 - Uses a local reactive value to decouple UI interaction from the parent state
-- Supports `null` as an initial value when the attribute is undefined
+- Falls back to `inputSettings.defaultValue` when the entity has no value for the attribute, then to
+  `null` when no default is configured
 - A `watch` on `() => props.entity[props.definition.name]` keeps `localValue` in sync when the parent updates the entity — it only triggers when the **specific attribute value** changes, not when other fields of the entity change
+- The watcher applies the **same fallback chain** as the initialization:
+
+  ```ts
+  localValue.value = newValue ?? props.definition.inputSettings?.defaultValue ?? null;
+  ```
+
+  Clearing the attribute from the parent therefore restores the configured default rather than
+  emptying the toggle.
+
+### **⚠️ Scope of `defaultValue`**
+
+- **The default is displayed, not committed.** It only feeds `localValue`; `update:entity` is emitted
+  on user interaction only. A form left untouched submits an entity that still has **no value** for
+  the attribute, even though the toggle showed the default. Pre-fill the entity upstream if the value
+  must be persisted.
+- **The chain is nullish, not falsy.** An entity value of `false` wins over a `defaultValue` of
+  `true`, at initialization as well as on every later update. Replacing `??` with `||` would make a
+  toggle silently re-check itself each time the parent unchecks it.
 
 ---
 
@@ -175,6 +206,7 @@ const definition = {
   hasValidations: false,
   inputSettings: {
     ignoreRules: false,
+    defaultValue: true,
   },
 };
 
@@ -215,6 +247,8 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 - UI rendering can be shallow-mounted since behavior is event-driven
 - Verify that `localValue` is updated when `entity[definition.name]` changes
 - Verify that `localValue` is **not** overwritten when only other entity attributes change (e.g. mutate `name` while keeping the boolean attribute value identical)
+- Verify the watcher falls back to `inputSettings.defaultValue` when the attribute becomes `undefined` or `null`, and to `null` when no default is configured
+- Verify an attribute value of `false` wins over a `defaultValue` of `true` — the only case that tells `??` from `||`
 - Verify the toggle is rendered as disabled when `definition.inputSettings.disable` is `true`
 
 ---
@@ -222,7 +256,7 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 ## **📌 Notes**
 
 - The component assumes `definition.input === 'Boolean'`
-- Uses `FieldBooleanSettings` type for `inputSettings`, which supports the `ignoreRules` and `disable` properties
+- Uses `FieldBooleanSettings` type for `inputSettings`, which supports the `ignoreRules`, `disable` and `defaultValue` properties
 - Boolean fields typically don't require validation rules, but validation can be bypassed via the `ignoreRules` prop or `definition.inputSettings.ignoreRules` if needed
 - The field is rendered as non-interactive when `definition.inputSettings.disable` is `true`
 - Translation keys are optional and safely fallback

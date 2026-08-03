@@ -37,6 +37,16 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
   useScopedI18n: () => ({ translateOrDefault: vi.fn() }),
 }));
 
+const buildDefinitionProp = (overrides = {}) => ({
+  name: 'isAdmin',
+  type: 'boolean',
+  required: false,
+  hasValidations: false,
+  input: 'Boolean',
+  inputSettings: {},
+  ...overrides,
+});
+
 describe('Test component: EntityAttributeBooleanField', () => {
   let wrapper;
 
@@ -46,14 +56,7 @@ describe('Test component: EntityAttributeBooleanField', () => {
       props: {
         uiNamespace: 'namespace',
         instanceId: 'id',
-        definition: {
-          name: 'isAdmin',
-          type: 'boolean',
-          required: false,
-          hasValidations: false,
-          input: 'Boolean',
-          inputSettings: {},
-        },
+        definition: buildDefinitionProp(),
         entity: {
           name: 'entity-name',
           description: 'entity-description',
@@ -167,6 +170,41 @@ describe('Test component: EntityAttributeBooleanField', () => {
       });
 
       expect(wrapper.vm.localValue).toEqual(true);
+    });
+
+    describe('with a configured default value', () => {
+      beforeEach(async () => {
+        await wrapper.setProps({
+          definition: buildDefinitionProp({
+            inputSettings: { defaultValue: true },
+          }),
+        });
+      });
+
+      it('should fall back to the default value when the attribute becomes undefined', async () => {
+        expect(wrapper.vm.localValue).toEqual(false);
+
+        await wrapper.setProps({ entity: {} });
+
+        expect(wrapper.vm.localValue).toEqual(true);
+      });
+
+      it('should fall back to the default value when the attribute becomes null', async () => {
+        expect(wrapper.vm.localValue).toEqual(false);
+
+        await wrapper.setProps({ entity: { isAdmin: null } });
+
+        expect(wrapper.vm.localValue).toEqual(true);
+      });
+
+      it('should keep a falsy attribute value rather than the default value', async () => {
+        await wrapper.setProps({ entity: { isAdmin: true } });
+        expect(wrapper.vm.localValue).toEqual(true);
+
+        await wrapper.setProps({ entity: { isAdmin: false } });
+
+        expect(wrapper.vm.localValue).toEqual(false);
+      });
     });
   });
 });
