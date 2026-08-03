@@ -135,6 +135,9 @@ The library organizes components by category. For each component, documentation 
 - 🔍 **AdvancedSearchCard** — Generic search card with default and expandable advanced filters sections
   → Documentation is inside: [`AdvancedSearchCard.md`](./docs/components/card/AdvancedSearchCard.md)
 
+- 📝 **GenericEditableTableCard** — Card managing a collection through a table, with configuration-driven create, edit and delete flows
+  → Documentation is inside: [`GenericEditableTableCard.md`](./docs/components/card/GenericEditableTableCard.md)
+
 - 📋 **GenericSortableListCard** — Card managing an ordered collection as a drag-and-drop list with a column header, per-item actions and order persistence
   → Documentation is inside: [`GenericSortableListCard.md`](./docs/components/card/GenericSortableListCard.md)
 
@@ -163,6 +166,16 @@ The library organizes components by category. For each component, documentation 
 
 - 📋 **EntityAttributeDynamicListField** — Single-selection dropdown for dynamic list attributes with lazy loading from a backend endpoint
   → Documentation is inside: [`EntityAttributeDynamicListField.md`](./docs/components/field/EntityAttributeDynamicListField.md)
+
+- 📧 **EntityAttributeEmailField** — Email attribute input with format validation and scoped translations
+  → Documentation is inside: [`EntityAttributeEmailField.md`](./docs/components/field/EntityAttributeEmailField.md)
+
+### **Filtering Components**
+
+- 🔎 **LinidSmartFilter** — Filter field with a toggle-able menu managing active filters, typed filter panels and saved filter favorites
+  → Documentation is inside: [`LinidSmartFilter.md`](./docs/components/smart-filter/LinidSmartFilter.md)
+
+  Its panels (`LinidFilterPanel`, `LinidFavoritePanel`, `TextSearchFilterPanel`, `NumberSearchFilterPanel`, `DateSearchFilterPanel`, `ListSearchFilterPanel`, `TreeSearchFilterPanel`) and the `LinidFilterChip` are internal to the smart filter and documented in the same file.
 
 ### **Dialog Components**
 
