@@ -24,7 +24,10 @@
  * LinID Identity Manager software.
  */
 
-import type { LinidFilter } from '@linagora/linid-im-front-corelib';
+import type {
+  FormatterConfiguration,
+  LinidFilter,
+} from '@linagora/linid-im-front-corelib';
 import type { QTableColumn } from 'quasar';
 import type { ModulePageOptions } from './ModulePageOptions';
 
@@ -32,16 +35,8 @@ import type { ModulePageOptions } from './ModulePageOptions';
  * Represents a column configuration for a generic table page.
  * Extends Quasar's QTableColumn with additional properties for formatting.
  */
-export interface GenericTableColumn extends QTableColumn {
-  /**
-   * The formatter function name to be used for this column.
-   */
-  formatter?: string;
-  /**
-   * Options to be passed to the formatter function.
-   */
-  formatOptions?: Record<string, unknown>;
-}
+export interface GenericTableColumn
+  extends QTableColumn, FormatterConfiguration {}
 
 /**
  * Configuration options for a generic table page.

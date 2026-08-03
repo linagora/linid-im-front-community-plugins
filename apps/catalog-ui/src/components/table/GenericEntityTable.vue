@@ -93,9 +93,9 @@
 <script setup lang="ts">
 import {
   type LinidQTableProps,
-  useCommonMapper,
   useScopedI18n,
   useUiDesign,
+  useValueFormatter,
 } from '@linagora/linid-im-front-corelib';
 import { computed, useSlots } from 'vue';
 import type { GenericEntityTableProps } from '../../types/genericEntityTable';
@@ -111,7 +111,7 @@ const { t, translateOrDefault } = useScopedI18n(
 );
 
 const { ui } = useUiDesign();
-const { toDate } = useCommonMapper();
+const { formatValue } = useValueFormatter();
 const slots = useSlots();
 
 const uiProps = ui<LinidQTableProps>(
@@ -122,44 +122,6 @@ const uiProps = ui<LinidQTableProps>(
 const forwardedSlotNames = computed(() =>
   Object.keys(slots).filter((name) => name !== ACTION_SCOPE_NAME)
 );
-
-const formatters: Record<
-  string,
-  (value: unknown, options?: Record<string, unknown>) => unknown
-> = {
-  toDate: (value, options) => {
-    if (!options?.formatKey || typeof options.formatKey !== 'string') {
-      return value;
-    }
-
-    return toDate(value, options.formatKey);
-  },
-};
-
-/**
- * Formats a value using the specified formatter and options.
- * @param value - The raw value to format.
- * @param formatter - The name of the formatter to apply.
- * @param options - Additional options passed to the formatter.
- * @returns The formatted value, or the original value if no formatter is found.
- */
-const formatValue = (
-  value: unknown,
-  formatter?: string,
-  options?: Record<string, unknown>
-): unknown => {
-  if (value == null || !formatter) {
-    return value;
-  }
-
-  const formatterFunction = formatters[formatter];
-
-  if (!formatterFunction) {
-    return value;
-  }
-
-  return formatterFunction(value, options);
-};
 
 /**
  * Adds Quasar column formatters without mutating rows.
