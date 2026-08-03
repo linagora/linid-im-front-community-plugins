@@ -70,14 +70,66 @@
       <span>{{ t('saveNewOrderHint') }}</span>
     </q-card-section>
     <q-card-section>
-      <q-scroll-area
-        class="generic-sortable-list-card--scroll-area"
-        v-bind="uiProps.scrollArea"
+      <q-list
+        v-bind="uiProps.list"
+        class="full-width col-auto generic-sortable-list-card--list"
+        data-cy="generic-sortable-list-card_list"
       >
-        <q-list
-          v-bind="uiProps.list"
-          class="full-width col-auto generic-sortable-list-card--list"
-          data-cy="generic-sortable-list-card_list"
+        <q-item
+          v-bind="uiProps.headerItem"
+          class="generic-sortable-list-card--header"
+          data-cy="generic-sortable-list-card_header"
+        >
+          <q-item-section
+            v-if="uiProps.icon?.name"
+            avatar
+            v-bind="uiProps.iconSection"
+          />
+          <q-item-section v-if="hasBeforeFieldsSection">
+            <slot name="before-field-labels" />
+            <LinidZoneRenderer
+              :zone="beforeFieldLabelsZoneName"
+              :entity="entity || {}"
+              :instance-id="instanceId"
+              :ui-namespace="uiNamespace"
+              :i18n-scope="i18nScope"
+            />
+          </q-item-section>
+          <q-item-section
+            v-for="field in resolvedFields"
+            :key="field.name"
+            v-bind="uiProps.fieldLabelSection"
+            :data-cy="`generic-sortable-list-card_header-field_${field.name}`"
+          >
+            <slot
+              :name="`header-${field.name}`"
+              :field="field"
+            >
+              <TruncatedItemLabel
+                v-bind="uiProps.fieldLabel"
+                :label="field.label"
+              />
+            </slot>
+          </q-item-section>
+          <q-item-section v-if="hasAfterFieldsSection">
+            <slot name="after-field-labels" />
+            <LinidZoneRenderer
+              :zone="afterFieldLabelsZoneName"
+              :entity="entity || {}"
+              :instance-id="instanceId"
+              :ui-namespace="uiNamespace"
+              :i18n-scope="i18nScope"
+            />
+          </q-item-section>
+          <q-item-section
+            v-bind="uiProps.itemActionsSection"
+            class="items-end"
+            :style="{ width: itemActionsWidth }"
+          />
+        </q-item>
+        <q-scroll-area
+          class="generic-sortable-list-card--scroll-area"
+          v-bind="uiProps.scrollArea"
         >
           <draggable
             v-model="items"
@@ -98,66 +150,94 @@
                 >
                   <q-icon v-bind="uiProps.icon" />
                 </q-item-section>
+                <q-item-section v-if="hasBeforeFieldsSection">
+                  <slot
+                    name="before-field-values"
+                    :item="item"
+                    :index="index"
+                  />
+                  <LinidZoneRenderer
+                    :zone="beforeFieldValuesZoneName"
+                    :entity="item || {}"
+                    :instance-id="instanceId"
+                    :ui-namespace="uiNamespace"
+                    :i18n-scope="i18nScope"
+                  />
+                </q-item-section>
                 <q-item-section
-                  v-bind="uiProps.labelSection"
-                  :data-cy="`generic-sortable-list-card_item-label_${index}`"
+                  v-for="field in resolvedFields"
+                  :key="field.name"
+                  v-bind="uiProps.fieldValueSection"
+                  :data-cy="`generic-sortable-list-card_item-field_${field.name}_${index}`"
                 >
-                  <slot :item="item">
-                    {{ item[labelKey] }}
+                  <slot
+                    :name="`field-${field.name}`"
+                    :item="item"
+                    :field="field"
+                    :value="formattedItems[index][field.name]"
+                    :index="index"
+                  >
+                    <TruncatedItemLabel
+                      v-bind="uiProps.fieldValue"
+                      :label="String(formattedItems[index][field.name])"
+                    />
                   </slot>
                 </q-item-section>
-                <slot
-                  name="after-item-label"
-                  :item="item"
-                  :index="index"
-                />
-                <LinidZoneRenderer
-                  :zone="afterItemLabelZoneName"
-                  :entity="entity || {}"
-                  :item="item"
-                  :instance-id="instanceId"
-                  :ui-namespace="uiNamespace"
-                  :i18n-scope="i18nScope"
-                />
-                <q-item-section
-                  v-bind="uiProps.editSection"
-                  class="row items-end"
-                >
-                  <q-btn
-                    v-bind="uiProps.editButton"
-                    :label="translateOrDefault('', 'editButton')"
-                    :disable="isLoading"
-                    class="generic-sortable-list-card--edit-button"
-                    :data-cy="`generic-sortable-list-card_button_edit_${index}`"
-                    @click="openEditDialog(item)"
+                <q-item-section v-if="hasAfterFieldsSection">
+                  <slot
+                    name="after-field-values"
+                    :item="item"
+                    :index="index"
+                  />
+                  <LinidZoneRenderer
+                    :zone="afterFieldValuesZoneName"
+                    :entity="item || {}"
+                    :instance-id="instanceId"
+                    :ui-namespace="uiNamespace"
+                    :i18n-scope="i18nScope"
                   />
                 </q-item-section>
                 <q-item-section
-                  v-bind="uiProps.deleteSection"
-                  class="row items-end"
+                  ref="itemActionsSection"
+                  v-bind="uiProps.itemActionsSection"
+                  class="items-end"
                 >
-                  <q-btn
-                    v-bind="uiProps.deleteButton"
-                    :label="translateOrDefault('', 'deleteButton')"
-                    :disable="isLoading"
-                    class="generic-sortable-list-card--delete-button"
-                    :data-cy="`generic-sortable-list-card_button_delete_${index}`"
-                    @click="openDeleteDialog(item, index)"
-                  />
+                  <div>
+                    <slot
+                      name="prepend-item-actions"
+                      :item="item"
+                      :index="index"
+                    />
+                    <LinidZoneRenderer
+                      :zone="`${localUiNamespace}.item.actions`"
+                      :entity="item || {}"
+                      :instance-id="instanceId"
+                      :ui-namespace="uiNamespace"
+                      :i18n-scope="i18nScope"
+                    />
+                    <q-btn
+                      v-bind="uiProps.editButton"
+                      :label="translateOrDefault('', 'editButton')"
+                      :disable="isLoading"
+                      class="generic-sortable-list-card--edit-button"
+                      :data-cy="`generic-sortable-list-card_button_edit_${index}`"
+                      @click="openEditDialog(item)"
+                    />
+                    <q-btn
+                      v-bind="uiProps.deleteButton"
+                      :label="translateOrDefault('', 'deleteButton')"
+                      :disable="isLoading"
+                      class="generic-sortable-list-card--delete-button"
+                      :data-cy="`generic-sortable-list-card_button_delete_${index}`"
+                      @click="openDeleteDialog(item, index)"
+                    />
+                    <slot
+                      name="append-item-actions"
+                      :item="item"
+                      :index="index"
+                    />
+                  </div>
                 </q-item-section>
-                <slot
-                  name="item-actions"
-                  :item="item"
-                  :index="index"
-                />
-                <LinidZoneRenderer
-                  :zone="itemActionsZoneName"
-                  :entity="entity || {}"
-                  :item="item"
-                  :instance-id="instanceId"
-                  :ui-namespace="uiNamespace"
-                  :i18n-scope="i18nScope"
-                />
               </q-item>
             </template>
           </draggable>
@@ -177,8 +257,8 @@
               {{ t('noData') }}
             </q-item-section>
           </q-item>
-        </q-list>
-      </q-scroll-area>
+        </q-scroll-area>
+      </q-list>
     </q-card-section>
   </q-card>
   <!-- v8 ignore stop -->
@@ -190,6 +270,7 @@ import type {
   LinidQBtnProps,
   LinidQCardProps,
   LinidQIconProps,
+  LinidQItemLabelProps,
   LinidQItemProps,
   LinidQItemSectionProps,
   LinidQListProps,
@@ -200,15 +281,22 @@ import {
   getHttpClient,
   LinidZoneRenderer,
   uiEventSubject,
+  useLinidZoneStore,
   useNotify,
   useNunjucks,
   useScopedI18n,
   useUiDesign,
+  useValueFormatter,
 } from '@linagora/linid-im-front-corelib';
-import { computed, ref, toRaw, watch } from 'vue';
+import type { ResizeObserverEntry } from '@vueuse/core';
+import { useResizeObserver } from '@vueuse/core';
+import type { HTMLElement } from 'happy-dom';
+import type { ComponentPublicInstance } from 'vue';
+import { computed, ref, toRaw, useSlots, useTemplateRef, watch } from 'vue';
 import draggable from 'vuedraggable';
 import { DialogKey } from '../../types/dialog';
 import type {
+  GenericListField,
   GenericSortableListCardOutputs,
   GenericSortableListCardProps,
   GenericSortableListCardUIProps,
@@ -217,6 +305,7 @@ import type {
   DraggableChangeEvent,
   DraggableMoveEvent,
 } from '../../types/vueDraggable';
+import TruncatedItemLabel from '../label/TruncatedItemLabel.vue';
 import ButtonsCard from './ButtonsCard.vue';
 
 const props = withDefaults(defineProps<GenericSortableListCardProps>(), {
@@ -240,16 +329,6 @@ const localUiNamespace = computed(() => {
     : 'generic-sortable-list-card';
 });
 
-const afterItemLabelZoneName = computed(() => {
-  const suffix = 'item.label.after';
-  return props.instanceId ? `${props.instanceId}.${suffix}` : suffix;
-});
-
-const itemActionsZoneName = computed(() => {
-  const suffix = 'item.actions';
-  return props.instanceId ? `${props.instanceId}.${suffix}` : suffix;
-});
-
 const items = ref<Record<string, unknown>[]>([]);
 const isLoading = ref<boolean>(false);
 const isOrderHasChanged = ref<boolean>(false);
@@ -262,6 +341,24 @@ const { t, te, translateOrDefault } = useScopedI18n(localI18nScope.value);
 const { Notify } = useNotify();
 const { render } = useNunjucks();
 const { ui } = useUiDesign();
+const { formatValue } = useValueFormatter();
+
+const resolvedFields = computed<GenericListField[]>(() =>
+  props.fields.map((field) => ({ ...field, label: t(field.label) }))
+);
+
+const formattedItems = computed(() =>
+  items.value.map((item) =>
+    Object.fromEntries(
+      resolvedFields.value.map((field) => [
+        field.name,
+        formatValue(item[field.name], field.formatter, field.formatOptions) ??
+          '',
+      ])
+    )
+  )
+);
+
 let initialItems: Record<string, unknown>[] = [];
 
 const uiProps = computed<GenericSortableListCardUIProps>(() => ({
@@ -278,9 +375,25 @@ const uiProps = computed<GenericSortableListCardUIProps>(() => ({
     'q-item-section'
   ),
   icon: ui<LinidQIconProps>(`${localUiNamespace.value}.icon-section`, 'q-icon'),
-  labelSection: ui<LinidQItemSectionProps>(
-    `${localUiNamespace.value}.label-section`,
+  headerItem: ui<LinidQItemProps>(
+    `${localUiNamespace.value}.header-item`,
+    'q-item'
+  ),
+  fieldLabelSection: ui<LinidQItemSectionProps>(
+    `${localUiNamespace.value}.field-label-section`,
     'q-item-section'
+  ),
+  fieldLabel: ui<LinidQItemLabelProps>(
+    `${localUiNamespace.value}.field-label`,
+    'q-item-label'
+  ),
+  fieldValueSection: ui<LinidQItemSectionProps>(
+    `${localUiNamespace.value}.field-value-section`,
+    'q-item-section'
+  ),
+  fieldValue: ui<LinidQItemLabelProps>(
+    `${localUiNamespace.value}.field-value`,
+    'q-item-label'
   ),
   noDataIconSection: ui<LinidQItemSectionProps>(
     `${localUiNamespace.value}.no-data-icon-section`,
@@ -294,20 +407,16 @@ const uiProps = computed<GenericSortableListCardUIProps>(() => ({
     `${localUiNamespace.value}.no-data-label-section`,
     'q-item-section'
   ),
-  editSection: ui<LinidQItemSectionProps>(
-    `${localUiNamespace.value}.edit-section`,
+  itemActionsSection: ui<LinidQItemSectionProps>(
+    `${localUiNamespace.value}.item-actions-section`,
     'q-item-section'
   ),
   editButton: ui<LinidQBtnProps>(
-    `${localUiNamespace.value}.edit-section`,
+    `${localUiNamespace.value}.item-actions-section.edit-button`,
     'q-btn'
   ),
-  deleteSection: ui<LinidQItemSectionProps>(
-    `${localUiNamespace.value}.delete-section`,
-    'q-item-section'
-  ),
   deleteButton: ui<LinidQBtnProps>(
-    `${localUiNamespace.value}.delete-section`,
+    `${localUiNamespace.value}.item-actions-section.delete-button`,
     'q-btn'
   ),
   addButton: ui<LinidQBtnProps>(
@@ -320,9 +429,19 @@ const uiProps = computed<GenericSortableListCardUIProps>(() => ({
   ),
 }));
 
+const isEntityResolved = computed(
+  () => props.entity === undefined || Object.keys(props.entity).length > 0
+);
+
 watch(
-  () => render(props.endpoints.find, nunjucksContext.value),
-  async () => {
+  () =>
+    isEntityResolved.value
+      ? render(props.endpoints.find, nunjucksContext.value)
+      : null,
+  async (endpoint) => {
+    if (endpoint === null) {
+      return;
+    }
     await loadData();
   },
   { immediate: true }
@@ -587,4 +706,65 @@ async function updateItemsOrder(): Promise<void> {
     )
   );
 }
+
+/********************************
+ * Slots and LinidZoneRenderer.
+ *******************************/
+
+const beforeFieldLabelsZoneName = computed(
+  () => `${localUiNamespace.value}.field-labels.before`
+);
+
+const afterFieldLabelsZoneName = computed(
+  () => `${localUiNamespace.value}.field-labels.after`
+);
+
+const beforeFieldValuesZoneName = computed(
+  () => `${localUiNamespace.value}.field-values.before`
+);
+
+const afterFieldValuesZoneName = computed(
+  () => `${localUiNamespace.value}.field-values.after`
+);
+
+const slots = useSlots();
+const { hasZoneEntries } = useLinidZoneStore();
+
+const hasBeforeFieldsSection = computed<boolean>(
+  () =>
+    Boolean(slots['before-field-labels'] || slots['before-field-values']) ||
+    hasZoneEntries(beforeFieldLabelsZoneName.value) ||
+    hasZoneEntries(beforeFieldValuesZoneName.value)
+);
+
+const hasAfterFieldsSection = computed<boolean>(
+  () =>
+    Boolean(slots['after-field-labels'] || slots['after-field-values']) ||
+    hasZoneEntries(afterFieldLabelsZoneName.value) ||
+    hasZoneEntries(afterFieldValuesZoneName.value)
+);
+
+/******************************
+ * Item actions section width.
+ *****************************/
+
+const defaultWidth = '100px';
+const itemActionsWidth = ref(defaultWidth);
+
+const itemActionsSection =
+  useTemplateRef<ComponentPublicInstance>('itemActionsSection');
+
+useResizeObserver(itemActionsSection, (entries: ResizeObserverEntry[]) => {
+  const entry = entries[0];
+
+  if (entry?.target == null) {
+    itemActionsWidth.value = defaultWidth;
+    return;
+  }
+
+  const { offsetWidth } = entry.target as HTMLElement;
+
+  itemActionsWidth.value =
+    offsetWidth != null ? `${offsetWidth}px` : defaultWidth;
+});
 </script>

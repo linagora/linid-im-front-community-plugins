@@ -135,6 +135,9 @@ The library organizes components by category. For each component, documentation 
 - 🔍 **AdvancedSearchCard** — Generic search card with default and expandable advanced filters sections
   → Documentation is inside: [`AdvancedSearchCard.md`](./docs/components/card/AdvancedSearchCard.md)
 
+- 📋 **GenericSortableListCard** — Card managing an ordered collection as a drag-and-drop list with a column header, per-item actions and order persistence
+  → Documentation is inside: [`GenericSortableListCard.md`](./docs/components/card/GenericSortableListCard.md)
+
 ### **Forms Components**
 
 - 🧩 **EntityAttributeField** — Dynamic attribute field resolver that selects and renders the correct input component

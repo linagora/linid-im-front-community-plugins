@@ -25,17 +25,30 @@
  */
 
 import type {
+  FormatterConfiguration,
   LinidAttributeConfiguration,
   LinidDraggableProps,
   LinidQBtnProps,
   LinidQCardProps,
   LinidQIconProps,
+  LinidQItemLabelProps,
   LinidQItemProps,
   LinidQItemSectionProps,
   LinidQListProps,
   LinidQScrollAreaProps,
 } from '@linagora/linid-im-front-corelib';
 import type { CommonComponentProps } from './common';
+
+/**
+ * Defines a field displayed in the GenericSortableListCard component.
+ * The `label` is an i18n key resolved under the component scope.
+ */
+export interface GenericListField extends FormatterConfiguration {
+  /** Unique identifier of the field, used as the item property key. */
+  name: string;
+  /** Translation key resolved under the component i18n scope and displayed as the field label. */
+  label: string;
+}
 
 /**
  * Props definition for the GenericSortableListCard component.
@@ -76,9 +89,11 @@ export interface GenericSortableListCardProps extends CommonComponentProps {
   orderKey: string;
 
   /**
-   * Name of the item property displayed as the label in the list when no slot content is provided.
+   * Fields rendered for each item, as one item section per field, and as a header row above the list.
+   *
+   * The field `label` holds an i18n key resolved under the component scope.
    */
-  labelKey: string;
+  fields: GenericListField[];
 
   /**
    * Number of items fetched per page when paginating through the find endpoint.
@@ -171,6 +186,26 @@ export interface GenericSortableListCardUIProps {
    */
   item: LinidQItemProps;
   /**
+   * The UI properties for the header row rendered above the sortable list.
+   */
+  headerItem: LinidQItemProps;
+  /**
+   * The UI properties for the section wrapping each field label in the header row.
+   */
+  fieldLabelSection: LinidQItemSectionProps;
+  /**
+   * The UI properties for each field label displayed in the header row.
+   */
+  fieldLabel: LinidQItemLabelProps;
+  /**
+   * The UI properties for the section wrapping each field value in a list item.
+   */
+  fieldValueSection: LinidQItemSectionProps;
+  /**
+   * The UI properties for each field value displayed in a list item.
+   */
+  fieldValue: LinidQItemLabelProps;
+  /**
    * The UI properties passed to the vuedraggable container (animation, handle, scroll, etc.).
    */
   draggable: LinidDraggableProps;
@@ -195,21 +230,13 @@ export interface GenericSortableListCardUIProps {
    */
   noDataIcon: LinidQIconProps;
   /**
-   * The UI properties for the label item section.
+   * The UI properties for the item actions section.
    */
-  labelSection: LinidQItemSectionProps;
-  /**
-   * The UI properties for the edit item section.
-   */
-  editSection: LinidQItemSectionProps;
+  itemActionsSection: LinidQItemSectionProps;
   /**
    * The UI properties for the edit button.
    */
   editButton: LinidQBtnProps;
-  /**
-   * The UI properties for the delete item section.
-   */
-  deleteSection: LinidQItemSectionProps;
   /**
    * The UI properties for the delete button.
    */
