@@ -324,9 +324,9 @@ when the `update` endpoint is configured.
 
 ### GenericSortableListCard
 
-Card managing a drag-and-drop sortable collection: a scrollable list with a drag handle per item, an add button
-opening a `FormDialog`, per-item edit and delete buttons, and a save button to persist the new order. The add, edit
-and delete dialogs inherit this namespace.
+Card managing a drag-and-drop sortable collection: a scrollable list with a drag handle per item, a header row
+above the list, one section per configured field, an add button opening a `FormDialog`, per-item edit and delete
+buttons, and a save button to persist the new order. The add, edit and delete dialogs inherit this namespace.
 
 **Namespace:** `{uiNamespace}.generic-sortable-list-card`
 
@@ -339,12 +339,24 @@ and delete dialogs inherit this namespace.
       "q-list": { "bordered": false, "separator": true },
       "q-item": { "dense": false },
       "draggable": { "handle": ".drag-handle", "animation": 150 },
+      "header-item": {
+        "q-item": { "dense": true }
+      },
       "icon-section": {
         "q-item-section": { "avatar": true },
         "q-icon": { "name": "drag_indicator", "color": "grey-6", "size": "sm" }
       },
-      "label-section": {
+      "field-label-section": {
         "q-item-section": {}
+      },
+      "field-label": {
+        "q-item-label": { "caption": true }
+      },
+      "field-value-section": {
+        "q-item-section": {}
+      },
+      "field-value": {
+        "q-item-label": {}
       },
       "no-data-icon-section": {
         "q-item-section": { "avatar": true },
@@ -353,13 +365,14 @@ and delete dialogs inherit this namespace.
       "no-data-label-section": {
         "q-item-section": {}
       },
-      "edit-section": {
+      "item-actions-section": {
         "q-item-section": { "side": true },
-        "q-btn": { "icon": "edit", "flat": true, "round": true, "dense": true, "color": "primary" }
-      },
-      "delete-section": {
-        "q-item-section": { "side": true },
-        "q-btn": { "icon": "delete", "flat": true, "round": true, "dense": true, "color": "negative" }
+        "edit-button": {
+          "q-btn": { "icon": "edit", "flat": true, "round": true, "dense": true, "color": "primary" }
+        },
+        "delete-button": {
+          "q-btn": { "icon": "delete", "flat": true, "round": true, "dense": true, "color": "negative" }
+        }
       },
       "add-button": {
         "q-btn": { "color": "primary", "icon": "add", "dense": true, "unelevated": true }
@@ -371,6 +384,16 @@ and delete dialogs inherit this namespace.
   }
 }
 ```
+
+Notes:
+
+- `header-item` styles the header row only; `q-item` styles the item rows. Both are rendered as `q-item`, so the
+  header stays aligned with the rows.
+- `field-label` and `field-value` are applied to the `TruncatedItemLabel` rendering each cell, which forwards them
+  to a `q-item-label`. The `lines` property is forced to `1` by the component and cannot be overridden here: the
+  overflow tooltip only works on single-line truncation.
+- `item-actions-section` styles both the actions cell of each row and its empty counterpart in the header. The
+  header cell width is measured from the first rendered row, so the two stay aligned whatever the buttons contain.
 
 ---
 
@@ -1489,12 +1512,24 @@ A full example showing all CatalogUI components configured together:
         "q-list": { "bordered": false, "separator": true },
         "q-item": { "dense": false },
         "draggable": { "handle": ".drag-handle", "animation": 150 },
+        "header-item": {
+          "q-item": { "dense": true }
+        },
         "icon-section": {
           "q-item-section": { "avatar": true },
           "q-icon": { "name": "drag_indicator", "color": "grey-6", "size": "sm" }
         },
-        "label-section": {
+        "field-label-section": {
           "q-item-section": {}
+        },
+        "field-label": {
+          "q-item-label": { "caption": true }
+        },
+        "field-value-section": {
+          "q-item-section": {}
+        },
+        "field-value": {
+          "q-item-label": {}
         },
         "no-data-icon-section": {
           "q-item-section": { "avatar": true },
@@ -1503,13 +1538,14 @@ A full example showing all CatalogUI components configured together:
         "no-data-label-section": {
           "q-item-section": {}
         },
-        "edit-section": {
+        "item-actions-section": {
           "q-item-section": { "side": true },
-          "q-btn": { "icon": "edit", "flat": true, "round": true, "dense": true, "color": "primary" }
-        },
-        "delete-section": {
-          "q-item-section": { "side": true },
-          "q-btn": { "icon": "delete", "flat": true, "round": true, "dense": true, "color": "negative" }
+          "edit-button": {
+            "q-btn": { "icon": "edit", "flat": true, "round": true, "dense": true, "color": "primary" }
+          },
+          "delete-button": {
+            "q-btn": { "icon": "delete", "flat": true, "round": true, "dense": true, "color": "negative" }
+          }
         },
         "add-button": {
           "q-btn": { "color": "primary", "icon": "add", "dense": true, "unelevated": true }

@@ -30,6 +30,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import GenericSortableListCard from '../../../../src/components/card/GenericSortableListCard.vue';
 
 const mockNotify = vi.fn();
+let mockZones = {};
+let mockResizeCallback;
 const mockHttpGet = vi.fn();
 const mockHttpPost = vi.fn(() => Promise.resolve({ data: {} }));
 const mockHttpPut = vi.fn(() => Promise.resolve({ data: {} }));
@@ -43,7 +45,7 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
     delete: mockHttpDelete,
   }),
   useScopedI18n: () => ({
-    t: vi.fn((key) => key),
+    t: vi.fn((key) => `translated:${key}`),
     te: vi.fn(() => false),
     translateOrDefault: vi.fn((defaultValue) => defaultValue),
   }),
@@ -51,6 +53,16 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
     Notify: mockNotify,
   }),
   useUiDesign: () => ({ ui: () => ({}) }),
+  useLinidZoneStore: () => ({
+    hasZoneEntries: (zone) => (mockZones[zone]?.length ?? 0) > 0,
+  }),
+  useValueFormatter: () => ({
+    formatValue: vi.fn((value, formatter, options) =>
+      value == null || !formatter
+        ? value
+        : `${value}_formatted_${options?.formatKey}`
+    ),
+  }),
   useNunjucks: () => ({
     render: (value, context) =>
       value
@@ -63,6 +75,12 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
 }));
 
 vi.mock('vuedraggable', () => ({ default: { template: '<div />' } }));
+
+vi.mock('@vueuse/core', () => ({
+  useResizeObserver: vi.fn((_target, callback) => {
+    mockResizeCallback = callback;
+  }),
+}));
 
 describe('Test component: GenericSortableListCard', () => {
   let wrapper;
@@ -89,22 +107,47 @@ describe('Test component: GenericSortableListCard', () => {
     },
     itemKey: 'id',
     orderKey: 'order',
-    labelKey: 'name',
+    fields: [
+      { name: 'name', label: 'columns.name' },
+      { name: 'order', label: 'columns.order' },
+    ],
   };
 
   const singlePageResponse = (items) => ({
     data: { content: items, last: true },
   });
 
-  function mountComponent(props = {}) {
+  function mountComponent(props = {}, slots = {}) {
     return shallowMount(GenericSortableListCard, {
       props: { ...defaultProps, ...props },
+      slots,
       global: { stubs: { LinidZoneRenderer: true } },
     });
   }
 
+  /**
+   * Prefix every plugin zone is registered under, derived from localUiNamespace.
+   */
+  const zonePrefix = 'test-namespace.generic-sortable-list-card';
+
+  /**
+   * Mounts the component without a uiNamespace, silencing the resulting Vue warning
+   * about the missing required prop.
+   * @returns The component wrapper.
+   */
+  function mountWithoutUiNamespace() {
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const mounted = mountComponent({ uiNamespace: undefined });
+    warn.mockRestore();
+
+    return mounted;
+  }
+
   beforeEach(() => {
     vi.clearAllMocks();
+    mockZones = {};
+    mockResizeCallback = undefined;
     mockHttpGet.mockResolvedValue(singlePageResponse([]));
     wrapper = mountComponent();
   });
@@ -158,27 +201,206 @@ describe('Test component: GenericSortableListCard', () => {
     });
   });
 
-  describe('Test computed: afterItemLabelZoneName', () => {
-    it('should prefix the zone name with instanceId', () => {
-      expect(wrapper.vm.afterItemLabelZoneName).toBe(
-        'test-instance.item.label.after'
+  describe('Test computed: beforeFieldLabelsZoneName', () => {
+    it('should suffix the local ui namespace with field-labels.before', () => {
+      expect(wrapper.vm.beforeFieldLabelsZoneName).toBe(
+        `${zonePrefix}.field-labels.before`
       );
     });
 
-    it('should use the bare zone name when instanceId is not provided', () => {
-      wrapper = mountComponent({ instanceId: undefined });
-      expect(wrapper.vm.afterItemLabelZoneName).toBe('item.label.after');
+    it('should follow the instanceId fallback when uiNamespace is not provided', () => {
+      wrapper = mountWithoutUiNamespace();
+
+      expect(wrapper.vm.beforeFieldLabelsZoneName).toBe(
+        'test-instance.generic-sortable-list-card.field-labels.before'
+      );
     });
   });
 
-  describe('Test computed: itemActionsZoneName', () => {
-    it('should prefix the zone name with instanceId', () => {
-      expect(wrapper.vm.itemActionsZoneName).toBe('test-instance.item.actions');
+  describe('Test computed: afterFieldLabelsZoneName', () => {
+    it('should suffix the local ui namespace with field-labels.after', () => {
+      expect(wrapper.vm.afterFieldLabelsZoneName).toBe(
+        `${zonePrefix}.field-labels.after`
+      );
+    });
+  });
+
+  describe('Test computed: beforeFieldValuesZoneName', () => {
+    it('should suffix the local ui namespace with field-values.before', () => {
+      expect(wrapper.vm.beforeFieldValuesZoneName).toBe(
+        `${zonePrefix}.field-values.before`
+      );
+    });
+  });
+
+  describe('Test computed: afterFieldValuesZoneName', () => {
+    it('should suffix the local ui namespace with field-values.after', () => {
+      expect(wrapper.vm.afterFieldValuesZoneName).toBe(
+        `${zonePrefix}.field-values.after`
+      );
+    });
+  });
+
+  describe('Test computed: hasBeforeFieldsSection', () => {
+    it('should be false when neither the slots nor the zones provide content', () => {
+      expect(wrapper.vm.hasBeforeFieldsSection).toBe(false);
     });
 
-    it('should use the bare zone name when instanceId is not provided', () => {
-      wrapper = mountComponent({ instanceId: undefined });
-      expect(wrapper.vm.itemActionsZoneName).toBe('item.actions');
+    it('should be true when the label slot is provided', () => {
+      wrapper = mountComponent({}, { 'before-field-labels': '<div />' });
+      expect(wrapper.vm.hasBeforeFieldsSection).toBe(true);
+    });
+
+    it('should be true when the value slot is provided', () => {
+      wrapper = mountComponent({}, { 'before-field-values': '<div />' });
+      expect(wrapper.vm.hasBeforeFieldsSection).toBe(true);
+    });
+
+    it('should be true when the label zone has an entry', () => {
+      mockZones = { [`${zonePrefix}.field-labels.before`]: [{}] };
+      wrapper = mountComponent();
+      expect(wrapper.vm.hasBeforeFieldsSection).toBe(true);
+    });
+
+    it('should be true when the value zone has an entry', () => {
+      mockZones = { [`${zonePrefix}.field-values.before`]: [{}] };
+      wrapper = mountComponent();
+      expect(wrapper.vm.hasBeforeFieldsSection).toBe(true);
+    });
+
+    it('should not be impacted by the after fields sources', () => {
+      mockZones = { [`${zonePrefix}.field-values.after`]: [{}] };
+      wrapper = mountComponent({}, { 'after-field-labels': '<div />' });
+      expect(wrapper.vm.hasBeforeFieldsSection).toBe(false);
+    });
+  });
+
+  describe('Test computed: hasAfterFieldsSection', () => {
+    it('should be false when neither the slots nor the zones provide content', () => {
+      expect(wrapper.vm.hasAfterFieldsSection).toBe(false);
+    });
+
+    it('should be true when the label slot is provided', () => {
+      wrapper = mountComponent({}, { 'after-field-labels': '<div />' });
+      expect(wrapper.vm.hasAfterFieldsSection).toBe(true);
+    });
+
+    it('should be true when the value slot is provided', () => {
+      wrapper = mountComponent({}, { 'after-field-values': '<div />' });
+      expect(wrapper.vm.hasAfterFieldsSection).toBe(true);
+    });
+
+    it('should be true when the label zone has an entry', () => {
+      mockZones = { [`${zonePrefix}.field-labels.after`]: [{}] };
+      wrapper = mountComponent();
+      expect(wrapper.vm.hasAfterFieldsSection).toBe(true);
+    });
+
+    it('should be true when the value zone has an entry', () => {
+      mockZones = { [`${zonePrefix}.field-values.after`]: [{}] };
+      wrapper = mountComponent();
+      expect(wrapper.vm.hasAfterFieldsSection).toBe(true);
+    });
+
+    it('should not be impacted by the before fields sources', () => {
+      mockZones = { [`${zonePrefix}.field-values.before`]: [{}] };
+      wrapper = mountComponent({}, { 'before-field-labels': '<div />' });
+      expect(wrapper.vm.hasAfterFieldsSection).toBe(false);
+    });
+  });
+
+  describe('Test computed: resolvedFields', () => {
+    it('should translate the label of each field', () => {
+      expect(wrapper.vm.resolvedFields.map((field) => field.label)).toEqual([
+        'translated:columns.name',
+        'translated:columns.order',
+      ]);
+    });
+
+    it('should preserve the other field properties', () => {
+      wrapper = mountComponent({
+        fields: [
+          {
+            name: 'createdAt',
+            label: 'columns.createdAt',
+            formatter: 'toDate',
+            formatOptions: { formatKey: 'application.dateFormat' },
+          },
+        ],
+      });
+
+      expect(wrapper.vm.resolvedFields[0]).toEqual({
+        name: 'createdAt',
+        label: 'translated:columns.createdAt',
+        formatter: 'toDate',
+        formatOptions: { formatKey: 'application.dateFormat' },
+      });
+    });
+
+    it('should return an empty array when no field is configured', () => {
+      wrapper = mountComponent({ fields: [] });
+
+      expect(wrapper.vm.resolvedFields).toEqual([]);
+    });
+  });
+
+  describe('Test computed: formattedItems', () => {
+    it('should expose one entry per configured field and drop the other item properties', async () => {
+      mockHttpGet.mockResolvedValue(
+        singlePageResponse([{ id: 'item-1', order: 1, name: 'First' }])
+      );
+      wrapper = mountComponent();
+      await flushPromises();
+
+      expect(wrapper.vm.formattedItems).toEqual([{ name: 'First', order: 1 }]);
+    });
+
+    it('should apply the formatter of each field with its options', async () => {
+      mockHttpGet.mockResolvedValue(
+        singlePageResponse([
+          { id: 'item-1', order: 1, createdAt: '2026-07-30' },
+        ])
+      );
+      wrapper = mountComponent({
+        fields: [
+          {
+            name: 'createdAt',
+            label: 'columns.createdAt',
+            formatter: 'toDate',
+            formatOptions: { formatKey: 'application.dateFormat' },
+          },
+        ],
+      });
+      await flushPromises();
+
+      expect(wrapper.vm.formattedItems).toEqual([
+        { createdAt: '2026-07-30_formatted_application.dateFormat' },
+      ]);
+    });
+
+    it('should be empty when no item is loaded', () => {
+      expect(wrapper.vm.formattedItems).toEqual([]);
+    });
+
+    it.each([
+      ['the item has no value for the field', { id: 'item-1', order: 1 }],
+      ['the value is null', { id: 'item-1', order: 1, name: null }],
+    ])('should fall back to an empty string when %s', async (_label, item) => {
+      mockHttpGet.mockResolvedValue(singlePageResponse([item]));
+      wrapper = mountComponent();
+      await flushPromises();
+
+      expect(wrapper.vm.formattedItems[0].name).toBe('');
+    });
+
+    it('should keep a falsy value that is not nullish', async () => {
+      mockHttpGet.mockResolvedValue(
+        singlePageResponse([{ id: 'item-1', order: 0, name: '' }])
+      );
+      wrapper = mountComponent();
+      await flushPromises();
+
+      expect(wrapper.vm.formattedItems).toEqual([{ name: '', order: 0 }]);
     });
   });
 
@@ -276,7 +498,7 @@ describe('Test component: GenericSortableListCard', () => {
       expect(wrapper.vm.items).toEqual([]);
       expect(mockNotify).toHaveBeenCalledWith({
         type: 'negative',
-        message: 'loadError',
+        message: 'translated:loadError',
       });
       expect(wrapper.vm.isLoading).toBe(false);
     });
@@ -365,7 +587,7 @@ describe('Test component: GenericSortableListCard', () => {
         key: 'form',
         data: {
           type: 'open',
-          title: 'CreateFormDialog.title',
+          title: 'translated:CreateFormDialog.title',
           content: '',
           uiNamespace: 'test-namespace.generic-sortable-list-card',
           i18nScope: 'test-scope.GenericSortableListCard.CreateFormDialog',
@@ -399,7 +621,7 @@ describe('Test component: GenericSortableListCard', () => {
       });
       expect(mockNotify).toHaveBeenCalledWith({
         type: 'positive',
-        message: 'createSuccess',
+        message: 'translated:createSuccess',
       });
       expect(wrapper.emitted('created')).toEqual([
         [{ id: 'new-id', name: 'new item' }],
@@ -418,7 +640,7 @@ describe('Test component: GenericSortableListCard', () => {
 
       expect(mockNotify).toHaveBeenCalledWith({
         type: 'negative',
-        message: 'createError',
+        message: 'translated:createError',
       });
       expect(wrapper.emitted('created')).toBeUndefined();
       expect(mockHttpGet).not.toHaveBeenCalled();
@@ -432,8 +654,12 @@ describe('Test component: GenericSortableListCard', () => {
       const event = uiEventSubject.next.mock.calls[0][0];
       expect(event.key).toBe('confirmation');
       expect(event.data.type).toBe('open');
-      expect(event.data.title).toBe('DeleteConfirmationDialog.title');
-      expect(event.data.content).toBe('DeleteConfirmationDialog.content');
+      expect(event.data.title).toBe(
+        'translated:DeleteConfirmationDialog.title'
+      );
+      expect(event.data.content).toBe(
+        'translated:DeleteConfirmationDialog.content'
+      );
       expect(event.data.uiNamespace).toBe(
         'test-namespace.generic-sortable-list-card'
       );
@@ -464,7 +690,7 @@ describe('Test component: GenericSortableListCard', () => {
       );
       expect(mockNotify).toHaveBeenCalledWith({
         type: 'positive',
-        message: 'deleteSuccess',
+        message: 'translated:deleteSuccess',
       });
       expect(wrapper.emitted('deleted')).toEqual([[{ id: 'item-1' }]]);
       expect(mockHttpGet).toHaveBeenCalledOnce();
@@ -489,7 +715,7 @@ describe('Test component: GenericSortableListCard', () => {
 
       expect(mockNotify).toHaveBeenCalledWith({
         type: 'negative',
-        message: 'deleteError',
+        message: 'translated:deleteError',
       });
       expect(wrapper.emitted('deleted')).toBeUndefined();
       expect(mockHttpGet).not.toHaveBeenCalled();
@@ -506,7 +732,7 @@ describe('Test component: GenericSortableListCard', () => {
         key: 'form',
         data: {
           type: 'open',
-          title: 'EditFormDialog.title',
+          title: 'translated:EditFormDialog.title',
           content: '',
           uiNamespace: 'test-namespace.generic-sortable-list-card',
           i18nScope: 'test-scope.GenericSortableListCard.EditFormDialog',
@@ -545,7 +771,7 @@ describe('Test component: GenericSortableListCard', () => {
       );
       expect(mockNotify).toHaveBeenCalledWith({
         type: 'positive',
-        message: 'updateSuccess',
+        message: 'translated:updateSuccess',
       });
       expect(wrapper.emitted('updated')).toHaveLength(1);
       expect(mockHttpGet).toHaveBeenCalledOnce();
@@ -577,7 +803,7 @@ describe('Test component: GenericSortableListCard', () => {
 
       expect(mockNotify).toHaveBeenCalledWith({
         type: 'negative',
-        message: 'updateError',
+        message: 'translated:updateError',
       });
       expect(wrapper.emitted('updated')).toBeUndefined();
       expect(mockHttpGet).not.toHaveBeenCalled();
@@ -780,7 +1006,7 @@ describe('Test component: GenericSortableListCard', () => {
 
       expect(mockNotify).toHaveBeenCalledWith({
         type: 'positive',
-        message: 'updateOrderSuccess',
+        message: 'translated:updateOrderSuccess',
       });
       expect(wrapper.emitted('order-updated')).toHaveLength(1);
       expect(wrapper.vm.isOrderHasChanged).toBe(false);
@@ -795,7 +1021,7 @@ describe('Test component: GenericSortableListCard', () => {
 
       expect(mockNotify).toHaveBeenCalledWith({
         type: 'negative',
-        message: 'updateOrderError',
+        message: 'translated:updateOrderError',
       });
       expect(wrapper.emitted('order-updated')).toBeUndefined();
       expect(wrapper.vm.isOrderHasChanged).toBe(true);
@@ -832,6 +1058,59 @@ describe('Test component: GenericSortableListCard', () => {
       await wrapper.vm.updateItemsOrder();
 
       expect(mockHttpPut).toHaveBeenCalledTimes(3);
+    });
+  });
+
+  describe('Test observer: item actions section width', () => {
+    /**
+     * Invokes the resize callback registered by the component, as the observer would.
+     * @param entries - Resize observer entries reported to the callback.
+     */
+    function reportResize(entries) {
+      mockResizeCallback(entries);
+    }
+
+    it('should default the item actions width to 100px', () => {
+      expect(wrapper.vm.itemActionsWidth).toBe('100px');
+    });
+
+    it('should align the header width on the observed section width', () => {
+      reportResize([{ target: { offsetWidth: 240 } }]);
+
+      expect(wrapper.vm.itemActionsWidth).toBe('240px');
+    });
+
+    it('should update the width on every reported resize', () => {
+      reportResize([{ target: { offsetWidth: 240 } }]);
+      expect(wrapper.vm.itemActionsWidth).toBe('240px');
+
+      reportResize([{ target: { offsetWidth: 320 } }]);
+
+      expect(wrapper.vm.itemActionsWidth).toBe('320px');
+    });
+
+    it('should fall back to the default width when no entry is reported', () => {
+      reportResize([{ target: { offsetWidth: 240 } }]);
+
+      reportResize([]);
+
+      expect(wrapper.vm.itemActionsWidth).toBe('100px');
+    });
+
+    it('should fall back to the default width when the entry has no target', () => {
+      reportResize([{ target: { offsetWidth: 240 } }]);
+
+      reportResize([{ target: null }]);
+
+      expect(wrapper.vm.itemActionsWidth).toBe('100px');
+    });
+
+    it('should fall back to the default width when the target reports no width', () => {
+      reportResize([{ target: { offsetWidth: 240 } }]);
+
+      reportResize([{ target: {} }]);
+
+      expect(wrapper.vm.itemActionsWidth).toBe('100px');
     });
   });
 });
