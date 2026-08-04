@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.92](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.91...v0.2.92) (2026-08-04)
+
+
+### Features
+
+* **catalog-ui:** prefill form fields on create in GenericSortableListCard ([49b8dc2](https://github.com/linagora/linid-im-front-community-plugins/commit/49b8dc2ac53c2ad665e71a860f28e7cd6e8a9842))
+
 ### [0.2.91](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.90...v0.2.91) (2026-08-04)
 
 
