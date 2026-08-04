@@ -1148,6 +1148,111 @@ describe('Test component: GenericSortableListCard', () => {
     });
   });
 
+  describe('Test function: applyLocalItemUpdate', () => {
+    /**
+     * Emits an update:entity event on the subject the component subscribed to on mount.
+     * @param item - The updated item carried by the event.
+     */
+    function emitEntityUpdate(item) {
+      mockUiEventCallback({ key: 'update:entity', data: item });
+    }
+
+    beforeEach(async () => {
+      mockHttpGet.mockResolvedValue(
+        singlePageResponse([
+          { id: 'item-1', order: 1, name: 'First' },
+          { id: 'item-2', order: 2, name: 'Second' },
+        ])
+      );
+      wrapper = mountComponent({ listenToItemUpdate: 'update:entity' });
+      await flushPromises();
+    });
+
+    it('should not subscribe when listenToItemUpdate is not set', async () => {
+      mockHttpGet.mockResolvedValue(singlePageResponse([]));
+      const localWrapper = mountComponent();
+      await flushPromises();
+
+      localWrapper.unmount();
+
+      expect(mockUnsubscribe).not.toHaveBeenCalled();
+    });
+
+    it('should replace the matching item without sending any request', () => {
+      emitEntityUpdate({ id: 'item-2', order: 2, name: 'Renamed' });
+
+      expect(wrapper.vm.items).toEqual([
+        { id: 'item-1', order: 1, name: 'First' },
+        { id: 'item-2', order: 2, name: 'Renamed' },
+      ]);
+      expect(mockHttpPut).not.toHaveBeenCalled();
+    });
+
+    it('should flag the local changes as unsaved when the item diverges from the loaded one', () => {
+      emitEntityUpdate({ id: 'item-2', order: 2, name: 'Renamed' });
+
+      expect(wrapper.vm.hasUnsavedItemChanges).toBe(true);
+      expect(wrapper.vm.unsavedChangesHintKey).toBe('saveUpdatedItemsHint');
+    });
+
+    it('should not flag anything when the item is updated back to its loaded values', () => {
+      emitEntityUpdate({ id: 'item-2', order: 2, name: 'Renamed' });
+
+      emitEntityUpdate({ id: 'item-2', order: 2, name: 'Second' });
+
+      expect(wrapper.vm.hasUnsavedItemChanges).toBe(false);
+      expect(wrapper.vm.unsavedChangesHintKey).toBeNull();
+    });
+
+    it('should leave the list untouched when no item matches the updated one', () => {
+      emitEntityUpdate({ id: 'unknown', order: 9, name: 'Ghost' });
+
+      expect(wrapper.vm.items).toEqual([
+        { id: 'item-1', order: 1, name: 'First' },
+        { id: 'item-2', order: 2, name: 'Second' },
+      ]);
+      expect(wrapper.vm.hasUnsavedItemChanges).toBe(false);
+    });
+
+    it('should ignore events emitted under another key', () => {
+      mockUiEventCallback({
+        key: 'other:event',
+        data: { id: 'item-2', name: 'Renamed' },
+      });
+
+      expect(wrapper.vm.items).toEqual([
+        { id: 'item-1', order: 1, name: 'First' },
+        { id: 'item-2', order: 2, name: 'Second' },
+      ]);
+      expect(wrapper.vm.hasUnsavedItemChanges).toBe(false);
+    });
+
+    it('should ignore events with null data', () => {
+      mockUiEventCallback({ key: 'update:entity', data: null });
+
+      expect(wrapper.vm.items).toEqual([
+        { id: 'item-1', order: 1, name: 'First' },
+        { id: 'item-2', order: 2, name: 'Second' },
+      ]);
+      expect(wrapper.vm.hasUnsavedItemChanges).toBe(false);
+    });
+
+    it('should clear the unsaved item changes once the items are reloaded', async () => {
+      emitEntityUpdate({ id: 'item-2', order: 2, name: 'Renamed' });
+
+      await wrapper.vm.saveChanges();
+
+      expect(wrapper.vm.hasUnsavedItemChanges).toBe(false);
+      expect(wrapper.vm.unsavedChangesHintKey).toBeNull();
+    });
+
+    it('should unsubscribe from the ui events on unmount', () => {
+      wrapper.unmount();
+
+      expect(mockUnsubscribe).toHaveBeenCalledOnce();
+    });
+  });
+
   describe('Test observer: item actions section width', () => {
     /**
      * Invokes the resize callback registered by the component, as the observer would.

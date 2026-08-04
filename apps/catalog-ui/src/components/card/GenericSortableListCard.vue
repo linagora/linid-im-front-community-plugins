@@ -276,8 +276,10 @@ import type {
   LinidQListProps,
   LinidQScrollAreaProps,
   Page,
+  UiEvent,
 } from '@linagora/linid-im-front-corelib';
 import {
+  deepEqual,
   getHttpClient,
   LinidZoneRenderer,
   uiEventSubject,
@@ -291,8 +293,18 @@ import {
 import type { ResizeObserverEntry } from '@vueuse/core';
 import { useResizeObserver } from '@vueuse/core';
 import type { HTMLElement } from 'happy-dom';
+import type { Subscription } from 'rxjs';
 import type { ComponentPublicInstance } from 'vue';
-import { computed, ref, toRaw, useSlots, useTemplateRef, watch } from 'vue';
+import {
+  computed,
+  onMounted,
+  onUnmounted,
+  ref,
+  toRaw,
+  useSlots,
+  useTemplateRef,
+  watch,
+} from 'vue';
 import draggable from 'vuedraggable';
 import { DialogKey } from '../../types/dialog';
 import type {
@@ -331,7 +343,8 @@ const localUiNamespace = computed(() => {
 
 const items = ref<Record<string, unknown>[]>([]);
 const isLoading = ref<boolean>(false);
-const isOrderHasChanged = ref<boolean>(false);
+const hasUnsavedItemChanges = ref<boolean>(false);
+let eventSubscription: Subscription;
 
 const nunjucksContext = computed(() => ({
   entity: props.entity ?? {},
@@ -466,6 +479,7 @@ async function loadData() {
     items.value = [];
     Notify({ type: 'negative', message: t('loadError') });
   } finally {
+    hasUnsavedItemChanges.value = false;
     isLoading.value = false;
   }
 }
@@ -719,6 +733,44 @@ async function updateItemsOrder(): Promise<void> {
     )
   );
 }
+
+/**
+ * Applies an `update:entity` event to the matching item of the local list, without persisting
+ * anything, then flags whether the list still diverges from the last loaded state.
+ * @param updatedItem - The updated item, matched against the local list on the item key.
+ */
+function applyLocalItemUpdate(updatedItem: Record<string, unknown>): void {
+  items.value = items.value.map((item) =>
+    updatedItem[props.itemKey] === item[props.itemKey] ? updatedItem : item
+  );
+
+  hasUnsavedItemChanges.value = items.value.some((item) => {
+    const initialItem = initialItems.find(
+      (initialItem) => initialItem[props.itemKey] === item[props.itemKey]
+    );
+    return !deepEqual(item, initialItem);
+  });
+}
+
+onMounted(() => {
+  if (!props.listenToItemUpdate) {
+    return;
+  }
+
+  eventSubscription = uiEventSubject.subscribe((event: UiEvent) => {
+    if (
+      event.key === props.listenToItemUpdate &&
+      typeof event.data === 'object' &&
+      event.data != null
+    ) {
+      applyLocalItemUpdate(event.data as Record<string, unknown>);
+    }
+  });
+});
+
+onUnmounted(() => {
+  eventSubscription?.unsubscribe();
+});
 
 /********************************
  * Slots and LinidZoneRenderer.
