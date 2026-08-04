@@ -33,6 +33,8 @@
     v-bind="uiProps"
     :disable="definition.inputSettings?.disable || false"
     :label="translateOrDefault('', 'label')"
+    :true-value="definition.inputSettings?.trueValue"
+    :false-value="definition.inputSettings?.falseValue"
     @update:model-value="updateValue"
   />
   <!-- v8 ignore stop -->
