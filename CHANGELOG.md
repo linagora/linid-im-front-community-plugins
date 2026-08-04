@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.93](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.92...v0.2.93) (2026-08-04)
+
+
+### Features
+
+* **catalog-ui:** add defaultValue support for boolean field ([2aad85b](https://github.com/linagora/linid-im-front-community-plugins/commit/2aad85b921be3ccad4c2f4dded01494b72c79de3))
+* **catalog-ui:** enhance boolean field to support custom true/false values ([1b8efdd](https://github.com/linagora/linid-im-front-community-plugins/commit/1b8efdd1374efd06b1cebd9c4161bf9852ac865c))
+
 ### [0.2.92](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.91...v0.2.92) (2026-08-04)
 
 
