@@ -117,12 +117,11 @@ reserves the section on both rows — the header and the items never drift out o
 
 ## **📤 Events**
 
-| Event           | Payload                     | Description                                                                                             |
-| --------------- | --------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `created`       | `Record<string, unknown>`   | Emitted with the server response after a successful creation, transformed by `itemMapperFn` if provided |
-| `updated`       | `Record<string, unknown>`   | Emitted with the server response after a successful update, transformed by `itemMapperFn` if provided   |
-| `deleted`       | `Record<string, unknown>`   | Emitted with the removed item after a successful deletion                                               |
-| `order-updated` | `Record<string, unknown>[]` | Emitted with the full reordered item list after the sort order has been saved                           |
+| Event     | Payload                     | Description                                                                                                                                                                             |
+| --------- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `created` | `Record<string, unknown>`   | Emitted with the server response after a successful creation, transformed by `itemMapperFn` if provided                                                                                 |
+| `updated` | `Record<string, unknown>[]` | Emitted after a successful item edit (array with the single updated item, transformed by `itemMapperFn`) or after the sort order has been saved at least partially (full reloaded list) |
+| `deleted` | `Record<string, unknown>`   | Emitted with the removed item after a successful deletion                                                                                                                               |
 
 ---
 
@@ -173,7 +172,7 @@ reserves the section on both rows — the header and the items never drift out o
 - The edit button opens the shared `FormDialog` pre-filled with the item's current values
 - On submit, the form data is sent as a `PUT` to the rendered `update` endpoint, with `item`
   (the original item before edits) available in the template context
-- On success: positive notification, `updated` event with the server response (transformed by `itemMapperFn` if provided), items reload, dialog closes
+- On success: positive notification, `updated` event with an array containing the single updated item (transformed by `itemMapperFn` if provided), items reload, dialog closes
 - On failure: negative notification, the dialog stays open for correction
 
 ### Delete item
@@ -182,8 +181,11 @@ reserves the section on both rows — the header and the items never drift out o
   named parameters in the dialog title and content translations
 - On confirm, the rendered `delete` endpoint is called; the item is immediately removed from the
   local list and a `PUT` is sent for every remaining item to keep the `orderKey` values contiguous
-- On success: positive notification, `deleted` event, items reload
-- On failure: negative notification, items unchanged
+- On deletion success: positive notification, `deleted` event
+  - If all reorder `PUT`s succeed: items reload
+  - If some reorder `PUT`s fail: partial-failure notification, items still reload
+  - If all reorder `PUT`s fail: error notification, **no reload** (the list keeps the item removed locally)
+- On deletion failure: negative notification, items unchanged
 
 ### Drag-and-drop reorder
 
@@ -201,13 +203,24 @@ reserves the section on both rows — the header and the items never drift out o
 - A matching event replaces the item whose `itemKey` matches the event `data` in the local list only — nothing is persisted until the order is saved
 - The list is then compared to the last loaded state to know whether local changes are still pending
 
+### Unsaved changes hint
+
+A hint is displayed under the header as soon as the list diverges from the last loaded state. Which
+one depends on what changed:
+
+| Order changed | Items updated locally | Hint key                          |
+| ------------- | --------------------- | --------------------------------- |
+| yes           | no                    | `saveNewOrderHint`                |
+| no            | yes                   | `saveUpdatedItemsHint`            |
+| yes           | yes                   | `saveNewOrderAndUpdatedItemsHint` |
+
 ### Save order
 
 - The save button (enabled only when the order has changed) sends a `PUT` for every item in
   parallel, assigning each item a new `orderKey` equal to its 1-based position in the current list
-- On success: positive notification, `order-updated` event with the full reordered list,
-  the order-changed flag is reset, items reload
-- On failure: negative notification, the order-changed flag and local list are unchanged
+- If all requests succeed: positive notification, `updated` event with the full reloaded list, items reload
+- If some requests fail: partial-failure notification, `updated` event with the reloaded list, items reload
+- If all requests fail: error notification, no event emitted, the order-changed flag and local list are unchanged
 
 ---
 
@@ -221,7 +234,7 @@ Key highlights:
 - `title` — optional card title (hidden when the key is absent)
 - the `label` of each entry of the `fields` prop — header labels, resolved under this same scope
 - `ButtonsCard.add` / `ButtonsCard.save` — header action button labels
-- `saveNewOrderHint` — hint shown when the order has changed but has not been saved yet
+- `saveNewOrderHint` / `saveUpdatedItemsHint` / `saveNewOrderAndUpdatedItemsHint` — hint shown under the header when there are unsaved changes (order only / item values only / both)
 - `editButton` / `deleteButton` — per-item button labels (optional, default to empty string)
 - `CreateFormDialog.*` / `EditFormDialog.*` — scopes for the create and edit `FormDialog`
 - `DeleteConfirmationDialog.*` — scope for the delete `ConfirmationDialog` (item properties interpolable)
@@ -312,7 +325,7 @@ injects `entity`, `instanceId`, `uiNamespace` and `i18nScope`:
 ### Direct usage
 
 ```vue
-<GenericSortableListCard :entity="organization" :form-fields="formFields" :endpoints="endpoints" :fields="fields" order-key="priority" ui-namespace="organizations.details" i18n-scope="organizations.details" instance-id="organizations" @created="onRoleCreated" @updated="onRoleUpdated" @deleted="onRoleDeleted" @order-updated="onRoleOrderUpdated" />
+<GenericSortableListCard :entity="organization" :form-fields="formFields" :endpoints="endpoints" :fields="fields" order-key="priority" ui-namespace="organizations.details" i18n-scope="organizations.details" instance-id="organizations" @created="onRoleCreated" @updated="onRoleUpdated" @deleted="onRoleDeleted" />
 ```
 
 ### Custom cell rendering via a field slot

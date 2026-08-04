@@ -32,47 +32,59 @@ import GenericSortableListCard from '../../../../src/components/card/GenericSort
 const mockNotify = vi.fn();
 let mockZones = {};
 let mockResizeCallback;
+let mockUiEventCallback;
+const mockUnsubscribe = vi.fn();
 const mockHttpGet = vi.fn();
 const mockHttpPost = vi.fn(() => Promise.resolve({ data: {} }));
 const mockHttpPut = vi.fn(() => Promise.resolve({ data: {} }));
 const mockHttpDelete = vi.fn(() => Promise.resolve({ data: {} }));
 
-vi.mock('@linagora/linid-im-front-corelib', () => ({
-  getHttpClient: () => ({
-    get: mockHttpGet,
-    post: mockHttpPost,
-    put: mockHttpPut,
-    delete: mockHttpDelete,
-  }),
-  useScopedI18n: () => ({
-    t: vi.fn((key) => `translated:${key}`),
-    te: vi.fn(() => false),
-    translateOrDefault: vi.fn((defaultValue) => defaultValue),
-  }),
-  useNotify: () => ({
-    Notify: mockNotify,
-  }),
-  useUiDesign: () => ({ ui: () => ({}) }),
-  useLinidZoneStore: () => ({
-    hasZoneEntries: (zone) => (mockZones[zone]?.length ?? 0) > 0,
-  }),
-  useValueFormatter: () => ({
-    formatValue: vi.fn((value, formatter, options) =>
-      value == null || !formatter
-        ? value
-        : `${value}_formatted_${options?.formatKey}`
-    ),
-  }),
-  useNunjucks: () => ({
-    render: (value, context) =>
-      value
-        .replace('{{ entity.id }}', context.entity?.id ?? '')
-        .replace('{{ item.id }}', context.item?.id ?? ''),
-  }),
-  uiEventSubject: {
-    next: vi.fn(),
-  },
-}));
+vi.mock('@linagora/linid-im-front-corelib', async () => {
+  const { deepEqual } = await vi.importActual(
+    '@linagora/linid-im-front-corelib'
+  );
+  return {
+    getHttpClient: () => ({
+      get: mockHttpGet,
+      post: mockHttpPost,
+      put: mockHttpPut,
+      delete: mockHttpDelete,
+    }),
+    useScopedI18n: () => ({
+      t: vi.fn((key) => `translated:${key}`),
+      te: vi.fn(() => false),
+      translateOrDefault: vi.fn((defaultValue) => defaultValue),
+    }),
+    useNotify: () => ({
+      Notify: mockNotify,
+    }),
+    useUiDesign: () => ({ ui: () => ({}) }),
+    useLinidZoneStore: () => ({
+      hasZoneEntries: (zone) => (mockZones[zone]?.length ?? 0) > 0,
+    }),
+    useValueFormatter: () => ({
+      formatValue: vi.fn((value, formatter, options) =>
+        value == null || !formatter
+          ? value
+          : `${value}_formatted_${options?.formatKey}`
+      ),
+    }),
+    useNunjucks: () => ({
+      render: (value, context) =>
+        value
+          .replace('{{ entity.id }}', context.entity?.id ?? '')
+          .replace('{{ item.id }}', context.item?.id ?? ''),
+    }),
+    uiEventSubject: {
+      next: vi.fn(),
+      subscribe: (callback) => {
+        mockUiEventCallback = callback;
+        return { unsubscribe: mockUnsubscribe };
+      },
+    },
+    deepEqual,
+  };
+});
 
 vi.mock('vuedraggable', () => ({ default: { template: '<div />' } }));
 
@@ -807,6 +819,49 @@ describe('Test component: GenericSortableListCard', () => {
       expect(wrapper.emitted('deleted')).toBeUndefined();
       expect(mockHttpGet).not.toHaveBeenCalled();
     });
+
+    it('should notify updateItemsError and not reload when all reorder requests fail', async () => {
+      wrapper.vm.items = [
+        { id: 'item-1', order: 1 },
+        { id: 'item-2', order: 2 },
+      ];
+      mockHttpPut.mockRejectedValueOnce(new Error('reorder failed'));
+      mockHttpGet.mockClear();
+
+      await wrapper.vm.deleteItem({ id: 'item-1' }, 0);
+
+      expect(mockNotify).toHaveBeenCalledWith({
+        type: 'positive',
+        message: 'translated:deleteSuccess',
+      });
+      expect(mockNotify).toHaveBeenCalledWith({
+        type: 'negative',
+        message: 'translated:updateItemsError',
+      });
+      expect(mockHttpGet).not.toHaveBeenCalled();
+    });
+
+    it('should notify updateItemsPartially and still reload when some reorder requests fail', async () => {
+      wrapper.vm.items = [
+        { id: 'item-1', order: 1 },
+        { id: 'item-2', order: 2 },
+        { id: 'item-3', order: 3 },
+      ];
+      mockHttpPut.mockRejectedValueOnce(new Error('reorder failed'));
+      mockHttpGet.mockClear();
+
+      await wrapper.vm.deleteItem({ id: 'item-1' }, 0);
+
+      expect(mockNotify).toHaveBeenCalledWith({
+        type: 'positive',
+        message: 'translated:deleteSuccess',
+      });
+      expect(mockNotify).toHaveBeenCalledWith({
+        type: 'negative',
+        message: 'translated:updateItemsPartially',
+      });
+      expect(mockHttpGet).toHaveBeenCalledOnce();
+    });
   });
 
   describe('Test function: openEditDialog', () => {
@@ -872,11 +927,9 @@ describe('Test component: GenericSortableListCard', () => {
 
       await wrapper.vm.updateItem({ name: 'Updated' }, item);
 
-      expect(wrapper.emitted('updated')[0][0]).toMatchObject({
-        id: 'item-1',
-        order: 1,
-        name: 'Updated',
-      });
+      expect(wrapper.emitted('updated')[0][0]).toEqual([
+        { id: 'item-1', order: 1, name: 'Updated' },
+      ]);
     });
 
     it('should notify and rethrow on update error without reloading', async () => {
@@ -910,23 +963,23 @@ describe('Test component: GenericSortableListCard', () => {
       await flushPromises();
     });
 
-    it('should set isOrderHasChanged to true when an item is added in the list', () => {
+    it('should set hasUnsavedOrderChanges to true when an item is added in the list', () => {
       wrapper.vm.onOrderChange({
         added: { element: { id: 'item-4', order: 4 }, newIndex: 3 },
       });
 
-      expect(wrapper.vm.isOrderHasChanged).toBe(true);
+      expect(wrapper.vm.hasUnsavedOrderChanges).toBe(true);
     });
 
-    it('should set isOrderHasChanged to true when an item is removed in the list', () => {
+    it('should set hasUnsavedOrderChanges to true when an item is removed in the list', () => {
       wrapper.vm.onOrderChange({
         removed: { element: { id: 'item-1', order: 1 }, oldIndex: 0 },
       });
 
-      expect(wrapper.vm.isOrderHasChanged).toBe(true);
+      expect(wrapper.vm.hasUnsavedOrderChanges).toBe(true);
     });
 
-    it('should set isOrderHasChanged to true when an item is moved to a different position', () => {
+    it('should set hasUnsavedOrderChanges to true when an item is moved to a different position', () => {
       wrapper.vm.items = [
         { id: 'item-2', order: 2 },
         { id: 'item-1', order: 1 },
@@ -941,10 +994,10 @@ describe('Test component: GenericSortableListCard', () => {
         },
       });
 
-      expect(wrapper.vm.isOrderHasChanged).toBe(true);
+      expect(wrapper.vm.hasUnsavedOrderChanges).toBe(true);
     });
 
-    it('should set isOrderHasChanged back to false when items are reordered back to their initial state', () => {
+    it('should set hasUnsavedOrderChanges back to false when items are reordered back to their initial state', () => {
       wrapper.vm.items = [
         { id: 'item-2', order: 2 },
         { id: 'item-1', order: 1 },
@@ -957,7 +1010,7 @@ describe('Test component: GenericSortableListCard', () => {
           newIndex: 1,
         },
       });
-      expect(wrapper.vm.isOrderHasChanged).toBe(true);
+      expect(wrapper.vm.hasUnsavedOrderChanges).toBe(true);
 
       wrapper.vm.items = [
         { id: 'item-1', order: 1 },
@@ -972,11 +1025,11 @@ describe('Test component: GenericSortableListCard', () => {
         },
       });
 
-      expect(wrapper.vm.isOrderHasChanged).toBe(false);
+      expect(wrapper.vm.hasUnsavedOrderChanges).toBe(false);
     });
 
-    it('should not reset isOrderHasChanged when other items are still out of their original order', () => {
-      wrapper.vm.isOrderHasChanged = true;
+    it('should not reset hasUnsavedOrderChanges when other items are still out of their original order', () => {
+      wrapper.vm.hasUnsavedOrderChanges = true;
       wrapper.vm.items = [
         { id: 'item-1', order: 1 },
         { id: 'item-3', order: 3 },
@@ -991,7 +1044,7 @@ describe('Test component: GenericSortableListCard', () => {
         },
       });
 
-      expect(wrapper.vm.isOrderHasChanged).toBe(true);
+      expect(wrapper.vm.hasUnsavedOrderChanges).toBe(true);
     });
   });
 
@@ -1008,7 +1061,7 @@ describe('Test component: GenericSortableListCard', () => {
       await flushPromises();
     });
 
-    it('should set isOrderHasChanged to true when an item is moved away from its initial position', () => {
+    it('should set hasUnsavedOrderChanges to true when an item is moved away from its initial position', () => {
       wrapper.vm.items = [
         { id: 'item-b', order: 10 },
         { id: 'item-a', order: 5 },
@@ -1023,10 +1076,10 @@ describe('Test component: GenericSortableListCard', () => {
         },
       });
 
-      expect(wrapper.vm.isOrderHasChanged).toBe(true);
+      expect(wrapper.vm.hasUnsavedOrderChanges).toBe(true);
     });
 
-    it('should reset isOrderHasChanged to false when items are dragged back to their initial positions', () => {
+    it('should reset hasUnsavedOrderChanges to false when items are dragged back to their initial positions', () => {
       wrapper.vm.items = [
         { id: 'item-b', order: 10 },
         { id: 'item-a', order: 5 },
@@ -1039,7 +1092,7 @@ describe('Test component: GenericSortableListCard', () => {
           newIndex: 1,
         },
       });
-      expect(wrapper.vm.isOrderHasChanged).toBe(true);
+      expect(wrapper.vm.hasUnsavedOrderChanges).toBe(true);
 
       wrapper.vm.items = [
         { id: 'item-a', order: 5 },
@@ -1054,11 +1107,11 @@ describe('Test component: GenericSortableListCard', () => {
         },
       });
 
-      expect(wrapper.vm.isOrderHasChanged).toBe(false);
+      expect(wrapper.vm.hasUnsavedOrderChanges).toBe(false);
     });
   });
 
-  describe('Test function: saveOrder', () => {
+  describe('Test function: saveChanges', () => {
     beforeEach(async () => {
       mockHttpGet.mockResolvedValue(
         singlePageResponse([
@@ -1068,13 +1121,13 @@ describe('Test component: GenericSortableListCard', () => {
       );
       wrapper = mountComponent();
       await flushPromises();
-      wrapper.vm.isOrderHasChanged = true;
+      wrapper.vm.hasUnsavedOrderChanges = true;
     });
 
     it('should send a PUT for each item with its new index-based order', async () => {
       mockHttpGet.mockClear();
 
-      await wrapper.vm.saveOrder();
+      await wrapper.vm.saveChanges();
 
       expect(mockHttpPut).toHaveBeenCalledWith(
         '/api/parents/parent-1/items/item-1',
@@ -1086,44 +1139,63 @@ describe('Test component: GenericSortableListCard', () => {
       );
     });
 
-    it('should notify, emit order-updated, reset isOrderHasChanged and reload', async () => {
+    it('should notify success, emit updated and reload when all requests succeed', async () => {
       mockHttpGet.mockClear();
 
-      await wrapper.vm.saveOrder();
+      await wrapper.vm.saveChanges();
 
       expect(mockNotify).toHaveBeenCalledWith({
         type: 'positive',
-        message: 'translated:updateOrderSuccess',
+        message: 'translated:updateItemsSuccess',
       });
-      expect(wrapper.emitted('order-updated')).toHaveLength(1);
-      expect(wrapper.vm.isOrderHasChanged).toBe(false);
+      expect(wrapper.emitted('updated')).toHaveLength(1);
+      expect(wrapper.vm.hasUnsavedOrderChanges).toBe(false);
       expect(mockHttpGet).toHaveBeenCalledOnce();
     });
 
-    it('should notify on save order error without emitting nor resetting the flag', async () => {
+    it('should notify error and not reload when all requests fail', async () => {
+      mockHttpPut.mockRejectedValueOnce(new Error('save failed'));
       mockHttpPut.mockRejectedValueOnce(new Error('save failed'));
       mockHttpGet.mockClear();
 
-      await wrapper.vm.saveOrder();
+      await wrapper.vm.saveChanges();
 
       expect(mockNotify).toHaveBeenCalledWith({
         type: 'negative',
-        message: 'translated:updateOrderError',
+        message: 'translated:updateItemsError',
       });
-      expect(wrapper.emitted('order-updated')).toBeUndefined();
-      expect(wrapper.vm.isOrderHasChanged).toBe(true);
+      expect(wrapper.emitted('updated')).toBeUndefined();
+      expect(wrapper.vm.hasUnsavedOrderChanges).toBe(true);
       expect(mockHttpGet).not.toHaveBeenCalled();
+    });
+
+    it('should notify partial error and still reload when some requests fail', async () => {
+      mockHttpPut.mockRejectedValueOnce(new Error('save failed'));
+      mockHttpGet.mockClear();
+
+      await wrapper.vm.saveChanges();
+
+      expect(mockNotify).toHaveBeenCalledWith({
+        type: 'negative',
+        message: 'translated:updateItemsPartially',
+      });
+      expect(mockNotify).not.toHaveBeenCalledWith({
+        type: 'positive',
+        message: 'translated:updateItemsSuccess',
+      });
+      expect(wrapper.emitted('updated')).toHaveLength(1);
+      expect(mockHttpGet).toHaveBeenCalledOnce();
     });
   });
 
-  describe('Test function: updateItemsOrder', () => {
+  describe('Test function: updateItems', () => {
     it('should send a PUT for each item with its 1-based position as the order key', async () => {
       wrapper.vm.items = [
         { id: 'item-2', order: 1 },
         { id: 'item-1', order: 2 },
       ];
 
-      await wrapper.vm.updateItemsOrder();
+      await wrapper.vm.updateItems();
 
       expect(mockHttpPut).toHaveBeenCalledWith(
         '/api/parents/parent-1/items/item-2',
@@ -1142,9 +1214,43 @@ describe('Test component: GenericSortableListCard', () => {
         { id: 'item-3', order: 3 },
       ];
 
-      await wrapper.vm.updateItemsOrder();
+      await wrapper.vm.updateItems();
 
       expect(mockHttpPut).toHaveBeenCalledTimes(3);
+    });
+  });
+
+  describe('Test computed: unsavedChangesHintKey', () => {
+    it('should not expose any hint when nothing has changed locally', () => {
+      expect(wrapper.vm.unsavedChangesHintKey).toBeNull();
+      expect(wrapper.vm.hasUnsavedChanges).toBe(false);
+    });
+
+    it('should expose the order hint when only the order has changed', async () => {
+      wrapper.vm.hasUnsavedOrderChanges = true;
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.unsavedChangesHintKey).toBe('saveNewOrderHint');
+      expect(wrapper.vm.hasUnsavedChanges).toBe(true);
+    });
+
+    it('should expose the updated items hint when only items have changed', async () => {
+      wrapper.vm.hasUnsavedItemChanges = true;
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.unsavedChangesHintKey).toBe('saveUpdatedItemsHint');
+      expect(wrapper.vm.hasUnsavedChanges).toBe(true);
+    });
+
+    it('should expose the combined hint when both the order and items have changed', async () => {
+      wrapper.vm.hasUnsavedOrderChanges = true;
+      wrapper.vm.hasUnsavedItemChanges = true;
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.unsavedChangesHintKey).toBe(
+        'saveNewOrderAndUpdatedItemsHint'
+      );
+      expect(wrapper.vm.hasUnsavedChanges).toBe(true);
     });
   });
 

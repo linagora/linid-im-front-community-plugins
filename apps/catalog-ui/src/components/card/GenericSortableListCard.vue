@@ -58,16 +58,19 @@
           <q-btn
             v-bind="uiProps.saveButton"
             :label="t('ButtonsCard.save')"
-            :disable="isLoading || !isOrderHasChanged"
+            :disable="isLoading || !hasUnsavedChanges"
             class="buttons-card--save-button"
             data-cy="generic-sortable-list-card_save-button"
-            @click="saveOrder"
+            @click="saveChanges"
           />
         </template>
       </ButtonsCard>
     </q-card-section>
-    <q-card-section v-if="isOrderHasChanged">
-      <span>{{ t('saveNewOrderHint') }}</span>
+    <q-card-section
+      v-if="unsavedChangesHintKey"
+      data-cy="generic-sortable-list-card_unsaved-changes-hint"
+    >
+      <span>{{ t(unsavedChangesHintKey) }}</span>
     </q-card-section>
     <q-card-section>
       <q-list
@@ -135,7 +138,7 @@
             v-model="items"
             v-bind="uiProps.draggable"
             :item-key="itemKey"
-            @change="onOrderChange($event)"
+            @change="onOrderChange"
           >
             <template #item="{ element: item, index }">
               <q-item
@@ -343,6 +346,7 @@ const localUiNamespace = computed(() => {
 
 const items = ref<Record<string, unknown>[]>([]);
 const isLoading = ref<boolean>(false);
+const hasUnsavedOrderChanges = ref<boolean>(false);
 const hasUnsavedItemChanges = ref<boolean>(false);
 let eventSubscription: Subscription;
 
@@ -442,6 +446,26 @@ const uiProps = computed<GenericSortableListCardUIProps>(() => ({
   ),
 }));
 
+const hasUnsavedChanges = computed<boolean>(
+  () => hasUnsavedOrderChanges.value || hasUnsavedItemChanges.value
+);
+
+/**
+ * The i18n key of the hint describing which local changes are still waiting to be saved, or `null`
+ * when the list matches the last loaded state.
+ */
+const unsavedChangesHintKey = computed<string | null>(() => {
+  if (hasUnsavedOrderChanges.value && hasUnsavedItemChanges.value) {
+    return 'saveNewOrderAndUpdatedItemsHint';
+  }
+
+  if (hasUnsavedOrderChanges.value) {
+    return 'saveNewOrderHint';
+  }
+
+  return hasUnsavedItemChanges.value ? 'saveUpdatedItemsHint' : null;
+});
+
 const isEntityResolved = computed(
   () => props.entity === undefined || Object.keys(props.entity).length > 0
 );
@@ -462,6 +486,7 @@ watch(
 
 /**
  * Fetches all items from the find endpoint, sorts them by order key, and updates the local state.
+ * The loaded items become the new baseline, so any pending local change is discarded.
  * On failure, resets the item list and notifies the user.
  */
 async function loadData() {
@@ -477,8 +502,10 @@ async function loadData() {
     initialItems = items.value.map((item) => structuredClone(toRaw(item)));
   } catch {
     items.value = [];
+    initialItems = [];
     Notify({ type: 'negative', message: t('loadError') });
   } finally {
+    hasUnsavedOrderChanges.value = false;
     hasUnsavedItemChanges.value = false;
     isLoading.value = false;
   }
@@ -587,7 +614,8 @@ function openDeleteDialog(item: Record<string, unknown>, index: number): void {
 
 /**
  * Deletes an item through the delete endpoint, then notifies the user, emits the `deleted`
- * event and reloads the items. On failure, notifies the user and keeps the items unchanged.
+ * event, reorders the remaining items and reloads the list. If the reorder requests partially
+ * or fully fail, notifies the user. On deletion failure, notifies the user and keeps the items unchanged.
  * @param item - The item to delete, available as `item` in the endpoint template context.
  * @param index - The position of the item in the current list, used to remove it locally before reloading.
  * @returns A promise that resolves when the deletion handling is complete.
@@ -607,7 +635,13 @@ async function deleteItem(
     Notify({ type: 'positive', message: t('deleteSuccess') });
     emits('deleted', item);
     items.value.splice(index, 1);
-    await updateItemsOrder();
+    const reorderResults = await updateItems();
+    if (!reorderResults.includes('fulfilled')) {
+      Notify({ type: 'negative', message: t('updateItemsError') });
+      return;
+    } else if (reorderResults.includes('rejected')) {
+      Notify({ type: 'negative', message: t('updateItemsPartially') });
+    }
     await loadData();
   } catch {
     Notify({ type: 'negative', message: t('deleteError') });
@@ -658,7 +692,7 @@ async function updateItem(
     );
 
     Notify({ type: 'positive', message: t('updateSuccess') });
-    emits('updated', props.itemMapperFn(data));
+    emits('updated', [props.itemMapperFn(data)]);
     await loadData();
   } catch (error) {
     Notify({ type: 'negative', message: t('updateError') });
@@ -675,7 +709,7 @@ function onOrderChange(
   event: DraggableChangeEvent<Record<string, unknown>>
 ): void {
   if ('added' in event || 'removed' in event) {
-    isOrderHasChanged.value = true;
+    hasUnsavedOrderChanges.value = true;
     return;
   }
 
@@ -685,40 +719,47 @@ function onOrderChange(
   );
 
   if (originalIndex !== -1 && movedEvt.moved.newIndex !== originalIndex) {
-    isOrderHasChanged.value = true;
+    hasUnsavedOrderChanges.value = true;
   } else if (
     items.value.every(
       (item, index) =>
         item[props.itemKey] === initialItems[index]?.[props.itemKey]
     )
   ) {
-    isOrderHasChanged.value = false;
+    hasUnsavedOrderChanges.value = false;
   }
 }
 
 /**
- * Saves the current item order by updating each item with its new index via the update endpoint,
- * then notifies the user and emits the `order-updated` event.
+ * Persists every pending local change by updating each item with its current values and its new
+ * index via the update endpoint. If at least one request succeeded, reloads the items and emits
+ * the `updated` event. Notifies the user of full or partial failure when applicable.
  */
-async function saveOrder() {
-  try {
-    await updateItemsOrder();
+async function saveChanges() {
+  const results = await updateItems();
 
-    Notify({ type: 'positive', message: t('updateOrderSuccess') });
-    emits('order-updated', items.value);
-    isOrderHasChanged.value = false;
-    await loadData();
-  } catch {
-    Notify({ type: 'negative', message: t('updateOrderError') });
+  if (!results.includes('fulfilled')) {
+    Notify({ type: 'negative', message: t('updateItemsError') });
+    return;
   }
+
+  if (results.includes('rejected')) {
+    Notify({ type: 'negative', message: t('updateItemsPartially') });
+  } else {
+    Notify({ type: 'positive', message: t('updateItemsSuccess') });
+  }
+
+  await loadData();
+  emits('updated', items.value);
 }
 
 /**
- * Updates the order key of each item according to its current position in the list by sending
+ * Updates each item according to its current position in the list by sending
  * a PUT request for every item in parallel.
+ * @returns The settlement status of each request, in the same order as `items.value`.
  */
-async function updateItemsOrder(): Promise<void> {
-  await Promise.all(
+async function updateItems(): Promise<('fulfilled' | 'rejected')[]> {
+  const results = await Promise.allSettled(
     items.value.map((item, index) =>
       getHttpClient().put(
         render(props.endpoints.update, {
@@ -732,6 +773,8 @@ async function updateItemsOrder(): Promise<void> {
       )
     )
   );
+
+  return results.map((r) => r.status);
 }
 
 /**
