@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.91](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.90...v0.2.91) (2026-08-04)
+
+
+### Features
+
+* **catalog-ui:** add TruncatedItemLabel component with tooltip ([10d350d](https://github.com/linagora/linid-im-front-community-plugins/commit/10d350d0693c9083c2ead793a01a54c5dbf518c8))
+* **catalog-ui:** enhance GenericSortableListCard with header row and fields values ([c1858bf](https://github.com/linagora/linid-im-front-community-plugins/commit/c1858bf8b9f88ecc79d22612973c3a4cc5cf4287)), closes [#248](https://github.com/linagora/linid-im-front-community-plugins/issues/248)
+* **catalog-ui:** update GenericEntityTable to use useValueFormatter from corelib ([a90f494](https://github.com/linagora/linid-im-front-community-plugins/commit/a90f4949598058a843fb7d6d8f82de2dc838cc09))
+
 ### [0.2.90](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.89...v0.2.90) (2026-08-04)
 
 ### [0.2.89](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.88...v0.2.89) (2026-08-03)
