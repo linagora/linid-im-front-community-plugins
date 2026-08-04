@@ -161,14 +161,10 @@ export type GenericSortableListCardOutputs<T = Record<string, unknown>> = {
   deleted: [item: T];
 
   /**
-   * Emitted with the full reordered item list after the sort order has been successfully saved.
+   * Emitted with the updated item after a successful individual update, or with the full reordered
+   * item list after the sort order has been successfully saved.
    */
-  'order-updated': [items: T[]];
-
-  /**
-   * Emitted with the submitted form data after a successful item update.
-   */
-  updated: [item: T];
+  updated: [item: T[]];
 };
 
 /**
