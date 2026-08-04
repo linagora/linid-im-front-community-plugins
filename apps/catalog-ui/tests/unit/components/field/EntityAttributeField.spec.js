@@ -28,6 +28,12 @@ import { shallowMount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import EntityAttributeField from '../../../../src/components/field/EntityAttributeField.vue';
 
+const { mockUiEventNext } = vi.hoisted(() => ({ mockUiEventNext: vi.fn() }));
+
+vi.mock('@linagora/linid-im-front-corelib', () => ({
+  uiEventSubject: { next: mockUiEventNext },
+}));
+
 describe('Test component: EntityAttributeField', () => {
   let wrapper;
 
@@ -78,6 +84,29 @@ describe('Test component: EntityAttributeField', () => {
 
       expect(wrapper.emitted('update:entity')).toBeTruthy();
       expect(wrapper.emitted('update:entity')[0]).toEqual([updatedEntity]);
+    });
+
+    it('should not call uiEventSubject.next when emitOnUpdate is not set', () => {
+      wrapper.vm.updateEntity({ name: 'updated-name' });
+
+      expect(mockUiEventNext).not.toHaveBeenCalled();
+    });
+
+    it('should call uiEventSubject.next with the updated entity when emitOnUpdate is set', async () => {
+      await wrapper.setProps({ emitOnUpdate: 'update:entity' });
+
+      const updatedEntity = {
+        name: 'updated-name',
+        description: 'updated-description',
+        type: 'entity-type',
+      };
+
+      wrapper.vm.updateEntity(updatedEntity);
+
+      expect(mockUiEventNext).toHaveBeenCalledWith({
+        key: 'update:entity',
+        data: updatedEntity,
+      });
     });
   });
 });

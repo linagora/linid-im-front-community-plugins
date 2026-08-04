@@ -22,14 +22,15 @@ It acts as a **dispatcher component** that selects and loads the appropriate att
 
 The component accepts all props defined by `AttributeFieldProps`.
 
-| Prop          | Type                             | Required | Description                                                                  |
-| ------------- | -------------------------------- | -------- | ---------------------------------------------------------------------------- |
-| `instanceId`  | `string`                         | Yes      | Identifier used for contextual data                                          |
-| `i18nScope`   | `string`                         | Yes      | I18n scope for localizing the component                                      |
-| `uiNamespace` | `string`                         | Yes      | Base UI design namespace for styling                                         |
-| `definition`  | `LinidAttributeConfiguration<T>` | Yes      | Attribute definition describing type, input, and configuration               |
-| `entity`      | `Record<string, unknown>`        | Yes      | Entity object containing the attribute value                                 |
-| `ignoreRules` | `boolean`                        | No       | Indicates whether to bypass validation rules for this field (default: false) |
+| Prop           | Type                             | Required | Description                                                                                                                              |
+| -------------- | -------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `instanceId`   | `string`                         | Yes      | Identifier used for contextual data                                                                                                      |
+| `i18nScope`    | `string`                         | Yes      | I18n scope for localizing the component                                                                                                  |
+| `uiNamespace`  | `string`                         | Yes      | Base UI design namespace for styling                                                                                                     |
+| `definition`   | `LinidAttributeConfiguration<T>` | Yes      | Attribute definition describing type, input, and configuration                                                                           |
+| `entity`       | `Record<string, unknown>`        | Yes      | Entity object containing the attribute value                                                                                             |
+| `ignoreRules`  | `boolean`                        | No       | Indicates whether to bypass validation rules for this field (default: false)                                                             |
+| `emitOnUpdate` | `string`                         | No       | When set, broadcasts an event on `uiEventSubject` with this value as the key on every entity update. When absent, no event is broadcast. |
 
 ### AttributeFieldProps Interface
 
@@ -50,6 +51,12 @@ export interface AttributeFieldProps<T = Record<string, unknown>> extends Common
    * @default false
    */
   ignoreRules?: boolean;
+
+  /**
+   * When set, the component broadcasts an event on `uiEventSubject` with this key
+   * whenever the entity is updated. When absent, no event is broadcast.
+   */
+  emitOnUpdate?: string;
 }
 ```
 
@@ -147,12 +154,17 @@ uiNamespace = 'entity-editor';
 1. The correct attribute field component is rendered dynamically
 2. The field component manages its own local value
 3. On change, the field emits `update:entity`
-4. `EntityAttributeField` re-emits the event unchanged
-5. The parent component updates the source of truth
+4. `EntityAttributeField` re-emits the event to the parent
+5. If `emitOnUpdate` is set, it also publishes the updated entity to the `uiEventSubject` UI event bus from corelib, using `emitOnUpdate` as the event key
+6. The parent component updates the source of truth
 
 ```text
 Field Component → EntityAttributeField → Parent
+                         ↓ (only when emitOnUpdate is set)
+                  uiEventSubject (UI event bus, key: emitOnUpdate)
 ```
+
+The `uiEventSubject` broadcast is opt-in via `emitOnUpdate`. This prevents unintended cross-component side effects (e.g. keystrokes in a dialog propagating to another component's list) when the prop is not set. When set, it allows federated plugins and cross-component listeners to react to entity attribute changes without requiring a direct parent–child relationship.
 
 ---
 

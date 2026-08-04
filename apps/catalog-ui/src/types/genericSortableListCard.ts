@@ -107,6 +107,12 @@ export interface GenericSortableListCardProps extends CommonComponentProps {
    * @default (item) => item
    */
   itemMapperFn?: (item: Record<string, unknown>) => Record<string, unknown>;
+
+  /**
+   * When set, the card subscribes to `uiEventSubject` and applies local item updates for events
+   * matching this key. When absent, no subscription is created.
+   */
+  listenToItemUpdate?: string;
 }
 
 /**

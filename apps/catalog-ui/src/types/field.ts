@@ -53,6 +53,11 @@ export interface AttributeFieldProps<
    * @default false
    */
   ignoreRules?: boolean;
+  /**
+   * When set, the component broadcasts an event on `uiEventSubject` with this key
+   * whenever the entity is updated. When absent, no event is broadcast.
+   */
+  emitOnUpdate?: string;
 }
 
 /**

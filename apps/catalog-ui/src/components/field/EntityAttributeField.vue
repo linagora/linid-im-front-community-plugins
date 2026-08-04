@@ -42,6 +42,7 @@
 </template>
 
 <script setup lang="ts">
+import { uiEventSubject } from '@linagora/linid-im-front-corelib';
 import type { Component } from 'vue';
 import { computed, defineAsyncComponent } from 'vue';
 import type {
@@ -84,5 +85,11 @@ const field = computed<Component | undefined>(
  */
 function updateEntity(entity: Record<string, unknown>) {
   emits('update:entity', entity);
+  if (props.emitOnUpdate) {
+    uiEventSubject.next({
+      key: props.emitOnUpdate,
+      data: entity,
+    });
+  }
 }
 </script>
