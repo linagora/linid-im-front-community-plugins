@@ -17,6 +17,8 @@ consistent, configurable, and localized boolean input.
 - Integrates UI customization through the design system
 - Supports disabling the field via `inputSettings.disable`
 - Supports an initial state via `inputSettings.defaultValue` when the entity has no value
+- Supports storing values other than `true`/`false` via `inputSettings.trueValue` and `inputSettings.falseValue`,
+  `defaultValue` accepting the same vocabulary
 
 ---
 
@@ -72,10 +74,23 @@ export interface FieldBooleanSettings extends FieldSettings {
    * initial state of the field.
    */
   defaultValue?: unknown;
+
+  /**
+   * The model value that should be considered as checked/ticked/on.
+   * @default true
+   */
+  trueValue?: unknown;
+
+  /**
+   * The model value that should be considered as unchecked/unticked/off.
+   * @default false
+   */
+  falseValue?: unknown;
 }
 ```
 
-`ignoreRules` and `disable` come from the shared `FieldSettings`; `defaultValue` is specific to boolean fields.
+`ignoreRules` and `disable` come from the shared `FieldSettings`; `defaultValue`, `trueValue` and
+`falseValue` are specific to boolean fields.
 
 ---
 
@@ -188,6 +203,40 @@ const localValue = ref(props.entity[props.definition.name] ?? props.definition.i
 
 ---
 
+## **🔀 Stored Values (`trueValue` / `falseValue`)**
+
+Both settings are forwarded to `QToggle`, so the attribute can hold something other than a JavaScript
+boolean:
+
+```vue
+:true-value="definition.inputSettings?.trueValue" :false-value="definition.inputSettings?.falseValue"
+```
+
+```json
+{ "trueValue": "Y", "falseValue": "N" }
+```
+
+With this configuration, the entity attribute holds `"Y"` or `"N"`; the toggle is rendered checked
+when the value equals `trueValue`.
+
+Points to keep in mind:
+
+- **They are data semantics, not styling.** Unlike the other toggle options, they are not part of
+  `LinidQToggleProps` and therefore **cannot** be set from `design.json` — only from the attribute
+  configuration
+- **Omitting them is safe.** The bindings pass `undefined`, and Vue then applies Quasar's own
+  defaults: `trueValue: true`, `falseValue: false`. Setting them explicitly to `null` in the JSON is
+  a different matter — `null` is not `undefined`, so the default is **not** applied
+- **`defaultValue` must use the same vocabulary.** It is typed `unknown`, like `trueValue` and
+  `falseValue`, precisely so the three can agree. Configure `{ "trueValue": "Y", "falseValue": "N",
+"defaultValue": "Y" }`, not `"defaultValue": true` — the literal `true` would match neither stored
+  value and the toggle would render indeterminate
+- **An unset attribute renders indeterminate.** With no entity value and no `defaultValue`,
+  `localValue` is `null`, which is exactly Quasar's default `indeterminateValue`. The toggle shows
+  neither on nor off until the user clicks it
+
+---
+
 ## **💡 Usage Example**
 
 ```vue
@@ -256,7 +305,7 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 ## **📌 Notes**
 
 - The component assumes `definition.input === 'Boolean'`
-- Uses `FieldBooleanSettings` type for `inputSettings`, which supports the `ignoreRules`, `disable` and `defaultValue` properties
+- Uses `FieldBooleanSettings` type for `inputSettings`, which supports the `ignoreRules`, `disable`, `defaultValue`, `trueValue` and `falseValue` properties
 - Boolean fields typically don't require validation rules, but validation can be bypassed via the `ignoreRules` prop or `definition.inputSettings.ignoreRules` if needed
 - The field is rendered as non-interactive when `definition.inputSettings.disable` is `true`
 - Translation keys are optional and safely fallback

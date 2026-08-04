@@ -191,6 +191,18 @@ export interface FieldBooleanSettings extends FieldSettings {
    * Default value for the boolean field. When provided, this value will be used as the initial state of the field.
    */
   defaultValue?: unknown;
+
+  /**
+   * The model value that should be considered as checked/ticked/on.
+   * @default true
+   */
+  trueValue?: unknown;
+
+  /**
+   * The model value that should be considered as unchecked/unticked/off.
+   * @default false
+   */
+  falseValue?: unknown;
 }
 
 /**
