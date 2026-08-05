@@ -27,156 +27,162 @@
 <template>
   <!-- v8 ignore start -->
   <q-page
-    class="flex column items-center q-pa-md generic-edition-page"
+    class="row justify-center q-pa-md generic-edition-page"
     data-cy="generic-edition-page"
   >
-    <LinidZoneRenderer
-      :zone="`${instanceId}.header.before`"
-      :instance-id="instanceId"
-      :ui-namespace="uiNamespace"
-      :i18n-scope="i18nScope"
-    />
-    <div
-      class="row items-center justify-between q-mb-md generic-edition-page--header"
-    >
-      <div class="row items-center q-gutter-x-md">
-        <LinidZoneRenderer
-          :zone="`${instanceId}.header.prefix`"
-          :entity="entity || {}"
-          :instance-id="instanceId"
-          :ui-namespace="uiNamespace"
-          :i18n-scope="i18nScope"
-        />
-        <h1
-          v-if="te('title')"
-          class="q-ma-none text-h5 generic-edition-page--title"
-          data-cy="generic-edition-page_title"
-        >
-          {{ t('title') }}
-        </h1>
-        <LinidZoneRenderer
-          :zone="`${instanceId}.header.suffix`"
-          :entity="entity || {}"
-          :instance-id="instanceId"
-          :ui-namespace="uiNamespace"
-          :i18n-scope="i18nScope"
-        />
-      </div>
-      <div class="generic-edition-page--actions">
-        <ButtonsCard
-          :ui-namespace="uiNamespace"
-          :i18n-scope="i18nScope"
-          :show-confirm-button="false"
-          :show-cancel-button="false"
-        >
-          <template #append-buttons>
-            <LinidZoneRenderer
-              :zone="`${instanceId}.header.actions`"
-              :entity="entity || {}"
-              :instance-id="instanceId"
-              :ui-namespace="uiNamespace"
-              :i18n-scope="i18nScope"
-            />
-          </template>
-        </ButtonsCard>
-      </div>
-    </div>
-
-    <LinidZoneRenderer
-      :zone="`${instanceId}.header.after`"
-      :instance-id="instanceId"
-      :ui-namespace="uiNamespace"
-      :i18n-scope="i18nScope"
-    />
-
-    <LinidZoneRenderer
-      :zone="`${instanceId}.content.before`"
-      :entity="entity || {}"
-      :entity-id="entityId"
-      :instance-id="instanceId"
-      :ui-namespace="uiNamespace"
-      :i18n-scope="i18nScope"
-      :is-loading="isLoading"
-    />
-
-    <q-form
-      class="generic-edition-page--form"
-      @submit="save"
-    >
-      <q-card
-        v-for="formSection in options.formSections"
-        v-bind="uiProps.card[formSection.id]"
-        :key="formSection.id"
-        :data-cy="`form-section-card_${formSection.id}`"
-        class="column justify-center q-mb-md form-fields-grid generic-edition-page--form-section"
+    <div class="col-12 col-md-10 col-lg-10">
+      <LinidZoneRenderer
+        :zone="`${instanceId}.header.before`"
+        :instance-id="instanceId"
+        :ui-namespace="uiNamespace"
+        :i18n-scope="i18nScope"
+      />
+      <div
+        class="row items-center justify-between q-mb-md generic-edition-page--header"
       >
-        <q-card-section
-          v-if="te(`formSections.${formSection.id}.title`)"
-          class="generic-edition-page--form-section--header"
-        >
-          <h4
-            :data-cy="`form-section-title_${formSection.id}`"
-            class="full-width text-subtitle1 text-weight-medium q-mb-xs generic-edition-page--form-section--title"
-          >
-            {{ t(`formSections.${formSection.id}.title`) }}
-          </h4>
-          <p
-            v-if="te(`formSections.${formSection.id}.description`)"
-            :data-cy="`form-section-description_${formSection.id}`"
-            class="text-caption text-grey-7 q-ma-none generic-edition-page--form-section--description"
-          >
-            {{ t(`formSections.${formSection.id}.description`) }}
-          </p>
-        </q-card-section>
-
-        <q-card-section
-          class="row justify-center q-col-gutter-md generic-edition-page--form-section--field"
-          :data-cy="`field-container_${formSection.id}`"
-        >
-          <entity-attribute-field
-            v-for="field in formSection.fields"
-            :key="field.name"
-            v-model:entity="entity"
+        <div class="row items-center q-gutter-x-md">
+          <LinidZoneRenderer
+            :zone="`${instanceId}.header.prefix`"
+            :entity="entity || {}"
             :instance-id="instanceId"
-            :definition="field"
+            :ui-namespace="uiNamespace"
             :i18n-scope="i18nScope"
-            class="col-12 col-sm-6 col-md-4"
-            :ui-namespace="`${uiNamespace}.form-section-${formSection.id}`"
           />
-        </q-card-section>
-      </q-card>
-
-      <div class="generic-edition-page--actions">
-        <ButtonsCard
-          :ui-namespace="uiNamespace"
-          :i18n-scope="i18nScope"
-          confirm-btn-type="submit"
-          :is-loading="isLoading"
-          @cancel="goBack"
-        >
-          <template #append-buttons>
-            <LinidZoneRenderer
-              :zone="`${instanceId}.content.actions`"
-              :is-loading="isLoading"
-              :entity="entity || {}"
-              :instance-id="instanceId"
-              :ui-namespace="uiNamespace"
-              :i18n-scope="i18nScope"
-            />
-          </template>
-        </ButtonsCard>
+          <h1
+            v-if="te('title')"
+            class="q-ma-none text-h5 generic-edition-page--title"
+            data-cy="generic-edition-page_title"
+          >
+            {{ t('title') }}
+          </h1>
+          <LinidZoneRenderer
+            :zone="`${instanceId}.header.suffix`"
+            :entity="entity || {}"
+            :instance-id="instanceId"
+            :ui-namespace="uiNamespace"
+            :i18n-scope="i18nScope"
+          />
+        </div>
+        <div class="generic-edition-page--actions">
+          <ButtonsCard
+            :ui-namespace="uiNamespace"
+            :i18n-scope="i18nScope"
+            :show-confirm-button="false"
+            :show-cancel-button="false"
+          >
+            <template #append-buttons>
+              <LinidZoneRenderer
+                :zone="`${instanceId}.header.actions`"
+                :entity="entity || {}"
+                :instance-id="instanceId"
+                :ui-namespace="uiNamespace"
+                :i18n-scope="i18nScope"
+              />
+            </template>
+          </ButtonsCard>
+        </div>
       </div>
-    </q-form>
 
-    <LinidZoneRenderer
-      :zone="`${instanceId}.content.after`"
-      :entity="entity || {}"
-      :entity-id="entityId"
-      :instance-id="instanceId"
-      :ui-namespace="uiNamespace"
-      :i18n-scope="i18nScope"
-      :is-loading="isLoading"
-    />
+      <LinidZoneRenderer
+        :zone="`${instanceId}.header.after`"
+        :instance-id="instanceId"
+        :ui-namespace="uiNamespace"
+        :i18n-scope="i18nScope"
+      />
+
+      <LinidZoneRenderer
+        :zone="`${instanceId}.content.before`"
+        :entity="entity || {}"
+        :entity-id="entityId"
+        :instance-id="instanceId"
+        :ui-namespace="uiNamespace"
+        :i18n-scope="i18nScope"
+        :is-loading="isLoading"
+      />
+
+      <q-form
+        class="generic-edition-page--form"
+        @submit="save"
+      >
+        <q-card
+          v-for="formSection in options.formSections"
+          v-bind="uiProps.card[formSection.id]"
+          :key="formSection.id"
+          :data-cy="`form-section-card_${formSection.id}`"
+          class="column justify-center q-mb-md form-fields-grid generic-edition-page--form-section"
+        >
+          <q-card-section
+            v-if="te(`formSections.${formSection.id}.title`)"
+            class="generic-edition-page--form-section--header"
+          >
+            <h4
+              :data-cy="`form-section-title_${formSection.id}`"
+              class="full-width text-subtitle1 text-weight-medium q-mb-xs generic-edition-page--form-section--title"
+            >
+              {{ t(`formSections.${formSection.id}.title`) }}
+            </h4>
+            <p
+              v-if="te(`formSections.${formSection.id}.description`)"
+              :data-cy="`form-section-description_${formSection.id}`"
+              class="text-caption text-grey-7 q-ma-none generic-edition-page--form-section--description"
+            >
+              {{ t(`formSections.${formSection.id}.description`) }}
+            </p>
+          </q-card-section>
+
+          <q-card-section
+            class="row justify-start q-col-gutter-md generic-edition-page--form-section--field"
+            :data-cy="`field-container_${formSection.id}`"
+          >
+            <entity-attribute-field
+              v-for="field in formSection.fields"
+              :key="field.name"
+              v-model:entity="entity"
+              :instance-id="instanceId"
+              :definition="field"
+              :i18n-scope="i18nScope"
+              :class="
+                field.input === 'TextArea'
+                  ? 'col-12'
+                  : 'col-12 col-sm-6 col-md-4'
+              "
+              :ui-namespace="`${uiNamespace}.form-section-${formSection.id}`"
+            />
+          </q-card-section>
+        </q-card>
+
+        <div class="generic-edition-page--actions">
+          <ButtonsCard
+            :ui-namespace="uiNamespace"
+            :i18n-scope="i18nScope"
+            confirm-btn-type="submit"
+            :is-loading="isLoading"
+            @cancel="goBack"
+          >
+            <template #append-buttons>
+              <LinidZoneRenderer
+                :zone="`${instanceId}.content.actions`"
+                :is-loading="isLoading"
+                :entity="entity || {}"
+                :instance-id="instanceId"
+                :ui-namespace="uiNamespace"
+                :i18n-scope="i18nScope"
+              />
+            </template>
+          </ButtonsCard>
+        </div>
+      </q-form>
+
+      <LinidZoneRenderer
+        :zone="`${instanceId}.content.after`"
+        :entity="entity || {}"
+        :entity-id="entityId"
+        :instance-id="instanceId"
+        :ui-namespace="uiNamespace"
+        :i18n-scope="i18nScope"
+        :is-loading="isLoading"
+      />
+    </div>
   </q-page>
   <!-- v8 ignore stop -->
 </template>
@@ -299,4 +305,11 @@ onMounted(() => {
 });
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+// Reserve the height taken by header action buttons (36px button + 16px
+// card padding + 16px top margin) so the title keeps the same vertical
+// position whether or not header actions are configured.
+.generic-edition-page--header {
+  min-height: 68px;
+}
+</style>
