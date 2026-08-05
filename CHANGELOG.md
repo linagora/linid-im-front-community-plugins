@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.94](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.93...v0.2.94) (2026-08-05)
+
+
+### Features
+
+* **catalog-ui:** "Save" button handles items update and order update ([55e7895](https://github.com/linagora/linid-im-front-community-plugins/commit/55e78957fef23119a51f19b0004350dff96be18f))
+* **catalog-ui:** implement local item updates via update:entity event in GenericSortableListCard ([446a386](https://github.com/linagora/linid-im-front-community-plugins/commit/446a38649d49e14266ddcbdfeea92f4a99ba782b))
+
 ### [0.2.93](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.92...v0.2.93) (2026-08-04)
 
 
