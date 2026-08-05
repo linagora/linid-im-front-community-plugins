@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.96](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.95...v0.2.96) (2026-08-05)
+
+
+### Features
+
+* **catalog-ui:** align creation and edition page layouts with the details page ([e7b6e97](https://github.com/linagora/linid-im-front-community-plugins/commit/e7b6e97f192501b7993b430275b786d4d04a0efd))
+
 ### [0.2.95](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.94...v0.2.95) (2026-08-05)
 
 ### [0.2.94](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.93...v0.2.94) (2026-08-05)
