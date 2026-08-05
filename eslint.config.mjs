@@ -6,6 +6,7 @@ import {
   vueTsConfigs,
 } from '@vue/eslint-config-typescript';
 import headers from 'eslint-plugin-headers';
+import importPlugin from 'eslint-plugin-import';
 import jsdoc from 'eslint-plugin-jsdoc';
 import vue from 'eslint-plugin-vue';
 import { fileURLToPath } from 'node:url';
@@ -45,6 +46,9 @@ export default defineConfigWithVueTs(
   },
   {
     files: ['**/*.{js,mjs,cjs,ts,vue}'],
+    plugins: {
+      import: importPlugin,
+    },
     rules: {
       // Nx rules
       '@nx/enforce-module-boundaries': [
@@ -110,6 +114,15 @@ export default defineConfigWithVueTs(
       'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
       'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
       curly: 'error',
+      'import/no-duplicates': 'error',
+      quotes: [
+        'error',
+        'single',
+        {
+          avoidEscape: true,
+          allowTemplateLiterals: false,
+        },
+      ],
     },
   },
   {

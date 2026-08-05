@@ -233,7 +233,7 @@ describe('Test component: GenericTablePage', () => {
 
       expect(mockRouterPush).toHaveBeenCalledTimes(1);
       expect(mockRouterPush).toHaveBeenCalledWith({
-        path: `/page/42`,
+        path: '/page/42',
       });
     });
   });

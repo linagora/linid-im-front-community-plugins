@@ -112,7 +112,7 @@ const { t } = useScopedI18n('application');
 const uiStore = useLinidUiStore();
 const router = useRouter();
 
-const headerUiNamespace = `base-layout.header`;
+const headerUiNamespace = 'base-layout.header';
 
 const uiProps = {
   header: ui<LinidQHeaderProps>(headerUiNamespace, 'q-header'),

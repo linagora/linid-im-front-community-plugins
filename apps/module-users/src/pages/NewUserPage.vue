@@ -183,7 +183,7 @@ function save(): Promise<void> {
     .then((user) => {
       Notify({
         type: 'positive',
-        message: t(`success`),
+        message: t('success'),
       });
       router.push({
         path: `${parentPath.value}/${user[options.value.userIdKey] as string}`,
@@ -192,7 +192,7 @@ function save(): Promise<void> {
     .catch(() => {
       Notify({
         type: 'negative',
-        message: t(`error`),
+        message: t('error'),
       });
     })
     .finally(() => {

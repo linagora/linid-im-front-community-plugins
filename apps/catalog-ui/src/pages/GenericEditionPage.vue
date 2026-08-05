@@ -249,14 +249,14 @@ function save(): Promise<void> {
     .then(() => {
       Notify({
         type: 'positive',
-        message: t(`success`),
+        message: t('success'),
       });
       goBack();
     })
     .catch(() => {
       Notify({
         type: 'negative',
-        message: t(`error`),
+        message: t('error'),
       });
     })
     .finally(() => {

@@ -238,7 +238,7 @@ function importAllData(): Promise<void> {
       if (errorLengths === 0) {
         Notify({
           type: 'positive',
-          message: t(`importSuccess`),
+          message: t('importSuccess'),
           attrs: {
             'data-cy': 'notify_import_success',
           },
@@ -246,7 +246,7 @@ function importAllData(): Promise<void> {
       } else if (errorLengths !== data.length) {
         Notify({
           type: 'warning',
-          message: t(`importWarning`),
+          message: t('importWarning'),
           attrs: {
             'data-cy': 'notify_import_warning',
           },
@@ -254,7 +254,7 @@ function importAllData(): Promise<void> {
       } else {
         Notify({
           type: 'negative',
-          message: t(`importError`),
+          message: t('importError'),
           attrs: {
             'data-cy': 'notify_import_error',
           },
