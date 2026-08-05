@@ -127,13 +127,11 @@ import type {
   ImportedDataTableProps,
 } from '../../types/ImportedDataTable';
 import { computed, type ComputedRef } from 'vue';
-import type {
-  LinidQBadgeProps,
-  LinidQSpinnerProps,
-} from '@linagora/linid-im-front-corelib';
 import {
   getModuleHostConfiguration,
+  type LinidQBadgeProps,
   type LinidQBtnProps,
+  type LinidQSpinnerProps,
   type LinidQTableProps,
   useScopedI18n,
   useUiDesign,
@@ -186,28 +184,28 @@ const columns: ComputedRef<QTableColumn[]> = computed(() => [
   {
     field: '__error',
     name: '__error',
-    label: translateOrDefault('', `headers.__error`),
+    label: translateOrDefault('', 'headers.__error'),
     sortable: false,
     align: 'left' as const,
   },
   {
     field: '__id',
     name: '__delete',
-    label: translateOrDefault('', `headers.__delete`),
+    label: translateOrDefault('', 'headers.__delete'),
     sortable: false,
     align: 'left' as const,
   },
   {
     field: '__file',
     name: '__file',
-    label: translateOrDefault('', `headers.__file`),
+    label: translateOrDefault('', 'headers.__file'),
     sortable: true,
     align: 'left' as const,
   },
   {
     field: '__status',
     name: '__status',
-    label: translateOrDefault('', `headers.__status`),
+    label: translateOrDefault('', 'headers.__status'),
     sortable: true,
     align: 'left' as const,
   },

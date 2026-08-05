@@ -180,7 +180,7 @@ describe('Test component: HomePage', () => {
 
       expect(mockRouterPush).toHaveBeenCalledTimes(1);
       expect(mockRouterPush).toHaveBeenCalledWith({
-        path: `/users/42`,
+        path: '/users/42',
       });
     });
   });

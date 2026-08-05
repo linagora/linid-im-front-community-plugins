@@ -208,7 +208,7 @@ async function loadData(): Promise<void> {
   } catch {
     Notify({
       type: 'negative',
-      message: t(`loadError`),
+      message: t('loadError'),
     });
     router.push({ path: parentPath.value });
   } finally {
@@ -230,14 +230,14 @@ function save(): Promise<void> {
     .then(() => {
       Notify({
         type: 'positive',
-        message: t(`editSuccess`),
+        message: t('editSuccess'),
       });
       router.push({ path: userDetailPath.value });
     })
     .catch(() => {
       Notify({
         type: 'negative',
-        message: t(`editError`),
+        message: t('editError'),
       });
     })
     .finally(() => {

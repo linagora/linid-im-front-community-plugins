@@ -67,8 +67,11 @@ import type {
   LinidQItemProps,
   LinidQItemSectionProps,
 } from '@linagora/linid-im-front-corelib';
-import { LinidFilterValue } from '@linagora/linid-im-front-corelib';
-import { useScopedI18n, useUiDesign } from '@linagora/linid-im-front-corelib';
+import {
+  LinidFilterValue,
+  useScopedI18n,
+  useUiDesign,
+} from '@linagora/linid-im-front-corelib';
 import type { ListSearchFilterProps } from '../../types/ListSearchFilterPanel';
 import { ref } from 'vue';
 import type { LinidFilterPanelSearchOutputs } from '../../types/linidFilterPanel';
