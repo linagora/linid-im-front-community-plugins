@@ -212,6 +212,26 @@ Card with confirm/cancel action buttons.
 
 ---
 
+### StatusBadge
+
+Badge component for displaying entity status with i18n support.
+
+**Namespace:** `status-badge`
+
+The status badge renders different styles based on the entity's status value.
+
+```json
+{
+  "status-badge": {
+    "[STATUS]": {
+      "q-badge": { "color": "primary", "floating": false }
+    }
+  }
+}
+```
+
+---
+
 ### DropdownButton
 
 Dropdown action button supporting flat actions and one submenu level.
@@ -1260,6 +1280,11 @@ A full example showing all CatalogUI components configured together:
     "q-card": { "flat": false },
     "q-input": { "outlined": true, "dense": true },
     "q-table": { "dense": true }
+  },
+  "status-badge": {
+    "[STATUS]": {
+      "q-badge": { "color": "primary", "floating": false }
+    }
   },
   "base-layout": {
     "header": {
