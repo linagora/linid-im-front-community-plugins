@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.97](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.96...v0.2.97) (2026-08-06)
+
+
+### Features
+
+* **catalog-ui:** add language switcher to header profile menu ([6164c2a](https://github.com/linagora/linid-im-front-community-plugins/commit/6164c2a0bb5d57e8b732b9f50067a87b1fb2eaa7))
+
 ### [0.2.96](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.95...v0.2.96) (2026-08-05)
 
 
