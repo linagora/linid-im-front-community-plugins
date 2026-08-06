@@ -195,6 +195,9 @@ The library organizes components by category. For each component, documentation 
 - 🔽 **DropdownButton** — A button component that provides a reusable dropdown action button with support for flat items and one-level nested sub-menus.
   → Documentation is inside: [`DropdownButton.md`](./docs/components/button/DropdownButton.md)
 
+- 📝 **FormDialogButton** — Action button opening the shared form dialog and sending the collected input through a configurable POST or PUT request
+  → Documentation is inside: [`FormDialogButton.md`](./docs/components/button/FormDialogButton.md)
+
 > More categories and components will be added as the library evolves.
 
 ---
