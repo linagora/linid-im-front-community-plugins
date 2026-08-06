@@ -151,6 +151,10 @@ export default defineConfig({
           __dirname,
           'src/components/card/GenericSortableListCard.vue'
         ),
+        './FormDialogButton': resolve(
+          __dirname,
+          'src/components/button/FormDialogButton.vue'
+        ),
       },
       shared: {
         vue: {

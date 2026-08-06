@@ -260,6 +260,29 @@ Dropdown action button supporting flat actions and one submenu level.
 
 ---
 
+### FormDialogButton
+
+Action button opening the shared `FormDialog` to collect user input before sending a configurable request.
+The dialog inherits this namespace.
+
+**Namespace:** `{uiNamespace}.form-dialog-button`
+
+```json
+{
+  "[PARENT_NAMESPACE]": {
+    "form-dialog-button": {
+      "q-btn": { "color": "primary", "unelevated": true, "icon": "send" },
+      "form-dialog": {
+        "q-dialog": { "persistent": false },
+        "q-card": { "flat": true, "bordered": true }
+      }
+    }
+  }
+}
+```
+
+---
+
 ### EntityDetailsCard
 
 Card for displaying entity attribute details. Fields inside the card can be configured individually.
@@ -1656,6 +1679,13 @@ A full example showing all CatalogUI components configured together:
               }
             }
           }
+        }
+      },
+      "form-dialog-button": {
+        "q-btn": { "color": "primary", "unelevated": true, "icon": "send" },
+        "form-dialog": {
+          "q-dialog": { "persistent": false },
+          "q-card": { "flat": true, "bordered": true }
         }
       },
       "confirmation-dialog": {
