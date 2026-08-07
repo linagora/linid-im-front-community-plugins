@@ -28,11 +28,12 @@ The page resolves its options from the module host configuration (`getModuleHost
 
 Each `DetailSection` is defined as:
 
-| Field                 | Type       | Required | Description                                                              |
-| --------------------- | ---------- | -------- | ------------------------------------------------------------------------ |
-| `key`                 | `string`   | Yes      | Unique key used for translations and UI design namespaces                |
-| `fieldOrder`          | `string[]` | Yes      | Ordered list of entity attribute keys displayed in the section           |
-| `showRemainingFields` | `boolean`  | No       | Also displays the attributes not listed in any `fieldOrder` (default no) |
+| Field                 | Type               | Required | Description                                                              |
+| --------------------- | ------------------ | -------- | ------------------------------------------------------------------------ |
+| `key`                 | `string`           | Yes      | Unique key used for translations and UI design namespaces                |
+| `fieldOrder`          | `string[]`         | Yes      | Ordered list of entity attribute keys displayed in the section           |
+| `showRemainingFields` | `boolean`          | No       | Also displays the attributes not listed in any `fieldOrder` (default no) |
+| `formatters`          | `FieldFormatter[]` | No       | Formatters applied to specific section attributes before display         |
 
 Example module configuration:
 
@@ -51,12 +52,42 @@ Example module configuration:
       { "key": "identity", "fieldOrder": ["code", "name", "description"] },
       {
         "key": "audit",
+        "formatters": [
+          {
+            "field": "insertDate",
+            "formatter": "toDate",
+            "formatOptions": {
+              "formatKey": "application.dateFormat"
+            }
+          },
+          {
+            "field": "updateDate",
+            "formatter": "toDate",
+            "formatOptions": {
+              "formatKey": "application.dateFormat"
+            }
+          }
+        ],
         "fieldOrder": ["createdBy", "updatedBy", "insertDate", "updateDate"]
       }
     ]
   }
 }
 ```
+
+---
+
+## **Value Formatting**
+
+Section attributes can be formatted before display using the optional `formatters` property.
+For detailed information about available formatters and configuration options, see the
+[**Value Formatting Guide**](../value-formatting.md).
+
+The `formatters` array contains `FieldFormatter` objects that specify:
+
+- `field` — The attribute name to format
+- `formatter` — The formatter name (e.g., `'toDate'`)
+- `formatOptions` — Configuration options for the formatter
 
 ---
 

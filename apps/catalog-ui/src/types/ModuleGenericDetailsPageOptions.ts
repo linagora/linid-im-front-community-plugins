@@ -25,6 +25,20 @@
  */
 
 import type { ModulePageOptions } from './ModulePageOptions';
+import type { FormatterConfiguration } from '@linagora/linid-im-front-corelib';
+
+/**
+ * Configuration for formatting a specific entity attribute field.
+ *
+ * Associates a field name with a formatter to customize how the attribute value is displayed
+ * in the details section.
+ */
+export interface FieldFormatter extends FormatterConfiguration {
+  /**
+   * Name of the entity attribute field to format.
+   */
+  field: string;
+}
 
 /**
  * Configuration of a single details section displayed on the generic details page.
@@ -40,6 +54,14 @@ export interface DetailSection {
    * namespace.
    */
   key: string;
+
+  /**
+   * Formatters applied to the entity attributes displayed in the section.
+   *
+   * Each formatter is associated with a specific field and customizes how the attribute value
+   * is rendered in the details card.
+   */
+  formatters?: FieldFormatter[];
 
   /**
    * Ordered list of entity attribute keys displayed in the section.

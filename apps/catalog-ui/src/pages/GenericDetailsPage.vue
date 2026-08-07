@@ -132,6 +132,7 @@
             :key="section.key"
             :entity="entity || {}"
             :field-order="section.fieldOrder"
+            :formatters="section.formatters"
             :show-remaining-fields="section.showRemainingFields || false"
             :is-loading="isLoading"
             :ui-namespace="`${uiNamespace}.sections.${section.key}`"

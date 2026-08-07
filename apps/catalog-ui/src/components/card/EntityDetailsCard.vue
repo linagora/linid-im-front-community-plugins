@@ -58,7 +58,11 @@
 
 <script setup lang="ts">
 import type { LinidQCardProps } from '@linagora/linid-im-front-corelib';
-import { useScopedI18n, useUiDesign } from '@linagora/linid-im-front-corelib';
+import {
+  useScopedI18n,
+  useUiDesign,
+  useValueFormatter,
+} from '@linagora/linid-im-front-corelib';
 import { computed } from 'vue';
 import InformationCard from './InformationCard.vue';
 import type { EntityDetailsCardProps } from '../../types/entityDetailsCard';
@@ -69,6 +73,7 @@ const props = withDefaults(defineProps<EntityDetailsCardProps>(), {
   isLoading: false,
 });
 
+const { formatValue } = useValueFormatter();
 const { ui } = useUiDesign();
 const { t, te } = useScopedI18n(`${props.i18nScope}.EntityDetailsCard`);
 
@@ -86,9 +91,19 @@ const fieldNames = computed<string[]>(() => {
   return result;
 });
 
+const formatsByField = computed(
+  () => new Map((props.formatters ?? []).map((f) => [f.field, f]))
+);
+
 const values = computed<Record<string, string>>(() => {
   return fieldNames.value.reduce<Record<string, string>>((acc, name) => {
-    acc[name] = `${props.entity[name] ?? ''}`;
+    const format = formatsByField.value.get(name);
+    if (format) {
+      acc[name] =
+        `${formatValue(props.entity[name], format.formatter, format.formatOptions) ?? ''}`;
+    } else {
+      acc[name] = `${props.entity[name] ?? ''}`;
+    }
     return acc;
   }, {});
 });
