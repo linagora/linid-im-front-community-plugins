@@ -180,10 +180,18 @@
                     :value="formattedItems[index][field.name]"
                     :index="index"
                   >
-                    <TruncatedItemLabel
-                      v-bind="uiProps.fieldValue"
-                      :label="String(formattedItems[index][field.name])"
-                    />
+                    <LinidZoneRenderer
+                      :zone="`${localUiNamespace}.field-values.${field.name}`"
+                      :entity="item || {}"
+                      :instance-id="instanceId"
+                      :ui-namespace="uiNamespace"
+                      :i18n-scope="i18nScope"
+                    >
+                      <TruncatedItemLabel
+                        v-bind="uiProps.fieldValue"
+                        :label="String(formattedItems[index][field.name])"
+                      />
+                    </LinidZoneRenderer>
                   </slot>
                 </q-item-section>
                 <q-item-section v-if="hasAfterFieldsSection">

@@ -275,16 +275,18 @@ Key highlights:
 
 ## **🔌 Plugin Zones**
 
-The component registers five plugin zones, all prefixed with the **UI namespace**
-(`${uiNamespace}.generic-sortable-list-card`, falling back to `instanceId`) — not with `instanceId` alone:
+The component registers a set of plugin zones, all prefixed with the **UI namespace**
+(`${uiNamespace}.generic-sortable-list-card`, falling back to `instanceId`) — not with `instanceId` alone. Five are
+fixed; one more is registered **per configured field**:
 
-| Zone name                                 | Rendered in | Description                                     |
-| ----------------------------------------- | ----------- | ----------------------------------------------- |
-| `${localUiNamespace}.field-labels.before` | Header row  | Before the configured field labels              |
-| `${localUiNamespace}.field-labels.after`  | Header row  | After the configured field labels               |
-| `${localUiNamespace}.field-values.before` | Item row    | Row counterpart of `field-labels.before`        |
-| `${localUiNamespace}.field-values.after`  | Item row    | Row counterpart of `field-labels.after`         |
-| `${localUiNamespace}.item.actions`        | Item row    | Before the edit and delete buttons of each item |
+| Zone name                                        | Rendered in | Description                                                       |
+| ------------------------------------------------- | ----------- | ------------------------------------------------------------------ |
+| `${localUiNamespace}.field-labels.before`         | Header row  | Before the configured field labels                                 |
+| `${localUiNamespace}.field-labels.after`          | Header row  | After the configured field labels                                  |
+| `${localUiNamespace}.field-values.before`         | Item row    | Row counterpart of `field-labels.before`                           |
+| `${localUiNamespace}.field-values.after`          | Item row    | Row counterpart of `field-labels.after`                            |
+| `${localUiNamespace}.field-values.${field.name}`  | Item row    | Fallback of the `field-${name}` slot, inside an existing field's cell |
+| `${localUiNamespace}.item.actions`                | Item row    | Before the edit and delete buttons of each item                    |
 
 Every zone receives `entity`, `instanceId`, `uiNamespace` and `i18nScope` as props. **What `entity` holds depends on
 where the zone is rendered:**
@@ -294,6 +296,12 @@ where the zone is rendered:**
 
 A plugin adding a column should register in **both** the value zone and its label counterpart. Registering in only
 one still reserves the section on both rows, so the alignment holds — but the header cell stays empty.
+
+`field-values.${field.name}` is different: it does not add a column, and it is not rendered alongside the
+`field-${name}` slot (see [Slots](#slots)) — it is nested **inside** that slot's fallback, as an intermediate
+fallback of its own. The precedence for a field's value cell is: the `field-${name}` slot if the host provides
+one; otherwise the zone, if a plugin has registered a component there; otherwise the default `TruncatedItemLabel`
+value display. Only one of the three actually renders.
 
 ---
 
@@ -392,4 +400,4 @@ Adding a column to the rows requires adding its header too, otherwise the header
 - **Tabular without a table:** Column layout and header row while remaining a drag-and-drop `q-list`
 - **Auto-paginating:** Transparently fetches all pages before rendering
 - **Zone-ready:** Designed to be rendered through a zone with the page entity injected
-- **Extensible:** Per-field slots, before/after slots and five plugin zones cover custom UI needs
+- **Extensible:** Per-field slots, before/after slots and plugin zones (fixed and per-field) cover custom UI needs
