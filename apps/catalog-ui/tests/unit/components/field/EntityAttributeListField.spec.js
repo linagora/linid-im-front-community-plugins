@@ -30,13 +30,20 @@ import EntityAttributeListField from '../../../../src/components/field/EntityAtt
 
 const mockUi = vi.fn(() => ({}));
 
-vi.mock('@linagora/linid-im-front-corelib', () => ({
-  useUiDesign: () => ({
-    ui: mockUi,
-  }),
-  useScopedI18n: () => ({ translateOrDefault: vi.fn() }),
-  useQuasarRules: () => [vi.fn(), vi.fn()],
-}));
+vi.mock('@linagora/linid-im-front-corelib', async () => {
+  const { getNestedValue, setNestedValue } = await vi.importActual(
+    '@linagora/linid-im-front-corelib'
+  );
+  return {
+    getNestedValue,
+    setNestedValue,
+    useUiDesign: () => ({
+      ui: mockUi,
+    }),
+    useScopedI18n: () => ({ translateOrDefault: vi.fn() }),
+    useQuasarRules: () => [vi.fn(), vi.fn()],
+  };
+});
 
 describe('Test component: EntityAttributeListField', () => {
   let wrapper;
@@ -86,6 +93,7 @@ describe('Test component: EntityAttributeListField', () => {
       props: {
         ...initialMountingOptions.props,
         definition: {
+          name: 'role',
           ...initialMountingOptions.props.definition,
           inputSettings: {},
         },
@@ -168,6 +176,7 @@ describe('Test component: EntityAttributeListField', () => {
       await wrapper.setProps({
         ignoreRules: true,
         definition: {
+          name: 'role',
           hasValidations: true,
           required: true,
           inputSettings: {},
@@ -181,6 +190,7 @@ describe('Test component: EntityAttributeListField', () => {
       await wrapper.setProps({
         ignoreRules: false,
         definition: {
+          name: 'role',
           hasValidations: true,
           required: true,
           inputSettings: {
@@ -196,6 +206,7 @@ describe('Test component: EntityAttributeListField', () => {
       await wrapper.setProps({
         ignoreRules: false,
         definition: {
+          name: 'role',
           hasValidations: true,
           required: true,
           inputSettings: {
@@ -210,6 +221,7 @@ describe('Test component: EntityAttributeListField', () => {
     it('should return rules if ignoreRules is unset', async () => {
       await wrapper.setProps({
         definition: {
+          name: 'role',
           hasValidations: true,
           required: true,
           inputSettings: {},
@@ -577,6 +589,72 @@ describe('Test component: EntityAttributeListField', () => {
 
       expect(wrapper.vm.localValue).toBe('entity-role');
       expect(wrapper.emitted('update:entity')).toBeFalsy();
+    });
+  });
+
+  describe('Test nested attributes', () => {
+    beforeEach(() => {
+      mountingOptions.props.definition.name = 'extraParameters.role';
+      mountingOptions.props.definition.inputSettings = {
+        values: ['admin', 'user'],
+      };
+      mountingOptions.props.entity.extraParameters = {
+        role: 'user',
+        login: 'jdoe',
+      };
+      wrapper = shallowMount(EntityAttributeListField, mountingOptions);
+    });
+
+    it('should read the value from the nested path', () => {
+      expect(wrapper.vm.localValue).toEqual('user');
+    });
+
+    it('should emit the complete entity with only the nested value updated', () => {
+      wrapper.vm.localValue = 'admin';
+
+      wrapper.vm.updateValue();
+
+      expect(wrapper.emitted('update:entity')[0]).toEqual([
+        {
+          name: 'entity-name',
+          extraParameters: { role: 'admin', login: 'jdoe' },
+        },
+      ]);
+    });
+
+    it('should create missing intermediate objects when updating', () => {
+      delete mountingOptions.props.entity.extraParameters;
+      wrapper = shallowMount(EntityAttributeListField, mountingOptions);
+      wrapper.vm.localValue = 'admin';
+
+      wrapper.vm.updateValue();
+
+      expect(wrapper.emitted('update:entity')[0]).toEqual([
+        {
+          name: 'entity-name',
+          extraParameters: { role: 'admin' },
+        },
+      ]);
+    });
+
+    it('should filter options using nested entity values in filterContext', () => {
+      mountingOptions.props.definition.inputSettings = {
+        values: [
+          {
+            value: 'admin',
+            filterContext: { 'extraParameters.login': 'jdoe' },
+          },
+          {
+            value: 'user',
+            filterContext: { 'extraParameters.login': 'other' },
+          },
+        ],
+      };
+      wrapper = shallowMount(EntityAttributeListField, mountingOptions);
+
+      expect(wrapper.vm.options).toEqual([
+        { value: 'admin', filterContext: { 'extraParameters.login': 'jdoe' } },
+      ]);
     });
   });
 });

@@ -42,7 +42,12 @@
 
 <script setup lang="ts">
 import type { LinidQToggleProps } from '@linagora/linid-im-front-corelib';
-import { useScopedI18n, useUiDesign } from '@linagora/linid-im-front-corelib';
+import {
+  getNestedValue,
+  setNestedValue,
+  useScopedI18n,
+  useUiDesign,
+} from '@linagora/linid-im-front-corelib';
 import { ref, watch } from 'vue';
 import type {
   AttributeFieldProps,
@@ -61,7 +66,7 @@ const emits = defineEmits<EntityAttributeFieldOutputs>();
 const { ui } = useUiDesign();
 
 const localValue = ref(
-  props.entity[props.definition.name] ??
+  getNestedValue(props.entity, props.definition.name) ??
     props.definition.inputSettings?.defaultValue ??
     null
 );
@@ -74,7 +79,7 @@ const { translateOrDefault } = useScopedI18n(
 );
 
 watch(
-  () => props.entity[props.definition.name],
+  () => getNestedValue(props.entity, props.definition.name),
   (newValue) => {
     localValue.value =
       newValue ?? props.definition.inputSettings?.defaultValue ?? null;
@@ -86,10 +91,10 @@ watch(
  * Updates the value of the attribute in the entity using the local reactive value.
  */
 function updateValue() {
-  emits('update:entity', {
-    ...props.entity,
-    [props.definition.name]: localValue.value,
-  });
+  emits(
+    'update:entity',
+    setNestedValue(props.entity, props.definition.name, localValue.value)
+  );
 }
 </script>
 

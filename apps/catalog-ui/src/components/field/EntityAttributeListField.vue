@@ -49,7 +49,9 @@
 
 <script setup lang="ts">
 import {
+  getNestedValue,
   type LinidQSelectProps,
+  setNestedValue,
   useQuasarRules,
   useScopedI18n,
   useUiDesign,
@@ -95,7 +97,7 @@ const defaultValue =
     : null;
 
 const localValue = ref(
-  props.entity[props.definition.name] ?? defaultValue ?? null
+  getNestedValue(props.entity, props.definition.name) ?? defaultValue ?? null
 );
 
 const options = computed((): FieldListValue[] => {
@@ -108,7 +110,7 @@ const options = computed((): FieldListValue[] => {
     }
     return Object.entries(entry.filterContext).every(
       ([fieldName, accepted]) => {
-        const currentValue = props.entity[fieldName];
+        const currentValue = getNestedValue(props.entity, fieldName);
         if (currentValue == null) {
           return true;
         }
@@ -134,7 +136,7 @@ const rules = computed(() =>
 );
 
 watch(
-  () => props.entity[props.definition.name],
+  () => getNestedValue(props.entity, props.definition.name),
   (newValue) => {
     localValue.value = newValue ?? defaultValue ?? null;
   }
@@ -155,14 +157,17 @@ watch(options, (newOptions) => {
  * Called on user selection and when the current value becomes invalid after filtering.
  */
 function updateValue() {
-  emits('update:entity', {
-    ...props.entity,
-    [props.definition.name]: localValue.value,
-  });
+  emits(
+    'update:entity',
+    setNestedValue(props.entity, props.definition.name, localValue.value)
+  );
 }
 
 onMounted(() => {
-  if (localValue.value != null && props.entity[props.definition.name] == null) {
+  if (
+    localValue.value != null &&
+    getNestedValue(props.entity, props.definition.name) == null
+  ) {
     updateValue();
   }
 });

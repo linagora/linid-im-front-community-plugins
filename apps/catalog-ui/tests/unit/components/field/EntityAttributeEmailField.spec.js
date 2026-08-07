@@ -30,13 +30,27 @@ import EntityAttributeEmailField from '../../../../src/components/field/EntityAt
 
 const mockUi = vi.fn(() => ({}));
 
-vi.mock('@linagora/linid-im-front-corelib', () => ({
-  useUiDesign: () => ({
-    ui: mockUi,
-  }),
-  useScopedI18n: () => ({ translateOrDefault: vi.fn() }),
-  useQuasarRules: () => [vi.fn(), vi.fn(), vi.fn(), vi.fn(), vi.fn(), vi.fn()],
-}));
+vi.mock('@linagora/linid-im-front-corelib', async () => {
+  const { getNestedValue, setNestedValue } = await vi.importActual(
+    '@linagora/linid-im-front-corelib'
+  );
+  return {
+    getNestedValue,
+    setNestedValue,
+    useUiDesign: () => ({
+      ui: mockUi,
+    }),
+    useScopedI18n: () => ({ translateOrDefault: vi.fn() }),
+    useQuasarRules: () => [
+      vi.fn(),
+      vi.fn(),
+      vi.fn(),
+      vi.fn(),
+      vi.fn(),
+      vi.fn(),
+    ],
+  };
+});
 
 describe('Test component: EntityAttributeEmailField', () => {
   let wrapper;
@@ -91,6 +105,7 @@ describe('Test component: EntityAttributeEmailField', () => {
       await wrapper.setProps({
         ignoreRules: true,
         definition: {
+          name: 'email',
           hasValidations: true,
           required: true,
           inputSettings: {
@@ -108,6 +123,7 @@ describe('Test component: EntityAttributeEmailField', () => {
       await wrapper.setProps({
         ignoreRules: false,
         definition: {
+          name: 'email',
           hasValidations: true,
           required: true,
           inputSettings: {
@@ -126,6 +142,7 @@ describe('Test component: EntityAttributeEmailField', () => {
       await wrapper.setProps({
         ignoreRules: false,
         definition: {
+          name: 'email',
           hasValidations: true,
           required: true,
           inputSettings: {
@@ -143,6 +160,7 @@ describe('Test component: EntityAttributeEmailField', () => {
     it('should return rules if ignoreRules is unset', async () => {
       await wrapper.setProps({
         definition: {
+          name: 'email',
           hasValidations: true,
           required: true,
           inputSettings: {
@@ -247,6 +265,64 @@ describe('Test component: EntityAttributeEmailField', () => {
       });
 
       expect(wrapper.vm.localValue).toEqual('initial-email@example.com');
+    });
+  });
+
+  describe('Test nested attributes', () => {
+    beforeEach(async () => {
+      await wrapper.setProps({
+        definition: {
+          name: 'extraParameters.email',
+          type: 'String',
+          required: false,
+          hasValidations: false,
+          input: 'Email',
+          inputSettings: {},
+        },
+        entity: {
+          name: 'entity-name',
+          extraParameters: { email: 'old@example.com', role: 'admin' },
+        },
+      });
+    });
+
+    it('should read the value from the nested path', () => {
+      expect(wrapper.vm.localValue).toEqual('old@example.com');
+    });
+
+    it('should emit the complete entity with only the nested value updated', () => {
+      wrapper.vm.localValue = 'new@example.com';
+
+      wrapper.vm.updateValue();
+
+      expect(wrapper.emitted('update:entity')[0]).toEqual([
+        {
+          name: 'entity-name',
+          extraParameters: { email: 'new@example.com', role: 'admin' },
+        },
+      ]);
+    });
+
+    it('should create missing intermediate objects when updating', async () => {
+      await wrapper.setProps({ entity: { name: 'entity-name' } });
+      wrapper.vm.localValue = 'new@example.com';
+
+      wrapper.vm.updateValue();
+
+      expect(wrapper.emitted('update:entity')[0]).toEqual([
+        {
+          name: 'entity-name',
+          extraParameters: { email: 'new@example.com' },
+        },
+      ]);
+    });
+
+    it('should update localValue when the nested value changes', async () => {
+      await wrapper.setProps({
+        entity: { extraParameters: { email: 'old@example.com' } },
+      });
+
+      expect(wrapper.vm.localValue).toEqual('old@example.com');
     });
   });
 });

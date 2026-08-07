@@ -30,13 +30,20 @@ import EntityAttributeNumberField from '../../../../src/components/field/EntityA
 
 const mockUi = vi.fn(() => ({}));
 
-vi.mock('@linagora/linid-im-front-corelib', () => ({
-  useUiDesign: () => ({
-    ui: mockUi,
-  }),
-  useScopedI18n: () => ({ translateOrDefault: vi.fn() }),
-  useQuasarRules: () => [vi.fn(), vi.fn(), vi.fn(), vi.fn()],
-}));
+vi.mock('@linagora/linid-im-front-corelib', async () => {
+  const { getNestedValue, setNestedValue } = await vi.importActual(
+    '@linagora/linid-im-front-corelib'
+  );
+  return {
+    getNestedValue,
+    setNestedValue,
+    useUiDesign: () => ({
+      ui: mockUi,
+    }),
+    useScopedI18n: () => ({ translateOrDefault: vi.fn() }),
+    useQuasarRules: () => [vi.fn(), vi.fn(), vi.fn(), vi.fn()],
+  };
+});
 
 describe('Test component: EntityAttributeNumberField', () => {
   let wrapper;
@@ -93,6 +100,7 @@ describe('Test component: EntityAttributeNumberField', () => {
       wrapper.setProps({
         ignoreRules: true,
         definition: {
+          name: 'age',
           hasValidations: true,
           required: true,
           inputSettings: { min: 0, max: 100 },
@@ -107,6 +115,7 @@ describe('Test component: EntityAttributeNumberField', () => {
       wrapper.setProps({
         ignoreRules: false,
         definition: {
+          name: 'age',
           hasValidations: true,
           required: true,
           inputSettings: { ignoreRules: true, min: 0, max: 100 },
@@ -121,6 +130,7 @@ describe('Test component: EntityAttributeNumberField', () => {
       wrapper.setProps({
         ignoreRules: false,
         definition: {
+          name: 'age',
           hasValidations: true,
           required: true,
           inputSettings: { min: 0, max: 100 },
@@ -135,6 +145,7 @@ describe('Test component: EntityAttributeNumberField', () => {
     it('should return rules if ignoreRules is unset', async () => {
       wrapper.setProps({
         definition: {
+          name: 'age',
           hasValidations: true,
           required: true,
           inputSettings: { min: 0, max: 100 },
@@ -243,6 +254,64 @@ describe('Test component: EntityAttributeNumberField', () => {
       });
 
       expect(wrapper.vm.localValue).toEqual(99);
+    });
+  });
+
+  describe('Test nested attributes', () => {
+    beforeEach(async () => {
+      await wrapper.setProps({
+        definition: {
+          name: 'extraParameters.age',
+          type: 'Integer',
+          required: false,
+          hasValidations: false,
+          input: 'Number',
+          inputSettings: {},
+        },
+        entity: {
+          name: 'entity-name',
+          extraParameters: { age: 18, role: 'admin' },
+        },
+      });
+    });
+
+    it('should read the value from the nested path', () => {
+      expect(wrapper.vm.localValue).toEqual(18);
+    });
+
+    it('should emit the complete entity with only the nested value updated', () => {
+      wrapper.vm.localValue = 21;
+
+      wrapper.vm.updateValue();
+
+      expect(wrapper.emitted('update:entity')[0]).toEqual([
+        {
+          name: 'entity-name',
+          extraParameters: { age: 21, role: 'admin' },
+        },
+      ]);
+    });
+
+    it('should create missing intermediate objects when updating', async () => {
+      await wrapper.setProps({ entity: { name: 'entity-name' } });
+      wrapper.vm.localValue = 21;
+
+      wrapper.vm.updateValue();
+
+      expect(wrapper.emitted('update:entity')[0]).toEqual([
+        {
+          name: 'entity-name',
+          extraParameters: { age: 21 },
+        },
+      ]);
+    });
+
+    it('should update localValue when the nested value changes', async () => {
+      await wrapper.setProps({
+        entity: { extraParameters: { age: 18 } },
+      });
+
+      expect(wrapper.vm.localValue).toEqual(18);
     });
   });
 });

@@ -32,16 +32,23 @@ import EntityAttributeDynamicListField from '../../../../src/components/field/En
 const mockUi = vi.fn(() => ({}));
 const mockT = vi.fn((key) => key);
 
-vi.mock('@linagora/linid-im-front-corelib', () => ({
-  useUiDesign: () => ({
-    ui: mockUi,
-  }),
-  useScopedI18n: () => ({
-    translateOrDefault: vi.fn(),
-    t: mockT,
-  }),
-  useQuasarRules: () => [vi.fn(), vi.fn(), vi.fn()],
-}));
+vi.mock('@linagora/linid-im-front-corelib', async () => {
+  const { getNestedValue, setNestedValue } = await vi.importActual(
+    '@linagora/linid-im-front-corelib'
+  );
+  return {
+    getNestedValue,
+    setNestedValue,
+    useUiDesign: () => ({
+      ui: mockUi,
+    }),
+    useScopedI18n: () => ({
+      translateOrDefault: vi.fn(),
+      t: mockT,
+    }),
+    useQuasarRules: () => [vi.fn(), vi.fn(), vi.fn()],
+  };
+});
 
 const mockGetDynamicListPage = vi.fn();
 
@@ -134,6 +141,7 @@ describe('Test component: EntityAttributeDynamicListField', () => {
       props: {
         ...initialMountingOptions.props,
         definition: {
+          name: 'type',
           ...initialMountingOptions.props.definition,
           inputSettings: {
             ...initialMountingOptions.props.definition.inputSettings,
@@ -187,6 +195,7 @@ describe('Test component: EntityAttributeDynamicListField', () => {
     it('should return default size when not configured', async () => {
       await wrapper.setProps({
         definition: {
+          name: 'type',
           ...mountingOptions.props.definition,
           inputSettings: {
             route: mountingOptions.props.definition.inputSettings.route,
@@ -210,6 +219,7 @@ describe('Test component: EntityAttributeDynamicListField', () => {
     it('should return null if route is missing', async () => {
       await wrapper.setProps({
         definition: {
+          name: 'type',
           ...mountingOptions.props.definition,
           inputSettings: {
             size: 10,
@@ -256,6 +266,7 @@ describe('Test component: EntityAttributeDynamicListField', () => {
     it('should not fetch when route is missing', async () => {
       await wrapper.setProps({
         definition: {
+          name: 'type',
           ...mountingOptions.props.definition,
           inputSettings: {
             size: 30,
@@ -395,6 +406,7 @@ describe('Test component: EntityAttributeDynamicListField', () => {
       await wrapper.setProps({
         ignoreRules: true,
         definition: {
+          name: 'type',
           hasValidations: true,
           required: true,
           inputSettings: {
@@ -411,6 +423,7 @@ describe('Test component: EntityAttributeDynamicListField', () => {
       await wrapper.setProps({
         ignoreRules: false,
         definition: {
+          name: 'type',
           hasValidations: true,
           required: true,
           inputSettings: {
@@ -428,6 +441,7 @@ describe('Test component: EntityAttributeDynamicListField', () => {
       await wrapper.setProps({
         ignoreRules: false,
         definition: {
+          name: 'type',
           hasValidations: true,
           required: true,
           inputSettings: {
@@ -444,6 +458,7 @@ describe('Test component: EntityAttributeDynamicListField', () => {
     it('should return rules if ignoreRules is unset', async () => {
       await wrapper.setProps({
         definition: {
+          name: 'type',
           hasValidations: true,
           required: true,
           inputSettings: {
@@ -606,6 +621,49 @@ describe('Test component: EntityAttributeDynamicListField', () => {
       });
 
       expect(wrapper.vm.localValue).toEqual('free');
+    });
+  });
+
+  describe('Test nested attributes', () => {
+    beforeEach(() => {
+      mountingOptions.props.definition.name = 'extraParameters.type';
+      mountingOptions.props.entity.extraParameters = {
+        type: 'value1',
+        login: 'jdoe',
+      };
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+    });
+
+    it('should read the value from the nested path', () => {
+      expect(wrapper.vm.localValue).toEqual('value1');
+    });
+
+    it('should emit the complete entity with only the nested value updated', () => {
+      wrapper.vm.localValue = 'value2';
+
+      wrapper.vm.updateValue();
+
+      expect(wrapper.emitted('update:entity')[0]).toEqual([
+        {
+          name: 'entity-name',
+          extraParameters: { type: 'value2', login: 'jdoe' },
+        },
+      ]);
+    });
+
+    it('should create missing intermediate objects when updating', () => {
+      delete mountingOptions.props.entity.extraParameters;
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      wrapper.vm.localValue = 'value2';
+
+      wrapper.vm.updateValue();
+
+      expect(wrapper.emitted('update:entity')[0]).toEqual([
+        {
+          name: 'entity-name',
+          extraParameters: { type: 'value2' },
+        },
+      ]);
     });
   });
 });

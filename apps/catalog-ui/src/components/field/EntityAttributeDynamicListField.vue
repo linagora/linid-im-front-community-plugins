@@ -62,7 +62,9 @@
 
 <script setup lang="ts">
 import {
+  getNestedValue,
   type LinidQSelectProps,
+  setNestedValue,
   useQuasarRules,
   useScopedI18n,
   useUiDesign,
@@ -104,7 +106,9 @@ let hasMore = true;
 
 const pageSize = computed(() => props.definition.inputSettings?.size ?? 20);
 
-const localValue = ref(props.entity[props.definition.name] ?? null);
+const localValue = ref(
+  getNestedValue(props.entity, props.definition.name) ?? null
+);
 
 const uiProps = ui<LinidQSelectProps>(
   `${props.uiNamespace}.${props.definition.name}`,
@@ -125,7 +129,7 @@ const rules = computed(() =>
 const route = computed(() => props.definition.inputSettings?.route);
 
 watch(
-  () => props.entity[props.definition.name],
+  () => getNestedValue(props.entity, props.definition.name),
   (newValue) => {
     localValue.value = newValue ?? null;
   }
@@ -230,9 +234,9 @@ function onVirtualScroll(payload: VirtualScrollPayload) {
  * Emits an 'update:entity' event with the updated entity object when the selection changes.
  */
 function updateValue() {
-  emits('update:entity', {
-    ...props.entity,
-    [props.definition.name]: localValue.value,
-  });
+  emits(
+    'update:entity',
+    setNestedValue(props.entity, props.definition.name, localValue.value)
+  );
 }
 </script>
