@@ -198,9 +198,20 @@ The validation rules are executed in a specific order to ensure proper validatio
 
 ---
 
+## **🧭 Nested Attributes**
+
+The attribute `name` supports **dot notation** to target values located inside sub-objects of the entity (e.g. `extraParameters.login`):
+
+- The initial value is read from the nested path (`getNestedValue` from corelib)
+- Updates rewrite only the targeted nested property, preserving the rest of the entity structure (`setNestedValue` from corelib)
+- Missing intermediate objects are created when updating; intermediate values that are not objects are replaced by objects
+- The `update:entity` event still emits the **complete** updated entity object
+
+---
+
 ## **🔁 Data Flow**
 
-1. Initial value is read from `entity[definition.name]`
+1. Initial value is read from the entity at the path `definition.name` (dot notation supported)
 2. User enters a numeric value
 3. `v-model.number` casts the input to a number
 4. `localValue` updates reactively
@@ -215,12 +226,12 @@ QInput (number) → localValue → updateValue → update:entity
 ## **🧠 Internal State Management**
 
 ```ts
-const localValue = ref(props.entity[props.definition.name] ?? null);
+const localValue = ref(getNestedValue(props.entity, props.definition.name) ?? null);
 ```
 
 - Maintains a local reactive copy of the attribute value
 - Supports `null` when the numeric attribute is initially undefined
-- A `watch` on `() => props.entity[props.definition.name]` keeps `localValue` in sync when the parent updates the entity — it only triggers when the **specific attribute value** changes, not when other fields of the entity change
+- A `watch` on `() => getNestedValue(props.entity, props.definition.name)` keeps `localValue` in sync when the parent updates the entity — it only triggers when the **specific attribute value** changes, not when other fields of the entity change
 
 ---
 
@@ -282,7 +293,7 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 - Assert `update:entity` emission on value change
 - Mock `useScopedI18n` to control translated output
 - Shallow mount the component to isolate behavior from UI rendering
-- Verify that `localValue` is updated when `entity[definition.name]` changes
+- Verify that `localValue` is updated when the entity value at `definition.name` changes
 - Verify that `localValue` is **not** overwritten when only other entity attributes change
 - Verify the input is rendered as disabled when `definition.inputSettings.disable` is `true`
 

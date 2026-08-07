@@ -158,9 +158,20 @@ This allows fine-grained styling and behavior customization per attribute.
 
 ---
 
+## **🧭 Nested Attributes**
+
+The attribute `name` supports **dot notation** to target values located inside sub-objects of the entity (e.g. `extraParameters.login`):
+
+- The initial value is read from the nested path (`getNestedValue` from corelib)
+- Updates rewrite only the targeted nested property, preserving the rest of the entity structure (`setNestedValue` from corelib)
+- Missing intermediate objects are created when updating; intermediate values that are not objects are replaced by objects
+- The `update:entity` event still emits the **complete** updated entity object
+
+---
+
 ## **🔁 Data Flow**
 
-1. The toggle initializes its value from `entity[definition.name]`, falling back to
+1. The toggle initializes its value from the entity at the path `definition.name`, falling back to
    `definition.inputSettings.defaultValue`, then to `null`
 2. The user toggles the switch
 3. `localValue` is updated via `v-model`
@@ -175,13 +186,13 @@ QToggle → localValue → updateValue → update:entity
 ## **🧠 Internal State Management**
 
 ```ts
-const localValue = ref(props.entity[props.definition.name] ?? props.definition.inputSettings?.defaultValue ?? null);
+const localValue = ref(getNestedValue(props.entity, props.definition.name) ?? props.definition.inputSettings?.defaultValue ?? null);
 ```
 
 - Uses a local reactive value to decouple UI interaction from the parent state
 - Falls back to `inputSettings.defaultValue` when the entity has no value for the attribute, then to
   `null` when no default is configured
-- A `watch` on `() => props.entity[props.definition.name]` keeps `localValue` in sync when the parent updates the entity — it only triggers when the **specific attribute value** changes, not when other fields of the entity change
+- A `watch` on `() => getNestedValue(props.entity, props.definition.name)` keeps `localValue` in sync when the parent updates the entity — it only triggers when the **specific attribute value** changes, not when other fields of the entity change
 - The watcher applies the **same fallback chain** as the initialization:
 
   ```ts
@@ -294,7 +305,7 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 - Assert `update:entity` emission when the toggle changes
 - Mock `useScopedI18n` and `useUiDesign` for isolated unit tests
 - UI rendering can be shallow-mounted since behavior is event-driven
-- Verify that `localValue` is updated when `entity[definition.name]` changes
+- Verify that `localValue` is updated when the entity value at `definition.name` changes
 - Verify that `localValue` is **not** overwritten when only other entity attributes change (e.g. mutate `name` while keeping the boolean attribute value identical)
 - Verify the watcher falls back to `inputSettings.defaultValue` when the attribute becomes `undefined` or `null`, and to `null` when no default is configured
 - Verify an attribute value of `false` wins over a `defaultValue` of `true` — the only case that tells `??` from `||`

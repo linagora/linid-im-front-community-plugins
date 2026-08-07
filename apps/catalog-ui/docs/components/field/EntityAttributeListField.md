@@ -220,10 +220,21 @@ The validation rules are executed in a specific order to ensure proper validatio
 
 ---
 
+## **🧭 Nested Attributes**
+
+The attribute `name` supports **dot notation** to target values located inside sub-objects of the entity (e.g. `extraParameters.login`):
+
+- The initial value is read from the nested path (`getNestedValue` from corelib)
+- Updates rewrite only the targeted nested property, preserving the rest of the entity structure (`setNestedValue` from corelib)
+- Missing intermediate objects are created when updating; intermediate values that are not objects are replaced by objects
+- The `update:entity` event still emits the **complete** updated entity object
+
+---
+
 ## **🔁 Data Flow**
 
 1. Initial value is resolved from:
-   - `entity[definition.name]` (existing value in entity)
+   - the entity value at `definition.name` (existing value in entity)
    - `defaultValue` (if provided and included in `values` array)
    - `null` (fallback if `defaultValue` is absent or invalid)
 
@@ -252,6 +263,7 @@ const options = computed((): FieldListValue[] => { ... });
 - When `filterContext` is present on some values, filters entries against the current `entity` state:
   - OR logic within each `filterContext` key (single string or array of accepted values)
   - AND logic across keys (all constraints must be satisfied simultaneously)
+  - Keys support dot notation to reference nested entity values (e.g. `extraParameters.login`)
   - Entries with no `filterContext` are always included
   - If a `filterContext` key references an entity field with no value (null/undefined), the constraint is considered satisfied and the entry is shown
 - Re-evaluates automatically whenever the referenced `entity` fields change
@@ -269,7 +281,7 @@ const defaultValue = props.definition.inputSettings?.defaultValue && normalizedV
 ### Selected Value Management
 
 ```ts
-const localValue = ref(props.entity[props.definition.name] ?? defaultValue ?? null);
+const localValue = ref(getNestedValue(props.entity, props.definition.name) ?? defaultValue ?? null);
 ```
 
 - Uses a local reactive reference to isolate UI interaction
@@ -277,7 +289,7 @@ const localValue = ref(props.entity[props.definition.name] ?? defaultValue ?? nu
   1. Entity's existing value takes precedence
   2. Falls back to the validated `defaultValue` if provided and present in `values`
   3. Finally falls back to `null` if no valid default is available
-- A `watch` on `() => props.entity[props.definition.name]` keeps `localValue` in sync when the parent updates the entity — it only triggers when the **specific attribute value** changes, not when other fields of the entity change
+- A `watch` on `() => getNestedValue(props.entity, props.definition.name)` keeps `localValue` in sync when the parent updates the entity — it only triggers when the **specific attribute value** changes, not when other fields of the entity change
 - When the watched value becomes `null` or `undefined`, the fallback cascade `newValue ?? defaultValue ?? null` is applied, restoring the default value if available
 - A second `watch` on the `options` computed detects when the current `localValue` is no longer available after filtering: it resets `localValue` to `null` and emits `update:entity` to notify the parent
 
@@ -372,8 +384,8 @@ const cityDefinition = {
 - Mock `useScopedI18n` to control translation output
 - Shallow mount the component to isolate logic from UI rendering
 - Verify that the options list matches the `values` array from `inputSettings`
-- Verify that `localValue` is updated when `entity[definition.name]` changes
-- Verify that when `entity[definition.name]` is set to `null`, `localValue` falls back to `defaultValue` (or `options[0]`)
+- Verify that `localValue` is updated when the entity value at `definition.name` changes
+- Verify that when the entity value at `definition.name` is set to `null`, `localValue` falls back to `defaultValue` (or `options[0]`)
 - Verify that `localValue` is **not** overwritten when only other entity attributes change
 - Verify that `options` is filtered reactively when entity fields referenced in `filterContext` change
 - Verify OR logic within a single `filterContext` key (array of accepted values)
@@ -393,7 +405,7 @@ const cityDefinition = {
 - Available options are computed reactively; when no value has a `filterContext`, the result is equivalent to the full normalized list
 - Default value is validated against the full `values` array (unfiltered)
 - Default value resolution follows a specific cascade: entity value → validated `defaultValue` → `null`
-- The `entity` prop is reactive: changes to `entity[definition.name]` are reflected in `localValue` via a selective `watch`; the default value cascade also applies when the watched value becomes `null` or `undefined`
+- The `entity` prop is reactive: changes to the entity value at `definition.name` are reflected in `localValue` via a selective `watch`; the default value cascade also applies when the watched value becomes `null` or `undefined`
 - Validation is handled internally using `useQuasarRules` and can be configured via `inputSettings`
 - Missing translations safely fall back to default values
 - Intended for use via `EntityAttributeField`, not directly in most cases

@@ -149,6 +149,39 @@ uiNamespace = 'entity-editor';
 
 ---
 
+## **🧭 Nested Attributes**
+
+The attribute `name` in the definition supports **dot notation** to manage values located inside sub-objects of the entity:
+
+```json
+{
+  "name": "extraParameters.login",
+  "input": "Text"
+}
+```
+
+With the entity:
+
+```json
+{
+  "extraParameters": {
+    "login": "john.doe",
+    "role": "admin"
+  }
+}
+```
+
+All field types (`Text`, `Number`, `Boolean`, `Date`, `List`, `DynamicList`, `TextArea`, `Email`) support nested attributes:
+
+- The initial value is read from the nested path
+- Updating the value rewrites only the targeted nested property, preserving the rest of the entity structure
+- Missing intermediate objects are created when updating; intermediate values that are not objects are replaced by objects
+- The `update:entity` event still emits the **complete** updated entity object
+
+Multiple nesting levels are supported (e.g. `address.company.name`).
+
+---
+
 ## **🔁 Data Flow**
 
 1. The correct attribute field component is rendered dynamically
