@@ -161,10 +161,10 @@ export type GenericSortableListCardOutputs<T = Record<string, unknown>> = {
   deleted: [item: T];
 
   /**
-   * Emitted with the updated item after a successful individual update, or with the full reordered
-   * item list after the sort order has been successfully saved.
+   * Emitted with the full reloaded item list once a batch of pending changes (edits, reordering,
+   * deletions) has been saved, fully or partially.
    */
-  updated: [item: T[]];
+  updated: [items: T[]];
 };
 
 /**
@@ -251,4 +251,14 @@ export interface GenericSortableListCardUIProps {
    * The UI properties for the save button.
    */
   saveButton: LinidQBtnProps;
+}
+
+/**
+ * An item pending persistence, paired with its current index in `items.value`.
+ */
+export interface ChangedItem {
+  /** The item itself, as it currently stands in the local list. */
+  item: Record<string, unknown>;
+  /** The item's current index in `items.value`. */
+  index: number;
 }

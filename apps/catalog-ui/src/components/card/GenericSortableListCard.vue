@@ -67,10 +67,11 @@
       </ButtonsCard>
     </q-card-section>
     <q-card-section
-      v-if="unsavedChangesHintKey"
+      v-if="hasUnsavedChanges"
+      class="generic-sortable-list-card--unsaved-changes-hint"
       data-cy="generic-sortable-list-card_unsaved-changes-hint"
     >
-      <span>{{ t(unsavedChangesHintKey) }}</span>
+      <span>{{ t('unsavedChangesHint') }}</span>
     </q-card-section>
     <q-card-section>
       <q-list
@@ -138,7 +139,6 @@
             v-model="items"
             v-bind="uiProps.draggable"
             :item-key="itemKey"
-            @change="onOrderChange"
           >
             <template #item="{ element: item, index }">
               <q-item
@@ -311,15 +311,12 @@ import {
 import draggable from 'vuedraggable';
 import { DialogKey } from '../../types/dialog';
 import type {
+  ChangedItem,
   GenericListField,
   GenericSortableListCardOutputs,
   GenericSortableListCardProps,
   GenericSortableListCardUIProps,
 } from '../../types/genericSortableListCard';
-import type {
-  DraggableChangeEvent,
-  DraggableMoveEvent,
-} from '../../types/vueDraggable';
 import TruncatedItemLabel from '../label/TruncatedItemLabel.vue';
 import ButtonsCard from './ButtonsCard.vue';
 
@@ -346,8 +343,6 @@ const localUiNamespace = computed(() => {
 
 const items = ref<Record<string, unknown>[]>([]);
 const isLoading = ref<boolean>(false);
-const hasUnsavedOrderChanges = ref<boolean>(false);
-const hasUnsavedItemChanges = ref<boolean>(false);
 let eventSubscription: Subscription;
 
 const nunjucksContext = computed(() => ({
@@ -446,25 +441,36 @@ const uiProps = computed<GenericSortableListCardUIProps>(() => ({
   ),
 }));
 
-const hasUnsavedChanges = computed<boolean>(
-  () => hasUnsavedOrderChanges.value || hasUnsavedItemChanges.value
+/**
+ * Items whose value and/or effective position (current index, as a 1-based `orderKey`) diverges
+ * from the last loaded state — dragging is just another way that can happen, so it needs no
+ * separate tracking. Both sides are compared at their effective position, not their raw stored
+ * `orderKey`, so non-contiguous stored values (e.g. 5/10/15) don't flag every item as changed
+ * right after load. Items missing from `initialItems`, such as one dragged in from another list
+ * sharing the same `group`, are excluded: there is no baseline to diff them against.
+ */
+const pendingUpdates = computed<ChangedItem[]>(() =>
+  items.value
+    .map((item, index) => ({ item, index }))
+    .filter(({ item, index }) => {
+      const initialIndex = initialItems.findIndex(
+        (initial) => initial[props.itemKey] === item[props.itemKey]
+      );
+
+      if (initialIndex === -1) {
+        return false;
+      }
+
+      return !deepEqual(
+        { ...item, [props.orderKey]: index + 1 },
+        { ...initialItems[initialIndex], [props.orderKey]: initialIndex + 1 }
+      );
+    })
 );
 
-/**
- * The i18n key of the hint describing which local changes are still waiting to be saved, or `null`
- * when the list matches the last loaded state.
- */
-const unsavedChangesHintKey = computed<string | null>(() => {
-  if (hasUnsavedOrderChanges.value && hasUnsavedItemChanges.value) {
-    return 'saveNewOrderAndUpdatedItemsHint';
-  }
-
-  if (hasUnsavedOrderChanges.value) {
-    return 'saveNewOrderHint';
-  }
-
-  return hasUnsavedItemChanges.value ? 'saveUpdatedItemsHint' : null;
-});
+const hasUnsavedChanges = computed<boolean>(
+  () => pendingUpdates.value.length > 0
+);
 
 const isEntityResolved = computed(
   () => props.entity === undefined || Object.keys(props.entity).length > 0
@@ -505,8 +511,6 @@ async function loadData() {
     initialItems = [];
     Notify({ type: 'negative', message: t('loadError') });
   } finally {
-    hasUnsavedOrderChanges.value = false;
-    hasUnsavedItemChanges.value = false;
     isLoading.value = false;
   }
 }
@@ -635,12 +639,12 @@ async function deleteItem(
     Notify({ type: 'positive', message: t('deleteSuccess') });
     emits('deleted', item);
     items.value.splice(index, 1);
-    const reorderResults = await updateItems();
+    const reorderResults = await submitPendingUpdates();
     if (!reorderResults.includes('fulfilled')) {
-      Notify({ type: 'negative', message: t('updateItemsError') });
+      Notify({ type: 'negative', message: t('saveChangesError') });
       return;
     } else if (reorderResults.includes('rejected')) {
-      Notify({ type: 'negative', message: t('updateItemsPartially') });
+      Notify({ type: 'negative', message: t('saveChangesPartially') });
     }
     await loadData();
   } catch {
@@ -665,88 +669,44 @@ function openEditDialog(item: Record<string, unknown>): void {
       formFields: props.formFields,
       initialFormData: item,
       onSubmit: (formData: Record<string, unknown>) =>
-        updateItem(formData, item),
+        updateItemLocally({ ...item, ...formData }),
     },
   });
 }
 
 /**
- * Edit an item by posting the submitted form data to the update endpoint, then notifies
- * the user, emits the `updated` event and reloads the items.
- * @param formData - The submitted form data, sent as the request body.
- * @param item - The original item before edits, available as `item` in the endpoint template context.
- * @returns A promise that resolves when the update handling is complete. The promise rejects
- * when the update fails, so the form dialog stays open for correction.
+ * Replaces the item matching `updatedItem` on `itemKey` in the local list, without persisting
+ * anything — used by the edit dialog (pre-merged with the original item) and by
+ * `listenToItemUpdate` events such as a toggle field.
+ * @param updatedItem - The updated item, matched against the local list on the item key.
  */
-async function updateItem(
-  formData: Record<string, unknown>,
-  item: Record<string, unknown>
-): Promise<void> {
-  try {
-    const { data } = await getHttpClient().put(
-      render(props.endpoints.update, {
-        ...nunjucksContext.value,
-        item,
-      }),
-      formData
-    );
-
-    Notify({ type: 'positive', message: t('updateSuccess') });
-    emits('updated', [props.itemMapperFn(data)]);
-    await loadData();
-  } catch (error) {
-    Notify({ type: 'negative', message: t('updateError') });
-    throw error;
-  }
+function updateItemLocally(updatedItem: Record<string, unknown>): void {
+  items.value = items.value.map((item) =>
+    updatedItem[props.itemKey] === item[props.itemKey] ? updatedItem : item
+  );
 }
 
 /**
- * Handles a drag-and-drop change event from vuedraggable and marks the order as changed when an
- * item is added, removed, or moved to a position different from its original one.
- * @param event - The draggable change event describing what happened (added, removed, or moved).
+ * Persists every pending change by sending a `PUT` per item in `pendingUpdates`, in parallel. If at
+ * least one request succeeded, reloads the items and emits `updated`. Notifies the user of full or
+ * partial failure when applicable.
  */
-function onOrderChange(
-  event: DraggableChangeEvent<Record<string, unknown>>
-): void {
-  if ('added' in event || 'removed' in event) {
-    hasUnsavedOrderChanges.value = true;
+async function saveChanges() {
+  if (!hasUnsavedChanges.value) {
     return;
   }
 
-  const movedEvt = event as DraggableMoveEvent<Record<string, unknown>>;
-  const originalIndex = initialItems.findIndex(
-    (item) => item[props.itemKey] === movedEvt.moved.element[props.itemKey]
-  );
-
-  if (originalIndex !== -1 && movedEvt.moved.newIndex !== originalIndex) {
-    hasUnsavedOrderChanges.value = true;
-  } else if (
-    items.value.every(
-      (item, index) =>
-        item[props.itemKey] === initialItems[index]?.[props.itemKey]
-    )
-  ) {
-    hasUnsavedOrderChanges.value = false;
-  }
-}
-
-/**
- * Persists every pending local change by updating each item with its current values and its new
- * index via the update endpoint. If at least one request succeeded, reloads the items and emits
- * the `updated` event. Notifies the user of full or partial failure when applicable.
- */
-async function saveChanges() {
-  const results = await updateItems();
+  const results = await submitPendingUpdates();
 
   if (!results.includes('fulfilled')) {
-    Notify({ type: 'negative', message: t('updateItemsError') });
+    Notify({ type: 'negative', message: t('saveChangesError') });
     return;
   }
 
   if (results.includes('rejected')) {
-    Notify({ type: 'negative', message: t('updateItemsPartially') });
+    Notify({ type: 'negative', message: t('saveChangesPartially') });
   } else {
-    Notify({ type: 'positive', message: t('updateItemsSuccess') });
+    Notify({ type: 'positive', message: t('saveChangesSuccess') });
   }
 
   await loadData();
@@ -754,13 +714,13 @@ async function saveChanges() {
 }
 
 /**
- * Updates each item according to its current position in the list by sending
- * a PUT request for every item in parallel.
- * @returns The settlement status of each request, in the same order as `items.value`.
+ * Sends a `PUT` request for every item in `pendingUpdates`, in parallel, assigning each one its
+ * current 1-based position as the `orderKey`.
+ * @returns The settlement status of each request, in the same order as `pendingUpdates`.
  */
-async function updateItems(): Promise<('fulfilled' | 'rejected')[]> {
+async function submitPendingUpdates(): Promise<('fulfilled' | 'rejected')[]> {
   const results = await Promise.allSettled(
-    items.value.map((item, index) =>
+    pendingUpdates.value.map(({ item, index }) =>
       getHttpClient().put(
         render(props.endpoints.update, {
           ...nunjucksContext.value,
@@ -777,24 +737,6 @@ async function updateItems(): Promise<('fulfilled' | 'rejected')[]> {
   return results.map((r) => r.status);
 }
 
-/**
- * Applies an `update:entity` event to the matching item of the local list, without persisting
- * anything, then flags whether the list still diverges from the last loaded state.
- * @param updatedItem - The updated item, matched against the local list on the item key.
- */
-function applyLocalItemUpdate(updatedItem: Record<string, unknown>): void {
-  items.value = items.value.map((item) =>
-    updatedItem[props.itemKey] === item[props.itemKey] ? updatedItem : item
-  );
-
-  hasUnsavedItemChanges.value = items.value.some((item) => {
-    const initialItem = initialItems.find(
-      (initialItem) => initialItem[props.itemKey] === item[props.itemKey]
-    );
-    return !deepEqual(item, initialItem);
-  });
-}
-
 onMounted(() => {
   if (!props.listenToItemUpdate) {
     return;
@@ -806,7 +748,7 @@ onMounted(() => {
       typeof event.data === 'object' &&
       event.data != null
     ) {
-      applyLocalItemUpdate(event.data as Record<string, unknown>);
+      updateItemLocally(event.data as Record<string, unknown>);
     }
   });
 });

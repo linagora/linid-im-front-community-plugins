@@ -775,42 +775,52 @@ describe('Test component: GenericSortableListCard', () => {
   });
 
   describe('Test function: deleteItem', () => {
-    it('should delete the item, update order, notify, emit deleted and reload', async () => {
-      wrapper.vm.items = [
-        { id: 'item-1', order: 1 },
-        { id: 'item-2', order: 2 },
-      ];
+    beforeEach(async () => {
+      mockHttpGet.mockResolvedValue(
+        singlePageResponse([
+          { id: 'item-1', order: 1 },
+          { id: 'item-2', order: 2 },
+        ])
+      );
+      wrapper = mountComponent();
+      await flushPromises();
       mockHttpGet.mockClear();
+    });
 
-      await wrapper.vm.deleteItem({ id: 'item-1' }, 0);
+    it('should delete the item, update order, notify, emit deleted and reload', async () => {
+      await wrapper.vm.deleteItem({ id: 'item-1', order: 1 }, 0);
 
       expect(mockHttpDelete).toHaveBeenCalledWith(
         '/api/parents/parent-1/items/item-1'
+      );
+      expect(mockHttpPut).toHaveBeenCalledWith(
+        '/api/parents/parent-1/items/item-2',
+        { id: 'item-2', order: 1 }
       );
       expect(mockNotify).toHaveBeenCalledWith({
         type: 'positive',
         message: 'translated:deleteSuccess',
       });
-      expect(wrapper.emitted('deleted')).toEqual([[{ id: 'item-1' }]]);
+      expect(wrapper.emitted('deleted')).toEqual([
+        [{ id: 'item-1', order: 1 }],
+      ]);
       expect(mockHttpGet).toHaveBeenCalledOnce();
     });
 
     it('should remove the item from the local list immediately', async () => {
-      wrapper.vm.items = [
-        { id: 'item-1', order: 1 },
-        { id: 'item-2', order: 2 },
-      ];
+      mockHttpGet.mockResolvedValueOnce(
+        singlePageResponse([{ id: 'item-2', order: 1 }])
+      );
 
-      await wrapper.vm.deleteItem({ id: 'item-1' }, 0);
+      await wrapper.vm.deleteItem({ id: 'item-1', order: 1 }, 0);
 
       expect(wrapper.vm.items.some((item) => item.id === 'item-1')).toBe(false);
     });
 
     it('should notify on deletion error without emitting nor reloading', async () => {
       mockHttpDelete.mockRejectedValueOnce(new Error('delete failed'));
-      mockHttpGet.mockClear();
 
-      await wrapper.vm.deleteItem({ id: 'item-1' }, 0);
+      await wrapper.vm.deleteItem({ id: 'item-1', order: 1 }, 0);
 
       expect(mockNotify).toHaveBeenCalledWith({
         type: 'negative',
@@ -820,15 +830,10 @@ describe('Test component: GenericSortableListCard', () => {
       expect(mockHttpGet).not.toHaveBeenCalled();
     });
 
-    it('should notify updateItemsError and not reload when all reorder requests fail', async () => {
-      wrapper.vm.items = [
-        { id: 'item-1', order: 1 },
-        { id: 'item-2', order: 2 },
-      ];
+    it('should notify saveChangesError and not reload when all reorder requests fail', async () => {
       mockHttpPut.mockRejectedValueOnce(new Error('reorder failed'));
-      mockHttpGet.mockClear();
 
-      await wrapper.vm.deleteItem({ id: 'item-1' }, 0);
+      await wrapper.vm.deleteItem({ id: 'item-1', order: 1 }, 0);
 
       expect(mockNotify).toHaveBeenCalledWith({
         type: 'positive',
@@ -836,21 +841,25 @@ describe('Test component: GenericSortableListCard', () => {
       });
       expect(mockNotify).toHaveBeenCalledWith({
         type: 'negative',
-        message: 'translated:updateItemsError',
+        message: 'translated:saveChangesError',
       });
       expect(mockHttpGet).not.toHaveBeenCalled();
     });
 
-    it('should notify updateItemsPartially and still reload when some reorder requests fail', async () => {
-      wrapper.vm.items = [
-        { id: 'item-1', order: 1 },
-        { id: 'item-2', order: 2 },
-        { id: 'item-3', order: 3 },
-      ];
-      mockHttpPut.mockRejectedValueOnce(new Error('reorder failed'));
+    it('should notify saveChangesPartially and still reload when some reorder requests fail', async () => {
+      mockHttpGet.mockResolvedValue(
+        singlePageResponse([
+          { id: 'item-1', order: 1 },
+          { id: 'item-2', order: 2 },
+          { id: 'item-3', order: 3 },
+        ])
+      );
+      wrapper = mountComponent();
+      await flushPromises();
       mockHttpGet.mockClear();
+      mockHttpPut.mockRejectedValueOnce(new Error('reorder failed'));
 
-      await wrapper.vm.deleteItem({ id: 'item-1' }, 0);
+      await wrapper.vm.deleteItem({ id: 'item-1', order: 1 }, 0);
 
       expect(mockNotify).toHaveBeenCalledWith({
         type: 'positive',
@@ -858,7 +867,7 @@ describe('Test component: GenericSortableListCard', () => {
       });
       expect(mockNotify).toHaveBeenCalledWith({
         type: 'negative',
-        message: 'translated:updateItemsPartially',
+        message: 'translated:saveChangesPartially',
       });
       expect(mockHttpGet).toHaveBeenCalledOnce();
     });
@@ -886,228 +895,284 @@ describe('Test component: GenericSortableListCard', () => {
       });
     });
 
-    it('should bind the onSubmit callback to updateItem for the given item', async () => {
+    it('should bind the onSubmit callback to updateItemLocally for the given item', async () => {
       const item = { id: 'item-1', order: 1, name: 'First' };
+      wrapper.vm.items = [item];
       wrapper.vm.openEditDialog(item);
 
       const { onSubmit } = uiEventSubject.next.mock.calls[0][0].data;
       await onSubmit({ name: 'Updated' });
 
-      expect(mockHttpPut).toHaveBeenCalledWith(
-        '/api/parents/parent-1/items/item-1',
-        { name: 'Updated' }
-      );
-    });
-  });
-
-  describe('Test function: updateItem', () => {
-    it('should put the form data, notify, emit updated and reload', async () => {
-      const item = { id: 'item-1', order: 1, name: 'First' };
-      mockHttpGet.mockClear();
-
-      await wrapper.vm.updateItem({ name: 'Updated' }, item);
-
-      expect(mockHttpPut).toHaveBeenCalledWith(
-        '/api/parents/parent-1/items/item-1',
-        { name: 'Updated' }
-      );
-      expect(mockNotify).toHaveBeenCalledWith({
-        type: 'positive',
-        message: 'translated:updateSuccess',
-      });
-      expect(wrapper.emitted('updated')).toHaveLength(1);
-      expect(mockHttpGet).toHaveBeenCalledOnce();
-    });
-
-    it('should emit updated with the server response data', async () => {
-      const item = { id: 'item-1', order: 1, name: 'First' };
-      mockHttpPut.mockResolvedValueOnce({
-        data: { id: 'item-1', order: 1, name: 'Updated' },
-      });
-
-      await wrapper.vm.updateItem({ name: 'Updated' }, item);
-
-      expect(wrapper.emitted('updated')[0][0]).toEqual([
+      expect(mockHttpPut).not.toHaveBeenCalled();
+      expect(wrapper.vm.items).toEqual([
         { id: 'item-1', order: 1, name: 'Updated' },
       ]);
     });
+  });
 
-    it('should notify and rethrow on update error without reloading', async () => {
-      const error = new Error('update failed');
-      mockHttpPut.mockRejectedValueOnce(error);
-      mockHttpGet.mockClear();
+  describe('Test function: updateItemLocally', () => {
+    beforeEach(async () => {
+      mockHttpGet.mockResolvedValue(
+        singlePageResponse([
+          { id: 'item-1', order: 1, name: 'First' },
+          { id: 'item-2', order: 2, name: 'Second' },
+        ])
+      );
+      wrapper = mountComponent();
+      await flushPromises();
+    });
 
-      await expect(
-        wrapper.vm.updateItem({ name: 'Updated' }, { id: 'item-1', order: 1 })
-      ).rejects.toBe(error);
+    it('should replace the matching item in the local list without sending any request', () => {
+      wrapper.vm.updateItemLocally({ id: 'item-2', order: 2, name: 'Renamed' });
 
-      expect(mockNotify).toHaveBeenCalledWith({
-        type: 'negative',
-        message: 'translated:updateError',
-      });
+      expect(wrapper.vm.items).toEqual([
+        { id: 'item-1', order: 1, name: 'First' },
+        { id: 'item-2', order: 2, name: 'Renamed' },
+      ]);
+      expect(mockHttpPut).not.toHaveBeenCalled();
+      expect(mockNotify).not.toHaveBeenCalled();
       expect(wrapper.emitted('updated')).toBeUndefined();
-      expect(mockHttpGet).not.toHaveBeenCalled();
+    });
+
+    it('should mark the changes as unsaved when the item diverges from the loaded one', () => {
+      wrapper.vm.updateItemLocally({ id: 'item-2', order: 2, name: 'Renamed' });
+
+      expect(wrapper.vm.hasUnsavedChanges).toBe(true);
+    });
+
+    it('should not flag anything when the item is updated back to its loaded values', () => {
+      wrapper.vm.updateItemLocally({ id: 'item-2', order: 2, name: 'Renamed' });
+      wrapper.vm.updateItemLocally({ id: 'item-2', order: 2, name: 'Second' });
+
+      expect(wrapper.vm.hasUnsavedChanges).toBe(false);
+    });
+
+    it('should leave the list untouched when no item matches the updated one', () => {
+      wrapper.vm.updateItemLocally({ id: 'unknown', order: 9, name: 'Ghost' });
+
+      expect(wrapper.vm.items).toEqual([
+        { id: 'item-1', order: 1, name: 'First' },
+        { id: 'item-2', order: 2, name: 'Second' },
+      ]);
+      expect(wrapper.vm.hasUnsavedChanges).toBe(false);
     });
   });
 
-  describe('Test function: onOrderChange', () => {
+  describe('Test computed: pendingUpdates', () => {
     beforeEach(async () => {
       mockHttpGet.mockResolvedValue(
         singlePageResponse([
-          { id: 'item-1', order: 1 },
-          { id: 'item-2', order: 2 },
-          { id: 'item-3', order: 3 },
+          { id: 'item-1', order: 1, name: 'First' },
+          { id: 'item-2', order: 2, name: 'Second' },
         ])
       );
       wrapper = mountComponent();
       await flushPromises();
     });
 
-    it('should set hasUnsavedOrderChanges to true when an item is added in the list', () => {
-      wrapper.vm.onOrderChange({
-        added: { element: { id: 'item-4', order: 4 }, newIndex: 3 },
-      });
-
-      expect(wrapper.vm.hasUnsavedOrderChanges).toBe(true);
+    it('should be empty when nothing changed', () => {
+      expect(wrapper.vm.pendingUpdates).toEqual([]);
     });
 
-    it('should set hasUnsavedOrderChanges to true when an item is removed in the list', () => {
-      wrapper.vm.onOrderChange({
-        removed: { element: { id: 'item-1', order: 1 }, oldIndex: 0 },
-      });
+    it('should include an item whose value was edited locally', () => {
+      wrapper.vm.items = [
+        { id: 'item-1', order: 1, name: 'Renamed' },
+        { id: 'item-2', order: 2, name: 'Second' },
+      ];
 
-      expect(wrapper.vm.hasUnsavedOrderChanges).toBe(true);
+      expect(wrapper.vm.pendingUpdates).toEqual([
+        { item: { id: 'item-1', order: 1, name: 'Renamed' }, index: 0 },
+      ]);
     });
 
-    it('should set hasUnsavedOrderChanges to true when an item is moved to a different position', () => {
+    it('should include every item whose effective position changed, without any dedicated reorder tracking', () => {
       wrapper.vm.items = [
-        { id: 'item-2', order: 2 },
-        { id: 'item-1', order: 1 },
-        { id: 'item-3', order: 3 },
+        { id: 'item-2', order: 2, name: 'Second' },
+        { id: 'item-1', order: 1, name: 'First' },
       ];
 
-      wrapper.vm.onOrderChange({
-        moved: {
-          element: { id: 'item-1', order: 1 },
-          oldIndex: 0,
-          newIndex: 1,
-        },
-      });
-
-      expect(wrapper.vm.hasUnsavedOrderChanges).toBe(true);
+      expect(wrapper.vm.pendingUpdates).toEqual([
+        { item: { id: 'item-2', order: 2, name: 'Second' }, index: 0 },
+        { item: { id: 'item-1', order: 1, name: 'First' }, index: 1 },
+      ]);
     });
 
-    it('should set hasUnsavedOrderChanges back to false when items are reordered back to their initial state', () => {
+    it('should exclude an item that is unchanged and did not move', () => {
       wrapper.vm.items = [
-        { id: 'item-2', order: 2 },
-        { id: 'item-1', order: 1 },
-        { id: 'item-3', order: 3 },
+        { id: 'item-1', order: 1, name: 'First' },
+        { id: 'item-2', order: 2, name: 'Renamed' },
       ];
-      wrapper.vm.onOrderChange({
-        moved: {
-          element: { id: 'item-1', order: 1 },
-          oldIndex: 0,
-          newIndex: 1,
-        },
-      });
-      expect(wrapper.vm.hasUnsavedOrderChanges).toBe(true);
 
-      wrapper.vm.items = [
-        { id: 'item-1', order: 1 },
-        { id: 'item-2', order: 2 },
-        { id: 'item-3', order: 3 },
-      ];
-      wrapper.vm.onOrderChange({
-        moved: {
-          element: { id: 'item-1', order: 1 },
-          oldIndex: 1,
-          newIndex: 0,
-        },
-      });
-
-      expect(wrapper.vm.hasUnsavedOrderChanges).toBe(false);
+      expect(wrapper.vm.pendingUpdates).toEqual([
+        { item: { id: 'item-2', order: 2, name: 'Renamed' }, index: 1 },
+      ]);
     });
 
-    it('should not reset hasUnsavedOrderChanges when other items are still out of their original order', () => {
-      wrapper.vm.hasUnsavedOrderChanges = true;
+    it('should exclude an item that has no match in the loaded baseline', () => {
       wrapper.vm.items = [
-        { id: 'item-1', order: 1 },
-        { id: 'item-3', order: 3 },
-        { id: 'item-2', order: 2 },
+        { id: 'item-1', order: 1, name: 'First' },
+        { id: 'item-2', order: 2, name: 'Second' },
+        { id: 'item-3', order: 3, name: 'Third' },
       ];
 
-      wrapper.vm.onOrderChange({
-        moved: {
-          element: { id: 'item-1', order: 1 },
-          oldIndex: 2,
-          newIndex: 0,
-        },
-      });
+      expect(wrapper.vm.pendingUpdates).toEqual([]);
+    });
 
-      expect(wrapper.vm.hasUnsavedOrderChanges).toBe(true);
+    it('should be empty right after load even with non-contiguous stored orderKey values', async () => {
+      mockHttpGet.mockResolvedValue(
+        singlePageResponse([
+          { id: 'item-1', order: 5, name: 'First' },
+          { id: 'item-2', order: 10, name: 'Second' },
+          { id: 'item-3', order: 15, name: 'Third' },
+        ])
+      );
+      wrapper = mountComponent();
+      await flushPromises();
+
+      expect(wrapper.vm.pendingUpdates).toEqual([]);
+    });
+
+    it('should track a reorder correctly with non-contiguous stored orderKey values', async () => {
+      mockHttpGet.mockResolvedValue(
+        singlePageResponse([
+          { id: 'item-1', order: 5, name: 'First' },
+          { id: 'item-2', order: 10, name: 'Second' },
+          { id: 'item-3', order: 15, name: 'Third' },
+        ])
+      );
+      wrapper = mountComponent();
+      await flushPromises();
+
+      wrapper.vm.items = [
+        { id: 'item-2', order: 10, name: 'Second' },
+        { id: 'item-1', order: 5, name: 'First' },
+        { id: 'item-3', order: 15, name: 'Third' },
+      ];
+
+      expect(wrapper.vm.pendingUpdates).toEqual([
+        { item: { id: 'item-2', order: 10, name: 'Second' }, index: 0 },
+        { item: { id: 'item-1', order: 5, name: 'First' }, index: 1 },
+      ]);
+    });
+
+    it('should include a subsequent item once deleteItemLocally shifts its position, with no manual reassignment', async () => {
+      mockHttpGet.mockResolvedValue(
+        singlePageResponse([
+          { id: 'item-1', order: 1, name: 'First' },
+          { id: 'item-2', order: 2, name: 'Second' },
+          { id: 'item-3', order: 3, name: 'Third' },
+        ])
+      );
+      wrapper = mountComponent();
+      await flushPromises();
+
+      wrapper.vm.deleteItemLocally(
+        { id: 'item-2', order: 2, name: 'Second' },
+        1
+      );
+
+      expect(wrapper.vm.pendingUpdates).toEqual([
+        { item: { id: 'item-3', order: 3, name: 'Third' }, index: 1 },
+      ]);
     });
   });
 
-  describe('Test function: onOrderChange (non-contiguous order values)', () => {
+  describe('Test function: submitPendingDeletions', () => {
+    it('should send a DELETE for every pending deletion, in parallel', async () => {
+      wrapper.vm.items = [{ id: 'item-1' }, { id: 'item-2' }];
+      wrapper.vm.deleteItemLocally({ id: 'item-1' }, 0);
+      wrapper.vm.deleteItemLocally({ id: 'item-2' }, 0);
+
+      await wrapper.vm.submitPendingDeletions();
+
+      expect(mockHttpDelete).toHaveBeenCalledWith(
+        '/api/parents/parent-1/items/item-1'
+      );
+      expect(mockHttpDelete).toHaveBeenCalledWith(
+        '/api/parents/parent-1/items/item-2'
+      );
+      expect(mockHttpDelete).toHaveBeenCalledTimes(2);
+    });
+
+    it('should send no request when nothing is pending deletion', async () => {
+      await wrapper.vm.submitPendingDeletions();
+
+      expect(mockHttpDelete).not.toHaveBeenCalled();
+    });
+
+    it('should return the settlement status of each request', async () => {
+      wrapper.vm.items = [{ id: 'item-1' }];
+      wrapper.vm.deleteItemLocally({ id: 'item-1' }, 0);
+      mockHttpDelete.mockRejectedValueOnce(new Error('delete failed'));
+
+      const results = await wrapper.vm.submitPendingDeletions();
+
+      expect(results).toEqual(['rejected']);
+    });
+  });
+
+  describe('Test function: submitPendingUpdates', () => {
     beforeEach(async () => {
       mockHttpGet.mockResolvedValue(
         singlePageResponse([
-          { id: 'item-a', order: 5 },
-          { id: 'item-b', order: 10 },
-          { id: 'item-c', order: 15 },
+          { id: 'item-1', order: 1, name: 'First' },
+          { id: 'item-2', order: 2, name: 'Second' },
         ])
       );
       wrapper = mountComponent();
       await flushPromises();
     });
 
-    it('should set hasUnsavedOrderChanges to true when an item is moved away from its initial position', () => {
-      wrapper.vm.items = [
-        { id: 'item-b', order: 10 },
-        { id: 'item-a', order: 5 },
-        { id: 'item-c', order: 15 },
-      ];
+    it('should send no request when no item changed', async () => {
+      await wrapper.vm.submitPendingUpdates();
 
-      wrapper.vm.onOrderChange({
-        moved: {
-          element: { id: 'item-a', order: 5 },
-          oldIndex: 0,
-          newIndex: 1,
-        },
-      });
-
-      expect(wrapper.vm.hasUnsavedOrderChanges).toBe(true);
+      expect(mockHttpPut).not.toHaveBeenCalled();
     });
 
-    it('should reset hasUnsavedOrderChanges to false when items are dragged back to their initial positions', () => {
+    it('should send a PUT only for the item that actually changed', async () => {
       wrapper.vm.items = [
-        { id: 'item-b', order: 10 },
-        { id: 'item-a', order: 5 },
-        { id: 'item-c', order: 15 },
+        { id: 'item-1', order: 1, name: 'Renamed' },
+        { id: 'item-2', order: 2, name: 'Second' },
       ];
-      wrapper.vm.onOrderChange({
-        moved: {
-          element: { id: 'item-a', order: 5 },
-          oldIndex: 0,
-          newIndex: 1,
-        },
-      });
-      expect(wrapper.vm.hasUnsavedOrderChanges).toBe(true);
 
+      await wrapper.vm.submitPendingUpdates();
+
+      expect(mockHttpPut).toHaveBeenCalledWith(
+        '/api/parents/parent-1/items/item-1',
+        { id: 'item-1', order: 1, name: 'Renamed' }
+      );
+      expect(mockHttpPut).toHaveBeenCalledTimes(1);
+    });
+
+    it('should send a PUT for every item whose effective position changed, in parallel', async () => {
       wrapper.vm.items = [
-        { id: 'item-a', order: 5 },
-        { id: 'item-b', order: 10 },
-        { id: 'item-c', order: 15 },
+        { id: 'item-2', order: 2, name: 'Second' },
+        { id: 'item-1', order: 1, name: 'First' },
       ];
-      wrapper.vm.onOrderChange({
-        moved: {
-          element: { id: 'item-a', order: 5 },
-          oldIndex: 1,
-          newIndex: 0,
-        },
-      });
 
-      expect(wrapper.vm.hasUnsavedOrderChanges).toBe(false);
+      await wrapper.vm.submitPendingUpdates();
+
+      expect(mockHttpPut).toHaveBeenCalledWith(
+        '/api/parents/parent-1/items/item-2',
+        { id: 'item-2', order: 1, name: 'Second' }
+      );
+      expect(mockHttpPut).toHaveBeenCalledWith(
+        '/api/parents/parent-1/items/item-1',
+        { id: 'item-1', order: 2, name: 'First' }
+      );
+      expect(mockHttpPut).toHaveBeenCalledTimes(2);
+    });
+
+    it('should return the settlement status of each request', async () => {
+      wrapper.vm.items = [
+        { id: 'item-1', order: 1, name: 'Renamed' },
+        { id: 'item-2', order: 2, name: 'Second' },
+      ];
+      mockHttpPut.mockRejectedValueOnce(new Error('update failed'));
+
+      const results = await wrapper.vm.submitPendingUpdates();
+
+      expect(results).toEqual(['rejected']);
     });
   });
 
@@ -1121,140 +1186,127 @@ describe('Test component: GenericSortableListCard', () => {
       );
       wrapper = mountComponent();
       await flushPromises();
-      wrapper.vm.hasUnsavedOrderChanges = true;
     });
 
-    it('should send a PUT for each item with its new index-based order', async () => {
+    it('should send no request when nothing actually changed', async () => {
+      mockHttpGet.mockClear();
+
+      await wrapper.vm.saveChanges();
+
+      expect(mockHttpPut).not.toHaveBeenCalled();
+      expect(mockHttpDelete).not.toHaveBeenCalled();
+      expect(mockHttpGet).not.toHaveBeenCalled();
+      expect(mockNotify).not.toHaveBeenCalled();
+    });
+
+    it('should send a PUT only for the items that changed', async () => {
+      wrapper.vm.items = [
+        { id: 'item-1', order: 1, name: 'Renamed' },
+        { id: 'item-2', order: 2, name: 'Second' },
+      ];
       mockHttpGet.mockClear();
 
       await wrapper.vm.saveChanges();
 
       expect(mockHttpPut).toHaveBeenCalledWith(
         '/api/parents/parent-1/items/item-1',
-        { id: 'item-1', order: 1, name: 'First' }
+        { id: 'item-1', order: 1, name: 'Renamed' }
       );
-      expect(mockHttpPut).toHaveBeenCalledWith(
-        '/api/parents/parent-1/items/item-2',
-        { id: 'item-2', order: 2, name: 'Second' }
-      );
+      expect(mockHttpPut).toHaveBeenCalledTimes(1);
     });
 
     it('should notify success, emit updated and reload when all requests succeed', async () => {
+      wrapper.vm.items = [
+        { id: 'item-1', order: 1, name: 'Renamed' },
+        { id: 'item-2', order: 2, name: 'Second' },
+      ];
       mockHttpGet.mockClear();
 
       await wrapper.vm.saveChanges();
 
       expect(mockNotify).toHaveBeenCalledWith({
         type: 'positive',
-        message: 'translated:updateItemsSuccess',
+        message: 'translated:saveChangesSuccess',
       });
       expect(wrapper.emitted('updated')).toHaveLength(1);
-      expect(wrapper.vm.hasUnsavedOrderChanges).toBe(false);
+      expect(wrapper.vm.hasUnsavedChanges).toBe(false);
       expect(mockHttpGet).toHaveBeenCalledOnce();
     });
 
-    it('should notify error and not reload when all requests fail', async () => {
-      mockHttpPut.mockRejectedValueOnce(new Error('save failed'));
-      mockHttpPut.mockRejectedValueOnce(new Error('save failed'));
+    it('should notify error and not reload when every request fails', async () => {
+      wrapper.vm.items = [
+        { id: 'item-1', order: 1, name: 'Renamed' },
+        { id: 'item-2', order: 2, name: 'Second' },
+      ];
+      mockHttpPut.mockRejectedValueOnce(new Error('update failed'));
       mockHttpGet.mockClear();
 
       await wrapper.vm.saveChanges();
 
       expect(mockNotify).toHaveBeenCalledWith({
         type: 'negative',
-        message: 'translated:updateItemsError',
+        message: 'translated:saveChangesError',
       });
       expect(wrapper.emitted('updated')).toBeUndefined();
-      expect(wrapper.vm.hasUnsavedOrderChanges).toBe(true);
       expect(mockHttpGet).not.toHaveBeenCalled();
     });
 
     it('should notify partial error and still reload when some requests fail', async () => {
-      mockHttpPut.mockRejectedValueOnce(new Error('save failed'));
+      wrapper.vm.items = [
+        { id: 'item-1', order: 1, name: 'Renamed' },
+        { id: 'item-2', order: 2, name: 'AlsoRenamed' },
+      ];
+      mockHttpPut.mockRejectedValueOnce(new Error('update failed'));
       mockHttpGet.mockClear();
 
       await wrapper.vm.saveChanges();
 
       expect(mockNotify).toHaveBeenCalledWith({
         type: 'negative',
-        message: 'translated:updateItemsPartially',
+        message: 'translated:saveChangesPartially',
       });
       expect(mockNotify).not.toHaveBeenCalledWith({
         type: 'positive',
-        message: 'translated:updateItemsSuccess',
+        message: 'translated:saveChangesSuccess',
       });
       expect(wrapper.emitted('updated')).toHaveLength(1);
       expect(mockHttpGet).toHaveBeenCalledOnce();
     });
   });
 
-  describe('Test function: updateItems', () => {
-    it('should send a PUT for each item with its 1-based position as the order key', async () => {
-      wrapper.vm.items = [
-        { id: 'item-2', order: 1 },
-        { id: 'item-1', order: 2 },
-      ];
-
-      await wrapper.vm.updateItems();
-
-      expect(mockHttpPut).toHaveBeenCalledWith(
-        '/api/parents/parent-1/items/item-2',
-        { id: 'item-2', order: 1 }
+  describe('Test computed: hasUnsavedChanges', () => {
+    beforeEach(async () => {
+      mockHttpGet.mockResolvedValue(
+        singlePageResponse([
+          { id: 'item-1', order: 1, name: 'First' },
+          { id: 'item-2', order: 2, name: 'Second' },
+        ])
       );
-      expect(mockHttpPut).toHaveBeenCalledWith(
-        '/api/parents/parent-1/items/item-1',
-        { id: 'item-1', order: 2 }
-      );
+      wrapper = mountComponent();
+      await flushPromises();
     });
 
-    it('should send all PUT requests in parallel', async () => {
-      wrapper.vm.items = [
-        { id: 'item-1', order: 2 },
-        { id: 'item-2', order: 1 },
-        { id: 'item-3', order: 3 },
-      ];
-
-      await wrapper.vm.updateItems();
-
-      expect(mockHttpPut).toHaveBeenCalledTimes(3);
-    });
-  });
-
-  describe('Test computed: unsavedChangesHintKey', () => {
-    it('should not expose any hint when nothing has changed locally', () => {
-      expect(wrapper.vm.unsavedChangesHintKey).toBeNull();
+    it('should be false when nothing has changed locally', () => {
       expect(wrapper.vm.hasUnsavedChanges).toBe(false);
     });
 
-    it('should expose the order hint when only the order has changed', async () => {
-      wrapper.vm.hasUnsavedOrderChanges = true;
-      await wrapper.vm.$nextTick();
+    it('should be true when an item was reordered', () => {
+      wrapper.vm.items = [
+        { id: 'item-2', order: 2, name: 'Second' },
+        { id: 'item-1', order: 1, name: 'First' },
+      ];
 
-      expect(wrapper.vm.unsavedChangesHintKey).toBe('saveNewOrderHint');
       expect(wrapper.vm.hasUnsavedChanges).toBe(true);
     });
 
-    it('should expose the updated items hint when only items have changed', async () => {
-      wrapper.vm.hasUnsavedItemChanges = true;
-      await wrapper.vm.$nextTick();
+    it('should be true when an item was edited', () => {
+      wrapper.vm.updateItemLocally({ id: 'item-1', order: 1, name: 'Updated' });
 
-      expect(wrapper.vm.unsavedChangesHintKey).toBe('saveUpdatedItemsHint');
-      expect(wrapper.vm.hasUnsavedChanges).toBe(true);
-    });
-
-    it('should expose the combined hint when both the order and items have changed', async () => {
-      wrapper.vm.hasUnsavedOrderChanges = true;
-      wrapper.vm.hasUnsavedItemChanges = true;
-      await wrapper.vm.$nextTick();
-
-      expect(wrapper.vm.unsavedChangesHintKey).toBe(
-        'saveNewOrderAndUpdatedItemsHint'
-      );
       expect(wrapper.vm.hasUnsavedChanges).toBe(true);
     });
   });
 
-  describe('Test function: applyLocalItemUpdate', () => {
+  describe('Test: listenToItemUpdate subscription', () => {
     /**
      * Emits an update:entity event on the subject the component subscribed to on mount.
      * @param item - The updated item carried by the event.
@@ -1284,7 +1336,7 @@ describe('Test component: GenericSortableListCard', () => {
       expect(mockUnsubscribe).not.toHaveBeenCalled();
     });
 
-    it('should replace the matching item without sending any request', () => {
+    it('should call updateItemLocally with the event data when the key matches', () => {
       emitEntityUpdate({ id: 'item-2', order: 2, name: 'Renamed' });
 
       expect(wrapper.vm.items).toEqual([
@@ -1292,32 +1344,6 @@ describe('Test component: GenericSortableListCard', () => {
         { id: 'item-2', order: 2, name: 'Renamed' },
       ]);
       expect(mockHttpPut).not.toHaveBeenCalled();
-    });
-
-    it('should flag the local changes as unsaved when the item diverges from the loaded one', () => {
-      emitEntityUpdate({ id: 'item-2', order: 2, name: 'Renamed' });
-
-      expect(wrapper.vm.hasUnsavedItemChanges).toBe(true);
-      expect(wrapper.vm.unsavedChangesHintKey).toBe('saveUpdatedItemsHint');
-    });
-
-    it('should not flag anything when the item is updated back to its loaded values', () => {
-      emitEntityUpdate({ id: 'item-2', order: 2, name: 'Renamed' });
-
-      emitEntityUpdate({ id: 'item-2', order: 2, name: 'Second' });
-
-      expect(wrapper.vm.hasUnsavedItemChanges).toBe(false);
-      expect(wrapper.vm.unsavedChangesHintKey).toBeNull();
-    });
-
-    it('should leave the list untouched when no item matches the updated one', () => {
-      emitEntityUpdate({ id: 'unknown', order: 9, name: 'Ghost' });
-
-      expect(wrapper.vm.items).toEqual([
-        { id: 'item-1', order: 1, name: 'First' },
-        { id: 'item-2', order: 2, name: 'Second' },
-      ]);
-      expect(wrapper.vm.hasUnsavedItemChanges).toBe(false);
     });
 
     it('should ignore events emitted under another key', () => {
@@ -1330,7 +1356,7 @@ describe('Test component: GenericSortableListCard', () => {
         { id: 'item-1', order: 1, name: 'First' },
         { id: 'item-2', order: 2, name: 'Second' },
       ]);
-      expect(wrapper.vm.hasUnsavedItemChanges).toBe(false);
+      expect(wrapper.vm.hasUnsavedChanges).toBe(false);
     });
 
     it('should ignore events with null data', () => {
@@ -1340,7 +1366,7 @@ describe('Test component: GenericSortableListCard', () => {
         { id: 'item-1', order: 1, name: 'First' },
         { id: 'item-2', order: 2, name: 'Second' },
       ]);
-      expect(wrapper.vm.hasUnsavedItemChanges).toBe(false);
+      expect(wrapper.vm.hasUnsavedChanges).toBe(false);
     });
 
     it('should clear the unsaved item changes once the items are reloaded', async () => {
@@ -1348,8 +1374,7 @@ describe('Test component: GenericSortableListCard', () => {
 
       await wrapper.vm.saveChanges();
 
-      expect(wrapper.vm.hasUnsavedItemChanges).toBe(false);
-      expect(wrapper.vm.unsavedChangesHintKey).toBeNull();
+      expect(wrapper.vm.hasUnsavedChanges).toBe(false);
     });
 
     it('should unsubscribe from the ui events on unmount', () => {
