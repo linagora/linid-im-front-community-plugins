@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.101](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.100...v0.2.101) (2026-08-07)
+
+
+### Features
+
+* **catalog-ui:** add emitOnSave to GenericSortableListCard ([af8f722](https://github.com/linagora/linid-im-front-community-plugins/commit/af8f7222028d65694afa5277bfe719664573952a))
+* **catalog-ui:** defer GenericSortableListCard item deletion to a single save ([abebf87](https://github.com/linagora/linid-im-front-community-plugins/commit/abebf87534a5a34226644a99755b1aba93caba03))
+* **catalog-ui:** defer GenericSortableListCard item updates to a single save ([a83c0a7](https://github.com/linagora/linid-im-front-community-plugins/commit/a83c0a7b1ef3f2ae57f0546811ac201abd6ccb4a))
+
 ### [0.2.100](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.99...v0.2.100) (2026-08-07)
 
 
