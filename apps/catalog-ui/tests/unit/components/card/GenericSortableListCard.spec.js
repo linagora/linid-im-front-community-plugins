@@ -1337,6 +1337,66 @@ describe('Test component: GenericSortableListCard', () => {
     });
   });
 
+  describe('Test function: resetChanges', () => {
+    beforeEach(async () => {
+      mockHttpGet.mockResolvedValue(
+        singlePageResponse([
+          { id: 'item-1', order: 1, name: 'First' },
+          { id: 'item-2', order: 2, name: 'Second' },
+        ])
+      );
+      wrapper = mountComponent();
+      await flushPromises();
+    });
+
+    it('should restore the items to the last loaded state', () => {
+      wrapper.vm.items = [
+        { id: 'item-2', order: 2, name: 'Second' },
+        { id: 'item-1', order: 1, name: 'Renamed' },
+      ];
+
+      wrapper.vm.resetChanges();
+
+      expect(wrapper.vm.items).toEqual([
+        { id: 'item-1', order: 1, name: 'First' },
+        { id: 'item-2', order: 2, name: 'Second' },
+      ]);
+    });
+
+    it('should clear the pending deletions', () => {
+      wrapper.vm.deleteItemLocally(
+        { id: 'item-1', order: 1, name: 'First' },
+        0
+      );
+
+      wrapper.vm.resetChanges();
+
+      expect(wrapper.vm.pendingDeletions).toEqual([]);
+    });
+
+    it('should mark the changes as saved again', () => {
+      wrapper.vm.deleteItemLocally(
+        { id: 'item-1', order: 1, name: 'First' },
+        0
+      );
+
+      wrapper.vm.resetChanges();
+
+      expect(wrapper.vm.hasUnsavedChanges).toBe(false);
+    });
+
+    it('should send no request', () => {
+      wrapper.vm.items = [{ id: 'item-1', order: 1, name: 'Renamed' }];
+      mockHttpGet.mockClear();
+
+      wrapper.vm.resetChanges();
+
+      expect(mockHttpGet).not.toHaveBeenCalled();
+      expect(mockHttpPut).not.toHaveBeenCalled();
+      expect(mockHttpDelete).not.toHaveBeenCalled();
+    });
+  });
+
   describe('Test computed: hasUnsavedChanges', () => {
     beforeEach(async () => {
       mockHttpGet.mockResolvedValue(

@@ -256,6 +256,10 @@ export interface GenericSortableListCardUIProps {
    */
   addButton: LinidQBtnProps;
   /**
+   * The UI properties for the reset button.
+   */
+  resetButton: LinidQBtnProps;
+  /**
    * The UI properties for the save button.
    */
   saveButton: LinidQBtnProps;

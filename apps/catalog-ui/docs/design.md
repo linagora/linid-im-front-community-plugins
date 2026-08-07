@@ -374,8 +374,8 @@ when the `update` endpoint is configured.
 
 Card managing a drag-and-drop sortable collection: a scrollable list with a drag handle per item, a header row
 above the list, one section per configured field, an add button opening a `FormDialog`, per-item edit and delete
-buttons — delete removes the item locally with no confirmation dialog — and a save button persisting every pending
-change (edits, reordering and deletions) in a single batch. Only the add and edit dialogs inherit this namespace.
+buttons — delete removes the item locally with no confirmation dialog —, a save button to persist pending changes, and a reset button to revert them. The add, edit and delete
+dialogs inherit this namespace.
 
 **Namespace:** `{uiNamespace}.generic-sortable-list-card`
 
@@ -425,6 +425,9 @@ change (edits, reordering and deletions) in a single batch. Only the add and edi
       },
       "add-button": {
         "q-btn": { "color": "primary", "icon": "add", "dense": true, "unelevated": true }
+      },
+      "reset-button": {
+        "q-btn": { "color": "grey-7", "icon": "restart_alt", "flat": true, "dense": true }
       },
       "save-button": {
         "q-btn": { "color": "positive", "icon": "save", "dense": true, "unelevated": true }
@@ -1606,6 +1609,9 @@ A full example showing all CatalogUI components configured together:
         },
         "add-button": {
           "q-btn": { "color": "primary", "icon": "add", "dense": true, "unelevated": true }
+        },
+        "reset-button": {
+          "q-btn": { "color": "grey-7", "icon": "restart_alt", "flat": true, "dense": true }
         },
         "save-button": {
           "q-btn": { "color": "positive", "icon": "save", "dense": true, "unelevated": true }

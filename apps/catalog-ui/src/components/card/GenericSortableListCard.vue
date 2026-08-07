@@ -56,6 +56,14 @@
             @click="openCreateDialog"
           />
           <q-btn
+            v-bind="uiProps.resetButton"
+            :label="t('ButtonsCard.reset')"
+            :disable="isLoading || !hasUnsavedChanges"
+            class="buttons-card--reset-button"
+            data-cy="generic-sortable-list-card_reset-button"
+            @click="resetChanges"
+          />
+          <q-btn
             v-bind="uiProps.saveButton"
             :label="t('ButtonsCard.save')"
             :disable="isLoading || !hasUnsavedChanges"
@@ -444,6 +452,10 @@ const uiProps = computed<GenericSortableListCardUIProps>(() => ({
     `${localUiNamespace.value}.add-button`,
     'q-btn'
   ),
+  resetButton: ui<LinidQBtnProps>(
+    `${localUiNamespace.value}.reset-button`,
+    'q-btn'
+  ),
   saveButton: ui<LinidQBtnProps>(
     `${localUiNamespace.value}.save-button`,
     'q-btn'
@@ -700,6 +712,15 @@ async function saveChanges() {
   } finally {
     isLoading.value = false;
   }
+}
+
+/**
+ * Reverts every pending change by restoring the items to the last loaded state and clearing the
+ * pending deletions.
+ */
+function resetChanges(): void {
+  items.value = structuredClone(initialItems);
+  pendingDeletions.value = [];
 }
 
 /**

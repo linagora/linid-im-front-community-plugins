@@ -19,6 +19,7 @@ list, action buttons, dialogs, and save flows.
 - Provides an add button opening a configuration-driven `FormDialog` (creation is not deferred)
 - Provides per-item edit and delete buttons; delete removes the item immediately, with no
   confirmation step
+- Provides a reset button reverting every pending change back to the last loaded state
 - Resolves API endpoints from Nunjucks templates rendered with the entity owning the collection
 - Renders configurable fields per item, as a column layout with a header row above the list
 - Exposes plugin zones around the fields and inside the item actions for custom UI injection
@@ -190,8 +191,8 @@ reserves the section on both rows — the header and the items never drift out o
   deletion — **there is no confirmation step and nothing is sent to the server at this point**
 - The queued deletion counts as a pending change, showing the unsaved-changes hint and enabling
   the save button, exactly like an edit or a reorder
-- A mistaken deletion can only be undone by reverting the pending changes before saving (there is
-  currently no per-item undo)
+- A mistaken deletion can only be undone with the reset button (see
+  [Reset changes](#reset-changes)) before saving — there is no per-item undo
 
 ### Drag-and-drop reorder
 
@@ -236,6 +237,14 @@ there is no separate "order changed" state or hint to keep in sync with it.
 - If every request fails: error notification, **no reload**, no event emitted — the pending
   changes (including queued deletions) are left untouched so the user can retry
 
+### Reset changes
+
+- The reset button shares the save button's enabled condition: there must be a reorder, an edit or
+  a pending deletion to revert, and it is disabled while items are loading or a save is in progress
+- On click, the local list is restored to the last loaded state and the pending deletions are
+  cleared — **nothing is sent to the server**
+- This is currently the only way to undo a mistaken deletion or edit; there is no per-item undo
+
 ---
 
 ## **🌍 Internationalization**
@@ -247,7 +256,7 @@ Key highlights:
 
 - `title` — optional card title (hidden when the key is absent)
 - the `label` of each entry of the `fields` prop — header labels, resolved under this same scope
-- `ButtonsCard.add` / `ButtonsCard.save` — header action button labels
+- `ButtonsCard.add` / `ButtonsCard.reset` / `ButtonsCard.save` — header action button labels
 - `unsavedChangesHint` — hint shown under the header whenever there are unsaved changes (reorder, edit, or pending deletion)
 - `editButton` / `deleteButton` — per-item button labels (optional, default to empty string)
 - `CreateFormDialog.*` / `EditFormDialog.*` — scopes for the create and edit `FormDialog`
@@ -269,7 +278,7 @@ Key highlights:
 - `field-label` / `field-value` > `q-item-label` — the labels inside those cells. `lines` is forced to `1` and
   cannot be overridden: the overflow tooltip only works on single-line truncation
 - `item-actions-section` > `q-item-section`, with nested `edit-button` > `q-btn` and `delete-button` > `q-btn`
-- `add-button` > `q-btn` / `save-button` > `q-btn` — header action buttons
+- `add-button` > `q-btn` / `reset-button` > `q-btn` / `save-button` > `q-btn` — header action buttons
 
 ---
 
