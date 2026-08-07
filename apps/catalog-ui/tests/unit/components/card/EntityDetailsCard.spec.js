@@ -28,9 +28,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { shallowMount } from '@vue/test-utils';
 import EntityDetailsCard from '../../../../src/components/card/EntityDetailsCard.vue';
 
+const mockFormatValue = vi.fn((value) => value);
+
 vi.mock('@linagora/linid-im-front-corelib', () => ({
   useUiDesign: () => ({ ui: vi.fn() }),
   useScopedI18n: () => ({ t: vi.fn(), te: vi.fn(() => true) }),
+  useValueFormatter: () => ({ formatValue: mockFormatValue }),
 }));
 
 describe('Test component: EntityDetailsCard', () => {
@@ -130,6 +133,61 @@ describe('Test component: EntityDetailsCard', () => {
         field2: '',
         name: 'entity-name',
       });
+    });
+  });
+
+  describe('Test formatter integration', () => {
+    beforeEach(() => {
+      mockFormatValue.mockClear();
+    });
+
+    it('should call formatValue with formatter/formatOptions for matching field', async () => {
+      const testWrapper = shallowMount(EntityDetailsCard, {
+        props: {
+          uiNamespace: 'namespace',
+          i18nScope: 'scope',
+          entity: {
+            createdAt: '2026-01-15T10:30:00Z',
+          },
+          fieldOrder: ['createdAt'],
+          formatters: [
+            {
+              field: 'createdAt',
+              formatter: 'toDate',
+              formatOptions: { formatKey: 'application.dateFormat' },
+            },
+          ],
+        },
+      });
+
+      await testWrapper.vm.$nextTick();
+      // Access the values computed to trigger it
+      void testWrapper.vm.values;
+
+      expect(mockFormatValue).toHaveBeenCalledWith(
+        '2026-01-15T10:30:00Z',
+        'toDate',
+        { formatKey: 'application.dateFormat' }
+      );
+    });
+
+    it('should use raw value for field without formatter', async () => {
+      const testWrapper = shallowMount(EntityDetailsCard, {
+        props: {
+          uiNamespace: 'namespace',
+          i18nScope: 'scope',
+          entity: {
+            name: 'entity-name',
+            createdAt: '2026-01-15T10:30:00Z',
+          },
+          fieldOrder: ['name', 'createdAt'],
+        },
+      });
+
+      await testWrapper.vm.$nextTick();
+
+      expect(testWrapper.vm.values.name).toBe('entity-name');
+      expect(mockFormatValue).not.toHaveBeenCalled();
     });
   });
 });

@@ -21,14 +21,15 @@ and internationalization, making it well suited for entity detail and summary vi
 
 ## **⚙️ Props**
 
-| Prop name             | Type                      | Default | Description                                                      |
-| --------------------- | ------------------------- | ------- | ---------------------------------------------------------------- |
-| `entity`              | `Record<string, unknown>` | —       | Entity object containing the attributes to display               |
-| `fieldOrder`          | `string[]`                | `[]`    | Explicit order of fields to render                               |
-| `showRemainingFields` | `Boolean`                 | `false` | Whether to display entity fields not listed in `fieldOrder`      |
-| `isLoading`           | `Boolean`                 | `false` | Enables loading state for all child `InformationCard` components |
-| `uiNamespace`         | `String`                  | —       | Base UI namespace used for design system customization           |
-| `i18nScope`           | `String`                  | —       | Identifier used to scope translations                            |
+| Prop name             | Type                      | Default | Required | Description                                                      |
+| --------------------- | ------------------------- | ------- | -------- | ---------------------------------------------------------------- |
+| `entity`              | `Record<string, unknown>` | —       | Yes      | Entity object containing the attributes to display               |
+| `fieldOrder`          | `string[]`                | `[]`    | No       | Explicit order of fields to render                               |
+| `showRemainingFields` | `Boolean`                 | `false` | No       | Whether to display entity fields not listed in `fieldOrder`      |
+| `isLoading`           | `Boolean`                 | `false` | No       | Enables loading state for all child `InformationCard` components |
+| `uiNamespace`         | `String`                  | —       | Yes      | Base UI namespace used for design system customization           |
+| `i18nScope`           | `String`                  | —       | Yes      | Identifier used to scope translations                            |
+| `formatters`          | `FieldFormatter[]`        | —       | No       | Formatters applied to specific entity attributes before display  |
 
 ---
 
@@ -80,6 +81,14 @@ t(`EntityDetailsCard.attributes.${field}`);
 ```
 
 This allows full localization of entity metadata without hardcoding labels.
+
+---
+
+## **🎨 Value Formatting**
+
+Attribute values can be formatted before display using the optional `formatters` property.
+For detailed information about available formatters and configuration options, see the
+[**Value Formatting Guide**](../value-formatting.md).
 
 ---
 

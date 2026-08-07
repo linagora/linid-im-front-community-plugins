@@ -25,6 +25,7 @@
  */
 
 import type { CommonComponentProps } from './common';
+import type { FieldFormatter } from './ModuleGenericDetailsPageOptions';
 
 /**
  * Props definition for the EntityDetailsCard component.
@@ -44,6 +45,14 @@ export interface EntityDetailsCardProps extends CommonComponentProps {
    * The order of this array defines the display order.
    */
   fieldOrder?: string[];
+
+  /**
+   * Formatters applied to the entity attributes displayed in the section.
+   *
+   * Each formatter is associated with a specific field and customizes how the attribute value
+   * is rendered in the details card.
+   */
+  formatters?: FieldFormatter[];
 
   /**
    * Indicates whether entity attributes not listed in `fieldOrder`
