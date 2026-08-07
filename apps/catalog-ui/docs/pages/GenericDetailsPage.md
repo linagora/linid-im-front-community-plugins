@@ -95,10 +95,14 @@ Each section card receives:
 
 ## **Zones**
 
-This page exposes all default generic page zones described in the main **Zones** documentation.
+This page exposes all default generic page zones described in the main **Zones** documentation, plus two additional page-specific zones:
 
-No additional page-specific zones are provided. Every zone additionally receives the loaded `entity`, and the
-`content.before` and `content.after` zones also receive `entityId` and `isLoading`.
+| Zone                      | Location                          | Typical Use                       |
+| ------------------------- | --------------------------------- | --------------------------------- |
+| `{instanceId}.side-left`  | Left sidebar of the details page  | Related entities, navigation menu |
+| `{instanceId}.side-right` | Right sidebar of the details page | Metadata, related information     |
+
+Every zone additionally receives the loaded `entity`, and the `content.before`, `content.after`, `side-left`, and `side-right` zones also receive `entityId` and `isLoading`.
 
 ---
 
