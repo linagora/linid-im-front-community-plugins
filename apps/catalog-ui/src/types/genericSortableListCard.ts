@@ -156,9 +156,10 @@ export type GenericSortableListCardOutputs<T = Record<string, unknown>> = {
   created: [item: T];
 
   /**
-   * Emitted with the removed item after a successful deletion.
+   * Emitted with the items successfully removed once a batch of pending changes has been saved.
+   * Not emitted when the save included no successful deletion.
    */
-  deleted: [item: T];
+  deleted: [items: T[]];
 
   /**
    * Emitted with the full reloaded item list once a batch of pending changes (edits, reordering,

@@ -232,7 +232,7 @@
                       :disable="isLoading"
                       class="generic-sortable-list-card--delete-button"
                       :data-cy="`generic-sortable-list-card_button_delete_${index}`"
-                      @click="openDeleteDialog(item, index)"
+                      @click="deleteItemLocally(item, index)"
                     />
                     <slot
                       name="append-item-actions"
@@ -343,6 +343,7 @@ const localUiNamespace = computed(() => {
 
 const items = ref<Record<string, unknown>[]>([]);
 const isLoading = ref<boolean>(false);
+const pendingDeletions = ref<Record<string, unknown>[]>([]);
 let eventSubscription: Subscription;
 
 const nunjucksContext = computed(() => ({
@@ -469,7 +470,7 @@ const pendingUpdates = computed<ChangedItem[]>(() =>
 );
 
 const hasUnsavedChanges = computed<boolean>(
-  () => pendingUpdates.value.length > 0
+  () => pendingUpdates.value.length > 0 || pendingDeletions.value.length > 0
 );
 
 const isEntityResolved = computed(
@@ -511,6 +512,7 @@ async function loadData() {
     initialItems = [];
     Notify({ type: 'negative', message: t('loadError') });
   } finally {
+    pendingDeletions.value = [];
     isLoading.value = false;
   }
 }
@@ -597,59 +599,14 @@ async function createItem(formData: Record<string, unknown>): Promise<void> {
 }
 
 /**
- * Opens a confirmation dialog before deleting an item. The item properties are available as
- * named parameters in the dialog title and content translations.
+ * Marks an item for deletion and removes it from the local list immediately, without any
+ * confirmation step. Nothing is sent to the server until the pending changes are saved.
  * @param item - The item to delete.
- * @param index - The position of the item in the current list, used to remove it locally before reloading.
+ * @param index - The position of the item in the current list, used to remove it locally.
  */
-function openDeleteDialog(item: Record<string, unknown>, index: number): void {
-  uiEventSubject.next({
-    key: DialogKey.Confirmation,
-    data: {
-      type: 'open',
-      title: t('DeleteConfirmationDialog.title', item),
-      content: t('DeleteConfirmationDialog.content', item),
-      uiNamespace: localUiNamespace.value,
-      i18nScope: `${localI18nScope.value}.DeleteConfirmationDialog`,
-      onConfirm: () => deleteItem(item, index),
-    },
-  });
-}
-
-/**
- * Deletes an item through the delete endpoint, then notifies the user, emits the `deleted`
- * event, reorders the remaining items and reloads the list. If the reorder requests partially
- * or fully fail, notifies the user. On deletion failure, notifies the user and keeps the items unchanged.
- * @param item - The item to delete, available as `item` in the endpoint template context.
- * @param index - The position of the item in the current list, used to remove it locally before reloading.
- * @returns A promise that resolves when the deletion handling is complete.
- */
-async function deleteItem(
-  item: Record<string, unknown>,
-  index: number
-): Promise<void> {
-  try {
-    await getHttpClient().delete(
-      render(props.endpoints.delete, {
-        ...nunjucksContext.value,
-        item,
-      })
-    );
-
-    Notify({ type: 'positive', message: t('deleteSuccess') });
-    emits('deleted', item);
-    items.value.splice(index, 1);
-    const reorderResults = await submitPendingUpdates();
-    if (!reorderResults.includes('fulfilled')) {
-      Notify({ type: 'negative', message: t('saveChangesError') });
-      return;
-    } else if (reorderResults.includes('rejected')) {
-      Notify({ type: 'negative', message: t('saveChangesPartially') });
-    }
-    await loadData();
-  } catch {
-    Notify({ type: 'negative', message: t('deleteError') });
-  }
+function deleteItemLocally(item: Record<string, unknown>, index: number): void {
+  pendingDeletions.value.push(item);
+  items.value.splice(index, 1);
 }
 
 /**
@@ -687,16 +644,22 @@ function updateItemLocally(updatedItem: Record<string, unknown>): void {
 }
 
 /**
- * Persists every pending change by sending a `PUT` per item in `pendingUpdates`, in parallel. If at
- * least one request succeeded, reloads the items and emits `updated`. Notifies the user of full or
- * partial failure when applicable.
+ * Persists every pending change: a `DELETE` per item queued for deletion and a `PUT` per item in
+ * `pendingUpdates`, in parallel. On any success, emits `deleted` (if any) and `updated`, and
+ * reloads the items. Notifies success, partial failure, or failure.
  */
 async function saveChanges() {
   if (!hasUnsavedChanges.value) {
     return;
   }
 
-  const results = await submitPendingUpdates();
+  const deletions = [...pendingDeletions.value];
+
+  const [deleteResults, updateResults] = await Promise.all([
+    submitPendingDeletions(),
+    submitPendingUpdates(),
+  ]);
+  const results = [...deleteResults, ...updateResults];
 
   if (!results.includes('fulfilled')) {
     Notify({ type: 'negative', message: t('saveChangesError') });
@@ -709,8 +672,35 @@ async function saveChanges() {
     Notify({ type: 'positive', message: t('saveChangesSuccess') });
   }
 
+  const deletedItems = deletions.filter(
+    (_, index) => deleteResults[index] === 'fulfilled'
+  );
+  if (deletedItems.length > 0) {
+    emits('deleted', deletedItems);
+  }
+
   await loadData();
+
   emits('updated', items.value);
+}
+
+/**
+ * Sends a `DELETE` request for every item marked for deletion, in parallel.
+ * @returns The settlement status of each request, in the same order as `pendingDeletions`.
+ */
+async function submitPendingDeletions(): Promise<('fulfilled' | 'rejected')[]> {
+  const results = await Promise.allSettled(
+    pendingDeletions.value.map((item) =>
+      getHttpClient().delete(
+        render(props.endpoints.delete, {
+          ...nunjucksContext.value,
+          item,
+        })
+      )
+    )
+  );
+
+  return results.map((r) => r.status);
 }
 
 /**

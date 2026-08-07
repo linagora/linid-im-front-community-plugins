@@ -2,8 +2,8 @@
 
 The **GenericSortableListCard** component provides a complete UI for managing ordered collections:
 a drag-and-drop sortable list embedded in a card layout, with a built-in add button, per-item edit
-and delete actions, and a save button to persist every pending change (reordering and edits) in a
-single batch.
+and delete actions, and a save button to persist every pending change (reordering, edits and
+deletions) in a single batch.
 
 It standardizes ordered list management so features do not need to implement their own drag-and-drop
 list, action buttons, dialogs, and save flows.
@@ -13,11 +13,12 @@ list, action buttons, dialogs, and save flows.
 ## **🎯 Purpose**
 
 - Displays a collection of items as a sortable list inside a card
-- Lets users drag and drop items to reorder them or edit them, applied locally first
-- Persists every pending change in one save action: only items that were actually reordered or
-  edited generate a request
+- Lets users drag and drop items to reorder them, edit or delete them, all applied locally first
+- Persists every pending change in one save action: only items that were actually reordered,
+  edited or deleted generate a request
 - Provides an add button opening a configuration-driven `FormDialog` (creation is not deferred)
-- Provides per-item edit and delete buttons with their own `FormDialog` and `ConfirmationDialog`
+- Provides per-item edit and delete buttons; delete removes the item immediately, with no
+  confirmation step
 - Resolves API endpoints from Nunjucks templates rendered with the entity owning the collection
 - Renders configurable fields per item, as a column layout with a header row above the list
 - Exposes plugin zones around the fields and inside the item actions for custom UI injection
@@ -120,11 +121,11 @@ reserves the section on both rows — the header and the items never drift out o
 
 ## **📤 Events**
 
-| Event     | Payload                     | Description                                                                                                                                                                             |
-| --------- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `created` | `Record<string, unknown>`   | Emitted with the server response after a successful creation, transformed by `itemMapperFn` if provided                                                                                 |
-| `updated` | `Record<string, unknown>[]` | Emitted with the full reloaded list once a batch of pending changes (edits, reordering) has been saved, fully or partially                                                              |
-| `deleted` | `Record<string, unknown>`   | Emitted with the removed item after a successful deletion                                                                                                                               |
+| Event     | Payload                     | Description                                                                                                                                                                                                                     |
+| --------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `created` | `Record<string, unknown>`   | Emitted with the server response after a successful creation, transformed by `itemMapperFn` if provided                                                                                                                         |
+| `updated` | `Record<string, unknown>[]` | Emitted with the full reloaded list once a batch of pending changes (edits, reordering, deletions) has been saved, fully or partially                                                                                           |
+| `deleted` | `Record<string, unknown>[]` | Emitted with the items successfully removed once a batch of pending changes has been saved — not when the delete button is clicked (see [Delete item](#delete-item)). Not emitted when the save included no successful deletion |
 
 ---
 
@@ -183,15 +184,12 @@ reserves the section on both rows — the header and the items never drift out o
 
 ### Delete item
 
-- The delete button opens the shared `ConfirmationDialog`; the item properties are available as
-  named parameters in the dialog title and content translations
-- On confirm, the rendered `delete` endpoint is called; the item is immediately removed from the
-  local list and a `PUT` is sent for every remaining item to keep the `orderKey` values contiguous
-- On deletion success: positive notification, `deleted` event
-  - If all reorder `PUT`s succeed: items reload
-  - If some reorder `PUT`s fail: partial-failure notification, items still reload
-  - If all reorder `PUT`s fail: error notification, **no reload** (the list keeps the item removed locally)
-- On deletion failure: negative notification, items unchanged
+- The delete button removes the item from the local list **immediately** and queues it for
+  deletion — **there is no confirmation step and nothing is sent to the server at this point**
+- The queued deletion counts as a pending change, showing the unsaved-changes hint and enabling
+  the save button, exactly like an edit or a reorder
+- A mistaken deletion can only be undone by reverting the pending changes before saving (there is
+  currently no per-item undo)
 
 ### Drag-and-drop reorder
 
@@ -212,24 +210,28 @@ reserves the section on both rows — the header and the items never drift out o
 ### Unsaved changes hint
 
 A single hint (`unsavedChangesHint`) is displayed under the header as soon as the list diverges
-from the last loaded state — whether because of a reorder or an edit. The component does not
-distinguish between these: an item's position is just another property, so there is no separate
-"order changed" state or hint to keep in sync with it.
+from the last loaded state — whether because of a reorder, an edit, or a pending deletion. The
+component does not distinguish between these: an item's position is just another property, so
+there is no separate "order changed" state or hint to keep in sync with it.
 
 ### Save changes
 
-- The save button is enabled as soon as there is a reorder or an edit to persist
-- On click, the card sends a `PUT` for every item whose stored value and/or effective position
-  (its current index in the list, as a 1-based `orderKey`) differs from the last loaded state —
-  items that were neither edited nor reordered generate **no request**
-- All `PUT`s are sent in parallel. If there is nothing left to send (e.g. an item was dragged back
-  to its original position), the save is a no-op — no request, no notification
-- If at least one request succeeds: items reload, `updated` is emitted with the full reloaded list
+- The save button is enabled as soon as there is a reorder, an edit or a pending deletion to
+  persist
+- On click, the card computes exactly what needs to be sent:
+  - a `DELETE` for every item queued by [Delete item](#delete-item)
+  - a `PUT` for every item whose stored value and/or effective position (its current index in the
+    list, as a 1-based `orderKey`) differs from the last loaded state — items that were neither
+    edited, reordered nor deleted generate **no request**
+- All `DELETE`s and `PUT`s are sent in parallel. If there is nothing left to send (e.g. an item was
+  dragged back to its original position), the save is a no-op — no request, no notification
+- If at least one request succeeds: `deleted` is emitted with the successfully removed items
+  (skipped if none), items reload, `updated` is emitted with the full reloaded list
   - If every request succeeded: positive notification
   - If some requests failed: partial-failure notification (the failed changes are lost — they are
     not automatically retried)
 - If every request fails: error notification, **no reload**, no event emitted — the pending
-  changes are left untouched so the user can retry
+  changes (including queued deletions) are left untouched so the user can retry
 
 ---
 
@@ -243,10 +245,9 @@ Key highlights:
 - `title` — optional card title (hidden when the key is absent)
 - the `label` of each entry of the `fields` prop — header labels, resolved under this same scope
 - `ButtonsCard.add` / `ButtonsCard.save` — header action button labels
-- `unsavedChangesHint` — hint shown under the header whenever there are unsaved changes (reorder or edit)
+- `unsavedChangesHint` — hint shown under the header whenever there are unsaved changes (reorder, edit, or pending deletion)
 - `editButton` / `deleteButton` — per-item button labels (optional, default to empty string)
 - `CreateFormDialog.*` / `EditFormDialog.*` — scopes for the create and edit `FormDialog`
-- `DeleteConfirmationDialog.*` — scope for the delete `ConfirmationDialog` (item properties interpolable)
 
 ---
 
@@ -383,7 +384,7 @@ Adding a column to the rows requires adding its header too, otherwise the header
 ## **✅ Advantages**
 
 - **Standardized:** One consistent flow for managing sortable ordered collections
-- **Composable:** Built on top of `vuedraggable`, `FormDialog` and `ConfirmationDialog`
+- **Composable:** Built on top of `vuedraggable` and `FormDialog`
 - **Configurable:** Fields, form fields and endpoints are driven by configuration; no component code needed
 - **Tabular without a table:** Column layout and header row while remaining a drag-and-drop `q-list`
 - **Auto-paginating:** Transparently fetches all pages before rendering
