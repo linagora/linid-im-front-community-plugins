@@ -101,37 +101,70 @@
         :i18n-scope="i18nScope"
       />
 
-      <LinidZoneRenderer
-        :zone="`${instanceId}.content.before`"
-        :entity="entity || {}"
-        :entity-id="entityId"
-        :instance-id="instanceId"
-        :ui-namespace="uiNamespace"
-        :i18n-scope="i18nScope"
-        :is-loading="isLoading"
-      />
+      <div class="row q-gutter-sm generic-details-page--content">
+        <div
+          class="flex column col-auto generic-details-page--content--side-left"
+        >
+          <LinidZoneRenderer
+            :zone="`${instanceId}.side-left`"
+            :entity="entity || {}"
+            :entity-id="entityId"
+            :instance-id="instanceId"
+            :ui-namespace="uiNamespace"
+            :i18n-scope="i18nScope"
+            :is-loading="isLoading"
+          />
+        </div>
 
-      <EntityDetailsCard
-        v-for="section in options.sections"
-        :key="section.key"
-        :entity="entity || {}"
-        :field-order="section.fieldOrder"
-        :show-remaining-fields="section.showRemainingFields || false"
-        :is-loading="isLoading"
-        :ui-namespace="`${uiNamespace}.sections.${section.key}`"
-        :i18n-scope="`${i18nScope}.sections.${section.key}`"
-        class="q-mb-md q-px-md generic-details-page--section"
-        :data-cy="`details-section_${section.key}`"
-      />
-      <LinidZoneRenderer
-        :zone="`${instanceId}.content.after`"
-        :entity="entity || {}"
-        :entity-id="entityId"
-        :instance-id="instanceId"
-        :ui-namespace="uiNamespace"
-        :i18n-scope="i18nScope"
-        :is-loading="isLoading"
-      />
+        <div class="col generic-details-page--content--main">
+          <LinidZoneRenderer
+            :zone="`${instanceId}.content.before`"
+            :entity="entity || {}"
+            :entity-id="entityId"
+            :instance-id="instanceId"
+            :ui-namespace="uiNamespace"
+            :i18n-scope="i18nScope"
+            :is-loading="isLoading"
+          />
+
+          <EntityDetailsCard
+            v-for="section in options.sections"
+            :key="section.key"
+            :entity="entity || {}"
+            :field-order="section.fieldOrder"
+            :show-remaining-fields="section.showRemainingFields || false"
+            :is-loading="isLoading"
+            :ui-namespace="`${uiNamespace}.sections.${section.key}`"
+            :i18n-scope="`${i18nScope}.sections.${section.key}`"
+            class="q-mb-md q-px-md generic-details-page--section"
+            :data-cy="`details-section_${section.key}`"
+          />
+
+          <LinidZoneRenderer
+            :zone="`${instanceId}.content.after`"
+            :entity="entity || {}"
+            :entity-id="entityId"
+            :instance-id="instanceId"
+            :ui-namespace="uiNamespace"
+            :i18n-scope="i18nScope"
+            :is-loading="isLoading"
+          />
+        </div>
+
+        <div
+          class="flex column col-auto generic-details-page--content--side-right"
+        >
+          <LinidZoneRenderer
+            :zone="`${instanceId}.side-right`"
+            :entity="entity || {}"
+            :entity-id="entityId"
+            :instance-id="instanceId"
+            :ui-namespace="uiNamespace"
+            :i18n-scope="i18nScope"
+            :is-loading="isLoading"
+          />
+        </div>
+      </div>
     </div>
   </q-page>
   <!-- v8 ignore stop -->
