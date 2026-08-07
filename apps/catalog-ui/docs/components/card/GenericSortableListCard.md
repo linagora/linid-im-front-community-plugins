@@ -219,7 +219,7 @@ there is no separate "order changed" state or hint to keep in sync with it.
 ### Save changes
 
 - The save button is enabled as soon as there is a reorder, an edit or a pending deletion to
-  persist
+  persist, and disabled while items are loading or a save is already in progress
 - On click, the card computes exactly what needs to be sent:
   - a `DELETE` for every item queued by [Delete item](#delete-item)
   - a `PUT` for every item whose stored value and/or effective position (its current index in the

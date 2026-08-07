@@ -1312,6 +1312,29 @@ describe('Test component: GenericSortableListCard', () => {
 
       expect(uiEventSubject.next).not.toHaveBeenCalled();
     });
+
+    it('should set isLoading while the save is in progress and clear it once done', async () => {
+      let resolvePut;
+      mockHttpPut.mockReturnValueOnce(
+        new Promise((resolve) => {
+          resolvePut = resolve;
+        })
+      );
+      wrapper.vm.items = [
+        { id: 'item-1', order: 1, name: 'Renamed' },
+        { id: 'item-2', order: 2, name: 'Second' },
+      ];
+
+      const savePromise = wrapper.vm.saveChanges();
+      await Promise.resolve();
+
+      expect(wrapper.vm.isLoading).toBe(true);
+
+      resolvePut({ data: {} });
+      await savePromise;
+
+      expect(wrapper.vm.isLoading).toBe(false);
+    });
   });
 
   describe('Test computed: hasUnsavedChanges', () => {

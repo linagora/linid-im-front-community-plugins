@@ -662,38 +662,43 @@ async function saveChanges() {
     return;
   }
 
-  const deletions = [...pendingDeletions.value];
+  isLoading.value = true;
+  try {
+    const deletions = [...pendingDeletions.value];
 
-  const [deleteResults, updateResults] = await Promise.all([
-    submitPendingDeletions(),
-    submitPendingUpdates(),
-  ]);
-  const results = [...deleteResults, ...updateResults];
+    const [deleteResults, updateResults] = await Promise.all([
+      submitPendingDeletions(),
+      submitPendingUpdates(),
+    ]);
+    const results = [...deleteResults, ...updateResults];
 
-  if (!results.includes('fulfilled')) {
-    Notify({ type: 'negative', message: t('saveChangesError') });
-    return;
-  }
+    if (!results.includes('fulfilled')) {
+      Notify({ type: 'negative', message: t('saveChangesError') });
+      return;
+    }
 
-  if (results.includes('rejected')) {
-    Notify({ type: 'negative', message: t('saveChangesPartially') });
-  } else {
-    Notify({ type: 'positive', message: t('saveChangesSuccess') });
-  }
+    if (results.includes('rejected')) {
+      Notify({ type: 'negative', message: t('saveChangesPartially') });
+    } else {
+      Notify({ type: 'positive', message: t('saveChangesSuccess') });
+    }
 
-  const deletedItems = deletions.filter(
-    (_, index) => deleteResults[index] === 'fulfilled'
-  );
-  if (deletedItems.length > 0) {
-    emits('deleted', deletedItems);
-  }
+    const deletedItems = deletions.filter(
+      (_, index) => deleteResults[index] === 'fulfilled'
+    );
+    if (deletedItems.length > 0) {
+      emits('deleted', deletedItems);
+    }
 
-  await loadData();
+    await loadData();
 
-  emits('updated', items.value);
+    emits('updated', items.value);
 
-  if (props.emitOnSave) {
-    uiEventSubject.next({ key: props.emitOnSave, data: items.value });
+    if (props.emitOnSave) {
+      uiEventSubject.next({ key: props.emitOnSave, data: items.value });
+    }
+  } finally {
+    isLoading.value = false;
   }
 }
 
