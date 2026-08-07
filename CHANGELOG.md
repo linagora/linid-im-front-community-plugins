@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.99](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.98...v0.2.99) (2026-08-07)
+
+
+### Features
+
+* **catalog-ui:** add status badge component ([4478575](https://github.com/linagora/linid-im-front-community-plugins/commit/44785755c02a0517b1b55de5320c7bec324cdaa0))
+
 ### [0.2.98](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.97...v0.2.98) (2026-08-07)
 
 
