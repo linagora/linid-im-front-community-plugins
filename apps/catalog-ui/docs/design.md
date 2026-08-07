@@ -374,7 +374,8 @@ when the `update` endpoint is configured.
 
 Card managing a drag-and-drop sortable collection: a scrollable list with a drag handle per item, a header row
 above the list, one section per configured field, an add button opening a `FormDialog`, per-item edit and delete
-buttons, and a save button to persist the new order. The add, edit and delete dialogs inherit this namespace.
+buttons — delete removes the item locally with no confirmation dialog — and a save button persisting every pending
+change (edits, reordering and deletions) in a single batch. Only the add and edit dialogs inherit this namespace.
 
 **Namespace:** `{uiNamespace}.generic-sortable-list-card`
 

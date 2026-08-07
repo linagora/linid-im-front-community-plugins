@@ -746,130 +746,53 @@ describe('Test component: GenericSortableListCard', () => {
     });
   });
 
-  describe('Test function: openDeleteDialog', () => {
-    it('should open the confirmation dialog with a confirm callback deleting the item', async () => {
-      wrapper.vm.openDeleteDialog({ id: 'item-1' }, 0);
+  describe('Test function: deleteItemLocally', () => {
+    it('should remove the item from the local list without sending any request', () => {
+      wrapper.vm.items = [
+        { id: 'item-1', order: 1 },
+        { id: 'item-2', order: 2 },
+      ];
 
-      const event = uiEventSubject.next.mock.calls[0][0];
-      expect(event.key).toBe('confirmation');
-      expect(event.data.type).toBe('open');
-      expect(event.data.title).toBe(
-        'translated:DeleteConfirmationDialog.title'
-      );
-      expect(event.data.content).toBe(
-        'translated:DeleteConfirmationDialog.content'
-      );
-      expect(event.data.uiNamespace).toBe(
-        'test-namespace.generic-sortable-list-card'
-      );
-      expect(event.data.i18nScope).toBe(
-        'test-scope.GenericSortableListCard.DeleteConfirmationDialog'
-      );
+      wrapper.vm.deleteItemLocally({ id: 'item-1', order: 1 }, 0);
 
-      await event.data.onConfirm();
-
-      expect(mockHttpDelete).toHaveBeenCalledWith(
-        '/api/parents/parent-1/items/item-1'
-      );
-    });
-  });
-
-  describe('Test function: deleteItem', () => {
-    beforeEach(async () => {
-      mockHttpGet.mockResolvedValue(
-        singlePageResponse([
-          { id: 'item-1', order: 1 },
-          { id: 'item-2', order: 2 },
-        ])
-      );
-      wrapper = mountComponent();
-      await flushPromises();
-      mockHttpGet.mockClear();
-    });
-
-    it('should delete the item, update order, notify, emit deleted and reload', async () => {
-      await wrapper.vm.deleteItem({ id: 'item-1', order: 1 }, 0);
-
-      expect(mockHttpDelete).toHaveBeenCalledWith(
-        '/api/parents/parent-1/items/item-1'
-      );
-      expect(mockHttpPut).toHaveBeenCalledWith(
-        '/api/parents/parent-1/items/item-2',
-        { id: 'item-2', order: 1 }
-      );
-      expect(mockNotify).toHaveBeenCalledWith({
-        type: 'positive',
-        message: 'translated:deleteSuccess',
-      });
-      expect(wrapper.emitted('deleted')).toEqual([
-        [{ id: 'item-1', order: 1 }],
-      ]);
-      expect(mockHttpGet).toHaveBeenCalledOnce();
-    });
-
-    it('should remove the item from the local list immediately', async () => {
-      mockHttpGet.mockResolvedValueOnce(
-        singlePageResponse([{ id: 'item-2', order: 1 }])
-      );
-
-      await wrapper.vm.deleteItem({ id: 'item-1', order: 1 }, 0);
-
-      expect(wrapper.vm.items.some((item) => item.id === 'item-1')).toBe(false);
-    });
-
-    it('should notify on deletion error without emitting nor reloading', async () => {
-      mockHttpDelete.mockRejectedValueOnce(new Error('delete failed'));
-
-      await wrapper.vm.deleteItem({ id: 'item-1', order: 1 }, 0);
-
-      expect(mockNotify).toHaveBeenCalledWith({
-        type: 'negative',
-        message: 'translated:deleteError',
-      });
+      expect(wrapper.vm.items).toEqual([{ id: 'item-2', order: 2 }]);
+      expect(mockHttpDelete).not.toHaveBeenCalled();
+      expect(mockHttpPut).not.toHaveBeenCalled();
+      expect(mockNotify).not.toHaveBeenCalled();
       expect(wrapper.emitted('deleted')).toBeUndefined();
-      expect(mockHttpGet).not.toHaveBeenCalled();
     });
 
-    it('should notify saveChangesError and not reload when all reorder requests fail', async () => {
-      mockHttpPut.mockRejectedValueOnce(new Error('reorder failed'));
+    it('should add the item to pendingDeletions', () => {
+      const item = { id: 'item-1', order: 1 };
+      wrapper.vm.items = [item];
 
-      await wrapper.vm.deleteItem({ id: 'item-1', order: 1 }, 0);
+      wrapper.vm.deleteItemLocally(item, 0);
 
-      expect(mockNotify).toHaveBeenCalledWith({
-        type: 'positive',
-        message: 'translated:deleteSuccess',
-      });
-      expect(mockNotify).toHaveBeenCalledWith({
-        type: 'negative',
-        message: 'translated:saveChangesError',
-      });
-      expect(mockHttpGet).not.toHaveBeenCalled();
+      expect(wrapper.vm.pendingDeletions).toEqual([item]);
     });
 
-    it('should notify saveChangesPartially and still reload when some reorder requests fail', async () => {
-      mockHttpGet.mockResolvedValue(
-        singlePageResponse([
-          { id: 'item-1', order: 1 },
-          { id: 'item-2', order: 2 },
-          { id: 'item-3', order: 3 },
-        ])
-      );
-      wrapper = mountComponent();
-      await flushPromises();
-      mockHttpGet.mockClear();
-      mockHttpPut.mockRejectedValueOnce(new Error('reorder failed'));
+    it('should mark the changes as unsaved', () => {
+      wrapper.vm.items = [{ id: 'item-1', order: 1 }];
 
-      await wrapper.vm.deleteItem({ id: 'item-1', order: 1 }, 0);
+      wrapper.vm.deleteItemLocally({ id: 'item-1', order: 1 }, 0);
 
-      expect(mockNotify).toHaveBeenCalledWith({
-        type: 'positive',
-        message: 'translated:deleteSuccess',
-      });
-      expect(mockNotify).toHaveBeenCalledWith({
-        type: 'negative',
-        message: 'translated:saveChangesPartially',
-      });
-      expect(mockHttpGet).toHaveBeenCalledOnce();
+      expect(wrapper.vm.hasUnsavedChanges).toBe(true);
+    });
+
+    it('should accumulate several pending deletions', () => {
+      wrapper.vm.items = [
+        { id: 'item-1', order: 1 },
+        { id: 'item-2', order: 2 },
+      ];
+
+      wrapper.vm.deleteItemLocally({ id: 'item-1', order: 1 }, 0);
+      wrapper.vm.deleteItemLocally({ id: 'item-2', order: 2 }, 0);
+
+      expect(wrapper.vm.pendingDeletions).toEqual([
+        { id: 'item-1', order: 1 },
+        { id: 'item-2', order: 2 },
+      ]);
+      expect(wrapper.vm.items).toEqual([]);
     });
   });
 
@@ -1215,12 +1138,51 @@ describe('Test component: GenericSortableListCard', () => {
       expect(mockHttpPut).toHaveBeenCalledTimes(1);
     });
 
-    it('should notify success, emit updated and reload when all requests succeed', async () => {
-      wrapper.vm.items = [
-        { id: 'item-1', order: 1, name: 'Renamed' },
+    it('should send a DELETE for every item pending deletion', async () => {
+      // Deleting the last item leaves the remaining ones at their original position, so no PUT
+      // is expected alongside the DELETE.
+      wrapper.vm.deleteItemLocally(
         { id: 'item-2', order: 2, name: 'Second' },
-      ];
+        1
+      );
       mockHttpGet.mockClear();
+
+      await wrapper.vm.saveChanges();
+
+      expect(mockHttpDelete).toHaveBeenCalledWith(
+        '/api/parents/parent-1/items/item-2'
+      );
+      expect(mockHttpPut).not.toHaveBeenCalled();
+    });
+
+    it('should combine deletions and selective updates in a single save', async () => {
+      wrapper.vm.deleteItemLocally(
+        { id: 'item-1', order: 1, name: 'First' },
+        0
+      );
+      wrapper.vm.items = [{ id: 'item-2', order: 1, name: 'Renamed' }];
+      mockHttpGet.mockClear();
+
+      await wrapper.vm.saveChanges();
+
+      expect(mockHttpDelete).toHaveBeenCalledWith(
+        '/api/parents/parent-1/items/item-1'
+      );
+      expect(mockHttpPut).toHaveBeenCalledWith(
+        '/api/parents/parent-1/items/item-2',
+        { id: 'item-2', order: 1, name: 'Renamed' }
+      );
+      expect(mockHttpDelete).toHaveBeenCalledTimes(1);
+      expect(mockHttpPut).toHaveBeenCalledTimes(1);
+    });
+
+    it('should notify success, emit deleted with the removed items, emit updated and reload when all requests succeed', async () => {
+      wrapper.vm.deleteItemLocally(
+        { id: 'item-1', order: 1, name: 'First' },
+        0
+      );
+      mockHttpGet.mockClear();
+      mockHttpGet.mockResolvedValue(singlePageResponse([]));
 
       await wrapper.vm.saveChanges();
 
@@ -1228,17 +1190,34 @@ describe('Test component: GenericSortableListCard', () => {
         type: 'positive',
         message: 'translated:saveChangesSuccess',
       });
-      expect(wrapper.emitted('updated')).toHaveLength(1);
+      expect(wrapper.emitted('deleted')).toEqual([
+        [[{ id: 'item-1', order: 1, name: 'First' }]],
+      ]);
+      expect(wrapper.emitted('updated')).toEqual([[[]]]);
       expect(wrapper.vm.hasUnsavedChanges).toBe(false);
       expect(mockHttpGet).toHaveBeenCalledOnce();
     });
 
-    it('should notify error and not reload when every request fails', async () => {
+    it('should not emit deleted when the save included no successful deletion', async () => {
       wrapper.vm.items = [
         { id: 'item-1', order: 1, name: 'Renamed' },
         { id: 'item-2', order: 2, name: 'Second' },
       ];
-      mockHttpPut.mockRejectedValueOnce(new Error('update failed'));
+
+      await wrapper.vm.saveChanges();
+
+      expect(wrapper.emitted('deleted')).toBeUndefined();
+      expect(wrapper.emitted('updated')).toHaveLength(1);
+    });
+
+    it('should notify error and keep the pending changes when every request fails', async () => {
+      // Deleting the last item leaves the remaining ones at their original position, so the
+      // DELETE is the only request sent, and the only one that needs to fail here.
+      wrapper.vm.deleteItemLocally(
+        { id: 'item-2', order: 2, name: 'Second' },
+        1
+      );
+      mockHttpDelete.mockRejectedValueOnce(new Error('delete failed'));
       mockHttpGet.mockClear();
 
       await wrapper.vm.saveChanges();
@@ -1247,15 +1226,20 @@ describe('Test component: GenericSortableListCard', () => {
         type: 'negative',
         message: 'translated:saveChangesError',
       });
+      expect(wrapper.emitted('deleted')).toBeUndefined();
       expect(wrapper.emitted('updated')).toBeUndefined();
+      expect(wrapper.vm.pendingDeletions).toEqual([
+        { id: 'item-2', order: 2, name: 'Second' },
+      ]);
       expect(mockHttpGet).not.toHaveBeenCalled();
     });
 
     it('should notify partial error and still reload when some requests fail', async () => {
-      wrapper.vm.items = [
-        { id: 'item-1', order: 1, name: 'Renamed' },
-        { id: 'item-2', order: 2, name: 'AlsoRenamed' },
-      ];
+      wrapper.vm.deleteItemLocally(
+        { id: 'item-1', order: 1, name: 'First' },
+        0
+      );
+      wrapper.vm.items = [{ id: 'item-2', order: 1, name: 'Renamed' }];
       mockHttpPut.mockRejectedValueOnce(new Error('update failed'));
       mockHttpGet.mockClear();
 
@@ -1301,6 +1285,15 @@ describe('Test component: GenericSortableListCard', () => {
 
     it('should be true when an item was edited', () => {
       wrapper.vm.updateItemLocally({ id: 'item-1', order: 1, name: 'Updated' });
+
+      expect(wrapper.vm.hasUnsavedChanges).toBe(true);
+    });
+
+    it('should be true when an item is pending deletion', () => {
+      wrapper.vm.deleteItemLocally(
+        { id: 'item-1', order: 1, name: 'First' },
+        0
+      );
 
       expect(wrapper.vm.hasUnsavedChanges).toBe(true);
     });
