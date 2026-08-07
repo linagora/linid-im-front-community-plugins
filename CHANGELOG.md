@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.102](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.101...v0.2.102) (2026-08-07)
+
+
+### Features
+
+* **catalog-ui:** support nested attributes in entity attribute fields ([433e2a1](https://github.com/linagora/linid-im-front-community-plugins/commit/433e2a1bd757b98a49ed6817ccd7d4194b81fb47))
+
 ### [0.2.101](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.100...v0.2.101) (2026-08-07)
 
 
