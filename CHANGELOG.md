@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.98](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.97...v0.2.98) (2026-08-07)
+
+
+### Features
+
+* **catalog-ui:** add FormDialogButton opening the form dialog to send a configurable request ([c13ce1d](https://github.com/linagora/linid-im-front-community-plugins/commit/c13ce1d18af3a50ac7deafe735ab7ccc37f5e037))
+
 ### [0.2.97](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.96...v0.2.97) (2026-08-06)
 
 
