@@ -1256,6 +1256,62 @@ describe('Test component: GenericSortableListCard', () => {
       expect(wrapper.emitted('updated')).toHaveLength(1);
       expect(mockHttpGet).toHaveBeenCalledOnce();
     });
+
+    it('should not emit any event on uiEventSubject when emitOnSave is not configured', async () => {
+      uiEventSubject.next.mockClear();
+      wrapper.vm.items = [
+        { id: 'item-1', order: 1, name: 'Renamed' },
+        { id: 'item-2', order: 2, name: 'Second' },
+      ];
+
+      await wrapper.vm.saveChanges();
+
+      expect(uiEventSubject.next).not.toHaveBeenCalled();
+    });
+
+    it('should emit the configured event on uiEventSubject after a successful save', async () => {
+      mockHttpGet.mockResolvedValue(
+        singlePageResponse([
+          { id: 'item-1', order: 1, name: 'First' },
+          { id: 'item-2', order: 2, name: 'Second' },
+        ])
+      );
+      wrapper = mountComponent({ emitOnSave: 'rules:saved' });
+      await flushPromises();
+      uiEventSubject.next.mockClear();
+      wrapper.vm.items = [
+        { id: 'item-1', order: 1, name: 'Renamed' },
+        { id: 'item-2', order: 2, name: 'Second' },
+      ];
+
+      await wrapper.vm.saveChanges();
+
+      expect(uiEventSubject.next).toHaveBeenCalledWith({
+        key: 'rules:saved',
+        data: wrapper.vm.items,
+      });
+    });
+
+    it('should not emit the configured event when every request fails', async () => {
+      mockHttpGet.mockResolvedValue(
+        singlePageResponse([
+          { id: 'item-1', order: 1, name: 'First' },
+          { id: 'item-2', order: 2, name: 'Second' },
+        ])
+      );
+      wrapper = mountComponent({ emitOnSave: 'rules:saved' });
+      await flushPromises();
+      uiEventSubject.next.mockClear();
+      wrapper.vm.items = [
+        { id: 'item-1', order: 1, name: 'Renamed' },
+        { id: 'item-2', order: 2, name: 'Second' },
+      ];
+      mockHttpPut.mockRejectedValueOnce(new Error('update failed'));
+
+      await wrapper.vm.saveChanges();
+
+      expect(uiEventSubject.next).not.toHaveBeenCalled();
+    });
   });
 
   describe('Test computed: hasUnsavedChanges', () => {
