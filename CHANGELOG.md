@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.103](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.102...v0.2.103) (2026-08-07)
+
+
+### Features
+
+* add date formatter in entity details card ([d225608](https://github.com/linagora/linid-im-front-community-plugins/commit/d2256086d5179af5fcd37ce5cc735d31a276af10))
+
 ### [0.2.102](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.101...v0.2.102) (2026-08-07)
 
 
