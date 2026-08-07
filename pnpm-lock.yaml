@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@linagora/linid-im-front-corelib':
-        specifier: 0.0.89
-        version: 0.0.89(@module-federation/enhanced@2.7.0(@rspack/core@2.1.7(@module-federation/runtime-tools@2.7.0)(@swc/helpers@0.5.23))(typescript@6.0.3)(vue-tsc@3.3.7(typescript@6.0.3)))(axios@1.18.1)(dayjs@1.11.21)(interactjs@1.10.27)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3)))(quasar@2.21.1)(rxjs@7.8.2)(vue-i18n@11.4.6(vue@3.5.39(typescript@6.0.3)))(vue-router@5.1.0(@rspack/core@2.1.7(@module-federation/runtime-tools@2.7.0)(@swc/helpers@0.5.23))(@vue/compiler-sfc@3.5.40)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3)))(rolldown@1.1.5)(vite@8.1.3(@types/node@26.1.1)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(yaml@2.9.0))(vue@3.5.39(typescript@6.0.3)))(vue@3.5.39(typescript@6.0.3))
+        specifier: 0.0.91
+        version: 0.0.91(@module-federation/enhanced@2.7.0(@rspack/core@2.1.7(@module-federation/runtime-tools@2.7.0)(@swc/helpers@0.5.23))(typescript@6.0.3)(vue-tsc@3.3.7(typescript@6.0.3)))(axios@1.18.1)(dayjs@1.11.21)(interactjs@1.10.27)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3)))(quasar@2.21.1)(rxjs@7.8.2)(vue-i18n@11.4.6(vue@3.5.39(typescript@6.0.3)))(vue-router@5.1.0(@rspack/core@2.1.7(@module-federation/runtime-tools@2.7.0)(@swc/helpers@0.5.23))(@vue/compiler-sfc@3.5.40)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3)))(rolldown@1.1.5)(vite@8.1.3(@types/node@26.1.1)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(yaml@2.9.0))(vue@3.5.39(typescript@6.0.3)))(vue@3.5.39(typescript@6.0.3))
       '@vueuse/core':
         specifier: 14.3.0
         version: 14.3.0(vue@3.5.39(typescript@6.0.3))
@@ -181,8 +181,8 @@ importers:
   apps/catalog-ui:
     dependencies:
       '@linagora/linid-im-front-corelib':
-        specifier: 0.0.89
-        version: 0.0.89(@module-federation/enhanced@2.7.0(@rspack/core@2.1.7(@module-federation/runtime-tools@2.7.0)(@swc/helpers@0.5.23))(typescript@6.0.3)(vue-tsc@3.3.7(typescript@6.0.3)))(axios@1.18.1)(dayjs@1.11.21)(interactjs@1.10.27)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3)))(quasar@2.21.1)(rxjs@7.8.2)(vue-i18n@11.4.6(vue@3.5.39(typescript@6.0.3)))(vue-router@5.1.0(@rspack/core@2.1.7(@module-federation/runtime-tools@2.7.0)(@swc/helpers@0.5.23))(@vue/compiler-sfc@3.5.40)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3)))(rolldown@1.1.5)(vite@8.1.3(@types/node@26.1.1)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(yaml@2.9.0))(vue@3.5.39(typescript@6.0.3)))(vue@3.5.39(typescript@6.0.3))
+        specifier: 0.0.91
+        version: 0.0.91(@module-federation/enhanced@2.7.0(@rspack/core@2.1.7(@module-federation/runtime-tools@2.7.0)(@swc/helpers@0.5.23))(typescript@6.0.3)(vue-tsc@3.3.7(typescript@6.0.3)))(axios@1.18.1)(dayjs@1.11.21)(interactjs@1.10.27)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3)))(quasar@2.21.1)(rxjs@7.8.2)(vue-i18n@11.4.6(vue@3.5.39(typescript@6.0.3)))(vue-router@5.1.0(@rspack/core@2.1.7(@module-federation/runtime-tools@2.7.0)(@swc/helpers@0.5.23))(@vue/compiler-sfc@3.5.40)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3)))(rolldown@1.1.5)(vite@8.1.3(@types/node@26.1.1)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(yaml@2.9.0))(vue@3.5.39(typescript@6.0.3)))(vue@3.5.39(typescript@6.0.3))
       '@vueuse/core':
         specifier: 14.3.0
         version: 14.3.0(vue@3.5.39(typescript@6.0.3))
@@ -212,8 +212,8 @@ importers:
   apps/module-import:
     dependencies:
       '@linagora/linid-im-front-corelib':
-        specifier: 0.0.89
-        version: 0.0.89(@module-federation/enhanced@2.7.0(@rspack/core@2.1.7(@module-federation/runtime-tools@2.7.0)(@swc/helpers@0.5.23))(typescript@6.0.3)(vue-tsc@3.3.7(typescript@6.0.3)))(axios@1.18.1)(dayjs@1.11.21)(interactjs@1.10.27)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3)))(quasar@2.21.1)(rxjs@7.8.2)(vue-i18n@11.4.6(vue@3.5.39(typescript@6.0.3)))(vue-router@5.1.0(@rspack/core@2.1.7(@module-federation/runtime-tools@2.7.0)(@swc/helpers@0.5.23))(@vue/compiler-sfc@3.5.40)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3)))(rolldown@1.1.5)(vite@8.1.3(@types/node@26.1.1)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(yaml@2.9.0))(vue@3.5.39(typescript@6.0.3)))(vue@3.5.39(typescript@6.0.3))
+        specifier: 0.0.91
+        version: 0.0.91(@module-federation/enhanced@2.7.0(@rspack/core@2.1.7(@module-federation/runtime-tools@2.7.0)(@swc/helpers@0.5.23))(typescript@6.0.3)(vue-tsc@3.3.7(typescript@6.0.3)))(axios@1.18.1)(dayjs@1.11.21)(interactjs@1.10.27)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3)))(quasar@2.21.1)(rxjs@7.8.2)(vue-i18n@11.4.6(vue@3.5.39(typescript@6.0.3)))(vue-router@5.1.0(@rspack/core@2.1.7(@module-federation/runtime-tools@2.7.0)(@swc/helpers@0.5.23))(@vue/compiler-sfc@3.5.40)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3)))(rolldown@1.1.5)(vite@8.1.3(@types/node@26.1.1)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(yaml@2.9.0))(vue@3.5.39(typescript@6.0.3)))(vue@3.5.39(typescript@6.0.3))
       p-limit:
         specifier: 7.3.0
         version: 7.3.0
@@ -240,8 +240,8 @@ importers:
   apps/module-users:
     dependencies:
       '@linagora/linid-im-front-corelib':
-        specifier: 0.0.89
-        version: 0.0.89(@module-federation/enhanced@2.7.0(@rspack/core@2.1.7(@module-federation/runtime-tools@2.7.0)(@swc/helpers@0.5.23))(typescript@6.0.3)(vue-tsc@3.3.7(typescript@6.0.3)))(axios@1.18.1)(dayjs@1.11.21)(interactjs@1.10.27)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3)))(quasar@2.21.1)(rxjs@7.8.2)(vue-i18n@11.4.6(vue@3.5.39(typescript@6.0.3)))(vue-router@5.1.0(@rspack/core@2.1.7(@module-federation/runtime-tools@2.7.0)(@swc/helpers@0.5.23))(@vue/compiler-sfc@3.5.40)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3)))(rolldown@1.1.5)(vite@8.1.3(@types/node@26.1.1)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(yaml@2.9.0))(vue@3.5.39(typescript@6.0.3)))(vue@3.5.39(typescript@6.0.3))
+        specifier: 0.0.91
+        version: 0.0.91(@module-federation/enhanced@2.7.0(@rspack/core@2.1.7(@module-federation/runtime-tools@2.7.0)(@swc/helpers@0.5.23))(typescript@6.0.3)(vue-tsc@3.3.7(typescript@6.0.3)))(axios@1.18.1)(dayjs@1.11.21)(interactjs@1.10.27)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3)))(quasar@2.21.1)(rxjs@7.8.2)(vue-i18n@11.4.6(vue@3.5.39(typescript@6.0.3)))(vue-router@5.1.0(@rspack/core@2.1.7(@module-federation/runtime-tools@2.7.0)(@swc/helpers@0.5.23))(@vue/compiler-sfc@3.5.40)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3)))(rolldown@1.1.5)(vite@8.1.3(@types/node@26.1.1)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(yaml@2.9.0))(vue@3.5.39(typescript@6.0.3)))(vue@3.5.39(typescript@6.0.3))
       '@vueuse/core':
         specifier: 14.3.0
         version: 14.3.0(vue@3.5.39(typescript@6.0.3))
@@ -1214,8 +1214,8 @@ packages:
   '@keyv/serialize@1.1.1':
     resolution: {integrity: sha512-dXn3FZhPv0US+7dtJsIi2R+c7qWYiReoEh5zUntWCf4oSpMNib8FDhSoed6m3QyZdx5hK7iLFkYk3rNxwt8vTA==}
 
-  '@linagora/linid-im-front-corelib@0.0.89':
-    resolution: {integrity: sha512-b4GxrZ9QpNBwplMWZoKRxC7k55BOjsLz8ACByHmDqMcjiG5qsbNYF6g+B5sK69LmsoIgZxU7SI02DLIedu3hUg==}
+  '@linagora/linid-im-front-corelib@0.0.91':
+    resolution: {integrity: sha512-b7CT6YFKl00dZn04OGBdrMRt4UYOtyQy5DVU4eYCi1+lmZZDxh2/lizk1SC4pCWXiEzrlzGbn91AqYLgxqcoRA==}
     peerDependencies:
       '@module-federation/enhanced': 2.7.0
       axios: 1.18.1
@@ -7498,7 +7498,7 @@ snapshots:
 
   '@keyv/serialize@1.1.1': {}
 
-  '@linagora/linid-im-front-corelib@0.0.89(@module-federation/enhanced@2.7.0(@rspack/core@2.1.7(@module-federation/runtime-tools@2.7.0)(@swc/helpers@0.5.23))(typescript@6.0.3)(vue-tsc@3.3.7(typescript@6.0.3)))(axios@1.18.1)(dayjs@1.11.21)(interactjs@1.10.27)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3)))(quasar@2.21.1)(rxjs@7.8.2)(vue-i18n@11.4.6(vue@3.5.39(typescript@6.0.3)))(vue-router@5.1.0(@rspack/core@2.1.7(@module-federation/runtime-tools@2.7.0)(@swc/helpers@0.5.23))(@vue/compiler-sfc@3.5.40)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3)))(rolldown@1.1.5)(vite@8.1.3(@types/node@26.1.1)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(yaml@2.9.0))(vue@3.5.39(typescript@6.0.3)))(vue@3.5.39(typescript@6.0.3))':
+  '@linagora/linid-im-front-corelib@0.0.91(@module-federation/enhanced@2.7.0(@rspack/core@2.1.7(@module-federation/runtime-tools@2.7.0)(@swc/helpers@0.5.23))(typescript@6.0.3)(vue-tsc@3.3.7(typescript@6.0.3)))(axios@1.18.1)(dayjs@1.11.21)(interactjs@1.10.27)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3)))(quasar@2.21.1)(rxjs@7.8.2)(vue-i18n@11.4.6(vue@3.5.39(typescript@6.0.3)))(vue-router@5.1.0(@rspack/core@2.1.7(@module-federation/runtime-tools@2.7.0)(@swc/helpers@0.5.23))(@vue/compiler-sfc@3.5.40)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3)))(rolldown@1.1.5)(vite@8.1.3(@types/node@26.1.1)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(yaml@2.9.0))(vue@3.5.39(typescript@6.0.3)))(vue@3.5.39(typescript@6.0.3))':
     dependencies:
       '@module-federation/enhanced': 2.7.0(@rspack/core@2.1.7(@module-federation/runtime-tools@2.7.0)(@swc/helpers@0.5.23))(typescript@6.0.3)(vue-tsc@3.3.7(typescript@6.0.3))
       axios: 1.18.1
