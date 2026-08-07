@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.100](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.99...v0.2.100) (2026-08-07)
+
+
+### Features
+
+* add left and right zone in generic detail page ([3f5f12a](https://github.com/linagora/linid-im-front-community-plugins/commit/3f5f12a6a3d1c2dbf8b371cbb7d04146a52bd89a))
+
 ### [0.2.99](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.98...v0.2.99) (2026-08-07)
 
 
