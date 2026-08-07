@@ -113,6 +113,13 @@ export interface GenericSortableListCardProps extends CommonComponentProps {
    * matching this key. When absent, no subscription is created.
    */
   listenToItemUpdate?: string;
+
+  /**
+   * When set, the card emits an event with this key on `uiEventSubject` after a batch of pending
+   * changes has been saved, fully or partially. Lets a hosting page react to a save, for example
+   * reloading its entity through the `reloadDetailsOn` option of a details page.
+   */
+  emitOnSave?: string;
 }
 
 /**

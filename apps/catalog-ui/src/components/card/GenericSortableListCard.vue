@@ -645,8 +645,9 @@ function updateItemLocally(updatedItem: Record<string, unknown>): void {
 
 /**
  * Persists every pending change: a `DELETE` per item queued for deletion and a `PUT` per item in
- * `pendingUpdates`, in parallel. On any success, emits `deleted` (if any) and `updated`, and
- * reloads the items. Notifies success, partial failure, or failure.
+ * `pendingUpdates`, in parallel. On any success, emits `deleted` (if any) and `updated`, reloads
+ * the items, and publishes `emitOnSave` if configured. Notifies success, partial failure, or
+ * failure.
  */
 async function saveChanges() {
   if (!hasUnsavedChanges.value) {
@@ -682,6 +683,10 @@ async function saveChanges() {
   await loadData();
 
   emits('updated', items.value);
+
+  if (props.emitOnSave) {
+    uiEventSubject.next({ key: props.emitOnSave, data: items.value });
+  }
 }
 
 /**

@@ -22,26 +22,28 @@ list, action buttons, dialogs, and save flows.
 - Resolves API endpoints from Nunjucks templates rendered with the entity owning the collection
 - Renders configurable fields per item, as a column layout with a header row above the list
 - Exposes plugin zones around the fields and inside the item actions for custom UI injection
-- Emits events after every successful mutation (create, update, delete, order change)
+- Can notify a hosting page after a save through `emitOnSave`, so it can react (e.g. reload its
+  own entity)
 
 ---
 
 ## **⚙️ Props**
 
-| Prop name            | Type                                                         | Default  | Description                                                                                                                                                                                            |
-| -------------------- | ------------------------------------------------------------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `formFields`         | `LinidAttributeConfiguration[]`                              | —        | Form fields rendered in the create and edit form dialogs (see `FormDialog`). Also drives the initial data of the create form                                                                           |
-| `endpoints`          | `GenericSortableListCardEndpoints`                           | —        | Nunjucks templates of the `find`, `create`, `update` and `delete` endpoints                                                                                                                            |
-| `orderKey`           | `string`                                                     | —        | Name of the item property that stores the sort order index (1-based integer)                                                                                                                           |
-| `fields`             | `GenericListField[]`                                         | —        | Fields rendered for each item and in the header row (see [Fields](#fields))                                                                                                                            |
-| `itemKey`            | `string`                                                     | `'id'`   | Name of the item property used as the unique key for the draggable list                                                                                                                                |
-| `itemsQuerySize`     | `number`                                                     | `50`     | Number of items fetched per page when paginating through the `find` endpoint                                                                                                                           |
-| `itemMapperFn`       | `(item: Record<string, unknown>) => Record<string, unknown>` | identity | Optional function applied to each item after fetching, used to transform or normalize data                                                                                                             |
-| `entity`             | `Record<string, unknown>`                                    | `{}`     | Entity owning the collection, provided to the Nunjucks context. Injected by the hosting zone                                                                                                           |
-| `instanceId`         | `string`                                                     | —        | Instance identifier passed to form dialog fields, and fallback prefix for the UI namespace and the i18n scope                                                                                          |
-| `uiNamespace`        | `string`                                                     | —        | Base UI namespace used for design system customization **and as the plugin zone prefix**                                                                                                               |
-| `i18nScope`          | `string`                                                     | —        | Identifier used to scope translations. Falls back to `instanceId` when not provided                                                                                                                    |
-| `listenToItemUpdate` | `string`                                                     | —        | When set, the card subscribes to `uiEventSubject` and applies local item updates for events matching this key. When absent, no subscription is created (see [Local item updates](#local-item-updates)) |
+| Prop name            | Type                                                         | Default  | Description                                                                                                                                                                                                  |
+| -------------------- | ------------------------------------------------------------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `formFields`         | `LinidAttributeConfiguration[]`                              | —        | Form fields rendered in the create and edit form dialogs (see `FormDialog`). Also drives the initial data of the create form                                                                                 |
+| `endpoints`          | `GenericSortableListCardEndpoints`                           | —        | Nunjucks templates of the `find`, `create`, `update` and `delete` endpoints                                                                                                                                  |
+| `orderKey`           | `string`                                                     | —        | Name of the item property that stores the sort order index (1-based integer)                                                                                                                                 |
+| `fields`             | `GenericListField[]`                                         | —        | Fields rendered for each item and in the header row (see [Fields](#fields))                                                                                                                                  |
+| `itemKey`            | `string`                                                     | `'id'`   | Name of the item property used as the unique key for the draggable list                                                                                                                                      |
+| `itemsQuerySize`     | `number`                                                     | `50`     | Number of items fetched per page when paginating through the `find` endpoint                                                                                                                                 |
+| `itemMapperFn`       | `(item: Record<string, unknown>) => Record<string, unknown>` | identity | Optional function applied to each item after fetching, used to transform or normalize data                                                                                                                   |
+| `entity`             | `Record<string, unknown>`                                    | `{}`     | Entity owning the collection, provided to the Nunjucks context. Injected by the hosting zone                                                                                                                 |
+| `instanceId`         | `string`                                                     | —        | Instance identifier passed to form dialog fields, and fallback prefix for the UI namespace and the i18n scope                                                                                                |
+| `uiNamespace`        | `string`                                                     | —        | Base UI namespace used for design system customization **and as the plugin zone prefix**                                                                                                                     |
+| `i18nScope`          | `string`                                                     | —        | Identifier used to scope translations. Falls back to `instanceId` when not provided                                                                                                                          |
+| `listenToItemUpdate` | `string`                                                     | —        | When set, the card subscribes to `uiEventSubject` and applies local item updates for events matching this key. When absent, no subscription is created (see [Local item updates](#local-item-updates))       |
+| `emitOnSave`         | `string`                                                     | —        | When set, the card emits an event with this key on `uiEventSubject` after a batch of pending changes has been saved, fully or partially. When absent, nothing is emitted (see [Save changes](#save-changes)) |
 
 ### Endpoints
 
@@ -225,8 +227,9 @@ there is no separate "order changed" state or hint to keep in sync with it.
     edited, reordered nor deleted generate **no request**
 - All `DELETE`s and `PUT`s are sent in parallel. If there is nothing left to send (e.g. an item was
   dragged back to its original position), the save is a no-op — no request, no notification
-- If at least one request succeeds: `deleted` is emitted with the successfully removed items
-  (skipped if none), items reload, `updated` is emitted with the full reloaded list
+- If at least one request succeeds, in order: `deleted` is emitted with the successfully removed
+  items (skipped if none), items reload, `updated` is emitted with the full reloaded list, and the
+  event configured through `emitOnSave` (if any) is published on `uiEventSubject`
   - If every request succeeded: positive notification
   - If some requests failed: partial-failure notification (the failed changes are lost — they are
     not automatically retried)
