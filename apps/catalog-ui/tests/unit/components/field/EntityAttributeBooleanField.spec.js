@@ -30,12 +30,19 @@ import EntityAttributeBooleanField from '../../../../src/components/field/Entity
 
 const mockUi = vi.fn(() => ({}));
 
-vi.mock('@linagora/linid-im-front-corelib', () => ({
-  useUiDesign: () => ({
-    ui: mockUi,
-  }),
-  useScopedI18n: () => ({ translateOrDefault: vi.fn() }),
-}));
+vi.mock('@linagora/linid-im-front-corelib', async () => {
+  const { getNestedValue, setNestedValue } = await vi.importActual(
+    '@linagora/linid-im-front-corelib'
+  );
+  return {
+    getNestedValue,
+    setNestedValue,
+    useUiDesign: () => ({
+      ui: mockUi,
+    }),
+    useScopedI18n: () => ({ translateOrDefault: vi.fn() }),
+  };
+});
 
 const buildDefinitionProp = (overrides = {}) => ({
   name: 'isAdmin',
@@ -205,6 +212,57 @@ describe('Test component: EntityAttributeBooleanField', () => {
 
         expect(wrapper.vm.localValue).toEqual(false);
       });
+    });
+  });
+
+  describe('Test nested attributes', () => {
+    beforeEach(async () => {
+      await wrapper.setProps({
+        definition: buildDefinitionProp({ name: 'extraParameters.isAdmin' }),
+        entity: {
+          name: 'entity-name',
+          extraParameters: { isAdmin: false, role: 'admin' },
+        },
+      });
+    });
+
+    it('should read the value from the nested path', () => {
+      expect(wrapper.vm.localValue).toEqual(false);
+    });
+
+    it('should emit the complete entity with only the nested value updated', () => {
+      wrapper.vm.localValue = true;
+
+      wrapper.vm.updateValue();
+
+      expect(wrapper.emitted('update:entity')[0]).toEqual([
+        {
+          name: 'entity-name',
+          extraParameters: { isAdmin: true, role: 'admin' },
+        },
+      ]);
+    });
+
+    it('should create missing intermediate objects when updating', async () => {
+      await wrapper.setProps({ entity: { name: 'entity-name' } });
+      wrapper.vm.localValue = true;
+
+      wrapper.vm.updateValue();
+
+      expect(wrapper.emitted('update:entity')[0]).toEqual([
+        {
+          name: 'entity-name',
+          extraParameters: { isAdmin: true },
+        },
+      ]);
+    });
+
+    it('should update localValue when the nested value changes', async () => {
+      await wrapper.setProps({
+        entity: { extraParameters: { isAdmin: false } },
+      });
+
+      expect(wrapper.vm.localValue).toEqual(false);
     });
   });
 });

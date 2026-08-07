@@ -47,6 +47,8 @@
 <script setup lang="ts">
 import type { LinidQInputProps } from '@linagora/linid-im-front-corelib';
 import {
+  getNestedValue,
+  setNestedValue,
   useQuasarRules,
   useScopedI18n,
   useUiDesign,
@@ -69,7 +71,9 @@ const localI18nScope = `${props.i18nScope}.fields.${props.definition.name}`;
 
 const { ui } = useUiDesign();
 
-const localValue = ref(props.entity[props.definition.name] ?? null);
+const localValue = ref(
+  getNestedValue(props.entity, props.definition.name) ?? null
+);
 
 const uiProps = ui<LinidQInputProps>(
   `${props.uiNamespace}.${props.definition.name}`,
@@ -89,7 +93,7 @@ const rules = computed(() =>
 );
 
 watch(
-  () => props.entity[props.definition.name],
+  () => getNestedValue(props.entity, props.definition.name),
   (newValue) => {
     localValue.value = newValue ?? null;
   }
@@ -100,9 +104,9 @@ watch(
  * Updates the value of the attribute in the entity using the local reactive value.
  */
 function updateValue() {
-  emits('update:entity', {
-    ...props.entity,
-    [props.definition.name]: localValue.value,
-  });
+  emits(
+    'update:entity',
+    setNestedValue(props.entity, props.definition.name, localValue.value)
+  );
 }
 </script>

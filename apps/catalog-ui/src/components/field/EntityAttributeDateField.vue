@@ -84,7 +84,9 @@ import type {
 } from '@linagora/linid-im-front-corelib';
 import {
   getI18nInstance,
+  getNestedValue,
   QDATE_DEFAULT_MASK,
+  setNestedValue,
   useDayjs,
   useNunjucks,
   useQuasarDate,
@@ -128,7 +130,9 @@ const {
 } = useQuasarFieldValidation(localI18nScope);
 const globalT = getI18nInstance().global.t as ComposerTranslation;
 
-const localValue = ref(props.entity[props.definition.name] ?? null);
+const localValue = ref(
+  getNestedValue(props.entity, props.definition.name) ?? null
+);
 
 const uiProps = {
   input: ui<LinidQInputProps>(
@@ -150,7 +154,7 @@ const uiProps = {
 };
 
 watch(
-  () => props.entity[props.definition.name],
+  () => getNestedValue(props.entity, props.definition.name),
   (newValue) => {
     localValue.value = newValue ?? null;
   }
@@ -281,9 +285,9 @@ const options = computed(() => {
  * Updates the value of the attribute in the entity using the local reactive value.
  */
 function updateValue() {
-  emits('update:entity', {
-    ...props.entity,
-    [props.definition.name]: localValue.value,
-  });
+  emits(
+    'update:entity',
+    setNestedValue(props.entity, props.definition.name, localValue.value)
+  );
 }
 </script>

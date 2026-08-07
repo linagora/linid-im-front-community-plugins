@@ -30,13 +30,20 @@ import EntityAttributeTextAreaField from '../../../../src/components/field/Entit
 
 const mockUi = vi.fn(() => ({}));
 
-vi.mock('@linagora/linid-im-front-corelib', () => ({
-  useUiDesign: () => ({
-    ui: mockUi,
-  }),
-  useScopedI18n: () => ({ translateOrDefault: vi.fn() }),
-  useQuasarRules: () => [vi.fn(), vi.fn(), vi.fn(), vi.fn(), vi.fn()],
-}));
+vi.mock('@linagora/linid-im-front-corelib', async () => {
+  const { getNestedValue, setNestedValue } = await vi.importActual(
+    '@linagora/linid-im-front-corelib'
+  );
+  return {
+    getNestedValue,
+    setNestedValue,
+    useUiDesign: () => ({
+      ui: mockUi,
+    }),
+    useScopedI18n: () => ({ translateOrDefault: vi.fn() }),
+    useQuasarRules: () => [vi.fn(), vi.fn(), vi.fn(), vi.fn(), vi.fn()],
+  };
+});
 
 describe('Test component: EntityAttributeTextAreaField', () => {
   let wrapper;
@@ -91,6 +98,7 @@ describe('Test component: EntityAttributeTextAreaField', () => {
       await wrapper.setProps({
         ignoreRules: true,
         definition: {
+          name: 'name',
           hasValidations: true,
           required: true,
           inputSettings: {
@@ -108,6 +116,7 @@ describe('Test component: EntityAttributeTextAreaField', () => {
       await wrapper.setProps({
         ignoreRules: false,
         definition: {
+          name: 'name',
           hasValidations: true,
           required: true,
           inputSettings: {
@@ -126,6 +135,7 @@ describe('Test component: EntityAttributeTextAreaField', () => {
       await wrapper.setProps({
         ignoreRules: false,
         definition: {
+          name: 'name',
           hasValidations: true,
           required: true,
           inputSettings: {
@@ -143,6 +153,7 @@ describe('Test component: EntityAttributeTextAreaField', () => {
     it('should return rules if ignoreRules is unset', async () => {
       await wrapper.setProps({
         definition: {
+          name: 'name',
           hasValidations: true,
           required: true,
           inputSettings: {
@@ -247,6 +258,64 @@ describe('Test component: EntityAttributeTextAreaField', () => {
       });
 
       expect(wrapper.vm.localValue).toEqual('initial-name');
+    });
+  });
+
+  describe('Test nested attributes', () => {
+    beforeEach(async () => {
+      await wrapper.setProps({
+        definition: {
+          name: 'extraParameters.description',
+          type: 'String',
+          required: false,
+          hasValidations: false,
+          input: 'TextArea',
+          inputSettings: {},
+        },
+        entity: {
+          name: 'entity-name',
+          extraParameters: { description: 'old-description', role: 'admin' },
+        },
+      });
+    });
+
+    it('should read the value from the nested path', () => {
+      expect(wrapper.vm.localValue).toEqual('old-description');
+    });
+
+    it('should emit the complete entity with only the nested value updated', () => {
+      wrapper.vm.localValue = 'new-description';
+
+      wrapper.vm.updateValue();
+
+      expect(wrapper.emitted('update:entity')[0]).toEqual([
+        {
+          name: 'entity-name',
+          extraParameters: { description: 'new-description', role: 'admin' },
+        },
+      ]);
+    });
+
+    it('should create missing intermediate objects when updating', async () => {
+      await wrapper.setProps({ entity: { name: 'entity-name' } });
+      wrapper.vm.localValue = 'new-description';
+
+      wrapper.vm.updateValue();
+
+      expect(wrapper.emitted('update:entity')[0]).toEqual([
+        {
+          name: 'entity-name',
+          extraParameters: { description: 'new-description' },
+        },
+      ]);
+    });
+
+    it('should update localValue when the nested value changes', async () => {
+      await wrapper.setProps({
+        entity: { extraParameters: { description: 'old-description' } },
+      });
+
+      expect(wrapper.vm.localValue).toEqual('old-description');
     });
   });
 });

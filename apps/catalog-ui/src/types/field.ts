@@ -221,7 +221,9 @@ export interface FieldListValue {
 
   /**
    * Conditions under which this option is shown.
-   * Each key is an entity field name; the value is a string or an array of strings (OR logic within a key).
+   * Each key is an entity field name, with dot notation supported for nested
+   * values (e.g. "extraParameters.login"); the value is a string or an array
+   * of strings (OR logic within a key).
    * All keys must match simultaneously (AND logic across keys).
    * When absent, the option is always shown regardless of entity state.
    */

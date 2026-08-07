@@ -45,37 +45,44 @@ const mockValidateFromApi = vi.fn(() => vi.fn());
 const mockTranslateOrDefault = vi.fn((defaultValue) => defaultValue);
 const mockGlobalTe = vi.fn(() => false);
 
-vi.mock('@linagora/linid-im-front-corelib', () => ({
-  getI18nInstance: () => ({
-    global: {
-      t: mockGlobalT,
-      te: mockGlobalTe,
-    },
-  }),
-  QDATE_DEFAULT_MASK: 'YYYY/MM/DD',
-  useUiDesign: () => ({
-    ui: mockUi,
-  }),
-  useScopedI18n: () => ({
-    t: vi.fn(),
-    translateOrDefault: mockTranslateOrDefault,
-  }),
-  useNunjucks: () => ({ render: mockRender }),
-  useDayjs: () => ({ minDate: mockMinDate, maxDate: mockMaxDate }),
-  useQuasarDate: () => ({
-    toQDateFormat: mockToQDateFormat,
-    formatQDate: mockFormatQDate,
-  }),
-  useQuasarFieldValidation: () => ({
-    required: mockRequired,
-    validDate: mockValidDate,
-    afterDate: mockAfterDate,
-    beforeDate: mockBeforeDate,
-    fromDate: mockFromDate,
-    upToDate: mockUpToDate,
-    validateFromApi: mockValidateFromApi,
-  }),
-}));
+vi.mock('@linagora/linid-im-front-corelib', async () => {
+  const { getNestedValue, setNestedValue } = await vi.importActual(
+    '@linagora/linid-im-front-corelib'
+  );
+  return {
+    getNestedValue,
+    setNestedValue,
+    getI18nInstance: () => ({
+      global: {
+        t: mockGlobalT,
+        te: mockGlobalTe,
+      },
+    }),
+    QDATE_DEFAULT_MASK: 'YYYY/MM/DD',
+    useUiDesign: () => ({
+      ui: mockUi,
+    }),
+    useScopedI18n: () => ({
+      t: vi.fn(),
+      translateOrDefault: mockTranslateOrDefault,
+    }),
+    useNunjucks: () => ({ render: mockRender }),
+    useDayjs: () => ({ minDate: mockMinDate, maxDate: mockMaxDate }),
+    useQuasarDate: () => ({
+      toQDateFormat: mockToQDateFormat,
+      formatQDate: mockFormatQDate,
+    }),
+    useQuasarFieldValidation: () => ({
+      required: mockRequired,
+      validDate: mockValidDate,
+      afterDate: mockAfterDate,
+      beforeDate: mockBeforeDate,
+      fromDate: mockFromDate,
+      upToDate: mockUpToDate,
+      validateFromApi: mockValidateFromApi,
+    }),
+  };
+});
 
 describe('Test component: EntityAttributeDateField', () => {
   let wrapper;
@@ -252,6 +259,7 @@ describe('Test component: EntityAttributeDateField', () => {
       await wrapper.setProps({
         ignoreRules: true,
         definition: {
+          name: 'birthdate',
           hasValidations: true,
           required: true,
         },
@@ -264,6 +272,7 @@ describe('Test component: EntityAttributeDateField', () => {
       await wrapper.setProps({
         ignoreRules: false,
         definition: {
+          name: 'birthdate',
           hasValidations: true,
           required: true,
           inputSettings: { ignoreRules: true },
@@ -276,6 +285,7 @@ describe('Test component: EntityAttributeDateField', () => {
     it('should return rules if ignoreRules is false', async () => {
       await wrapper.setProps({
         definition: {
+          name: 'birthdate',
           ignoreRules: false,
           hasValidations: true,
           required: true,
@@ -291,6 +301,7 @@ describe('Test component: EntityAttributeDateField', () => {
     it('should return rules if ignoreRules is unset', async () => {
       await wrapper.setProps({
         definition: {
+          name: 'birthdate',
           hasValidations: true,
           required: true,
           inputSettings: {},
@@ -303,6 +314,7 @@ describe('Test component: EntityAttributeDateField', () => {
     it('should return only validDate rule when required is false', async () => {
       await wrapper.setProps({
         definition: {
+          name: 'birthdate',
           hasValidations: false,
           required: false,
           inputSettings: {},
@@ -317,6 +329,7 @@ describe('Test component: EntityAttributeDateField', () => {
       mockMaxDate.mockReturnValue(mockDayjsResult);
       await wrapper.setProps({
         definition: {
+          name: 'birthdate',
           hasValidations: true,
           required: false,
           inputSettings: {
@@ -799,6 +812,64 @@ describe('Test component: EntityAttributeDateField', () => {
       });
 
       expect(wrapper.vm.localValue).toEqual('01/01/2026');
+    });
+  });
+
+  describe('Test nested attributes', () => {
+    beforeEach(async () => {
+      await wrapper.setProps({
+        definition: {
+          name: 'extraParameters.birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: false,
+          input: 'Date',
+          inputSettings: {},
+        },
+        entity: {
+          name: 'entity-name',
+          extraParameters: { birthdate: '1990/01/01', role: 'admin' },
+        },
+      });
+    });
+
+    it('should read the value from the nested path', () => {
+      expect(wrapper.vm.localValue).toEqual('1990/01/01');
+    });
+
+    it('should emit the complete entity with only the nested value updated', () => {
+      wrapper.vm.localValue = '1990/01/05';
+
+      wrapper.vm.updateValue();
+
+      expect(wrapper.emitted('update:entity')[0]).toEqual([
+        {
+          name: 'entity-name',
+          extraParameters: { birthdate: '1990/01/05', role: 'admin' },
+        },
+      ]);
+    });
+
+    it('should create missing intermediate objects when updating', async () => {
+      await wrapper.setProps({ entity: { name: 'entity-name' } });
+      wrapper.vm.localValue = '1990/01/05';
+
+      wrapper.vm.updateValue();
+
+      expect(wrapper.emitted('update:entity')[0]).toEqual([
+        {
+          name: 'entity-name',
+          extraParameters: { birthdate: '1990/01/05' },
+        },
+      ]);
+    });
+
+    it('should update localValue when the nested value changes', async () => {
+      await wrapper.setProps({
+        entity: { extraParameters: { birthdate: '1990/01/01' } },
+      });
+
+      expect(wrapper.vm.localValue).toEqual('1990/01/01');
     });
   });
 });
