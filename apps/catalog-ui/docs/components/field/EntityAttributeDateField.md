@@ -245,9 +245,20 @@ const rules = computed(() => {
 
 ---
 
+## **🧭 Nested Attributes**
+
+The attribute `name` supports **dot notation** to target values located inside sub-objects of the entity (e.g. `extraParameters.login`):
+
+- The initial value is read from the nested path (`getNestedValue` from corelib)
+- Updates rewrite only the targeted nested property, preserving the rest of the entity structure (`setNestedValue` from corelib)
+- Missing intermediate objects are created when updating; intermediate values that are not objects are replaced by objects
+- The `update:entity` event still emits the **complete** updated entity object
+
+---
+
 ## **🔁 Data Flow & Dynamic Rendering**
 
-1. Initial value is read from `entity[definition.name]`
+1. Initial value is read from the entity at the path `definition.name` (dot notation supported)
 2. The mask and all options are rendered via Nunjucks with context `{ entity, today, t }`
 3. User edits the input field or the date-picker
 4. `localValue` is updated via `v-model`
@@ -262,12 +273,12 @@ QInput/QDate → localValue → updateValue → update:entity
 ## **🧠 Internal State Management**
 
 ```ts
-const localValue = ref(props.entity[props.definition.name] ?? null);
+const localValue = ref(getNestedValue(props.entity, props.definition.name) ?? null);
 ```
 
 - Uses a local reactive reference to isolate UI interaction
 - Supports `null` as an initial value when the attribute is undefined
-- A `watch` on `() => props.entity[props.definition.name]` keeps `localValue` in sync when the parent updates the entity — it only triggers when the **specific attribute value** changes, not when other fields of the entity change
+- A `watch` on `() => getNestedValue(props.entity, props.definition.name)` keeps `localValue` in sync when the parent updates the entity — it only triggers when the **specific attribute value** changes, not when other fields of the entity change
 
 ---
 
@@ -335,7 +346,7 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 - Mock `getI18nInstance().global.te`/`.t` to control mask resolution: the `maskI18NKey` lookup and its translated value, independently of the `mask`/`QDATE_DEFAULT_MASK` fallback chain
 - Mock `getI18nInstance` to control the `today`/`entity` context translations used in `renderedDefinition`
 - Shallow mount the component to isolate logic from UI rendering
-- Verify that `localValue` is updated when `entity[definition.name]` changes
+- Verify that `localValue` is updated when the entity value at `definition.name` changes
 - Verify that `localValue` is **not** overwritten when only other entity attributes change (e.g. mutate `name` while keeping the date attribute value identical)
 - Verify that `validateFromApi` is called with the correct `instanceId` and `definition.name` when `hasValidations` is `true`
 - Verify the input is rendered as disabled when `definition.inputSettings.disable` is `true`

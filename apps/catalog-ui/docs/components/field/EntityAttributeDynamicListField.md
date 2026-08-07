@@ -268,10 +268,21 @@ const enrichedDefinition = {
 
 ---
 
+## **🧭 Nested Attributes**
+
+The attribute `name` supports **dot notation** to target values located inside sub-objects of the entity (e.g. `extraParameters.login`):
+
+- The initial value is read from the nested path (`getNestedValue` from corelib)
+- Updates rewrite only the targeted nested property, preserving the rest of the entity structure (`setNestedValue` from corelib)
+- Missing intermediate objects are created when updating; intermediate values that are not objects are replaced by objects
+- The `update:entity` event still emits the **complete** updated entity object
+
+---
+
 ## **🔁 Data Flow**
 
 1. Initial value is resolved from:
-   - `entity[definition.name]` (existing value string in entity)
+   - the entity value at `definition.name` (existing value string in entity)
    - `null` (fallback if no entity value exists)
 
 2. On mount, the first page of `{ label, value }` elements is fetched from the backend
@@ -410,13 +421,13 @@ function onVirtualScroll(payload: VirtualScrollPayload) {
 ### Selected Value Management
 
 ```ts
-const localValue = ref(props.entity[props.definition.name] ?? null);
+const localValue = ref(getNestedValue(props.entity, props.definition.name) ?? null);
 ```
 
 - Uses a local reactive reference to isolate UI interaction
 - Stores the **value string** (not the full `{ label, value }` object), thanks to Quasar's `emit-value` prop
 - Falls back to `null` if the entity has no existing value
-- A `watch` on `() => props.entity[props.definition.name]` keeps `localValue` in sync when the parent updates the entity — it only triggers when the **specific attribute value** changes, not when other fields of the entity change
+- A `watch` on `() => getNestedValue(props.entity, props.definition.name)` keeps `localValue` in sync when the parent updates the entity — it only triggers when the **specific attribute value** changes, not when other fields of the entity change
 - Quasar's `map-options` resolves the stored value to its corresponding `{ label, value }` object for display
 
 ---
@@ -550,7 +561,7 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 - Assert `update:entity` emission stores the `value` string (not the full object) on selection changes
 - Verify `ignoreRules` prop bypasses validation rules
 - Verify validation rules are applied when `ignoreRules` is `false`
-- Verify that `localValue` is updated when `entity[definition.name]` changes
+- Verify that `localValue` is updated when the entity value at `definition.name` changes
 - Verify that `localValue` is **not** overwritten when only other entity attributes change
 - Verify the select is rendered as disabled when `definition.inputSettings.disable` is `true`
 
@@ -563,7 +574,7 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 - The `route` property is **mandatory** in `FieldDynamicListSettings` — without it, the component displays an error
 - The field is rendered as non-interactive when `definition.inputSettings.disable` is `true`
 - Options are fetched lazily and accumulated across pages
-- The `entity` prop is reactive: changes to `entity[definition.name]` are reflected in `localValue` via a selective `watch`
+- The `entity` prop is reactive: changes to the entity value at `definition.name` are reflected in `localValue` via a selective `watch`
 - Validation is handled internally using `useQuasarRules` with a `unique` rule and can be configured via `inputSettings`
 - Missing translations safely fall back to default values
 - Intended for use via `EntityAttributeField` dispatcher, not directly in most cases
