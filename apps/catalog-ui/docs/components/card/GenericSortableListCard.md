@@ -2,18 +2,21 @@
 
 The **GenericSortableListCard** component provides a complete UI for managing ordered collections:
 a drag-and-drop sortable list embedded in a card layout, with a built-in add button, per-item edit
-and delete actions, and a save button to persist the new sort order.
+and delete actions, and a save button to persist every pending change (reordering and edits) in a
+single batch.
 
 It standardizes ordered list management so features do not need to implement their own drag-and-drop
-list, action buttons, dialogs, and order-save flows.
+list, action buttons, dialogs, and save flows.
 
 ---
 
 ## **🎯 Purpose**
 
 - Displays a collection of items as a sortable list inside a card
-- Lets users drag and drop items to reorder them, then save the new order
-- Provides an add button opening a configuration-driven `FormDialog`
+- Lets users drag and drop items to reorder them or edit them, applied locally first
+- Persists every pending change in one save action: only items that were actually reordered or
+  edited generate a request
+- Provides an add button opening a configuration-driven `FormDialog` (creation is not deferred)
 - Provides per-item edit and delete buttons with their own `FormDialog` and `ConfirmationDialog`
 - Resolves API endpoints from Nunjucks templates rendered with the entity owning the collection
 - Renders configurable fields per item, as a column layout with a header row above the list
@@ -120,7 +123,7 @@ reserves the section on both rows — the header and the items never drift out o
 | Event     | Payload                     | Description                                                                                                                                                                             |
 | --------- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `created` | `Record<string, unknown>`   | Emitted with the server response after a successful creation, transformed by `itemMapperFn` if provided                                                                                 |
-| `updated` | `Record<string, unknown>[]` | Emitted after a successful item edit (array with the single updated item, transformed by `itemMapperFn`) or after the sort order has been saved at least partially (full reloaded list) |
+| `updated` | `Record<string, unknown>[]` | Emitted with the full reloaded list once a batch of pending changes (edits, reordering) has been saved, fully or partially                                                              |
 | `deleted` | `Record<string, unknown>`   | Emitted with the removed item after a successful deletion                                                                                                                               |
 
 ---
@@ -170,10 +173,13 @@ reserves the section on both rows — the header and the items never drift out o
 ### Edit item
 
 - The edit button opens the shared `FormDialog` pre-filled with the item's current values
-- On submit, the form data is sent as a `PUT` to the rendered `update` endpoint, with `item`
-  (the original item before edits) available in the template context
-- On success: positive notification, `updated` event with an array containing the single updated item (transformed by `itemMapperFn` if provided), items reload, dialog closes
-- On failure: negative notification, the dialog stays open for correction
+- On submit, the form data is merged over the original item (`{ ...item, ...formData }`) and
+  applied to the local list only — **nothing is sent to the server at this point**. The dialog
+  always closes, since there is nothing that can fail locally
+- The merged item is compared to the last loaded state to know whether local changes are still
+  pending (same mechanism as [Local item updates](#local-item-updates))
+- Server-side validation (e.g. a uniqueness constraint) is no longer checked at submit time — it
+  only surfaces when the pending changes are saved (see [Save changes](#save-changes))
 
 ### Delete item
 
@@ -190,37 +196,40 @@ reserves the section on both rows — the header and the items never drift out o
 ### Drag-and-drop reorder
 
 - Items can be dragged using the handle icon (`.drag-handle` CSS class on the icon section)
-- Moving an item to a position different from its original position in the loaded list marks the
-  order as changed, showing a hint message and enabling the save button. This comparison is
-  index-based, so items with non-contiguous `orderKey` values (e.g. created outside the UI) are
-  handled correctly
-- Moving all items back to their original positions automatically clears the changed state
+- Dragging mutates the local list directly (`v-model` on the draggable container) — there is no
+  dedicated reorder handler or reorder-specific state. A drag is detected exactly like any other
+  edit: an item's effective position (its current index, as a 1-based `orderKey`) is just another
+  property compared to the last loaded state (see [Save changes](#save-changes))
+- Moving all items back to their original positions is automatically recognized as "nothing changed"
 
 ### Local item updates
 
 - When `listenToItemUpdate` is set, the card subscribes to `uiEventSubject` on mount and unsubscribes on unmount. When the prop is absent, no subscription is created
 - Events are filtered by key: only events whose `key` matches the value of `listenToItemUpdate` are processed
-- A matching event replaces the item whose `itemKey` matches the event `data` in the local list only — nothing is persisted until the order is saved
+- A matching event replaces the item whose `itemKey` matches the event `data` in the local list only — nothing is persisted until the pending changes are saved
 - The list is then compared to the last loaded state to know whether local changes are still pending
 
 ### Unsaved changes hint
 
-A hint is displayed under the header as soon as the list diverges from the last loaded state. Which
-one depends on what changed:
+A single hint (`unsavedChangesHint`) is displayed under the header as soon as the list diverges
+from the last loaded state — whether because of a reorder or an edit. The component does not
+distinguish between these: an item's position is just another property, so there is no separate
+"order changed" state or hint to keep in sync with it.
 
-| Order changed | Items updated locally | Hint key                          |
-| ------------- | --------------------- | --------------------------------- |
-| yes           | no                    | `saveNewOrderHint`                |
-| no            | yes                   | `saveUpdatedItemsHint`            |
-| yes           | yes                   | `saveNewOrderAndUpdatedItemsHint` |
+### Save changes
 
-### Save order
-
-- The save button (enabled only when the order has changed) sends a `PUT` for every item in
-  parallel, assigning each item a new `orderKey` equal to its 1-based position in the current list
-- If all requests succeed: positive notification, `updated` event with the full reloaded list, items reload
-- If some requests fail: partial-failure notification, `updated` event with the reloaded list, items reload
-- If all requests fail: error notification, no event emitted, the order-changed flag and local list are unchanged
+- The save button is enabled as soon as there is a reorder or an edit to persist
+- On click, the card sends a `PUT` for every item whose stored value and/or effective position
+  (its current index in the list, as a 1-based `orderKey`) differs from the last loaded state —
+  items that were neither edited nor reordered generate **no request**
+- All `PUT`s are sent in parallel. If there is nothing left to send (e.g. an item was dragged back
+  to its original position), the save is a no-op — no request, no notification
+- If at least one request succeeds: items reload, `updated` is emitted with the full reloaded list
+  - If every request succeeded: positive notification
+  - If some requests failed: partial-failure notification (the failed changes are lost — they are
+    not automatically retried)
+- If every request fails: error notification, **no reload**, no event emitted — the pending
+  changes are left untouched so the user can retry
 
 ---
 
@@ -234,7 +243,7 @@ Key highlights:
 - `title` — optional card title (hidden when the key is absent)
 - the `label` of each entry of the `fields` prop — header labels, resolved under this same scope
 - `ButtonsCard.add` / `ButtonsCard.save` — header action button labels
-- `saveNewOrderHint` / `saveUpdatedItemsHint` / `saveNewOrderAndUpdatedItemsHint` — hint shown under the header when there are unsaved changes (order only / item values only / both)
+- `unsavedChangesHint` — hint shown under the header whenever there are unsaved changes (reorder or edit)
 - `editButton` / `deleteButton` — per-item button labels (optional, default to empty string)
 - `CreateFormDialog.*` / `EditFormDialog.*` — scopes for the create and edit `FormDialog`
 - `DeleteConfirmationDialog.*` — scope for the delete `ConfirmationDialog` (item properties interpolable)
