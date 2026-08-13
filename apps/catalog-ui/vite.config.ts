@@ -159,6 +159,10 @@ export default defineConfig({
           __dirname,
           'src/components/badge/StatusBadge.vue'
         ),
+        './SupersetWidgetCard': resolve(
+          __dirname,
+          'src/components/card/SupersetWidgetCard.vue'
+        ),
       },
       shared: {
         vue: {
@@ -188,6 +192,10 @@ export default defineConfig({
         '@vueuse/core': {
           singleton: true,
           requiredVersion: '14.3.0',
+        },
+        '@superset-ui/embedded-sdk': {
+          singleton: true,
+          requiredVersion: '0.4.0',
         },
       },
     }),

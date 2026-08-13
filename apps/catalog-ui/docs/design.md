@@ -327,6 +327,24 @@ Card for displaying entity attribute details. Fields inside the card can be conf
 
 ---
 
+### SupersetWidgetCard
+
+Widget for displaying superset dashboard.
+
+**Namespace:** `{uiNamespace}.superset-widget-card`
+
+```json
+{
+  "[PARENT_NAMESPACE]": {
+    "superset-widget-card": {
+      "q-card": { "flat": true, "bordered": true }
+    }
+  }
+}
+```
+
+---
+
 ### GenericEditableTableCard
 
 Card managing a simple collection: a table, an add button opening a `FormDialog`, an optional per-row edit button
@@ -1639,6 +1657,9 @@ A full example showing all CatalogUI components configured together:
             }
           }
         }
+      },
+      "superset-widget-card": {
+        "q-card": { "flat": true, "bordered": true }
       },
       "entity-details-card": {
         "q-card": { "flat": true, "bordered": true },
