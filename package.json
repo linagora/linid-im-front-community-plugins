@@ -20,6 +20,7 @@
   "private": true,
   "dependencies": {
     "@linagora/linid-im-front-corelib": "0.0.91",
+    "@superset-ui/embedded-sdk": "0.4.0",
     "@vueuse/core": "14.3.0",
     "axios": "1.18.1",
     "pinia": "3.0.4",
