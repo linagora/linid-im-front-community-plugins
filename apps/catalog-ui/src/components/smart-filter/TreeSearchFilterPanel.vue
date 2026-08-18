@@ -184,12 +184,8 @@ async function loadData() {
     }
 
     const root = nodes.find((item) => {
-      const parentValue = item[props.parentsKey];
-      return (
-        Array.isArray(parentValue) &&
-        parentValue.length > 0 &&
-        parentValue[0][props.parentIdKey] === null
-      );
+      const parentValue: unknown[] | null = item[props.parentsKey] as unknown[];
+      return !parentValue || parentValue.length === 0;
     });
 
     if (root) {
