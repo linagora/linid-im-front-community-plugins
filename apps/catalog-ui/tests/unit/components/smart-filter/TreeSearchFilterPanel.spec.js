@@ -56,7 +56,7 @@ const buildNodeDTO = (overrides = {}) => ({
   id: ROOT_ID,
   name: 'Root',
   type: '',
-  parents: [{ id: null }],
+  parents: [],
   ...overrides,
 });
 
@@ -79,7 +79,7 @@ describe('TreeSearchFilterPanel', () => {
   let mockHttpClient;
 
   const mockNodesData = [
-    buildNodeDTO({ id: ROOT_ID, name: 'Root', parents: [{ id: null }] }),
+    buildNodeDTO({ id: ROOT_ID, name: 'Root', parents: [] }),
     buildNodeDTO({
       id: CHILD1_ID,
       name: 'Child 1',
@@ -364,7 +364,7 @@ describe('TreeSearchFilterPanel', () => {
 
     it('should handle nodes with multiple children', () => {
       const multiChildNodes = [
-        buildNodeDTO({ id: ROOT_ID, parents: [{ id: null }] }),
+        buildNodeDTO({ id: ROOT_ID, parents: [] }),
         buildNodeDTO({ id: CHILD1_ID, parents: [{ id: ROOT_ID }] }),
         buildNodeDTO({ id: CHILD2_ID, parents: [{ id: ROOT_ID }] }),
         buildNodeDTO({ id: GRANDCHILD_ID, parents: [{ id: ROOT_ID }] }),
@@ -377,7 +377,7 @@ describe('TreeSearchFilterPanel', () => {
 
     it('should handle deeply nested tree structures', () => {
       const deepNodes = [
-        buildNodeDTO({ id: '1', parents: [{ id: null }] }),
+        buildNodeDTO({ id: '1', parents: [] }),
         buildNodeDTO({ id: '2', parents: [{ id: '1' }] }),
         buildNodeDTO({ id: '3', parents: [{ id: '2' }] }),
         buildNodeDTO({ id: '4', parents: [{ id: '3' }] }),
