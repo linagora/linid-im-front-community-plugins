@@ -24,19 +24,15 @@
  * LinID Identity Manager software.
  */
 
+import type { ModulePageLifecycleHostOptions } from '@linagora/linid-im-front-corelib';
+
 /**
  * Base configuration options for a generic page module.
  *
  * Defines the Module Federation references required to resolve and render
  * a page within the host application.
  */
-export interface ModulePageOptions {
-  /**
-   * Indicates whether the module should automatically register an entry
-   * in the host application's main navigation menu during its lifecycle
-   * initialization.
-   */
-  addNavigationMenu?: boolean;
+export interface ModulePageOptions extends ModulePageLifecycleHostOptions {
   /**
    * Module Federation remote/component used to resolve the layout.
    *

@@ -24,85 +24,14 @@
  * LinID Identity Manager software.
  */
 
-import type {
-  ModuleHostConfig,
-  ModuleLifecycleResult,
-} from '@linagora/linid-im-front-corelib';
-import {
-  BasicRemoteModule,
-  getI18nInstance,
-  useLinidUiStore,
-  useLinidZoneStore,
-} from '@linagora/linid-im-front-corelib';
+import { createModulePageLifecycle } from '@linagora/linid-im-front-corelib';
 import type { ModulePageOptions } from '../types/ModulePageOptions';
-import type { ComposerTranslation } from 'vue-i18n';
 
-/**
- * Remote module responsible for page integration.
- *
- * This module acts as a federated entry point for a generic page and is
- * responsible for integrating it into the host application.
- *
- * It extends {@link BasicRemoteModule} to inherit the standard metadata and
- * lifecycle behavior expected by the host application.
- */
-class ModulePage extends BasicRemoteModule<ModulePageOptions> {
-  /**
-   * Creates a new page module instance.
-   *
-   * Registers the module metadata used by the host application, including
-   * its identifier, display name, version, and description.
-   */
-  constructor() {
-    super(
-      'modulePage',
-      'Page module',
-      '0.0.1',
-      'Module to manage page entity.'
-    );
-  }
-
-  /**
-   * Performs post-initialization tasks for the page module.
-   * After the module has been initialized, this method:
-   * - Optionally registers an entry in the host application's main navigation menu.
-   * - Registers shared dialog components in the LinID zone registry, making them
-   * available to the host application layout.
-   *
-   * Navigation menu registration is controlled by the
-   * {@link ModulePageOptions.addNavigationMenu} option. When enabled, the menu
-   * item uses the module instance identifier for its id, a localized label, and
-   * the configured base path as its navigation target.
-   * @param config - The configuration object provided by the host application.
-   * @returns A promise that resolves to the result of the module lifecycle operation.
-   */
-  override async postInit(
-    config: ModuleHostConfig<ModulePageOptions>
-  ): Promise<ModuleLifecycleResult> {
-    const uiStore = useLinidUiStore();
-    const linidZoneStore = useLinidZoneStore();
-    const t = getI18nInstance().global.t as ComposerTranslation;
-
-    if (config.options?.addNavigationMenu) {
-      uiStore.addMainNavigationMenuItems({
-        id: config.instanceId,
-        label: t(`${config.instanceId}.NavigationMenu.label`),
-        path: config.basePath,
-      });
-    }
-
-    linidZoneStore.registerPluginOnce(
-      'base-layout.dialogComponent',
-      'catalogUI/ConfirmationDialog'
-    );
-
-    linidZoneStore.registerPluginOnce(
-      'base-layout.dialogComponent',
-      'catalogUI/FormDialog'
-    );
-
-    return { success: true };
-  }
-}
-
-export default new ModulePage();
+export default createModulePageLifecycle<ModulePageOptions>({
+  id: 'modulePage',
+  name: 'Page module',
+  version: '0.0.1',
+  description: 'Module to manage page entity.',
+  dialogZone: 'base-layout.dialogComponent',
+  dialogComponents: ['catalogUI/ConfirmationDialog', 'catalogUI/FormDialog'],
+});

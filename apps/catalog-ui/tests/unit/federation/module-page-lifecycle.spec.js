@@ -24,41 +24,25 @@
  * LinID Identity Manager software.
  */
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-
-const mockAddMainNavigationMenuItems = vi.fn();
-const mockT = vi.fn((key) => `translated_${key}`);
-
-vi.mock('@linagora/linid-im-front-corelib', async () => {
-  const actual = await vi.importActual('@linagora/linid-im-front-corelib');
-
-  return {
-    ...actual,
-
-    useLinidUiStore: () => ({
-      addMainNavigationMenuItems: mockAddMainNavigationMenuItems,
-    }),
-
-    useLinidZoneStore: () => ({
-      registerPluginOnce: vi.fn(),
-    }),
-
-    getI18nInstance: () => ({
-      global: {
-        t: mockT,
-      },
-    }),
-  };
-});
+import {
+  setI18nInstance,
+  setPiniaStore,
+  useLinidUiStore,
+  useLinidZoneStore,
+} from '@linagora/linid-im-front-corelib';
+import { createPinia } from 'pinia';
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import modulePage from '../../../src/federation/module-page-lifecycle';
 
 describe('Test module lifecycle: ModulePage', () => {
-  let modulePage;
+  beforeAll(() => {
+    setPiniaStore(createPinia());
+    setI18nInstance({ global: { t: vi.fn((key) => `translated_${key}`) } });
+  });
 
-  beforeEach(async () => {
-    vi.clearAllMocks();
-    const module =
-      await import('../../../src/federation/module-page-lifecycle.ts');
-    modulePage = module.default;
+  beforeEach(() => {
+    useLinidUiStore().$reset();
+    useLinidZoneStore().$reset();
   });
 
   it('should have correct module metadata', () => {
@@ -77,7 +61,7 @@ describe('Test module lifecycle: ModulePage', () => {
 
       const result = await modulePage.postInit(config);
 
-      expect(mockAddMainNavigationMenuItems).toHaveBeenCalledTimes(0);
+      expect(useLinidUiStore().mainNavigationItems).toEqual([]);
       expect(result).toEqual({ success: true });
     });
 
@@ -92,13 +76,25 @@ describe('Test module lifecycle: ModulePage', () => {
 
       const result = await modulePage.postInit(config);
 
-      expect(mockAddMainNavigationMenuItems).toHaveBeenCalledTimes(1);
-      expect(mockAddMainNavigationMenuItems).toHaveBeenCalledWith({
-        id: 'page-instance-2',
-        label: 'translated_page-instance-2.NavigationMenu.label',
-        path: '/custom-page-path',
-      });
+      expect(useLinidUiStore().mainNavigationItems).toEqual([
+        {
+          id: 'page-instance-2',
+          label: 'translated_page-instance-2.NavigationMenu.label',
+          path: '/custom-page-path',
+        },
+      ]);
       expect(result).toEqual({ success: true });
+    });
+
+    it('should register the catalog dialog components in the layout dialog zone', async () => {
+      await modulePage.postInit({ instanceId: 'page-instance-2' });
+
+      const entries =
+        useLinidZoneStore().zones['base-layout.dialogComponent'] ?? [];
+      expect(entries.map((entry) => entry.plugin)).toEqual([
+        'catalogUI/ConfirmationDialog',
+        'catalogUI/FormDialog',
+      ]);
     });
   });
 });
