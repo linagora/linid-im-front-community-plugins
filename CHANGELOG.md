@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.104](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.103...v0.2.104) (2026-08-25)
+
+
+### Features
+
+* **catalog-ui:** add superset widtget card ([9a3cd76](https://github.com/linagora/linid-im-front-community-plugins/commit/9a3cd765ff057b8cf8d36d5dd5543c02347dd8f3))
+
+
+### Bug Fixes
+
+* **catalog-ui:** retrieving root from tree ([7173e9a](https://github.com/linagora/linid-im-front-community-plugins/commit/7173e9a7cb88c8c58c18c921834c330e8701aa3f))
+
 ### [0.2.103](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.102...v0.2.103) (2026-08-07)
 
 
