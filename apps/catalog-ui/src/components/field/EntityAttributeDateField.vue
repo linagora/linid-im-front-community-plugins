@@ -130,8 +130,8 @@ const {
 } = useQuasarFieldValidation(localI18nScope);
 const globalT = getI18nInstance().global.t as ComposerTranslation;
 
-const localValue = ref(
-  getNestedValue(props.entity, props.definition.name) ?? null
+const localValue = ref<string | null>(
+  getNestedValue(props.entity, props.definition.name) as string | null
 );
 
 const uiProps = {
@@ -156,7 +156,7 @@ const uiProps = {
 watch(
   () => getNestedValue(props.entity, props.definition.name),
   (newValue) => {
-    localValue.value = newValue ?? null;
+    localValue.value = (newValue as string) ?? null;
   }
 );
 

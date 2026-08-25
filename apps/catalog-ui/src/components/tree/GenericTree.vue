@@ -138,7 +138,6 @@ import type {
   UiPropsAction,
   UiPropsTypes,
 } from '../../types/genericTree';
-import type { MouseEvent } from 'happy-dom';
 
 const props = defineProps<TreeProps<unknown>>();
 const filter = ref<string>('');
@@ -155,7 +154,7 @@ const { toQTreeNodes } = useTree();
  * @param nodeKey The key of the node to toggle.
  * @param event The mouse event on the checkbox or on the node.
  */
-function toggleNodeSelection(nodeKey: string, event: MouseEvent): void {
+function toggleNodeSelection(nodeKey: string, event: PointerEvent): void {
   if (!props.tickeable) {
     return;
   }
