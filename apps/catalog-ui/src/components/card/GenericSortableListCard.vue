@@ -807,7 +807,7 @@ useResizeObserver(itemActionsSection, (entries: ResizeObserverEntry[]) => {
     return;
   }
 
-  const { offsetWidth } = entry.target as HTMLElement;
+  const { offsetWidth } = entry.target as unknown as HTMLElement;
 
   itemActionsWidth.value =
     offsetWidth != null ? `${offsetWidth}px` : defaultWidth;

@@ -70,8 +70,8 @@ const localI18nScope = `${props.i18nScope}.fields.${props.definition.name}`;
 
 const { ui } = useUiDesign();
 
-const localValue = ref(
-  getNestedValue(props.entity, props.definition.name) ?? null
+const localValue = ref<string | null>(
+  getNestedValue(props.entity, props.definition.name) as string | null
 );
 
 const uiProps = ui<LinidQInputProps>(
@@ -94,7 +94,7 @@ const rules = computed(() =>
 watch(
   () => getNestedValue(props.entity, props.definition.name),
   (newValue) => {
-    localValue.value = newValue ?? null;
+    localValue.value = (newValue as string) ?? null;
   }
 );
 
