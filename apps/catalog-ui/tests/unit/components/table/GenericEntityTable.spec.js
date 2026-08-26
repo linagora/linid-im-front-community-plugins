@@ -30,18 +30,24 @@ import GenericEntityTable from '../../../../src/components/table/GenericEntityTa
 
 const mockFormatValue = vi.fn(() => 'formatted-value');
 
-vi.mock('@linagora/linid-im-front-corelib', () => ({
-  useScopedI18n: () => ({
-    t: vi.fn((v) => v),
-    translateOrDefault: vi.fn((v) => v),
-  }),
-  useUiDesign: () => ({
-    ui: vi.fn(() => ({})),
-  }),
-  useValueFormatter: () => ({
-    formatValue: mockFormatValue,
-  }),
-}));
+vi.mock('@linagora/linid-im-front-corelib', async () => {
+  const { getNestedValue } = await vi.importActual(
+    '@linagora/linid-im-front-corelib'
+  );
+  return {
+    getNestedValue,
+    useScopedI18n: () => ({
+      t: vi.fn((v) => v),
+      translateOrDefault: vi.fn((v) => v),
+    }),
+    useUiDesign: () => ({
+      ui: vi.fn(() => ({})),
+    }),
+    useValueFormatter: () => ({
+      formatValue: mockFormatValue,
+    }),
+  };
+});
 
 describe('Test component: GenericEntityTable', () => {
   let wrapper;
@@ -197,6 +203,30 @@ describe('Test component: GenericEntityTable', () => {
 
       expect(wrapper.vm.columns[0]).toMatchObject(createdAtColumn);
       expect(columns[0]).not.toHaveProperty('format');
+    });
+
+    it('should resolve a nested attribute field against the row', () => {
+      const nestedColumn = {
+        name: 'extraParameters.login',
+        label: 'Login',
+        field: 'extraParameters.login',
+      };
+      const wrapper = shallowMount(GenericEntityTable, {
+        props: { ...defaultProps, columns: [nestedColumn] },
+      });
+
+      const { field } = wrapper.vm.columns[0];
+      expect(field).toBeTypeOf('function');
+      expect(field({ extraParameters: { login: 'jdoe' } })).toBe('jdoe');
+      expect(field({})).toBeUndefined();
+    });
+
+    it('should keep a flat string field untouched', () => {
+      const wrapper = shallowMount(GenericEntityTable, {
+        props: { ...defaultProps, columns: [plainColumn] },
+      });
+
+      expect(wrapper.vm.columns[0].field).toBe('name');
     });
   });
 });

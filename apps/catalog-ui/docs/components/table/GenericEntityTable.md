@@ -79,6 +79,28 @@ const columns = [
 
 ---
 
+## **🧭 Nested Attributes**
+
+The column `field` supports **dot notation** to target values located inside sub-objects of the row (e.g. `extraParameters.login`):
+
+- A string `field` containing a dot is replaced by a getter resolving the nested path (`getNestedValue` from corelib)
+- Unresolvable paths render an empty cell instead of throwing
+- Flat string fields and function fields are forwarded to `QTable` untouched
+
+```ts
+const columns = [
+  {
+    name: 'login',
+    label: 'Login',
+    field: 'extraParameters.login',
+  },
+];
+```
+
+`name` stays a plain column identifier — only `field` is resolved against the row.
+
+---
+
 ## **🔗 Slot Forwarding**
 
 The `GenericEntityTable` supports **forwarding slots from the parent component to the underlying Quasar `QTable`**.
