@@ -284,7 +284,9 @@ import type {
 import {
   deepEqual,
   getHttpClient,
+  getNestedValue,
   LinidZoneRenderer,
+  setNestedValue,
   uiEventSubject,
   useLinidZoneStore,
   useNotify,
@@ -365,8 +367,11 @@ const formattedItems = computed(() =>
     Object.fromEntries(
       resolvedFields.value.map((field) => [
         field.name,
-        formatValue(item[field.name], field.formatter, field.formatOptions) ??
-          '',
+        formatValue(
+          getNestedValue(item, field.name),
+          field.formatter,
+          field.formatOptions
+        ) ?? '',
       ])
     )
   )
@@ -552,7 +557,11 @@ function openCreateDialog(): void {
         field.name !== props.orderKey &&
         field.inputSettings?.defaultValue !== undefined
       ) {
-        acc[field.name] = field.inputSettings.defaultValue;
+        return setNestedValue(
+          acc,
+          field.name,
+          field.inputSettings.defaultValue
+        );
       }
       return acc;
     },

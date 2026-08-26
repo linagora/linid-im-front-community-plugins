@@ -40,10 +40,12 @@ const mockHttpPut = vi.fn(() => Promise.resolve({ data: {} }));
 const mockHttpDelete = vi.fn(() => Promise.resolve({ data: {} }));
 
 vi.mock('@linagora/linid-im-front-corelib', async () => {
-  const { deepEqual } = await vi.importActual(
+  const { deepEqual, getNestedValue, setNestedValue } = await vi.importActual(
     '@linagora/linid-im-front-corelib'
   );
   return {
+    getNestedValue,
+    setNestedValue,
     getHttpClient: () => ({
       get: mockHttpGet,
       post: mockHttpPost,
@@ -421,6 +423,25 @@ describe('Test component: GenericSortableListCard', () => {
 
       expect(wrapper.vm.formattedItems).toEqual([{ name: '', order: 0 }]);
     });
+
+    it('should resolve a nested attribute field against the item', async () => {
+      mockHttpGet.mockResolvedValue(
+        singlePageResponse([
+          { id: 'item-1', order: 1, extraParameters: { login: 'jdoe' } },
+        ])
+      );
+      wrapper = mountComponent({
+        fields: [
+          { name: 'extraParameters.login', label: 'columns.login' },
+          { name: 'order', label: 'columns.order' },
+        ],
+      });
+      await flushPromises();
+
+      expect(wrapper.vm.formattedItems).toEqual([
+        { 'extraParameters.login': 'jdoe', order: 1 },
+      ]);
+    });
   });
 
   describe('Test function: loadData', () => {
@@ -643,6 +664,29 @@ describe('Test component: GenericSortableListCard', () => {
 
       const event = uiEventSubject.next.mock.calls[0][0];
       expect(event.data.initialFormData).toEqual({ name: 'unnamed', order: 1 });
+    });
+
+    it('should prefill a nested field default under its nested path', () => {
+      wrapper = mountComponent({
+        formFields: [
+          {
+            name: 'extraParameters.login',
+            type: 'String',
+            input: 'Text',
+            required: false,
+            inputSettings: { defaultValue: 'jdoe' },
+          },
+          ...defaultProps.formFields.slice(1),
+        ],
+      });
+
+      wrapper.vm.openCreateDialog();
+
+      const event = uiEventSubject.next.mock.calls[0][0];
+      expect(event.data.initialFormData).toEqual({
+        extraParameters: { login: 'jdoe' },
+        order: 1,
+      });
     });
 
     it('should prefill the order even when it is not declared in the form fields', () => {

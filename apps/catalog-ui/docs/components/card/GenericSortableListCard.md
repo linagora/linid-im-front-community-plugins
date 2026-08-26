@@ -92,8 +92,11 @@ export interface GenericListField extends FormatterConfiguration {
 Points to keep in mind:
 
 - **`label` is an i18n key**, resolved under `${i18nScope}.GenericSortableListCard` — never a literal string
-- **`name` is the item property key**: the cell value is read as `item[field.name]`. There is no separate `field`
-  property, and nested paths (`a.b.c`) are not resolved — flatten them upstream with `itemMapperFn`
+- **`name` is the item property key**: the cell value is read from the item. There is no separate `field`
+  property. `name` supports **dot notation** to target values located inside sub-objects of the item
+  (e.g. `extraParameters.login`, resolved with `getNestedValue` from corelib); an unresolvable path renders
+  an empty cell. Default values of nested form fields (`inputSettings.defaultValue`) are prefilled under
+  their nested path in the create form
 - **Formatting** is delegated to corelib's `useValueFormatter`. See [Value Formatting](../../value-formatting.md)
 - **A nullish formatted value becomes an empty string.** A missing property and an explicit `null` both render as
   an empty cell rather than as `"null"`. The test is nullish, so `0` and `false` are kept and displayed
