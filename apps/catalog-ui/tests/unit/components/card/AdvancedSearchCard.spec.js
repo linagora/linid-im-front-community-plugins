@@ -28,16 +28,23 @@ import { shallowMount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import AdvancedSearchCard from '../../../../src/components/card/AdvancedSearchCard.vue';
 
-vi.mock('@linagora/linid-im-front-corelib', () => ({
-  useScopedI18n: () => ({
-    t: vi.fn((key) => key),
-    te: vi.fn(() => true),
-  }),
-  useUiDesign: () => ({
-    ui: vi.fn(() => ({})),
-  }),
-  loadAsyncComponent: vi.fn(() => null),
-}));
+vi.mock('@linagora/linid-im-front-corelib', async () => {
+  const { fromDot, getNestedValue } = await vi.importActual(
+    '@linagora/linid-im-front-corelib'
+  );
+  return {
+    fromDot,
+    getNestedValue,
+    useScopedI18n: () => ({
+      t: vi.fn((key) => key),
+      te: vi.fn(() => true),
+    }),
+    useUiDesign: () => ({
+      ui: vi.fn(() => ({})),
+    }),
+    loadAsyncComponent: vi.fn(() => null),
+  };
+});
 
 describe('Test component: AdvancedSearchCard', () => {
   let wrapper;
@@ -267,6 +274,83 @@ describe('Test component: AdvancedSearchCard', () => {
       await wrapper.setProps({ filters: newFilters });
 
       expect(wrapper.vm.localFilters).toEqual(newFilters);
+    });
+
+    it('should expand dot-notation filter keys for the fields', async () => {
+      await wrapper.setProps({ filters: { 'extraParameters.login': 'jdoe' } });
+
+      expect(wrapper.vm.localFilters).toEqual({
+        extraParameters: { login: 'jdoe' },
+      });
+    });
+  });
+
+  describe('Test function: toFilters', () => {
+    const nestedField = {
+      name: 'extraParameters.login',
+      type: 'String',
+      required: false,
+      hasValidations: false,
+      input: 'Text',
+      inputSettings: {},
+    };
+
+    const deepFields = [
+      { ...nestedField, name: 'extraParameters.fullname.firstname' },
+      { ...nestedField, name: 'extraParameters.fullname.lastname' },
+    ];
+
+    beforeEach(() => {
+      wrapper = shallowMount(AdvancedSearchCard, {
+        props: {
+          ...defaultProps,
+          fields: [...fields, nestedField],
+          advancedFieldsNames: ['email', 'extraParameters.login'],
+        },
+      });
+    });
+
+    it('should emit filters keyed by dotted field name on change', () => {
+      wrapper.vm.onFilterChange({
+        firstName: 'John',
+        extraParameters: { login: 'jdoe' },
+      });
+
+      expect(wrapper.emitted('update:filters')[0]).toEqual([
+        { firstName: 'John', 'extraParameters.login': 'jdoe' },
+      ]);
+    });
+
+    it('should not emit a key for an unset nested field', () => {
+      wrapper.vm.onFilterChange({ firstName: 'John' });
+
+      expect(wrapper.emitted('update:filters')[0]).toEqual([
+        { firstName: 'John' },
+      ]);
+    });
+
+    it('should flatten fields nested on several levels', () => {
+      wrapper = shallowMount(AdvancedSearchCard, {
+        props: {
+          ...defaultProps,
+          fields: [...fields, ...deepFields],
+          advancedFieldsNames: [
+            'extraParameters.fullname.firstname',
+            'extraParameters.fullname.lastname',
+          ],
+        },
+      });
+
+      wrapper.vm.onFilterChange({
+        extraParameters: { fullname: { firstname: 'John', lastname: 'Doe' } },
+      });
+
+      expect(wrapper.emitted('update:filters')[0]).toEqual([
+        {
+          'extraParameters.fullname.firstname': 'John',
+          'extraParameters.fullname.lastname': 'Doe',
+        },
+      ]);
     });
   });
 });
