@@ -49,8 +49,11 @@ The component determines which fields to display as follows:
 ### Value resolution
 
 - Each field value is resolved from the `entity` object
-- Missing or `null` values are coerced to an empty string
+- Field names support **dot notation** to target values located inside sub-objects of the entity (e.g. `extraParameters.login`, resolved with `getNestedValue` from corelib)
+- Missing or `null` values, including unresolvable nested paths, are coerced to an empty string
 - All values are rendered as strings
+
+> `showRemainingFields` only appends **top-level** keys of the entity; nested attributes must be listed explicitly in `fieldOrder`.
 
 ---
 

@@ -59,6 +59,7 @@
 <script setup lang="ts">
 import type { LinidQCardProps } from '@linagora/linid-im-front-corelib';
 import {
+  getNestedValue,
   useScopedI18n,
   useUiDesign,
   useValueFormatter,
@@ -97,12 +98,13 @@ const formatsByField = computed(
 
 const values = computed<Record<string, string>>(() => {
   return fieldNames.value.reduce<Record<string, string>>((acc, name) => {
+    const value = getNestedValue(props.entity, name);
     const format = formatsByField.value.get(name);
     if (format) {
       acc[name] =
-        `${formatValue(props.entity[name], format.formatter, format.formatOptions) ?? ''}`;
+        `${formatValue(value, format.formatter, format.formatOptions) ?? ''}`;
     } else {
-      acc[name] = `${props.entity[name] ?? ''}`;
+      acc[name] = `${value ?? ''}`;
     }
     return acc;
   }, {});

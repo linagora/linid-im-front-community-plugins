@@ -30,11 +30,17 @@ import EntityDetailsCard from '../../../../src/components/card/EntityDetailsCard
 
 const mockFormatValue = vi.fn((value) => value);
 
-vi.mock('@linagora/linid-im-front-corelib', () => ({
-  useUiDesign: () => ({ ui: vi.fn() }),
-  useScopedI18n: () => ({ t: vi.fn(), te: vi.fn(() => true) }),
-  useValueFormatter: () => ({ formatValue: mockFormatValue }),
-}));
+vi.mock('@linagora/linid-im-front-corelib', async () => {
+  const { getNestedValue } = await vi.importActual(
+    '@linagora/linid-im-front-corelib'
+  );
+  return {
+    getNestedValue,
+    useUiDesign: () => ({ ui: vi.fn() }),
+    useScopedI18n: () => ({ t: vi.fn(), te: vi.fn(() => true) }),
+    useValueFormatter: () => ({ formatValue: mockFormatValue }),
+  };
+});
 
 describe('Test component: EntityDetailsCard', () => {
   let wrapper;
@@ -133,6 +139,29 @@ describe('Test component: EntityDetailsCard', () => {
         field2: '',
         name: 'entity-name',
       });
+    });
+
+    it('should resolve nested attribute names with dot notation', async () => {
+      wrapper.setProps({
+        entity: { name: 'entity-name', extraParameters: { login: 'jdoe' } },
+        fieldOrder: ['name', 'extraParameters.login'],
+        showRemainingFields: false,
+      });
+
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.values).toEqual({
+        name: 'entity-name',
+        'extraParameters.login': 'jdoe',
+      });
+    });
+
+    it('should render an empty value for an unresolvable nested path', async () => {
+      wrapper.setProps({ fieldOrder: ['extraParameters.login'] });
+
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.values['extraParameters.login']).toBe('');
     });
   });
 
