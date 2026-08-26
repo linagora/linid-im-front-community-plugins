@@ -34,7 +34,7 @@
 
 <script setup lang="ts">
 import type { LinidQBadgeProps } from '@linagora/linid-im-front-corelib';
-import { useUiDesign } from '@linagora/linid-im-front-corelib';
+import { getNestedValue, useUiDesign } from '@linagora/linid-im-front-corelib';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { type StatusBadgeProps } from '../../types/statusBadge';
@@ -45,7 +45,7 @@ const { t } = useI18n();
 const { ui } = useUiDesign();
 
 const statusValue = computed(() => {
-  return props.entity[props.valueKey] || props.defaultValue;
+  return getNestedValue(props.entity, props.valueKey) || props.defaultValue;
 });
 
 const uiProps = computed(() =>

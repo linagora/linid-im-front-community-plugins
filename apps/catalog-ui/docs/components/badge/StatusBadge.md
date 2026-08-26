@@ -18,11 +18,11 @@ The `StatusBadge` component is a reusable badge component that standardizes the 
 
 The component accepts the following props:
 
-| Prop           | Type     | Description                                                                                          |
-| -------------- | -------- | ---------------------------------------------------------------------------------------------------- |
-| `entity`       | `Object` | The source entity containing the status value                                                        |
-| `valueKey`     | `String` | The key used to retrieve the badge value from the entity (e.g., `status`, `state`)                   |
-| `defaultValue` | `String` | The fallback value to display when the entity or the property at `valueKey` is `null` or `undefined` |
+| Prop           | Type     | Description                                                                                                                                                      |
+| -------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `entity`       | `Object` | The source entity containing the status value                                                                                                                    |
+| `valueKey`     | `String` | The key used to retrieve the badge value from the entity (e.g., `status`, `state`). Supports dot notation for nested attributes (e.g., `extraParameters.status`) |
+| `defaultValue` | `String` | The fallback value to display when the entity or the property at `valueKey` is `null` or `undefined`                                                             |
 
 ### Example Usage
 
@@ -97,10 +97,12 @@ Configure the badge appearance per status in your UI design system:
 The component resolves the status value using the following logic:
 
 ```typescript
-const statusValue = entity[valueKey] || defaultValue;
+const statusValue = getNestedValue(entity, valueKey) || defaultValue;
 ```
 
-If `entity[valueKey]` is `undefined`, `null`, or any falsy value, the component will use the `defaultValue` prop instead.
+`valueKey` supports **dot notation** to target values located inside sub-objects of the entity (e.g. `extraParameters.status`, resolved with `getNestedValue` from corelib).
+
+If the resolved value is `undefined`, `null`, or any falsy value — including an unresolvable nested path — the component will use the `defaultValue` prop instead.
 This ensures the badge always has a value to display, preventing empty or broken UI states.
 
 ### Label Translation
