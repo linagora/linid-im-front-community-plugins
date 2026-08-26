@@ -92,6 +92,7 @@
 
 <script setup lang="ts">
 import {
+  getNestedValue,
   type LinidQTableProps,
   useScopedI18n,
   useUiDesign,
@@ -124,16 +125,24 @@ const forwardedSlotNames = computed(() =>
 );
 
 /**
- * Adds Quasar column formatters without mutating rows.
+ * Adds Quasar column formatters and nested attribute resolution without
+ * mutating rows.
  */
 const columns = computed(() =>
   props.columns.map((column) => {
+    const field =
+      typeof column.field === 'string' && column.field.includes('.')
+        ? (row: Record<string, unknown>) =>
+            getNestedValue(row, column.field as string)
+        : column.field;
+
     if (!column.formatter) {
-      return column;
+      return { ...column, field };
     }
 
     return {
       ...column,
+      field,
       format: (value: unknown) =>
         formatValue(value, column.formatter, column.formatOptions),
     };
