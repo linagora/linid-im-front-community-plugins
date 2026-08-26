@@ -121,6 +121,8 @@ import type {
   LinidQIconProps,
 } from '@linagora/linid-im-front-corelib';
 import {
+  fromDot,
+  getNestedValue,
   loadAsyncComponent,
   useScopedI18n,
   useUiDesign,
@@ -151,7 +153,9 @@ const uiProps = {
 const fieldComponent = loadAsyncComponent('catalogUI/EntityAttributeField');
 
 const isExpanded = ref(false);
-const localFilters = ref<Record<string, unknown>>({ ...props.filters });
+const localFilters = ref<Record<string, unknown>>(
+  fromDot({ ...props.filters })
+);
 
 const defaultFieldsDefinitions = computed(() =>
   props.fields.filter((field) => props.defaultFieldsNames.includes(field.name))
@@ -161,10 +165,14 @@ const advancedFieldsDefinitions = computed(() =>
   props.fields.filter((field) => props.advancedFieldsNames.includes(field.name))
 );
 
+const nestedFieldNames = computed(() =>
+  props.fields.map((field) => field.name).filter((name) => name.includes('.'))
+);
+
 watch(
   () => props.filters,
   (newFilters) => {
-    localFilters.value = { ...newFilters };
+    localFilters.value = fromDot({ ...newFilters });
   },
   { deep: true }
 );
@@ -177,11 +185,35 @@ function toggleExpanded(): void {
 }
 
 /**
+ * Flattens the nested values written by the fields back to dot-notation
+ * filter keys, so the emitted filters stay keyed by field name.
+ * @param entity - The entity object updated by the field components.
+ * @returns The filters object keyed by field name.
+ */
+function toFilters(entity: Record<string, unknown>): Record<string, unknown> {
+  const filters = { ...entity };
+  const roots = new Set(
+    nestedFieldNames.value.map((name) => name.split('.')[0])
+  );
+
+  roots.forEach((root) => delete filters[root]);
+  nestedFieldNames.value.forEach((name) => {
+    const value = getNestedValue(entity, name);
+
+    if (value !== undefined) {
+      filters[name] = value;
+    }
+  });
+
+  return filters;
+}
+
+/**
  * Handle filter changes from field components.
  * @param updatedFilters - The updated filters object from the field component.
  */
 function onFilterChange(updatedFilters: Record<string, unknown>): void {
   localFilters.value = updatedFilters;
-  emit('update:filters', updatedFilters);
+  emit('update:filters', toFilters(updatedFilters));
 }
 </script>

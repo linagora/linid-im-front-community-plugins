@@ -52,6 +52,16 @@ export interface AdvancedSearchCardProps extends CommonComponentProps {
 
 ---
 
+## **Nested Attributes**
+
+Field names support **dot notation** to target values located inside sub-objects of the entity (e.g. `extraParameters.login`). The `filters` contract stays **flat**, keyed by field name:
+
+- Incoming `filters` keys in dot notation are expanded to the nested structure expected by the field components (`fromDot` from corelib)
+- The emitted `update:filters` object is keyed by the dotted field name (e.g. `{ "extraParameters.login": "jdoe" }`), ready to be used as query filter keys
+- A nested field with no value does not produce a key in the emitted object
+
+---
+
 ## **UI Customization**
 
 The component uses the LinID design system through `useUiDesign()`. You can customize:
@@ -221,9 +231,7 @@ import { ref, watch } from 'vue';
 import AdvancedSearchCard from '@/components/card/AdvancedSearchCard.vue';
 import type { LinidAttributeConfiguration } from '@linagora/linid-im-front-corelib';
 
-const fields: LinidAttributeConfiguration[] = [
-  /* ... */
-];
+const fields: LinidAttributeConfiguration[] = [/* ... */];
 const defaultFieldsNames = ['firstName', 'lastName'];
 const advancedFieldsNames = ['email', 'isActive'];
 
