@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.105](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.104...v0.2.105) (2026-08-27)
+
+
+### Features
+
+* **catalog-ui:** support nested attributes in AdvancedSearchCard ([2c7151e](https://github.com/linagora/linid-im-front-community-plugins/commit/2c7151ed1e6b76d71aa4385e06e2bbecc673fc19))
+* **catalog-ui:** support nested attributes in EntityDetailsCard ([0ddf140](https://github.com/linagora/linid-im-front-community-plugins/commit/0ddf140ba8eafe106a82163edfc3a61ce3c16a6b))
+* **catalog-ui:** support nested attributes in GenericEntityTable columns ([fde876e](https://github.com/linagora/linid-im-front-community-plugins/commit/fde876e71302c71d2cfb0c7e9225ef57ffcccbdf))
+* **catalog-ui:** support nested attributes in GenericSortableListCard ([9e6c27f](https://github.com/linagora/linid-im-front-community-plugins/commit/9e6c27fe30ee9fff0962b64bf9323316daea76d2))
+* **catalog-ui:** support nested attributes in StatusBadge ([6bbc9d5](https://github.com/linagora/linid-im-front-community-plugins/commit/6bbc9d5d49bffcb0c13e3ed435e5ead2285edcfb))
+
 ### [0.2.104](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.103...v0.2.104) (2026-08-25)
 
 
