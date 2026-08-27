@@ -37,6 +37,7 @@
         :instance-id="instanceId"
         :ui-namespace="uiNamespace"
         :i18n-scope="i18nScope"
+        :parent-path="parentPath"
       />
 
       <div
@@ -49,6 +50,7 @@
             :instance-id="instanceId"
             :ui-namespace="uiNamespace"
             :i18n-scope="i18nScope"
+            :parent-path="parentPath"
           />
           <h1
             v-if="te('title')"
@@ -63,6 +65,7 @@
             :instance-id="instanceId"
             :ui-namespace="uiNamespace"
             :i18n-scope="i18nScope"
+            :parent-path="parentPath"
           />
         </div>
         <div class="generic-details-page--actions">
@@ -79,6 +82,7 @@
                 :instance-id="instanceId"
                 :ui-namespace="uiNamespace"
                 :i18n-scope="i18nScope"
+                :parent-path="parentPath"
               />
               <q-btn
                 v-if="options.editPath"
@@ -99,6 +103,7 @@
         :instance-id="instanceId"
         :ui-namespace="uiNamespace"
         :i18n-scope="i18nScope"
+        :parent-path="parentPath"
       />
 
       <div class="row q-gutter-sm generic-details-page--content">
@@ -112,6 +117,7 @@
             :instance-id="instanceId"
             :ui-namespace="uiNamespace"
             :i18n-scope="i18nScope"
+            :parent-path="parentPath"
             :is-loading="isLoading"
           />
         </div>
@@ -124,6 +130,7 @@
             :instance-id="instanceId"
             :ui-namespace="uiNamespace"
             :i18n-scope="i18nScope"
+            :parent-path="parentPath"
             :is-loading="isLoading"
           />
 
@@ -148,6 +155,7 @@
             :instance-id="instanceId"
             :ui-namespace="uiNamespace"
             :i18n-scope="i18nScope"
+            :parent-path="parentPath"
             :is-loading="isLoading"
           />
         </div>
@@ -162,6 +170,7 @@
             :instance-id="instanceId"
             :ui-namespace="uiNamespace"
             :i18n-scope="i18nScope"
+            :parent-path="parentPath"
             :is-loading="isLoading"
           />
         </div>

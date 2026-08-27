@@ -163,6 +163,10 @@ export default defineConfig({
           __dirname,
           'src/components/card/SupersetWidgetCard.vue'
         ),
+        './EntityProfilePanel': resolve(
+          __dirname,
+          'src/components/panel/EntityProfilePanel.vue'
+        ),
       },
       shared: {
         vue: {

@@ -133,7 +133,7 @@ This page exposes all default generic page zones described in the main **Zones**
 | `{instanceId}.side-left`  | Left sidebar of the details page  | Related entities, navigation menu |
 | `{instanceId}.side-right` | Right sidebar of the details page | Metadata, related information     |
 
-Every zone additionally receives the loaded `entity`, and the `content.before`, `content.after`, `side-left`, and `side-right` zones also receive `entityId` and `isLoading`.
+Every zone additionally receives the loaded `entity` and the configured `parentPath` — so a plugin rendering its own back navigation does not have to duplicate the path — and the `content.before`, `content.after`, `side-left`, and `side-right` zones also receive `entityId` and `isLoading`.
 
 ---
 

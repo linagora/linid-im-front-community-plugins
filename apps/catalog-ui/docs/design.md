@@ -345,6 +345,65 @@ Widget for displaying superset dashboard.
 
 ---
 
+### EntityProfilePanel
+
+Panel that displays an entity profile in a vertical layout: navigation bar with a back button, circular profile image with status badge, title and subtitle, an actions bar, and entity details.
+
+**Namespace:** `{uiNamespace}.entity-profile-panel`
+
+```json
+{
+  "[NAMESPACE]": {
+    "entity-profile-panel": {
+      "q-card": { "flat": true, "bordered": true },
+      "q-img": { "src": "/images/default-avatar.svg" },
+      "q-icon": { "name": "question_mark", "color": "grey-6" },
+      "navigation": {
+        "buttons-card": {
+          "q-card": { "flat": true },
+          "q-card-actions": { "align": "left" },
+          "back-button": {
+            "q-btn": { "color": "primary", "outline": true, "icon": "arrow_back" }
+          }
+        }
+      },
+      "actions": {
+        "buttons-card": {
+          "q-card": { "flat": true },
+          "q-card-actions": { "align": "right" }
+        }
+      },
+      "entity-details-card": {
+        "q-card": { "flat": true, "bordered": true },
+        "[FIELD_NAME]": {
+          "information-card": {
+            "q-card": { "flat": true },
+            "q-icon": { "name": "info", "color": "primary" }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+> **Note:** `q-img.src` is an **image URL**, not an icon name. The `q-icon` fallback appears in two cases: when `src`
+> is unset (the `#default` slot shows the icon because Quasar always renders it on top of a loaded image), and when the
+> configured URL fails to load (the `#error` slot). That icon's `size` is not configurable: the scoped styles make it
+> fill the avatar circle. To fall back to an image on error, set `q-img.errorSrc` **and** disable the icon with
+> `"q-icon": { "name": "none" }`.
+
+The back button is rendered by the panel itself, nested in the navigation bar under
+`navigation.buttons-card.back-button`; the actions bar uses `actions.buttons-card`. Both cards have their built-in buttons hidden, making their
+`confirm-button` and `cancel-button` sub-namespaces inoperative. The plugin zones they host receive their card's
+namespace; the five other zones of the panel receive `${uiNamespace}.entity-profile-panel` directly.
+
+The details card inherits `entity-details-card` and forwards the per-field `information-card` namespaces of the
+[EntityDetailsCard section](#entitydetailscard). The status badge uses the global `status-badge` namespace. The full
+zone list is in the [EntityProfilePanel documentation](./components/panel/EntityProfilePanel.md).
+
+---
+
 ### GenericEditableTableCard
 
 Card managing a simple collection: a table, an add button opening a `FormDialog`, an optional per-row edit button
@@ -1667,6 +1726,35 @@ A full example showing all CatalogUI components configured together:
           "information-card": {
             "q-card": { "flat": true },
             "q-icon": { "name": "info", "color": "info" }
+          }
+        }
+      },
+      "entity-profile-panel": {
+        "q-card": { "flat": true, "bordered": true },
+        "q-img": { "src": "/images/default-avatar.svg" },
+        "q-icon": { "name": "question_mark", "color": "grey-6" },
+        "navigation": {
+          "buttons-card": {
+            "q-card": { "flat": true },
+            "q-card-actions": { "align": "left" },
+            "back-button": {
+              "q-btn": { "color": "primary", "outline": true, "icon": "arrow_back" }
+            }
+          }
+        },
+        "actions": {
+          "buttons-card": {
+            "q-card": { "flat": true },
+            "q-card-actions": { "align": "right" }
+          }
+        },
+        "entity-details-card": {
+          "q-card": { "flat": true, "bordered": true },
+          "[FIELD_NAME]": {
+            "information-card": {
+              "q-card": { "flat": true },
+              "q-icon": { "name": "info", "color": "primary" }
+            }
           }
         }
       },

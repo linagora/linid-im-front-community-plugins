@@ -111,6 +111,11 @@ The library organizes components by category. For each component, documentation 
 - 👤 **HeaderProfile** — User profile button for the application header, displaying the authenticated user's name and email from the LinID user store
   → Documentation is inside: [`HeaderProfile.md`](./docs/components/profile/HeaderProfile.md)
 
+### **Panel Components**
+
+- 🆔 **EntityProfilePanel** — Vertical profile panel with avatar, title/subtitle, action slot and entity details
+  → Documentation is inside: [`EntityProfilePanel.md`](./docs/components/panel/EntityProfilePanel.md)
+
 ### **Table Components**
 
 - **GenericEntityTable** — Minimal QTable wrapper for simple entity lists
