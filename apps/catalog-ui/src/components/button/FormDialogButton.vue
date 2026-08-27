@@ -29,6 +29,7 @@
   <q-btn
     v-bind="uiProps.button"
     :label="t('title')"
+    :disable="disable"
     class="form-dialog-button"
     data-cy="form-dialog-button"
     @click="openDialog"
@@ -57,6 +58,7 @@ const props = withDefaults(defineProps<FormDialogButtonProps>(), {
   method: 'POST',
   body: () => ({}),
   fillFormWithEntity: false,
+  disable: false,
 });
 
 const emit = defineEmits<FormDialogButtonOutputs>();

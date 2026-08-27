@@ -31,6 +31,7 @@ configuration: no dedicated component is needed to expose a custom entity action
 | `entity`             | `Record<string, unknown> \| null` | —        | Entity associated with the current context, provided to the Nunjucks context. Injected by the hosting zone |
 | `parent`             | `Record<string, unknown> \| null` | —        | Parent of the entity (e.g. the application owning a role), provided to the Nunjucks context                |
 | `fillFormWithEntity` | `Boolean`                         | `false`  | Pre-fills the form fields with the matching entity properties when the dialog opens                        |
+| `disable`            | `Boolean`                         | `false`  | Disables the button, preventing the dialog from opening                                                    |
 | `instanceId`         | `String`                          | —        | Instance identifier passed to the form dialog fields (e.g. API validation rules)                           |
 | `uiNamespace`        | `String`                          | —        | Base UI namespace used for design system customization                                                     |
 | `i18nScope`          | `String`                          | —        | Identifier used to scope translations                                                                      |
@@ -66,6 +67,11 @@ provided through the `parent` prop and stays untouched by the form values:
 ```
 
 The component works when `entity` is `null`: templates are then rendered with the form values only.
+
+> **Note:** the context has exactly two root keys, `entity` and `parent`. There is **no `form` key** — the submitted
+> values are read through `entity`, which they overwrite. A `{{ form.name }}` template does not fail: Nunjucks renders
+> an unknown variable as an empty string, so the request silently sends `""` for that property and wipes the attribute
+> server-side.
 
 ---
 

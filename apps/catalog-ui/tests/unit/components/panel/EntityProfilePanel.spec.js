@@ -28,19 +28,21 @@ import { shallowMount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import EntityProfilePanel from '../../../../src/components/panel/EntityProfilePanel.vue';
 
-const { mockPush, mockRender, mockUi, mockUseScopedI18n } = vi.hoisted(() => {
-  const t = vi.fn((key) => key);
-  const te = vi.fn(() => false);
-  const translateOrDefault = vi.fn((defaultValue) => defaultValue);
-  const mockRender = vi.fn((template) => template);
+const { mockPush, mockRender, mockUi, mockUseScopedI18n, mockUiEventNext } =
+  vi.hoisted(() => {
+    const t = vi.fn((key) => key);
+    const te = vi.fn(() => false);
+    const translateOrDefault = vi.fn((defaultValue) => defaultValue);
+    const mockRender = vi.fn((template) => template);
 
-  return {
-    mockPush: vi.fn(),
-    mockRender,
-    mockUi: vi.fn(() => ({})),
-    mockUseScopedI18n: vi.fn(() => ({ t, te, translateOrDefault })),
-  };
-});
+    return {
+      mockPush: vi.fn(),
+      mockRender,
+      mockUi: vi.fn(() => ({})),
+      mockUseScopedI18n: vi.fn(() => ({ t, te, translateOrDefault })),
+      mockUiEventNext: vi.fn(),
+    };
+  });
 
 vi.mock('vue-router', () => ({
   useRouter: () => ({ push: mockPush }),
@@ -49,6 +51,7 @@ vi.mock('vue-router', () => ({
 vi.mock('@linagora/linid-im-front-corelib', () => ({
   LinidZoneRenderer: { template: '<div />' },
   useNunjucks: () => ({ render: mockRender }),
+  uiEventSubject: { next: mockUiEventNext },
   useScopedI18n: mockUseScopedI18n,
   useUiDesign: () => ({ ui: mockUi }),
 }));
@@ -60,6 +63,9 @@ describe('Test component: EntityProfilePanel', () => {
     uiNamespace: 'test-namespace',
     i18nScope: 'test-scope',
     parentPath: '/users',
+    formFields: [{ name: 'email' }],
+    updateEndpoint: 'api/users/{{ entity.id }}',
+    updateBody: { email: '{{ entity.email }}' },
   };
 
   function createWrapper(props = {}) {
@@ -69,6 +75,7 @@ describe('Test component: EntityProfilePanel', () => {
         stubs: [
           'ButtonsCard',
           'EntityDetailsCard',
+          'FormDialogButton',
           'StatusBadge',
           'LinidZoneRenderer',
           'QCard',
@@ -144,6 +151,52 @@ describe('Test component: EntityProfilePanel', () => {
       await wrapper.setProps({ enableTitles: false });
 
       expect(wrapper.vm.enableTitles).toBe(false);
+    });
+  });
+
+  describe('Test props: formFields', () => {
+    it('should use default value', () => {
+      const w = createWrapper({ formFields: undefined });
+
+      expect(w.vm.formFields).toEqual([]);
+    });
+
+    it('should use provided value', async () => {
+      const formFields = [{ name: 'displayName' }];
+
+      await wrapper.setProps({ formFields });
+
+      expect(wrapper.vm.formFields).toEqual(formFields);
+    });
+  });
+
+  describe('Test props: updateEndpoint', () => {
+    it('should use default value', () => {
+      const w = createWrapper({ updateEndpoint: undefined });
+
+      expect(w.vm.updateEndpoint).toBeUndefined();
+    });
+
+    it('should use provided value', async () => {
+      await wrapper.setProps({ updateEndpoint: 'api/groups/{{ entity.id }}' });
+
+      expect(wrapper.vm.updateEndpoint).toBe('api/groups/{{ entity.id }}');
+    });
+  });
+
+  describe('Test props: updateBody', () => {
+    it('should use default value', () => {
+      const w = createWrapper({ updateBody: undefined });
+
+      expect(w.vm.updateBody).toBeUndefined();
+    });
+
+    it('should use provided value', async () => {
+      const updateBody = { displayName: '{{ entity.displayName }}' };
+
+      await wrapper.setProps({ updateBody });
+
+      expect(wrapper.vm.updateBody).toEqual(updateBody);
     });
   });
 
@@ -276,6 +329,8 @@ describe('Test component: EntityProfilePanel', () => {
         navigationZones: 'test-scope.EntityProfilePanel.navigation.ButtonsCard',
         actions: 'test-scope.EntityProfilePanel.actions',
         actionsZones: 'test-scope.EntityProfilePanel.actions.ButtonsCard',
+        editButton:
+          'test-scope.EntityProfilePanel.actions.ButtonsCard.editButton',
       });
     });
 
@@ -297,6 +352,8 @@ describe('Test component: EntityProfilePanel', () => {
         actions: 'test-namespace.entity-profile-panel.actions',
         actionsZones:
           'test-namespace.entity-profile-panel.actions.buttons-card',
+        editButton:
+          'test-namespace.entity-profile-panel.actions.buttons-card.edit-button',
       });
     });
 
@@ -337,6 +394,91 @@ describe('Test component: EntityProfilePanel', () => {
       wrapper.vm.goBack();
 
       expect(mockPush).toHaveBeenCalledWith('/groups');
+    });
+  });
+
+  describe('Test function: onSubmitted', () => {
+    it('should not emit update:entity when data is null', () => {
+      wrapper.vm.onSubmitted(null);
+
+      expect(wrapper.emitted('update:entity')).toBeUndefined();
+      expect(mockUiEventNext).not.toHaveBeenCalled();
+    });
+
+    it('should not emit update:entity when data is undefined', () => {
+      wrapper.vm.onSubmitted(undefined);
+
+      expect(wrapper.emitted('update:entity')).toBeUndefined();
+      expect(mockUiEventNext).not.toHaveBeenCalled();
+    });
+
+    it('should not emit update:entity when data is an empty string', () => {
+      wrapper.vm.onSubmitted('');
+
+      expect(wrapper.emitted('update:entity')).toBeUndefined();
+      expect(mockUiEventNext).not.toHaveBeenCalled();
+    });
+
+    it('should not emit update:entity when data is a non-empty string', () => {
+      wrapper.vm.onSubmitted('<html>502 Bad Gateway</html>');
+
+      expect(wrapper.emitted('update:entity')).toBeUndefined();
+    });
+
+    it('should not emit update:entity when data is an array', () => {
+      wrapper.vm.onSubmitted([{ id: '1' }]);
+
+      expect(wrapper.emitted('update:entity')).toBeUndefined();
+    });
+
+    it('should emit update:entity with the response data', () => {
+      const data = { id: '1', email: 'jane.doe@example.com' };
+
+      wrapper.vm.onSubmitted(data);
+
+      expect(wrapper.emitted('update:entity')).toEqual([[data]]);
+    });
+
+    it('should publish the emitOnUpdate event when configured', () => {
+      const data = { id: '1' };
+      const w = createWrapper({ emitOnUpdate: 'reload-user' });
+
+      w.vm.onSubmitted(data);
+
+      expect(mockUiEventNext).toHaveBeenCalledWith({
+        key: 'reload-user',
+        data,
+      });
+    });
+
+    it('should publish the emitOnUpdate event when data is not an object', () => {
+      const w = createWrapper({ emitOnUpdate: 'reload-user' });
+
+      w.vm.onSubmitted('<html>502 Bad Gateway</html>');
+
+      expect(w.emitted('update:entity')).toBeUndefined();
+      expect(mockUiEventNext).toHaveBeenCalledWith({
+        key: 'reload-user',
+        data: '<html>502 Bad Gateway</html>',
+      });
+    });
+
+    it('should publish the emitOnUpdate event when data is empty', () => {
+      const w = createWrapper({ emitOnUpdate: 'reload-user' });
+
+      w.vm.onSubmitted(undefined);
+
+      expect(w.emitted('update:entity')).toBeUndefined();
+      expect(mockUiEventNext).toHaveBeenCalledWith({
+        key: 'reload-user',
+        data: undefined,
+      });
+    });
+
+    it('should not publish any event when emitOnUpdate is not configured', () => {
+      wrapper.vm.onSubmitted({ id: '1' });
+
+      expect(mockUiEventNext).not.toHaveBeenCalled();
     });
   });
 });

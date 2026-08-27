@@ -115,6 +115,18 @@ describe('Test component: FormDialogButton', () => {
     wrapper = mountComponent();
   });
 
+  describe('Test props: disable', () => {
+    it('should use default value', () => {
+      expect(wrapper.vm.disable).toBe(false);
+    });
+
+    it('should use provided value', async () => {
+      await wrapper.setProps({ disable: true });
+
+      expect(wrapper.vm.disable).toBe(true);
+    });
+  });
+
   describe('Test computed: localI18nScope', () => {
     it('should append .FormDialogButton to the provided i18nScope', () => {
       expect(wrapper.vm.localI18nScope).toBe('test-scope.FormDialogButton');

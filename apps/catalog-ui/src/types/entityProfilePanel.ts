@@ -24,6 +24,7 @@
  * LinID Identity Manager software.
  */
 
+import type { LinidAttributeConfiguration } from '@linagora/linid-im-front-corelib';
 import type { CommonComponentProps } from './common';
 import type { FieldFormatter } from './ModuleGenericDetailsPageOptions';
 
@@ -55,7 +56,9 @@ export interface EntityProfilePanelProps extends CommonComponentProps {
    */
   statusKey?: string;
   /**
-   * Ordered list of field names displayed first in the entity details card.
+   * Ordered list of the field names displayed in the entity details card.
+   * The component does not forward `showRemainingFields` to EntityDetailsCard, so this list is
+   * exhaustive: an entity attribute that is not listed is never displayed.
    */
   fieldOrder?: string[];
   /**
@@ -64,8 +67,9 @@ export interface EntityProfilePanelProps extends CommonComponentProps {
   formatters?: FieldFormatter[];
   /**
    * Indicates whether the component is in a loading state.
-   * When true, attribute values may be replaced with placeholders.
-   * @default false,
+   * When true, the attribute values of the details card are replaced with placeholders and the
+   * edit button is disabled.
+   * @default false
    */
   isLoading?: boolean;
   /**
@@ -85,4 +89,44 @@ export interface EntityProfilePanelProps extends CommonComponentProps {
    * @default true
    */
   enableTitles?: boolean;
+  /**
+   * Form fields rendered in the edition form dialog, defined as an array of
+   * LinidAttributeConfiguration objects (see FormDialog).
+   * Only used when `updateEndpoint` is set.
+   * @default []
+   */
+  formFields?: LinidAttributeConfiguration[];
+  /**
+   * Endpoint used to update detail attributes.
+   * The endpoint is a Nunjucks template rendered with a context containing `entity`, the entity
+   * merged with the submitted form values.
+   * When unset, the edit button is not rendered and the panel is read-only.
+   */
+  updateEndpoint?: string;
+  /**
+   * When set, the component emits an event with this key on `uiEventSubject` after a successful update.
+   * Lets a hosting page react to a save, for example reloading its entity through the `reloadDetailsOn`
+   * option of a details page.
+   */
+  emitOnUpdate?: string;
+  /**
+   * JSON payload sent as the update request body. Every nested string property is rendered as a Nunjucks
+   * template with a context containing `entity`, the entity merged with the submitted form values —
+   * so `{{ entity.email }}` resolves to the value typed in the `email` form field.
+   * Only used when `updateEndpoint` is set. When omitted, FormDialogButton falls back to its empty
+   * default body `{}`, which sends none of the submitted form values.
+   */
+  updateBody?: Record<string, unknown>;
+}
+
+/**
+ * Outputs (events) emitted by the EntityProfilePanel component.
+ */
+export interface EntityProfilePanelOutputs {
+  /**
+   * Emitted when the entity object is updated.
+   *
+   * Payload: the updated entity object.
+   */
+  'update:entity': [Record<string, unknown>];
 }

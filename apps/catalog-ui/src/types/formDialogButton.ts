@@ -88,6 +88,12 @@ export interface FormDialogButtonProps extends CommonComponentProps {
    * @default false
    */
   fillFormWithEntity?: boolean;
+
+  /**
+   * Whether the button is disabled, preventing the form dialog from opening.
+   * @default false
+   */
+  disable?: boolean;
 }
 
 /**
