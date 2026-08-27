@@ -193,6 +193,22 @@
         </template>
 
         <template #append-buttons>
+          <FormDialogButton
+            v-if="updateEndpoint"
+            :url="updateEndpoint"
+            :body="updateBody"
+            method="PUT"
+            :entity="entity"
+            :form-fields="formFields"
+            fill-form-with-entity
+            :ui-namespace="computedUiNamespaces.editButton"
+            :i18n-scope="computedI18nScopes.editButton"
+            :instance-id="instanceId"
+            :disable="isLoading"
+            class="entity-profile-panel--edit-button"
+            data-cy="entity-profile-panel_edit-button"
+            @submitted="onSubmitted"
+          />
           <LinidZoneRenderer
             :zone="zoneNames.appendActions"
             :entity="entity"
@@ -255,25 +271,33 @@ import type {
 } from '@linagora/linid-im-front-corelib';
 import {
   LinidZoneRenderer,
+  uiEventSubject,
   useNunjucks,
   useScopedI18n,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
-import type { EntityProfilePanelProps } from '../../types/entityProfilePanel';
+import type {
+  EntityProfilePanelOutputs,
+  EntityProfilePanelProps,
+} from '../../types/entityProfilePanel';
 import StatusBadge from '../badge/StatusBadge.vue';
+import FormDialogButton from '../button/FormDialogButton.vue';
 import ButtonsCard from '../card/ButtonsCard.vue';
 import EntityDetailsCard from '../card/EntityDetailsCard.vue';
 import BlurLoader from '../loader/BlurLoader.vue';
 
 const props = withDefaults(defineProps<EntityProfilePanelProps>(), {
   entity: () => ({}),
+  formFields: () => [],
   isLoading: false,
   enableNavigation: true,
   enableAvatar: true,
   enableTitles: true,
 });
+
+const emit = defineEmits<EntityProfilePanelOutputs>();
 
 const router = useRouter();
 
@@ -308,6 +332,7 @@ const computedI18nScopes = computed(() => ({
   navigationZones: `${localI18nScope.value}.navigation.ButtonsCard`,
   actions: `${localI18nScope.value}.actions`,
   actionsZones: `${localI18nScope.value}.actions.ButtonsCard`,
+  editButton: `${localI18nScope.value}.actions.ButtonsCard.editButton`,
 }));
 
 const computedUiNamespaces = computed(() => ({
@@ -315,6 +340,7 @@ const computedUiNamespaces = computed(() => ({
   navigationZones: `${localUiNamespace.value}.navigation.buttons-card`,
   actions: `${localUiNamespace.value}.actions`,
   actionsZones: `${localUiNamespace.value}.actions.buttons-card`,
+  editButton: `${localUiNamespace.value}.actions.buttons-card.edit-button`,
 }));
 
 const uiProps = computed(() => ({
@@ -333,6 +359,24 @@ const uiProps = computed(() => ({
  */
 function goBack() {
   router.push(render(props.parentPath!, { entity: props.entity }));
+}
+
+/**
+ * Handles the `submitted` event from FormDialogButton. Emits `update:entity` only when the response
+ * body is a JSON object, and publishes the `emitOnUpdate` key on `uiEventSubject` whatever it is —
+ * an empty body such as a 204 No Content is precisely when the hosting page has to reload itself.
+ * @param data - The response body returned by the API.
+ */
+function onSubmitted(data: unknown): void {
+  if (typeof data === 'object' && data !== null && !Array.isArray(data)) {
+    emit('update:entity', data as Record<string, unknown>);
+  }
+  if (props.emitOnUpdate) {
+    uiEventSubject.next({
+      key: props.emitOnUpdate,
+      data,
+    });
+  }
 }
 </script>
 

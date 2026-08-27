@@ -370,7 +370,12 @@ Panel that displays an entity profile in a vertical layout: navigation bar with 
       "actions": {
         "buttons-card": {
           "q-card": { "flat": true },
-          "q-card-actions": { "align": "right" }
+          "q-card-actions": { "align": "right" },
+          "edit-button": {
+            "form-dialog-button": {
+              "q-btn": { "color": "primary", "unelevated": true, "icon": "edit" }
+            }
+          }
         }
       },
       "entity-details-card": {
@@ -395,8 +400,9 @@ Panel that displays an entity profile in a vertical layout: navigation bar with 
 
 The back button is rendered by the panel itself, nested in the navigation bar under
 `navigation.buttons-card.back-button`; the actions bar uses `actions.buttons-card`. Both cards have their built-in buttons hidden, making their
-`confirm-button` and `cancel-button` sub-namespaces inoperative. The plugin zones they host receive their card's
-namespace; the five other zones of the panel receive `${uiNamespace}.entity-profile-panel` directly.
+`confirm-button` and `cancel-button` sub-namespaces inoperative. The edit button (`FormDialogButton`), rendered only when the panel receives an
+`updateEndpoint`, is nested under `actions.buttons-card.edit-button` and appends `form-dialog-button` as usual. The plugin zones they host receive their
+card's namespace; the five other zones of the panel receive `${uiNamespace}.entity-profile-panel` directly.
 
 The details card inherits `entity-details-card` and forwards the per-field `information-card` namespaces of the
 [EntityDetailsCard section](#entitydetailscard). The status badge uses the global `status-badge` namespace. The full
@@ -1745,7 +1751,12 @@ A full example showing all CatalogUI components configured together:
         "actions": {
           "buttons-card": {
             "q-card": { "flat": true },
-            "q-card-actions": { "align": "right" }
+            "q-card-actions": { "align": "right" },
+            "edit-button": {
+              "form-dialog-button": {
+                "q-btn": { "color": "primary", "unelevated": true, "icon": "edit" }
+              }
+            }
           }
         },
         "entity-details-card": {
