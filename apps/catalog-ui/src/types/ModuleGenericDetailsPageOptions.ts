@@ -99,6 +99,16 @@ export interface ModuleGenericDetailsPageOptions extends ModulePageOptions {
   editPath?: string;
 
   /**
+   * Whether the header actions bar (back button, edit button and the `header.actions` zone) is
+   * rendered.
+   *
+   * Disable it when the page hosts its own navigation, for example an EntityProfilePanel carrying
+   * a back button in the `side-left` zone.
+   * @default true
+   */
+  enableActions?: boolean;
+
+  /**
    * UI event keys triggering a reload of the entity data.
    *
    * When an event with one of these keys is emitted on the UI event bus, the page reloads the
