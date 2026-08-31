@@ -356,7 +356,7 @@ Panel that displays an entity profile in a vertical layout: navigation bar with 
   "[NAMESPACE]": {
     "entity-profile-panel": {
       "q-card": { "flat": true, "bordered": true },
-      "q-img": { "src": "/images/default-avatar.svg" },
+      "q-img": { "draggable": false },
       "q-icon": { "name": "question_mark", "color": "grey-6" },
       "navigation": {
         "buttons-card": {
@@ -392,11 +392,7 @@ Panel that displays an entity profile in a vertical layout: navigation bar with 
 }
 ```
 
-> **Note:** `q-img.src` is an **image URL**, not an icon name. The `q-icon` fallback appears in two cases: when `src`
-> is unset (the `#default` slot shows the icon because Quasar always renders it on top of a loaded image), and when the
-> configured URL fails to load (the `#error` slot). That icon's `size` is not configurable: the scoped styles make it
-> fill the avatar circle. To fall back to an image on error, set `q-img.errorSrc` **and** disable the icon with
-> `"q-icon": { "name": "none" }`.
+The `q-icon` key at `entity-profile-panel` level styles the fallback icon displayed inside the avatar circle when `avatarSrc` is undefined or the image fails to load. Its `font-size` is forced to `100cqmin` by a scoped style so the icon always fills the circle — only `name` and `color` are useful overrides.
 
 The back button is rendered by the panel itself, nested in the navigation bar under
 `navigation.buttons-card.back-button`; the actions bar uses `actions.buttons-card`. Both cards have their built-in buttons hidden, making their
@@ -1737,7 +1733,7 @@ A full example showing all CatalogUI components configured together:
       },
       "entity-profile-panel": {
         "q-card": { "flat": true, "bordered": true },
-        "q-img": { "src": "/images/default-avatar.svg" },
+        "q-img": { "draggable": false },
         "q-icon": { "name": "question_mark", "color": "grey-6" },
         "navigation": {
           "buttons-card": {

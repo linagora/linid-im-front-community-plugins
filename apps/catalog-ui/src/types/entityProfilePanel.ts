@@ -29,6 +29,26 @@ import type { CommonComponentProps } from './common';
 import type { FieldFormatter } from './ModuleGenericDetailsPageOptions';
 
 /**
+ * Configuration for DiceBear avatar generation.
+ */
+export interface AvatarOptions {
+  /**
+   * Array of Nunjucks templates rendered with `{ entity }` and joined to form the avatar seed.
+   * Example: `["{{ entity.uid }}"]` or `["{{ entity.givenName }}", " ", "{{ entity.sn }}"]`.
+   */
+  seed: string[];
+  /**
+   * DiceBear style name, e.g. `"adventurer"`, `"bottts"`, `"lorelei"`.
+   * Must match a style exported by `@dicebear/styles`.
+   */
+  style: string;
+  /**
+   * Style-specific options forwarded to DiceBear (backgroundColor, radius, etc.).
+   */
+  styleOptions?: Record<string, unknown>;
+}
+
+/**
  * Props for the EntityProfilePanel component.
  */
 export interface EntityProfilePanelProps extends CommonComponentProps {
@@ -83,6 +103,13 @@ export interface EntityProfilePanelProps extends CommonComponentProps {
    * @default true
    */
   enableAvatar?: boolean;
+  /**
+   * DiceBear avatar generation options.
+   * When provided, a deterministic avatar is generated locally from the entity using the configured
+   * style and seed templates.
+   * When absent, the avatar section shows no image.
+   */
+  avatarOptions?: AvatarOptions;
   /**
    * Whether the titles card section, containing title and subtitle,
    * should be displayed on the page.

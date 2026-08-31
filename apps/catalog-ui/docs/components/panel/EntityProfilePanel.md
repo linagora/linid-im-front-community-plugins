@@ -8,24 +8,25 @@ The **EntityProfilePanel** component displays an entity profile in a vertical la
 
 The component uses the `EntityProfilePanelProps` interface, which extends `CommonComponentProps` from `@linagora/linid-im-front-corelib`.
 
-| Prop               | Type                            | Required | Default | Description                                                                                                                                       |
-| ------------------ | ------------------------------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `entity`           | `Record<string, unknown>`       | No       | `{}`    | Entity whose profile is displayed                                                                                                                 |
-| `parentPath`       | `string`                        | No       | —       | Back-button route, passed through Nunjucks with an `entity` context (plain strings are also valid). When missing, the back button is not rendered |
-| `instanceId`       | `string`                        | No       | —       | Forwarded to every plugin zone, and used as a fallback prefix for the namespace and the scope                                                     |
-| `statusKey`        | `string`                        | No       | —       | Entity key holding the status forwarded to `StatusBadge`. When absent, no badge is rendered. Requires `enableAvatar`                              |
-| `fieldOrder`       | `string[]`                      | No       | —       | **Exhaustive** list of the attributes displayed in the details card, in that order                                                                |
-| `formatters`       | `FieldFormatter[]`              | No       | —       | Formatters applied to specific attributes before display                                                                                          |
-| `isLoading`        | `boolean`                       | No       | `false` | Replaces the title, the subtitle, the status badge and each attribute value with a loading placeholder, and disables the edit button              |
-| `enableNavigation` | `boolean`                       | No       | `true`  | Whether the navigation section is rendered                                                                                                        |
-| `enableAvatar`     | `boolean`                       | No       | `true`  | Whether the avatar section — and with it the status badge — is rendered                                                                           |
-| `enableTitles`     | `boolean`                       | No       | `true`  | Whether the titles section is rendered                                                                                                            |
-| `formFields`       | `LinidAttributeConfiguration[]` | No       | `[]`    | Fields rendered in the [edition](#edition) dialog                                                                                                 |
-| `updateEndpoint`   | `string`                        | No       | —       | PUT endpoint. Nunjucks template rendered with an `entity` context. **When missing, the edit button is not rendered**                              |
-| `updateBody`       | `Record<string, unknown>`       | No       | `{}`    | JSON payload sent as the request body. Every nested string value is a Nunjucks template rendered with the same context                            |
-| `emitOnUpdate`     | `string`                        | No       | —       | Key published on `uiEventSubject` after a successful update                                                                                       |
-| `uiNamespace`      | `string`                        | Yes      | —       | Base UI design namespace, **and prefix of every plugin zone name**                                                                                |
-| `i18nScope`        | `string`                        | No       | —       | Base i18n scope. The component appends `EntityProfilePanel` to it                                                                                 |
+| Prop               | Type                            | Required | Default | Description                                                                                                                                                        |
+| ------------------ | ------------------------------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `entity`           | `Record<string, unknown>`       | No       | `{}`    | Entity whose profile is displayed                                                                                                                                  |
+| `parentPath`       | `string`                        | No       | —       | Back-button route, passed through Nunjucks with an `entity` context (plain strings are also valid). When missing, the back button is not rendered                  |
+| `instanceId`       | `string`                        | No       | —       | Forwarded to every plugin zone, and used as a fallback prefix for the namespace and the scope                                                                      |
+| `statusKey`        | `string`                        | No       | —       | Entity key holding the status forwarded to `StatusBadge`. When absent, no badge is rendered. Requires `enableAvatar`                                               |
+| `fieldOrder`       | `string[]`                      | No       | —       | **Exhaustive** list of the attributes displayed in the details card, in that order                                                                                 |
+| `formatters`       | `FieldFormatter[]`              | No       | —       | Formatters applied to specific attributes before display                                                                                                           |
+| `isLoading`        | `boolean`                       | No       | `false` | Replaces the title, the subtitle, the status badge and each attribute value with a loading placeholder, and disables the edit button                               |
+| `enableNavigation` | `boolean`                       | No       | `true`  | Whether the navigation section is rendered                                                                                                                         |
+| `enableAvatar`     | `boolean`                       | No       | `true`  | Whether the avatar section — and with it the status badge — is rendered                                                                                            |
+| `avatarOptions`    | `AvatarOptions`                 | No       | —       | DiceBear avatar generation options. When provided, a deterministic SVG avatar is generated locally from the entity. When absent, the avatar section shows no image |
+| `enableTitles`     | `boolean`                       | No       | `true`  | Whether the titles section is rendered                                                                                                                             |
+| `formFields`       | `LinidAttributeConfiguration[]` | No       | `[]`    | Fields rendered in the [edition](#edition) dialog                                                                                                                  |
+| `updateEndpoint`   | `string`                        | No       | —       | PUT endpoint. Nunjucks template rendered with an `entity` context. **When missing, the edit button is not rendered**                                               |
+| `updateBody`       | `Record<string, unknown>`       | No       | `{}`    | JSON payload sent as the request body. Every nested string value is a Nunjucks template rendered with the same context                                             |
+| `emitOnUpdate`     | `string`                        | No       | —       | Key published on `uiEventSubject` after a successful update                                                                                                        |
+| `uiNamespace`      | `string`                        | Yes      | —       | Base UI design namespace, **and prefix of every plugin zone name**                                                                                                 |
+| `i18nScope`        | `string`                        | No       | —       | Base i18n scope. The component appends `EntityProfilePanel` to it                                                                                                  |
 
 `FieldFormatter` is defined in `apps/catalog-ui/src/types/ModuleGenericDetailsPageOptions.ts`; see the [Value Formatting Guide](../../value-formatting.md).
 
@@ -77,13 +78,13 @@ All slots are unscoped, and each is rendered right after the plugin zone coverin
 
 The panel renders vertically inside a `q-card`, each block wrapped in its own `q-card-section`. The outer padding is carried by the card (`q-pa-md`); every section then cancels Quasar's section padding with `q-pa-none` and adds only the bottom spacing it needs.
 
-| #   | Section      | Rendered when      | Content                                                                  |
-| --- | ------------ | ------------------ | ------------------------------------------------------------------------ |
-| 1   | `navigation` | `enableNavigation` | `ButtonsCard` with both built-in buttons hidden, hosting the back button |
-| 2   | `avatar`     | `enableAvatar`     | Circular `q-img` with an icon fallback, and the status badge             |
-| 3   | `titles`     | `enableTitles`     | `h4` title and `p` subtitle, each rendered only when its key exists      |
-| 4   | `actions`    | always             | `ButtonsCard` with both built-in buttons hidden, hosting the edit button |
-| 5   | `details`    | always             | `EntityDetailsCard`                                                      |
+| #   | Section      | Rendered when      | Content                                                                                                     |
+| --- | ------------ | ------------------ | ----------------------------------------------------------------------------------------------------------- |
+| 1   | `navigation` | `enableNavigation` | `ButtonsCard` with both built-in buttons hidden, hosting the back button                                    |
+| 2   | `avatar`     | `enableAvatar`     | Circular `q-img` displaying the DiceBear-generated avatar when `avatarOptions` is set, and the status badge |
+| 3   | `titles`     | `enableTitles`     | `h4` title and `p` subtitle, each rendered only when its key exists                                         |
+| 4   | `actions`    | always             | `ButtonsCard` with both built-in buttons hidden, hosting the edit button                                    |
+| 5   | `details`    | always             | `EntityDetailsCard`                                                                                         |
 
 Each section carries an `entity-profile-panel--{name}-section` class — the BEM hook for styling or debugging that block.
 
@@ -113,27 +114,27 @@ Every zone receives `entity`, `instanceId`, `uiNamespace` and `i18nScope` as pro
 
 ---
 
-## **Profile Image**
+## **DiceBear Avatar**
 
-The profile image is a `q-img` configured through `${uiNamespace}.entity-profile-panel.q-img`. The component sets no `src` of its own; the icon fallback is a `q-icon` named `question_mark` by default and configured through the `q-icon` key of the same namespace. It appears in two distinct cases:
+When `avatarOptions` is set, the component generates a deterministic SVG avatar client-side using `@dicebear/core` and a style from `@dicebear/styles`, then binds the resulting data URI to the `q-img` `src`. The three fields of `AvatarOptions` control the generation:
 
-- **`src` not configured** (`#default` slot): Quasar always renders this slot on top of a loaded image, so the icon is shown only when `q-img.src` is absent.
-- **`src` failed to load** (`#error` slot): the icon is shown unconditionally when the configured URL returns an error.
+- **`seed`** _(required)_: array of Nunjucks templates rendered with `{ entity }` and joined — the concatenated string is the seed passed to DiceBear, so two entities with different attributes produce different avatars.
+- **`style`** _(required)_: the DiceBear style name, e.g. `"adventurer"`, `"bottts"`, `"lorelei"` — must match a style exported by `@dicebear/styles`.
+- **`styleOptions`** _(optional)_: additional options forwarded verbatim to DiceBear (e.g. `backgroundColor`, `radius`).
+
+If the style is not recognised or avatar generation fails for any reason, `avatarSrc` is set to `undefined` and the avatar circle shows the fallback `q-icon` instead.
+
+The `q-img` is bound to the UI namespace under the `q-img` target — its Quasar props (`fit`, `draggable`, `loading`, …) can be overridden from the design system. Its dimensions and shape come from the scoped styles (full-width circle with `aspect-ratio: 1`); the `src` attribute is always set by DiceBear from `avatarOptions` and cannot be overridden from the design system.
 
 ```json
 {
-  "entity-profile-panel": {
-    "q-img": { "src": "/images/default-avatar.svg" },
-    "q-icon": { "name": "account_circle", "color": "grey-6" }
+  "avatarOptions": {
+    "seed": ["{{ entity.uid }}"],
+    "style": "adventurer",
+    "styleOptions": { "backgroundColor": ["b6e3f4"] }
   }
 }
 ```
-
-> **Note:** `q-img.src` is an **image URL**, not an icon name — passing a ligature such as `"question_mark"` triggers a failed request and displays the icon fallback via the `#error` slot instead.
->
-> The `size` of the fallback icon is not configurable: the scoped styles make it fill the avatar circle and scale with it. Resize the avatar through the `q-img` dimensions.
->
-> `errorSrc` does **not** replace the `#error` icon, which renders on top of it. To fall back to an image on error, set `errorSrc` **and** disable the icon with `"q-icon": { "name": "none" }`.
 
 ---
 
@@ -189,7 +190,7 @@ The title and subtitle placeholders are nested **inside** the `h4` and the `p`, 
 
 The status badge placeholder **replaces** the badge: without it, `StatusBadge` would resolve the missing status to its `UNKNOWN` default and display a definite status until the entity arrives.
 
-Two elements are deliberately left out. The avatar image is not covered — its `src` comes from the design system, not from the entity, so it has nothing to wait for. The edit button is disabled rather than replaced, since it is an action and not a value.
+Two elements are deliberately left out. The avatar image is not covered — `avatarSrc` holds the last successfully generated avatar from the current `entity` and `avatarOptions`; it has no distinct loading state of its own. The edit button is disabled rather than replaced, since it is an action and not a value.
 
 ---
 
@@ -201,6 +202,7 @@ All keys are resolved under `${i18nScope}.EntityProfilePanel`:
 | -------------------------------------------------------------------- | ---------------------------------------- | ----------------- |
 | `title`                                                              | Panel title                              | entity attributes |
 | `subtitle`                                                           | Panel subtitle                           | entity attributes |
+| `avatarAlt`                                                          | Avatar image alt text (`q-img` `alt`)    | -                 |
 | `navigation.ButtonsCard.title`                                       | Navigation bar title                     | -                 |
 | `navigation.ButtonsCard.backButton`                                  | Back button label                        | -                 |
 | `actions.ButtonsCard.title`                                          | Actions bar title                        | -                 |
@@ -215,6 +217,8 @@ All keys are resolved under `${i18nScope}.EntityProfilePanel`:
 
 `title` and `subtitle` are resolved with `t(key, entity)`: **the entity is the interpolation context, and its attributes are referenced without a prefix** — write `{displayName}`, not `{entity.displayName}`. Both are displayed only when their key exists.
 
+`avatarAlt` is resolved with `translateOrDefault('Avatar', 'avatarAlt')`: if the key is missing, the alt text falls back to `"Avatar"`. Provide this key to display a more meaningful description than the generic fallback.
+
 `backButton` uses `translateOrDefault` and falls back to an **empty label** rather than the raw key, which makes an icon-only button possible. The two `ButtonsCard.title` keys are optional and independent; the `cancel`, `confirm` and `confirmLoading` keys of `ButtonsCard` are never resolved here, since the panel hides both built-in buttons.
 
 The edit button delegates to `FormDialogButton`, which resolves its own keys under `actions.ButtonsCard.editButton.FormDialogButton.*`. `FormDialog.title` displays the raw key when missing and receives entity properties as interpolation context; `FormDialog.content` falls back to an empty body.
@@ -227,6 +231,7 @@ The edit button delegates to `FormDialogButton`, which resolves its own keys und
     "EntityProfilePanel": {
       "title": "{displayName}",
       "subtitle": "{email}",
+      "avatarAlt": "Profile picture",
       "navigation": {
         "ButtonsCard": {
           "title": "Navigation",
@@ -263,18 +268,18 @@ The edit button delegates to `FormDialogButton`, which resolves its own keys und
 
 ## **UI Customization**
 
-| Element        | Namespace path                                                                            | Target                                   | Notes                                                                          |
-| -------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------- | ------------------------------------------------------------------------------ |
-| Panel card     | `${uiNamespace}.entity-profile-panel`                                                     | `q-card`                                 | Outermost container                                                            |
-| Profile image  | `${uiNamespace}.entity-profile-panel`                                                     | `q-img`                                  | `src` is an image URL; unset by default                                        |
-| Avatar icon    | `${uiNamespace}.entity-profile-panel`                                                     | `q-icon`                                 | Fallback image; `size` has no effect                                           |
-| Back button    | `${uiNamespace}.entity-profile-panel.navigation.buttons-card.back-button`                 | `q-btn`                                  | Rendered by the panel inside the navigation bar, only when `parentPath` is set |
-| Navigation bar | `${uiNamespace}.entity-profile-panel.navigation.buttons-card`                             | `q-card` / `q-icon` / `q-card-actions`   | `ButtonsCard` hosting the back button                                          |
-| Edit button    | `${uiNamespace}.entity-profile-panel.actions.buttons-card.edit-button.form-dialog-button` | `q-btn`                                  | `FormDialogButton` rendered inside the actions bar                             |
-| Edition dialog | `${uiNamespace}.entity-profile-panel.actions.buttons-card.edit-button.form-dialog-button` | `q-dialog` / `q-card` / `buttons-card`   | `FormDialog` opened by `FormDialogButton`                                      |
-| Actions bar    | `${uiNamespace}.entity-profile-panel.actions.buttons-card`                                | `q-card` / `q-icon` / `q-card-actions`   | `ButtonsCard` hosting injected action buttons                                  |
-| Entity details | `${uiNamespace}.entity-profile-panel.entity-details-card`                                 | `q-card`                                 | `EntityDetailsCard` container                                                  |
-| Detail field   | `${uiNamespace}.entity-profile-panel.entity-details-card.[FIELD_NAME]`                    | `information-card` / `q-icon` / `q-card` | Per-field styling forwarded to `InformationCard`                               |
+| Element              | Namespace path                                                                            | Target                                   | Notes                                                                                                                                                                                         |
+| -------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Panel card           | `${uiNamespace}.entity-profile-panel`                                                     | `q-card`                                 | Outermost container                                                                                                                                                                           |
+| Avatar image         | `${uiNamespace}.entity-profile-panel`                                                     | `q-img`                                  | DiceBear avatar image. `src` is always set by DiceBear and cannot be overridden; dimensions and shape come from scoped styles                                                                 |
+| Avatar fallback icon | `${uiNamespace}.entity-profile-panel`                                                     | `q-icon`                                 | Shown inside the avatar circle when no avatar could be generated or the image fails to load. `font-size` is forced to `100cqmin` by scoped CSS — only `name` and `color` are useful overrides |
+| Back button          | `${uiNamespace}.entity-profile-panel.navigation.buttons-card.back-button`                 | `q-btn`                                  | Rendered by the panel inside the navigation bar, only when `parentPath` is set                                                                                                                |
+| Navigation bar       | `${uiNamespace}.entity-profile-panel.navigation.buttons-card`                             | `q-card` / `q-icon` / `q-card-actions`   | `ButtonsCard` hosting the back button                                                                                                                                                         |
+| Edit button          | `${uiNamespace}.entity-profile-panel.actions.buttons-card.edit-button.form-dialog-button` | `q-btn`                                  | `FormDialogButton` rendered inside the actions bar                                                                                                                                            |
+| Edition dialog       | `${uiNamespace}.entity-profile-panel.actions.buttons-card.edit-button.form-dialog-button` | `q-dialog` / `q-card` / `buttons-card`   | `FormDialog` opened by `FormDialogButton`                                                                                                                                                     |
+| Actions bar          | `${uiNamespace}.entity-profile-panel.actions.buttons-card`                                | `q-card` / `q-icon` / `q-card-actions`   | `ButtonsCard` hosting injected action buttons                                                                                                                                                 |
+| Entity details       | `${uiNamespace}.entity-profile-panel.entity-details-card`                                 | `q-card`                                 | `EntityDetailsCard` container                                                                                                                                                                 |
+| Detail field         | `${uiNamespace}.entity-profile-panel.entity-details-card.[FIELD_NAME]`                    | `information-card` / `q-icon` / `q-card` | Per-field styling forwarded to `InformationCard`                                                                                                                                              |
 
 > **Note:** the `confirm-button` and `cancel-button` sub-namespaces of both `ButtonsCard` have no effect: the panel hides those buttons and renders its own instead. The back button is nested in the navigation bar, under `navigation.buttons-card.back-button`; the edit button is nested in the actions bar, under `actions.buttons-card.edit-button`, to which `FormDialogButton` appends `form-dialog-button` itself.
 
@@ -286,6 +291,7 @@ The edit button delegates to `FormDialogButton`, which resolves its own keys und
     "user-details-page": {
       "entity-profile-panel": {
         "q-card": { "flat": true, "bordered": true },
+        "q-img": { "draggable": false },
         "q-icon": { "name": "account_circle", "color": "grey-6" },
         "navigation": {
           "buttons-card": {
@@ -309,7 +315,7 @@ The edit button delegates to `FormDialogButton`, which resolves its own keys und
 }
 ```
 
-The status badge is configured globally under the `status-badge` namespace.
+The status badge is configured globally under the `status-badge` namespace. The avatar image `src` is always set by DiceBear from `avatarOptions` and cannot be overridden from the design system.
 
 ---
 
@@ -333,6 +339,7 @@ const entity = { id: '1', username: 'john.doe', email: 'john.doe@example.com', s
     parent-path="/users"
     status-key="status"
     :field-order="['username', 'email']"
+    :avatar-options="{ seed: ['{{ entity.uid }}'], style: 'adventurer' }"
     :form-fields="[{ name: 'email', type: 'text' }]"
     update-endpoint="api/users/{{ entity.id }}"
     :update-body="{ email: '{{ entity.email }}' }"
@@ -414,4 +421,4 @@ The scoped styles render the avatar as a circle (`border-radius: 50%`, `aspect-r
 
 ## **Dependencies**
 
-`ButtonsCard`, `FormDialogButton`, `StatusBadge`, `BlurLoader` and `EntityDetailsCard` from this package; `LinidZoneRenderer`, `useUiDesign`, `useScopedI18n` and `uiEventSubject` from `@linagora/linid-im-front-corelib`; `vue-router` for the back navigation.
+`ButtonsCard`, `FormDialogButton`, `StatusBadge`, `BlurLoader` and `EntityDetailsCard` from this package; `LinidZoneRenderer`, `useUiDesign`, `useScopedI18n` and `uiEventSubject` from `@linagora/linid-im-front-corelib`; `@dicebear/core` and `@dicebear/styles` for client-side avatar generation; `vue-router` for the back navigation.
