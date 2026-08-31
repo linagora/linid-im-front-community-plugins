@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.109](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.108...v0.2.109) (2026-08-31)
+
+
+### Features
+
+* **catalog-ui:** add enableActions option to GenericDetailsPage ([0affd16](https://github.com/linagora/linid-im-front-community-plugins/commit/0affd16fdb172469ac582279ac75566cd14718d0))
+
 ### [0.2.108](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.107...v0.2.108) (2026-08-31)
 
 
