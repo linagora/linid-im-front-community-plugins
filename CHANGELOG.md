@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.108](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.107...v0.2.108) (2026-08-31)
+
+
+### Features
+
+* **catalog-ui:** setup and use DiceBear to generate avatar inside EntityProfilePanel ([216163c](https://github.com/linagora/linid-im-front-community-plugins/commit/216163ccc432450301c738d8b1f42c0f32832fd6)), closes [#264](https://github.com/linagora/linid-im-front-community-plugins/issues/264)
+
 ### [0.2.107](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.106...v0.2.107) (2026-08-31)
 
 
