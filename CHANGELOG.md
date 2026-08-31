@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.107](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.106...v0.2.107) (2026-08-31)
+
+
+### Features
+
+* **catalog-ui:** add entity editing in EntityProfilePanel ([104ae11](https://github.com/linagora/linid-im-front-community-plugins/commit/104ae115ee2925aad1ee8f82ec8a329b595e3ea6))
+* **catalog-ui:** add EntityProfilePanel component ([f755409](https://github.com/linagora/linid-im-front-community-plugins/commit/f755409e0fe80cbcb278b6fabf7d44352396dd8f)), closes [#262](https://github.com/linagora/linid-im-front-community-plugins/issues/262)
+
 ### [0.2.106](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.105...v0.2.106) (2026-08-28)
 
 ### [0.2.105](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.104...v0.2.105) (2026-08-27)
