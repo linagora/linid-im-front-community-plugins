@@ -24,28 +24,47 @@
  * LinID Identity Manager software.
  */
 
-import { shallowMount } from '@vue/test-utils';
+import { Avatar } from '@dicebear/core';
+import { flushPromises, shallowMount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import EntityProfilePanel from '../../../../src/components/panel/EntityProfilePanel.vue';
 
-const { mockPush, mockRender, mockUi, mockUseScopedI18n, mockUiEventNext } =
-  vi.hoisted(() => {
-    const t = vi.fn((key) => key);
-    const te = vi.fn(() => false);
-    const translateOrDefault = vi.fn((defaultValue) => defaultValue);
-    const mockRender = vi.fn((template) => template);
+const {
+  mockPush,
+  mockRender,
+  mockUi,
+  mockUseScopedI18n,
+  mockUiEventNext,
+  mockLoadDiceBearStyle,
+} = vi.hoisted(() => {
+  const t = vi.fn((key) => key);
+  const te = vi.fn(() => false);
+  const translateOrDefault = vi.fn((defaultValue) => defaultValue);
+  const mockRender = vi.fn((template) => template);
 
-    return {
-      mockPush: vi.fn(),
-      mockRender,
-      mockUi: vi.fn(() => ({})),
-      mockUseScopedI18n: vi.fn(() => ({ t, te, translateOrDefault })),
-      mockUiEventNext: vi.fn(),
-    };
-  });
+  return {
+    mockPush: vi.fn(),
+    mockRender,
+    mockUi: vi.fn(() => ({})),
+    mockUseScopedI18n: vi.fn(() => ({ t, te, translateOrDefault })),
+    mockUiEventNext: vi.fn(),
+    mockLoadDiceBearStyle: vi.fn(async () => ({})),
+  };
+});
 
 vi.mock('vue-router', () => ({
   useRouter: () => ({ push: mockPush }),
+}));
+
+vi.mock('@dicebear/core', () => ({
+  // Must use `function` (not arrow) so `new Avatar(...)` returns this object.
+  Avatar: vi.fn().mockImplementation(function (_style, opts) {
+    return { toDataUri: () => `data:image/svg+xml;base64,MOCK_${opts.seed}` };
+  }),
+}));
+
+vi.mock('../../../../src/services/diceBearLoaderService', () => ({
+  loadDiceBearStyle: mockLoadDiceBearStyle,
 }));
 
 vi.mock('@linagora/linid-im-front-corelib', () => ({
@@ -269,11 +288,11 @@ describe('Test component: EntityProfilePanel', () => {
       );
     });
 
-    it('should call ui with the local namespace for q-img', () => {
+    it('should call ui with the local namespace for q-img (avatar image)', () => {
       expect(mockUi).toHaveBeenCalledWith(localUiNamespace, 'q-img');
     });
 
-    it('should call ui with the local namespace for q-icon', () => {
+    it('should call ui with the local namespace for q-icon (avatar fallback icon)', () => {
       expect(mockUi).toHaveBeenCalledWith(localUiNamespace, 'q-icon');
     });
 
@@ -293,6 +312,220 @@ describe('Test component: EntityProfilePanel', () => {
         'new-namespace.entity-profile-panel',
         'q-card'
       );
+    });
+  });
+
+  describe('Test props: avatarOptions', () => {
+    it('should not set avatarSrc when avatarOptions is not provided', () => {
+      expect(wrapper.vm.avatarSrc).toBeUndefined();
+    });
+
+    it('should not generate an avatar when enableAvatar is false even if avatarOptions is set', async () => {
+      const w = createWrapper({
+        enableAvatar: false,
+        entity: { uid: 'john' },
+        avatarOptions: { seed: ['{{ entity.uid }}'], style: 'adventurer' },
+      });
+
+      await flushPromises();
+
+      expect(mockLoadDiceBearStyle).not.toHaveBeenCalled();
+      expect(Avatar).not.toHaveBeenCalled();
+      expect(w.vm.avatarSrc).toBeUndefined();
+    });
+
+    it('should generate a data URI when avatarOptions is provided', async () => {
+      const w = createWrapper({
+        entity: { uid: 'john' },
+        avatarOptions: {
+          seed: ['{{ entity.uid }}'],
+          style: 'adventurer',
+        },
+      });
+
+      await flushPromises();
+
+      expect(w.vm.avatarSrc).toMatch(/^data:image\/svg\+xml/);
+    });
+
+    it('should render seed templates with the entity context', async () => {
+      const entity = { uid: 'john' };
+      createWrapper({
+        entity,
+        avatarOptions: {
+          seed: ['{{ entity.uid }}'],
+          style: 'adventurer',
+        },
+      });
+
+      await flushPromises();
+
+      expect(mockRender).toHaveBeenCalledWith('{{ entity.uid }}', { entity });
+    });
+
+    it('should join multiple seed templates into a single seed string', async () => {
+      const entity = { givenName: 'John', sn: 'Doe' };
+      const w = createWrapper({
+        entity,
+        avatarOptions: {
+          seed: ['{{ entity.givenName }}', ' ', '{{ entity.sn }}'],
+          style: 'adventurer',
+        },
+      });
+
+      await flushPromises();
+
+      expect(w.vm.avatarSrc).toBe(
+        'data:image/svg+xml;base64,MOCK_{{ entity.givenName }} {{ entity.sn }}'
+      );
+    });
+
+    it('should set avatarSrc to undefined when the loader rejects', async () => {
+      mockLoadDiceBearStyle.mockRejectedValueOnce(new Error('Network error'));
+
+      const w = createWrapper({
+        entity: { uid: 'john' },
+        avatarOptions: {
+          seed: ['{{ entity.uid }}'],
+          style: 'adventurer',
+        },
+      });
+
+      await flushPromises();
+
+      expect(w.vm.avatarSrc).toBeUndefined();
+      expect(Avatar).not.toHaveBeenCalled();
+    });
+
+    it('should forward styleOptions to the Avatar constructor', async () => {
+      const styleOptions = { backgroundColor: ['b6e3f4'], radius: 50 };
+      createWrapper({
+        entity: { uid: 'john' },
+        avatarOptions: {
+          seed: ['{{ entity.uid }}'],
+          style: 'adventurer',
+          styleOptions,
+        },
+      });
+
+      await flushPromises();
+
+      expect(Avatar).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining(styleOptions)
+      );
+    });
+
+    it('should set avatarSrc to undefined when the style is unknown', async () => {
+      mockLoadDiceBearStyle.mockRejectedValueOnce(
+        new Error('Unknown DiceBear style: nonexistent')
+      );
+
+      const w = createWrapper({
+        entity: { uid: 'john' },
+        avatarOptions: {
+          seed: ['{{ entity.uid }}'],
+          style: 'nonexistent',
+        },
+      });
+
+      await flushPromises();
+
+      expect(w.vm.avatarSrc).toBeUndefined();
+    });
+
+    it('should set avatarSrc to undefined when avatarOptions is removed', async () => {
+      const w = createWrapper({
+        entity: { uid: 'john' },
+        avatarOptions: {
+          seed: ['{{ entity.uid }}'],
+          style: 'adventurer',
+        },
+      });
+      await flushPromises();
+      expect(w.vm.avatarSrc).toBeDefined();
+
+      await w.setProps({ avatarOptions: undefined });
+      await flushPromises();
+
+      expect(w.vm.avatarSrc).toBeUndefined();
+    });
+
+    it('should not set avatarSrc and not call Avatar when unmounted before the loader resolves', async () => {
+      const w = createWrapper({
+        entity: { uid: 'john' },
+        avatarOptions: {
+          seed: ['{{ entity.uid }}'],
+          style: 'adventurer',
+        },
+      });
+
+      // Unmount synchronously: onCleanup fires immediately, cancelled becomes true.
+      // loadDiceBearStyle has not resolved yet, so the watchEffect continuation
+      // will hit `if (cancelled) return` once flushPromises drains the queue.
+      w.unmount();
+      await flushPromises();
+
+      expect(Avatar).not.toHaveBeenCalled();
+    });
+
+    it('should not set avatarSrc when unmounted while loadDiceBearStyle resolves immediately (cache-hit path)', async () => {
+      mockLoadDiceBearStyle.mockResolvedValueOnce({});
+
+      const w = createWrapper({
+        entity: { uid: 'john' },
+        avatarOptions: { seed: ['{{ entity.uid }}'], style: 'adventurer' },
+      });
+
+      w.unmount();
+      await flushPromises();
+
+      expect(Avatar).not.toHaveBeenCalled();
+    });
+
+    it('should call loadDiceBearStyle and regenerate the avatar when the entity changes', async () => {
+      const w = createWrapper({
+        entity: { uid: 'john' },
+        avatarOptions: { seed: ['{{ entity.uid }}'], style: 'adventurer' },
+      });
+      await flushPromises();
+      expect(mockLoadDiceBearStyle).toHaveBeenCalledTimes(1);
+      expect(Avatar).toHaveBeenCalledTimes(1);
+
+      await w.setProps({ entity: { uid: 'jane' } });
+      await flushPromises();
+
+      expect(mockLoadDiceBearStyle).toHaveBeenCalledTimes(2);
+      expect(Avatar).toHaveBeenCalledTimes(2);
+    });
+
+    it('should not overwrite avatarSrc with a stale result when the entity changes before loadDiceBearStyle resolves', async () => {
+      let resolveFirst;
+      mockLoadDiceBearStyle.mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            resolveFirst = resolve;
+          })
+      );
+
+      const w = createWrapper({
+        entity: { uid: 'john' },
+        avatarOptions: { seed: ['{{ entity.uid }}'], style: 'adventurer' },
+      });
+      // Run #1 is in-flight — loadDiceBearStyle has not resolved yet.
+
+      await w.setProps({ entity: { uid: 'jane' } });
+      // Changing entity cancels run #1 (onCleanup sets cancelled = true) and starts run #2.
+      // Run #2 uses the default mock impl which resolves immediately.
+      await flushPromises();
+      // Run #2 completed — Avatar called once, avatarSrc is set.
+      expect(Avatar).toHaveBeenCalledTimes(1);
+
+      // Resolve the stale run #1 — it checks cancelled and must bail out.
+      resolveFirst({});
+      await flushPromises();
+
+      expect(Avatar).toHaveBeenCalledTimes(1);
     });
   });
 

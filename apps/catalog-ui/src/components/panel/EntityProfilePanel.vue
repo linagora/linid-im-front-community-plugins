@@ -88,14 +88,14 @@
     >
       <q-img
         v-bind="uiProps.image"
+        :src="avatarSrc"
         class="entity-profile-panel--avatar-img"
         data-cy="entity-profile-panel_avatar-img"
+        :alt="translateOrDefault('Avatar', 'avatarAlt')"
       >
         <template #default>
-          <!-- Quasar renders this slot on top of the image once it is loaded, so the fallback
-               icon is only displayed when no image source is configured. -->
           <q-icon
-            v-if="!uiProps.image.src"
+            v-if="!avatarSrc"
             name="question_mark"
             v-bind="uiProps.avatarIcon"
             class="entity-profile-panel--avatar-icon"
@@ -263,6 +263,7 @@
 </template>
 
 <script setup lang="ts">
+import { Avatar } from '@dicebear/core';
 import type {
   LinidQBtnProps,
   LinidQCardProps,
@@ -276,8 +277,9 @@ import {
   useScopedI18n,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
-import { computed } from 'vue';
+import { computed, ref, watchEffect } from 'vue';
 import { useRouter } from 'vue-router';
+import { loadDiceBearStyle } from '../../services/diceBearLoaderService';
 import type {
   EntityProfilePanelOutputs,
   EntityProfilePanelProps,
@@ -352,6 +354,43 @@ const uiProps = computed(() => ({
   image: ui<LinidQImgProps>(localUiNamespace.value, 'q-img'),
   avatarIcon: ui<LinidQIconProps>(localUiNamespace.value, 'q-icon'),
 }));
+
+const avatarSrc = ref<string | undefined>(undefined);
+
+watchEffect(async (onCleanup) => {
+  let cancelled = false;
+  onCleanup(() => {
+    cancelled = true;
+  });
+
+  if (!props.enableAvatar || !props.avatarOptions) {
+    avatarSrc.value = undefined;
+    return;
+  }
+
+  const { seed, style, styleOptions } = props.avatarOptions;
+
+  try {
+    const renderedSeed = seed
+      .map((template) => render(template, { entity: props.entity }))
+      .join('');
+
+    const loadedStyle = await loadDiceBearStyle(style);
+
+    if (cancelled) {
+      return;
+    }
+
+    avatarSrc.value = new Avatar(loadedStyle, {
+      ...(styleOptions ?? {}),
+      seed: renderedSeed,
+    }).toDataUri();
+  } catch {
+    if (!cancelled) {
+      avatarSrc.value = undefined;
+    }
+  }
+});
 
 /**
  * Navigates back to the configured parent path using vue-router.
