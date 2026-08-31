@@ -68,7 +68,10 @@
             :parent-path="parentPath"
           />
         </div>
-        <div class="generic-details-page--actions">
+        <div
+          v-if="options.enableActions !== false"
+          class="generic-details-page--actions"
+        >
           <ButtonsCard
             :ui-namespace="uiNamespace"
             :i18n-scope="i18nScope"
