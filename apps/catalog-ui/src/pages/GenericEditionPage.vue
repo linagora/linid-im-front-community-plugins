@@ -222,7 +222,7 @@ const isLoading = ref(false);
 
 const { t, te } = useScopedI18n(i18nScope.value);
 const { Notify } = useNotify();
-const { render } = useNunjucks();
+const { renderString } = useNunjucks();
 const { ui } = useUiDesign();
 
 const uiProps = computed(() => ({
@@ -275,7 +275,7 @@ function save(): Promise<void> {
  */
 function goBack() {
   router.push(
-    render(options.value.parentPath!, { entity: entity.value ?? {} })
+    renderString(options.value.parentPath!, { entity: entity.value ?? {} })
   );
 }
 

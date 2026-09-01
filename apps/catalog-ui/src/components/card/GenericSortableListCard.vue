@@ -354,7 +354,7 @@ const nunjucksContext = computed(() => ({
 
 const { t, te, translateOrDefault } = useScopedI18n(localI18nScope.value);
 const { Notify } = useNotify();
-const { render } = useNunjucks();
+const { renderString } = useNunjucks();
 const { ui } = useUiDesign();
 const { formatValue } = useValueFormatter();
 
@@ -485,7 +485,7 @@ const isEntityResolved = computed(
 watch(
   () =>
     isEntityResolved.value
-      ? render(props.endpoints.find, nunjucksContext.value)
+      ? renderString(props.endpoints.find, nunjucksContext.value)
       : null,
   async (endpoint) => {
     if (endpoint === null) {
@@ -533,7 +533,7 @@ async function getAllItems(): Promise<Record<string, unknown>[]> {
 
   while (!isLast) {
     const response = await getHttpClient().get<Page<Record<string, unknown>>>(
-      render(props.endpoints.find, nunjucksContext.value),
+      renderString(props.endpoints.find, nunjucksContext.value),
       { params: { page, size: props.itemsQuerySize } }
     );
 
@@ -594,7 +594,7 @@ function openCreateDialog(): void {
 async function createItem(formData: Record<string, unknown>): Promise<void> {
   try {
     const { data } = await getHttpClient().post(
-      render(props.endpoints.create, nunjucksContext.value),
+      renderString(props.endpoints.create, nunjucksContext.value),
       formData
     );
 
@@ -706,7 +706,7 @@ async function submitPendingDeletions(): Promise<('fulfilled' | 'rejected')[]> {
   const results = await Promise.allSettled(
     pendingDeletions.value.map((item) =>
       getHttpClient().delete(
-        render(props.endpoints.delete, {
+        renderString(props.endpoints.delete, {
           ...nunjucksContext.value,
           item,
         })
@@ -726,7 +726,7 @@ async function submitPendingUpdates(): Promise<('fulfilled' | 'rejected')[]> {
   const results = await Promise.allSettled(
     pendingUpdates.value.map(({ item, index }) =>
       getHttpClient().put(
-        render(props.endpoints.update, {
+        renderString(props.endpoints.update, {
           ...nunjucksContext.value,
           item,
         }),

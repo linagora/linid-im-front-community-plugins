@@ -219,7 +219,7 @@ const parentPath = computed(() => options.value.parentPath);
 const { t, te } = useScopedI18n(i18nScope.value);
 const { Notify } = useNotify();
 const { ui } = useUiDesign();
-const { render } = useNunjucks();
+const { renderString } = useNunjucks();
 
 const entity = ref<Record<string, unknown> | null>(null);
 const isLoading = ref<boolean>(false);
@@ -259,7 +259,9 @@ async function loadData() {
  * loaded entity as context.
  */
 function goToEdit() {
-  router.push(render(options.value.editPath!, { entity: entity.value ?? {} }));
+  router.push(
+    renderString(options.value.editPath!, { entity: entity.value ?? {} })
+  );
 }
 
 /**

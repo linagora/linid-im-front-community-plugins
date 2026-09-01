@@ -48,18 +48,21 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
     Notify: mockNotify,
   }),
   useUiDesign: () => ({ ui: () => ({}) }),
-  useNunjucks: () => ({
-    render: function render(value, context) {
+  useNunjucks: () => {
+    function renderString(value, context) {
+      return value
+        .replace(
+          /\{\{ entity\.(\w+) \}\}/g,
+          (_, key) => context.entity?.[key] ?? ''
+        )
+        .replace(
+          /\{\{ parent\.(\w+) \}\}/g,
+          (_, key) => context.parent?.[key] ?? ''
+        );
+    }
+    function render(value, context) {
       if (typeof value === 'string') {
-        return value
-          .replace(
-            /\{\{ entity\.(\w+) \}\}/g,
-            (_, key) => context.entity?.[key] ?? ''
-          )
-          .replace(
-            /\{\{ parent\.(\w+) \}\}/g,
-            (_, key) => context.parent?.[key] ?? ''
-          );
+        return renderString(value, context);
       }
       if (value !== null && typeof value === 'object') {
         return Object.fromEntries(
@@ -67,8 +70,9 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
         );
       }
       return value;
-    },
-  }),
+    }
+    return { renderString, render };
+  },
   uiEventSubject: {
     next: vi.fn(),
   },

@@ -73,7 +73,7 @@ const localUiNamespace = computed(
 
 const { t, translateOrDefault } = useScopedI18n(localI18nScope.value);
 const { Notify } = useNotify();
-const { render } = useNunjucks();
+const { render, renderString } = useNunjucks();
 const { ui } = useUiDesign();
 
 const uiProps = computed(() => ({
@@ -118,7 +118,7 @@ async function submitForm(formData: Record<string, unknown>): Promise<void> {
     entity: { ...(props.entity ?? {}), ...formData },
     parent: props.parent ?? {},
   };
-  const requestUrl = render(props.url, context);
+  const requestUrl = renderString(props.url, context);
   const requestBody = render(props.body, context);
 
   try {
