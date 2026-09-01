@@ -69,7 +69,7 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
   }),
   useUiDesign: () => ({ ui: () => ({}) }),
   useNunjucks: () => ({
-    render: (value, context) =>
+    renderString: (value, context) =>
       value.replace('{{ entity.id }}', context.entity.id),
   }),
   uiEventSubject: {

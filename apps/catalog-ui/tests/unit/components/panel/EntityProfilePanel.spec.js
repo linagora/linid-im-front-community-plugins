@@ -69,7 +69,7 @@ vi.mock('../../../../src/services/diceBearLoaderService', () => ({
 
 vi.mock('@linagora/linid-im-front-corelib', () => ({
   LinidZoneRenderer: { template: '<div />' },
-  useNunjucks: () => ({ render: mockRender }),
+  useNunjucks: () => ({ renderString: mockRender }),
   uiEventSubject: { next: mockUiEventNext },
   useScopedI18n: mockUseScopedI18n,
   useUiDesign: () => ({ ui: mockUi }),

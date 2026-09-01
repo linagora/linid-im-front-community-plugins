@@ -315,7 +315,7 @@ const localI18nScope = computed(() => {
 
 const { ui } = useUiDesign();
 const { te, t, translateOrDefault } = useScopedI18n(localI18nScope.value);
-const { render } = useNunjucks();
+const { renderString } = useNunjucks();
 
 const zoneNames = computed(() => ({
   prependNavigation: `${localUiNamespace.value}.navigation.prepend`,
@@ -372,7 +372,7 @@ watchEffect(async (onCleanup) => {
 
   try {
     const renderedSeed = seed
-      .map((template) => render(template, { entity: props.entity }))
+      .map((template) => renderString(template, { entity: props.entity }))
       .join('');
 
     const loadedStyle = await loadDiceBearStyle(style);
@@ -397,7 +397,7 @@ watchEffect(async (onCleanup) => {
  * The back button is only rendered when `parentPath` is set, so the path is always defined here.
  */
 function goBack() {
-  router.push(render(props.parentPath!, { entity: props.entity }));
+  router.push(renderString(props.parentPath!, { entity: props.entity }));
 }
 
 /**

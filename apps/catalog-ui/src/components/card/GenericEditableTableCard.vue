@@ -137,9 +137,9 @@ import type {
   GenericEditableTableCardOutputs,
   GenericEditableTableCardProps,
 } from '../../types/genericEditableTableCard';
+import type { GenericTableColumn } from '../../types/ModuleGenericTablePageOptions';
 import GenericEntityTable from '../table/GenericEntityTable.vue';
 import ButtonsCard from './ButtonsCard.vue';
-import type { GenericTableColumn } from '../../types/ModuleGenericTablePageOptions';
 
 /**
  * Name of the column hosting the per-row edit and delete buttons. It matches the action scope column
@@ -162,7 +162,7 @@ const localUiNamespace = computed(
 
 const { t, te, translateOrDefault } = useScopedI18n(localI18nScope.value);
 const { Notify } = useNotify();
-const { render } = useNunjucks();
+const { renderString } = useNunjucks();
 const { ui } = useUiDesign();
 
 const items = ref<Record<string, unknown>[]>([]);
@@ -225,7 +225,7 @@ async function loadData(): Promise<void> {
   isLoading.value = true;
   try {
     const { data } = await getHttpClient().get(
-      render(props.endpoints.find, nunjucksContext.value)
+      renderString(props.endpoints.find, nunjucksContext.value)
     );
     items.value = Array.isArray(data) ? data : (data?.content ?? []);
   } catch {
@@ -265,7 +265,7 @@ function openCreateDialog(): void {
 async function createItem(formData: Record<string, unknown>): Promise<void> {
   try {
     await getHttpClient().post(
-      render(props.endpoints.create, nunjucksContext.value),
+      renderString(props.endpoints.create, nunjucksContext.value),
       formData
     );
   } catch (error) {
@@ -322,7 +322,7 @@ async function updateItem(
 
   try {
     const { data } = await getHttpClient().put(
-      render(props.endpoints.update, {
+      renderString(props.endpoints.update, {
         ...nunjucksContext.value,
         item,
       }),
@@ -367,7 +367,7 @@ function openDeleteDialog(item: Record<string, unknown>): void {
 async function deleteItem(item: Record<string, unknown>): Promise<void> {
   try {
     await getHttpClient().delete(
-      render(props.endpoints.delete, {
+      renderString(props.endpoints.delete, {
         ...nunjucksContext.value,
         item,
       })
@@ -385,7 +385,7 @@ async function deleteItem(item: Record<string, unknown>): Promise<void> {
 watch(
   () =>
     isEntityResolved.value
-      ? render(props.endpoints.find, nunjucksContext.value)
+      ? renderString(props.endpoints.find, nunjucksContext.value)
       : null,
   (endpoint) => {
     if (endpoint === null) {
