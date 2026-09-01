@@ -12,6 +12,7 @@ Unlike `EntityAttributeListField`, which uses a static predefined list, this com
 
 - Renders a dynamic list attribute using a dropdown/select field with lazy loading
 - Fetches structured `{ label, value }` elements from a backend route endpoint (DLVP) using pagination
+- Optionally maps elements of any paginated entity endpoint to options through the `optionLabel` and `optionValue` Nunjucks templates
 - Displays **labels** in the dropdown while storing only **values** in the entity
 - Loads additional pages on virtual scroll (infinite scrolling pattern)
 - Resolves pre-filled entity values to their corresponding label via Quasar's `map-options`
@@ -85,6 +86,19 @@ export interface FieldDynamicListSettings extends FieldSettings {
    * @default 20
    */
   size?: number;
+
+  /**
+   * Nunjucks template rendered with each fetched element as context to build the option label.
+   * Allows the field to consume any paginated entity endpoint (e.g. "{{ lastname }} {{ firstname }}").
+   * When omitted, the element `label` property is used.
+   */
+  optionLabel?: string;
+
+  /**
+   * Nunjucks template rendered with each fetched element as context to build the option value
+   * (e.g. "{{ id }}"). When omitted, the element `value` property is used.
+   */
+  optionValue?: string;
 
   /**
    * Controls uniqueness validation for this field.

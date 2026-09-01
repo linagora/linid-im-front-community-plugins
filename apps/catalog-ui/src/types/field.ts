@@ -279,6 +279,19 @@ export interface FieldDynamicListSettings extends FieldSettings {
   size?: number;
 
   /**
+   * Nunjucks template rendered with each fetched element as context to build the option label.
+   * Allows the field to consume any paginated entity endpoint (e.g. "{{ lastname }} {{ firstname }}").
+   * When omitted, the element `label` property is used.
+   */
+  optionLabel?: string;
+
+  /**
+   * Nunjucks template rendered with each fetched element as context to build the option value
+   * (e.g. "{{ id }}"). When omitted, the element `value` property is used.
+   */
+  optionValue?: string;
+
+  /**
    * Controls uniqueness validation for this field.
    * - When `true`: uniqueness validation is enabled but no reference values are provided yet.
    *   The parent component or page **must** replace this boolean with the actual array of
