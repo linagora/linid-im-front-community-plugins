@@ -54,12 +54,26 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
     Notify: mockNotify,
   }),
   useUiDesign: () => ({ ui: () => ({}) }),
-  useNunjucks: () => ({
-    renderString: (value, context) =>
-      value
-        .replace('{{ entity.id }}', context.entity?.id ?? '')
-        .replace('{{ item.id }}', context.item?.id ?? ''),
-  }),
+  useNunjucks: () => {
+    function render(value, context) {
+      if (typeof value === 'string') {
+        return value
+          .replace('{{ entity.id }}', context.entity?.id ?? '')
+          .replace('{{ item.id }}', context.item?.id ?? '')
+          .replace('{{ formData.name }}', context.formData?.name ?? '');
+      }
+      if (value && typeof value === 'object') {
+        return Object.fromEntries(
+          Object.entries(value).map(([key, nested]) => [
+            key,
+            render(nested, context),
+          ])
+        );
+      }
+      return value;
+    }
+    return { render, renderString: render };
+  },
   uiEventSubject: {
     next: vi.fn(),
   },
@@ -338,6 +352,23 @@ describe('Test component: GenericEditableTableCard', () => {
         { name: 'new name' }
       );
     });
+
+    it('should use the edit form fields instead of the form fields when configured', () => {
+      const editFormFields = [
+        {
+          name: 'relationExtraParameters.role',
+          type: 'String',
+          input: 'Text',
+          inputSettings: {},
+        },
+      ];
+      wrapper = mountComponent({ editFormFields });
+
+      wrapper.vm.openEditDialog({ id: 'item-1' });
+
+      const event = uiEventSubject.next.mock.calls[0][0];
+      expect(event.data.formFields).toEqual(editFormFields);
+    });
   });
 
   describe('Test function: updateItem', () => {
@@ -378,6 +409,20 @@ describe('Test component: GenericEditableTableCard', () => {
       });
       expect(wrapper.emitted('updated')).toBeUndefined();
       expect(mockHttpGet).not.toHaveBeenCalled();
+    });
+
+    it('should send the rendered update body instead of the form data when configured', async () => {
+      wrapper = mountComponent({
+        updateBody: { extraParameters: '{{ formData.name }}' },
+      });
+      await flushPromises();
+
+      await wrapper.vm.updateItem({ id: 'item-1' }, { name: 'new name' });
+
+      expect(mockHttpPut).toHaveBeenCalledWith(
+        '/api/parents/parent-1/items/item-1',
+        { extraParameters: 'new name' }
+      );
     });
 
     it('should not call the API when the update endpoint is not configured', async () => {
