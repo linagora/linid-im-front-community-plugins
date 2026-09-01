@@ -23,16 +23,18 @@ action buttons, dialogs, and confirmation flows.
 
 ## **⚙️ Props**
 
-| Prop name     | Type                                | Default | Description                                                                                  |
-| ------------- | ----------------------------------- | ------- | -------------------------------------------------------------------------------------------- |
-| `columns`     | `QTableColumn[]`                    | —       | Columns of the table. Labels are translated through the component i18n scope                 |
-| `formFields`  | `LinidAttributeConfiguration[]`     | —       | Form fields rendered in the creation and edition form dialogs (see `FormDialog`)             |
-| `endpoints`   | `GenericEditableTableCardEndpoints` | —       | Nunjucks templates of the `find`, `create`, `update` and `delete` endpoints                  |
-| `entity`      | `Record<string, unknown>`           | `{}`    | Entity owning the collection, provided to the Nunjucks context. Injected by the hosting zone |
-| `rowKey`      | `String`                            | `'id'`  | Name of the row property used as unique row key                                              |
-| `instanceId`  | `String`                            | —       | Instance identifier passed to the form dialog fields (e.g. API validation rules)             |
-| `uiNamespace` | `String`                            | —       | Base UI namespace used for design system customization                                       |
-| `i18nScope`   | `String`                            | —       | Identifier used to scope translations                                                        |
+| Prop name        | Type                                | Default    | Description                                                                                        |
+| ---------------- | ----------------------------------- | ---------- | -------------------------------------------------------------------------------------------------- |
+| `columns`        | `QTableColumn[]`                    | —          | Columns of the table. Labels are translated through the component i18n scope                       |
+| `formFields`     | `LinidAttributeConfiguration[]`     | —          | Form fields rendered in the creation and edition form dialogs (see `FormDialog`)                   |
+| `editFormFields` | `LinidAttributeConfiguration[]`     | —          | Form fields rendered in the edition form dialog instead of `formFields` when configured            |
+| `updateBody`     | `Record<string, unknown>`           | `formData` | Nunjucks template replacing the update request body, rendered with `entity`, `item` and `formData` |
+| `endpoints`      | `GenericEditableTableCardEndpoints` | —          | Nunjucks templates of the `find`, `create`, `update` and `delete` endpoints                        |
+| `entity`         | `Record<string, unknown>`           | `{}`       | Entity owning the collection, provided to the Nunjucks context. Injected by the hosting zone       |
+| `rowKey`         | `String`                            | `'id'`     | Name of the row property used as unique row key                                                    |
+| `instanceId`     | `String`                            | —          | Instance identifier passed to the form dialog fields (e.g. API validation rules)                   |
+| `uiNamespace`    | `String`                            | —          | Base UI namespace used for design system customization                                             |
+| `i18nScope`      | `String`                            | —          | Identifier used to scope translations                                                              |
 
 ### Endpoints
 
@@ -177,12 +179,35 @@ See [Generic Pages](../../generic-pages.md) for how to register a component in a
 
 - Each row displays an edit button in the `table_actions` column, rendered only when the `update`
   endpoint is configured
-- The edit button reopens the shared `FormDialog` with the same `formFields`, pre-filled with the row
-  values through `initialFormData`; the row properties are available as named parameters in the dialog
-  title and content translations
-- On submit, the form data is sent with `PUT` to the rendered `update` endpoint
+- The edit button reopens the shared `FormDialog` with the same `formFields` (or `editFormFields`
+  when configured), pre-filled with the row values through `initialFormData`; the row properties are
+  available as named parameters in the dialog title and content translations
+- On submit, the request is sent with `PUT` to the rendered `update` endpoint. By default — when no
+  `updateBody` is configured — the submitted form data is sent as-is as the request body
+- When an `updateBody` template is configured, it **fully replaces** the request body: it is rendered
+  with `entity`, `item` and `formData` in the context, and only the properties declared in the
+  template are sent — anything else from the form data is left out. A string property holding a
+  single dotted lookup resolving to a plain object is replaced by that object
 - On success: positive notification, `updated` event, items reload, dialog closes
 - On failure: negative notification, the dialog stays open for correction
+
+#### `item` vs `formData` in the update templates
+
+Both are available in the Nunjucks context, but they play different roles:
+
+- `item` is the row being edited, as loaded from the `find` endpoint. Use it to **address the
+  resource**, typically in the `update` endpoint template (e.g. `{{ item.id }}`).
+- `formData` is the data submitted by the edition dialog, keyed by the names of `editFormFields`
+  (or `formFields`). It is pre-filled from the row and reflects the user's edits. Use it to **build
+  the request body** in the `updateBody` template.
+
+For example, with the row `{ "id": "42", "email": "a@b.c", "relationExtraParameters": { "role": "member" } }`
+and an `editFormFields` entry named `relationExtraParameters.role` that the user changes to `manager`:
+
+- the endpoint template `/api/units/{{ entity.id }}/accounts/{{ item.id }}` resolves the row through
+  `item.id` → `.../accounts/42`
+- the body template `{ "extraParameters": "{{ formData.relationExtraParameters }}" }` picks the
+  submitted values through `formData` and sends `{ "extraParameters": { "role": "manager" } }`
 
 ### Remove item
 
@@ -286,6 +311,64 @@ with `instanceId`, `uiNamespace` and `i18nScope`:
   }
 }
 ```
+
+### Through a zone configuration, with every property
+
+When the edition dialog manages different properties than the creation dialog — such as the
+attributes of the relationship between the entity and the row — `editFormFields` and `updateBody`
+complete the configuration. Here the creation dialog attaches an existing account picked from a
+dynamic list, while the edition dialog only edits the relationship `role` and reshapes it into the
+payload expected by the API:
+
+```json
+{
+  "zone": "moduleOrganizationDetailsPage.content.after",
+  "plugin": "catalogUI/GenericEditableTableCard",
+  "props": {
+    "rowKey": "id",
+    "columns": [
+      { "name": "lastname", "label": "columns.lastname", "field": "lastname", "align": "left" },
+      { "name": "email", "label": "columns.email", "field": "email", "align": "left" }
+    ],
+    "formFields": [
+      {
+        "name": "accountId",
+        "type": "String",
+        "input": "DynamicList",
+        "required": true,
+        "inputSettings": {
+          "route": "/api/accounts",
+          "optionLabel": "{{ lastname }} {{ firstname }}",
+          "optionValue": "{{ id }}"
+        }
+      }
+    ],
+    "editFormFields": [
+      {
+        "name": "relationExtraParameters.role",
+        "type": "String",
+        "input": "Text",
+        "required": false,
+        "inputSettings": {}
+      }
+    ],
+    "updateBody": {
+      "extraParameters": "{{ formData.relationExtraParameters }}"
+    },
+    "endpoints": {
+      "find": "/api/organizations/{{ entity.id }}/accounts",
+      "create": "/api/organizations/{{ entity.id }}/accounts",
+      "update": "/api/organizations/{{ entity.id }}/accounts/{{ item.id }}",
+      "delete": "/api/organizations/{{ entity.id }}/accounts/{{ item.id }}"
+    }
+  }
+}
+```
+
+The creation dialog posts `{ "accountId": "<picked id>" }` as-is; the edition dialog is pre-filled
+from the row and, thanks to `updateBody`, sends `{ "extraParameters": { ... } }` instead of the raw
+form data — since `updateBody` replaces the whole body, `extraParameters` is the only property sent
+in this request.
 
 ### Direct usage
 

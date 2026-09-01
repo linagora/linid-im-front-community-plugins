@@ -162,7 +162,7 @@ const localUiNamespace = computed(
 
 const { t, te, translateOrDefault } = useScopedI18n(localI18nScope.value);
 const { Notify } = useNotify();
-const { renderString } = useNunjucks();
+const { render, renderString } = useNunjucks();
 const { ui } = useUiDesign();
 
 const items = ref<Record<string, unknown>[]>([]);
@@ -293,7 +293,7 @@ function openEditDialog(item: Record<string, unknown>): void {
       uiNamespace: localUiNamespace.value,
       i18nScope: `${localI18nScope.value}.EditFormDialog`,
       instanceId: props.instanceId,
-      formFields: props.formFields,
+      formFields: props.editFormFields ?? props.formFields,
       initialFormData: item,
       onSubmit: (formData: Record<string, unknown>) =>
         updateItem(item, formData),
@@ -305,6 +305,8 @@ function openEditDialog(item: Record<string, unknown>): void {
  * Updates an item by sending the submitted form data to the update endpoint, then notifies the user,
  * emits the `updated` event with the updated item returned by the API and reloads the items.
  * Does nothing when the update endpoint is not configured.
+ * When an `updateBody` template is configured, it is rendered with `entity`, `item` and `formData`
+ * in the template context and sent as the request body instead of the raw form data.
  * @param item - The item being edited, available as `item` in the endpoint template context.
  * @param formData - The submitted form data, sent as the request body.
  * @returns A promise that resolves when the update handling is complete. The promise rejects when the
@@ -318,6 +320,14 @@ async function updateItem(
     return;
   }
 
+  const body = props.updateBody
+    ? render(props.updateBody, {
+        ...nunjucksContext.value,
+        item,
+        formData,
+      })
+    : formData;
+
   let updated: Record<string, unknown>;
 
   try {
@@ -326,7 +336,7 @@ async function updateItem(
         ...nunjucksContext.value,
         item,
       }),
-      formData
+      body
     );
     updated = data;
   } catch (error) {

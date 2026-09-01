@@ -95,6 +95,22 @@ export interface GenericEditableTableCardProps extends CommonComponentProps {
   formFields: LinidAttributeConfiguration[];
 
   /**
+   * Form fields rendered in the edition form dialog instead of `formFields`, defined as an array
+   * of LinidAttributeConfiguration objects (see FormDialog). Useful when the edition dialog manages
+   * different properties than the creation dialog, such as relationship attributes of the row.
+   */
+  editFormFields?: LinidAttributeConfiguration[];
+
+  /**
+   * JSON payload fully replacing the update request body: only the properties declared here are
+   * sent. When omitted, the submitted form data is sent as-is. Every nested string property is
+   * rendered as a Nunjucks template with a context containing `entity`, `item` (the row being
+   * edited) and `formData` (the submitted form data). A string property holding a single dotted
+   * lookup resolving to a plain object is replaced by that object.
+   */
+  updateBody?: Record<string, unknown>;
+
+  /**
    * API endpoints used to fetch, create, update and delete items.
    */
   endpoints: GenericEditableTableCardEndpoints;
