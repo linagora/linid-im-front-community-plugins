@@ -47,6 +47,10 @@ vi.mock('@linagora/linid-im-front-corelib', async () => {
       t: mockT,
     }),
     useQuasarRules: () => [vi.fn(), vi.fn(), vi.fn()],
+    useNunjucks: () => ({
+      renderString: (value, context) =>
+        value.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, key) => context[key] ?? ''),
+    }),
   };
 });
 
@@ -328,6 +332,68 @@ describe('Test component: EntityAttributeDynamicListField', () => {
         { label: 'Value 1', value: 'value1' },
         { label: 'Value 2', value: 'value2' },
         { label: 'Value 3', value: 'value3' },
+      ]);
+    });
+
+    it('should map fetched elements with the option label and value templates', async () => {
+      mountingOptions.props.definition.inputSettings.optionLabel =
+        '{{ lastname }} {{ firstname }}';
+      mountingOptions.props.definition.inputSettings.optionValue = '{{ id }}';
+      mockGetDynamicListPage.mockResolvedValue({
+        ...mockPage,
+        content: [
+          { id: 'account-1', lastname: 'Doe', firstname: 'John' },
+          { id: 'account-2', lastname: 'Smith', firstname: 'Jane' },
+        ],
+      });
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      wrapper.vm.allOptions = [];
+
+      await wrapper.vm.fetchPage();
+
+      expect(wrapper.vm.allOptions).toEqual([
+        { label: 'Doe John', value: 'account-1' },
+        { label: 'Smith Jane', value: 'account-2' },
+      ]);
+    });
+
+    it('should keep the element value when only the option label template is set', async () => {
+      mountingOptions.props.definition.inputSettings.optionLabel =
+        '{{ lastname }} {{ firstname }}';
+      mockGetDynamicListPage.mockResolvedValue({
+        ...mockPage,
+        content: [
+          {
+            lastname: 'Doe',
+            firstname: 'John',
+            label: 'raw label',
+            value: 'raw-value',
+          },
+        ],
+      });
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      wrapper.vm.allOptions = [];
+
+      await wrapper.vm.fetchPage();
+
+      expect(wrapper.vm.allOptions).toEqual([
+        { label: 'Doe John', value: 'raw-value' },
+      ]);
+    });
+
+    it('should keep the element label when only the option value template is set', async () => {
+      mountingOptions.props.definition.inputSettings.optionValue = '{{ id }}';
+      mockGetDynamicListPage.mockResolvedValue({
+        ...mockPage,
+        content: [{ id: 'account-1', label: 'raw label', value: 'raw-value' }],
+      });
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      wrapper.vm.allOptions = [];
+
+      await wrapper.vm.fetchPage();
+
+      expect(wrapper.vm.allOptions).toEqual([
+        { label: 'raw label', value: 'account-1' },
       ]);
     });
 

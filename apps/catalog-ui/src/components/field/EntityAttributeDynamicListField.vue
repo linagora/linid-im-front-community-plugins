@@ -65,6 +65,7 @@ import {
   getNestedValue,
   type LinidQSelectProps,
   setNestedValue,
+  useNunjucks,
   useQuasarRules,
   useScopedI18n,
   useUiDesign,
@@ -97,6 +98,7 @@ const localI18nScope = `${props.i18nScope}.fields.${props.definition.name}`;
 
 const { ui } = useUiDesign();
 const { translateOrDefault, t } = useScopedI18n(localI18nScope);
+const { renderString } = useNunjucks();
 
 const allOptions = ref<DynamicListElement[]>([]);
 const isLoading = ref(false);
@@ -161,7 +163,7 @@ async function fetchPage() {
       size: pageSize.value,
     });
     if (page.content.length > 0) {
-      allOptions.value.push(...page.content);
+      allOptions.value.push(...page.content.map(toOption));
       removePlaceholderIfResolved();
     }
     hasMore = !page.last;
@@ -171,6 +173,28 @@ async function fetchPage() {
   } finally {
     isLoading.value = false;
   }
+}
+
+/**
+ * Maps a fetched element to a dropdown option. When the `optionLabel` or `optionValue` settings
+ * are configured, they are rendered as Nunjucks templates with the element as context, allowing
+ * the field to consume any paginated entity endpoint. Otherwise the element is used as-is.
+ * @param element - The element fetched from the backend.
+ * @returns The dropdown option.
+ */
+function toOption(element: DynamicListElement): DynamicListElement {
+  const { optionLabel, optionValue } = props.definition.inputSettings ?? {};
+
+  if (!optionLabel && !optionValue) {
+    return element;
+  }
+
+  const context = element as unknown as Record<string, unknown>;
+
+  return {
+    label: optionLabel ? renderString(optionLabel, context) : element.label,
+    value: optionValue ? renderString(optionValue, context) : element.value,
+  };
 }
 
 /**
