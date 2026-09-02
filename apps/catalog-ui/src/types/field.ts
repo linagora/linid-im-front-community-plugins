@@ -143,14 +143,38 @@ export interface FieldEmailSettings extends FieldTextSettings {
  */
 export interface FieldDateSettings extends FieldSettings {
   /**
-   * Date format to be used for displaying and parsing the date value.
+   * Static date format mask used for internal date parsing and constraint computation (e.g. "YYYY/MM/DD").
+   * Acts as the fallback when `valueFormatI18NKey` is absent or unresolved from the global i18n instance.
+   * Falls back to QDATE_DEFAULT_MASK if not provided or falsy (including empty string).
+   * @default QDATE_DEFAULT_MASK
+   */
+  valueFormat?: string;
+
+  /**
+   * Absolute internationalization key for the internal date format mask, looked up against the **global** i18n instance.
+   * If the global i18n has a translation for this key, it will be used instead of the `valueFormat` fallback.
+   * This enables locale-specific parsing formats (e.g. "YYYY/MM/DD" for a specific locale).
+   * Must be an absolute key (not scoped to the component's i18n scope).
+   * Falls back to `valueFormat` and then to QDATE_DEFAULT_MASK if not provided or unresolved.
+   */
+  valueFormatI18NKey?: string;
+
+  /**
+   * Static date format mask used for displaying dates in the input field and for validation rules (e.g. "DD/MM/YYYY").
+   * Acts as the fallback when `maskI18NKey` is absent or unresolved from the global i18n instance.
+   * This mask affects how users see dates in the input and which validation rules are applied.
+   * Falls back to QDATE_DEFAULT_MASK if not provided or falsy (including empty string).
+   * @default QDATE_DEFAULT_MASK
    */
   mask?: string;
 
   /**
-   * Internationalization key for the date format mask.
-   * If provided, it will be used to retrieve the localized date format from the translation files.
-   * This allows the date format to adapt to different locales.
+   * Absolute internationalization key for the display date format mask, looked up against the **global** i18n instance.
+   * If the global i18n has a translation for this key, it will be used instead of the `mask` fallback.
+   * This enables locale-specific display formats (e.g. "DD/MM/YYYY" for French, "MM/DD/YYYY" for English).
+   * Must be an absolute key (not scoped to the component's i18n scope).
+   * Falls back to `mask` and then to QDATE_DEFAULT_MASK if not provided or unresolved.
+   * This mask is used only for display and validation; the internal `valueFormat` is used for parsing and constraints.
    */
   maskI18NKey?: string;
 
