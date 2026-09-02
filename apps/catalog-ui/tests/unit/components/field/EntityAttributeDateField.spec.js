@@ -33,9 +33,8 @@ const mockGlobalT = vi.fn((key) => key);
 const mockRender = vi.fn((value) => value);
 const mockMinDate = vi.fn(() => null);
 const mockMaxDate = vi.fn(() => null);
-const mockFormatQDate = vi.fn(() => '2026/01/01');
-const mockToQDateFormat = vi.fn((d) => d);
-const mockValidDate = vi.fn(() => vi.fn());
+const mockFormatDate = vi.fn((date) => date);
+const mockValidDate = vi.fn(() => vi.fn(() => true));
 const mockRequired = vi.fn();
 const mockAfterDate = vi.fn(() => vi.fn());
 const mockBeforeDate = vi.fn(() => vi.fn());
@@ -68,9 +67,8 @@ vi.mock('@linagora/linid-im-front-corelib', async () => {
     }),
     useNunjucks: () => ({ render: mockRender }),
     useDayjs: () => ({ minDate: mockMinDate, maxDate: mockMaxDate }),
-    useQuasarDate: () => ({
-      toQDateFormat: mockToQDateFormat,
-      formatQDate: mockFormatQDate,
+    useCommonMapper: () => ({
+      formatDate: mockFormatDate,
     }),
     useQuasarFieldValidation: () => ({
       required: mockRequired,
@@ -89,8 +87,7 @@ describe('Test component: EntityAttributeDateField', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockFormatQDate.mockImplementation(() => '2026/01/01');
-    mockToQDateFormat.mockImplementation((d) => d);
+    mockFormatDate.mockImplementation((date) => date);
     mockTranslateOrDefault.mockImplementation((defaultValue) => defaultValue);
     mockGlobalTe.mockImplementation(() => false);
     wrapper = shallowMount(EntityAttributeDateField, {
@@ -243,6 +240,116 @@ describe('Test component: EntityAttributeDateField', () => {
     });
   });
 
+  describe('Test computed: valueFormat', () => {
+    it('should resolve to QDATE_DEFAULT_MASK when inputSettings is not defined', async () => {
+      await wrapper.setProps({
+        definition: {
+          name: 'birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: false,
+          input: 'Date',
+        },
+      });
+
+      expect(wrapper.vm.valueFormat).toEqual('YYYY/MM/DD');
+    });
+
+    it('should resolve to QDATE_DEFAULT_MASK when valueFormat and valueFormatI18NKey are not defined', () => {
+      expect(wrapper.vm.valueFormat).toEqual('YYYY/MM/DD');
+      expect(mockGlobalTe).toHaveBeenCalledWith(undefined);
+    });
+
+    it('should resolve to QDATE_DEFAULT_MASK when valueFormat is null', async () => {
+      await wrapper.setProps({
+        definition: {
+          name: 'birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: false,
+          input: 'Date',
+          inputSettings: { valueFormat: null },
+        },
+      });
+
+      expect(wrapper.vm.valueFormat).toEqual('YYYY/MM/DD');
+    });
+
+    it('should resolve to QDATE_DEFAULT_MASK when valueFormat is an empty string', async () => {
+      await wrapper.setProps({
+        definition: {
+          name: 'birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: false,
+          input: 'Date',
+          inputSettings: { valueFormat: '' },
+        },
+      });
+
+      expect(wrapper.vm.valueFormat).toEqual('YYYY/MM/DD');
+    });
+
+    it('should use the static valueFormat as the resolved value when valueFormatI18NKey does not resolve via te', async () => {
+      await wrapper.setProps({
+        definition: {
+          name: 'birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: false,
+          input: 'Date',
+          inputSettings: { valueFormat: 'YYYY-MM-DD' },
+        },
+      });
+
+      expect(wrapper.vm.valueFormat).toEqual('YYYY-MM-DD');
+    });
+
+    it('should call te with the configured valueFormatI18NKey and keep the static valueFormat when te returns false', async () => {
+      await wrapper.setProps({
+        definition: {
+          name: 'birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: false,
+          input: 'Date',
+          inputSettings: {
+            valueFormat: 'YYYY-MM-DD',
+            valueFormatI18NKey: 'global.internalDateFormat',
+          },
+        },
+      });
+
+      expect(mockGlobalTe).toHaveBeenCalledWith('global.internalDateFormat');
+      expect(wrapper.vm.valueFormat).toEqual('YYYY-MM-DD');
+    });
+
+    it('should return the globally translated value when valueFormatI18NKey resolves via te', async () => {
+      mockGlobalTe.mockImplementation(
+        (key) => key === 'global.internalDateFormat'
+      );
+      mockGlobalT.mockImplementation((key) =>
+        key === 'global.internalDateFormat' ? 'DD-MM-YYYY' : key
+      );
+      await wrapper.setProps({
+        definition: {
+          name: 'birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: false,
+          input: 'Date',
+          inputSettings: {
+            valueFormat: 'YYYY-MM-DD',
+            valueFormatI18NKey: 'global.internalDateFormat',
+          },
+        },
+      });
+
+      expect(wrapper.vm.valueFormat).toEqual('DD-MM-YYYY');
+      expect(mockGlobalT).toHaveBeenCalledWith('global.internalDateFormat');
+    });
+  });
+
   describe('Test computed: renderedDefinition', () => {
     it('should delegate t context function to getI18nInstance().global.t', () => {
       const definitionRenderCall = mockRender.mock.calls.find(
@@ -359,7 +466,7 @@ describe('Test component: EntityAttributeDateField', () => {
     it('should pass the mask to the constraint rule factories when DD/MM/YYYY mask is set', async () => {
       const mockDayjsResult = { toISOString: () => '2026-01-31T00:00:00.000Z' };
       mockMaxDate.mockReturnValue(mockDayjsResult);
-      mockFormatQDate.mockReturnValue('31/01/2026');
+      mockFormatDate.mockReturnValue('31/01/2026');
       await wrapper.setProps({
         definition: {
           name: 'birthdate',
@@ -375,6 +482,37 @@ describe('Test component: EntityAttributeDateField', () => {
       });
 
       expect(mockAfterDate).toHaveBeenCalledWith('31/01/2026', 'DD/MM/YYYY');
+    });
+
+    it('should convert the constraint date ref from valueFormat to mask when the two formats differ', async () => {
+      const mockDayjsResult = { toISOString: () => '2026-01-31T00:00:00.000Z' };
+      mockMaxDate.mockReturnValue(mockDayjsResult);
+      await wrapper.setProps({
+        definition: {
+          name: 'birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: false,
+          input: 'Date',
+          inputSettings: {
+            mask: 'DD/MM/YYYY',
+            valueFormat: 'YYYY-MM-DD',
+            options: { afterDate: '2026-01-31' },
+          },
+        },
+      });
+
+      // computeRef formats the aggregated Dayjs result using valueFormat
+      expect(mockFormatDate).toHaveBeenCalledWith(
+        '2026-01-31T00:00:00.000Z',
+        'YYYY-MM-DD'
+      );
+      // the rules computed then converts that valueFormat-formatted ref to the display mask
+      expect(mockFormatDate).toHaveBeenCalledWith(
+        expect.any(String),
+        'DD/MM/YYYY',
+        'YYYY-MM-DD'
+      );
     });
   });
 
@@ -488,7 +626,6 @@ describe('Test component: EntityAttributeDateField', () => {
     it('should return the formatted date string when aggregate returns a Dayjs object', async () => {
       const mockDayjsResult = { toISOString: () => '2026-01-01T00:00:00.000Z' };
       mockMaxDate.mockReturnValue(mockDayjsResult);
-      mockFormatQDate.mockReturnValue('2026/01/01');
       await wrapper.setProps({
         definition: {
           name: 'birthdate',
@@ -500,13 +637,14 @@ describe('Test component: EntityAttributeDateField', () => {
         },
       });
 
-      expect(wrapper.vm.dateConstraints[0].dateRef).toEqual('2026/01/01');
+      expect(wrapper.vm.dateConstraints[0].dateRef).toEqual(
+        '2026-01-01T00:00:00.000Z'
+      );
     });
 
-    it('should pass the mask to the aggregate and formatQDate with DD/MM/YYYY mask', async () => {
+    it('should pass the valueFormat to the aggregate and to formatDate with DD/MM/YYYY mask', async () => {
       const mockDayjsResult = { toISOString: () => '2026-01-31T00:00:00.000Z' };
       mockMaxDate.mockReturnValue(mockDayjsResult);
-      mockFormatQDate.mockReturnValue('31/01/2026');
       await wrapper.setProps({
         definition: {
           name: 'birthdate',
@@ -521,12 +659,14 @@ describe('Test component: EntityAttributeDateField', () => {
         },
       });
 
-      expect(mockMaxDate).toHaveBeenCalledWith(['31/01/2026'], 'DD/MM/YYYY');
-      expect(mockFormatQDate).toHaveBeenCalledWith(
+      expect(mockMaxDate).toHaveBeenCalledWith(['31/01/2026'], 'YYYY/MM/DD');
+      expect(mockFormatDate).toHaveBeenCalledWith(
         '2026-01-31T00:00:00.000Z',
-        'DD/MM/YYYY'
+        'YYYY/MM/DD'
       );
-      expect(wrapper.vm.dateConstraints[0].dateRef).toEqual('31/01/2026');
+      expect(wrapper.vm.dateConstraints[0].dateRef).toEqual(
+        '2026-01-31T00:00:00.000Z'
+      );
     });
   });
 
@@ -553,6 +693,7 @@ describe('Test component: EntityAttributeDateField', () => {
     it('should filter dates strictly after afterRef', async () => {
       const mockDayjsResult = { toISOString: () => '2026-01-01T00:00:00.000Z' };
       mockMaxDate.mockReturnValue(mockDayjsResult);
+      mockFormatDate.mockReturnValue('2026/01/01');
       await wrapper.setProps({
         definition: {
           name: 'birthdate',
@@ -572,6 +713,7 @@ describe('Test component: EntityAttributeDateField', () => {
     it('should filter dates strictly before beforeRef', async () => {
       const mockDayjsResult = { toISOString: () => '2026-01-01T00:00:00.000Z' };
       mockMinDate.mockReturnValue(mockDayjsResult);
+      mockFormatDate.mockReturnValue('2026/01/01');
       await wrapper.setProps({
         definition: {
           name: 'birthdate',
@@ -591,6 +733,7 @@ describe('Test component: EntityAttributeDateField', () => {
     it('should filter dates from fromRef inclusive', async () => {
       const mockDayjsResult = { toISOString: () => '2026-01-01T00:00:00.000Z' };
       mockMaxDate.mockReturnValue(mockDayjsResult);
+      mockFormatDate.mockReturnValue('2026/01/01');
       await wrapper.setProps({
         definition: {
           name: 'birthdate',
@@ -610,6 +753,7 @@ describe('Test component: EntityAttributeDateField', () => {
     it('should filter dates up to upToRef inclusive', async () => {
       const mockDayjsResult = { toISOString: () => '2026-01-01T00:00:00.000Z' };
       mockMinDate.mockReturnValue(mockDayjsResult);
+      mockFormatDate.mockReturnValue('2026/01/01');
       await wrapper.setProps({
         definition: {
           name: 'birthdate',
@@ -631,14 +775,19 @@ describe('Test component: EntityAttributeDateField', () => {
       const mockDayjsBefore = { toISOString: () => 'BEFORE_ISO' };
       mockMaxDate.mockReturnValue(mockDayjsAfter);
       mockMinDate.mockReturnValue(mockDayjsBefore);
-      mockFormatQDate.mockImplementation((isoString) => {
-        if (isoString === 'AFTER_ISO') {
+      mockFormatDate.mockImplementation((value, outputFormat, inputFormat) => {
+        // computeRef's call (2 args): pass the ISO sentinel through unchanged
+        if (inputFormat === undefined) {
+          return value;
+        }
+        // options' call (3 args): resolve the sentinel to the final ref
+        if (value === 'AFTER_ISO') {
           return '2026/01/01';
         }
-        if (isoString === 'BEFORE_ISO') {
+        if (value === 'BEFORE_ISO') {
           return '2026/06/01';
         }
-        return '2026/01/01';
+        return value;
       });
       await wrapper.setProps({
         definition: {
@@ -661,13 +810,12 @@ describe('Test component: EntityAttributeDateField', () => {
     it('should correctly filter cross-month boundary dates with DD/MM/YYYY mask', async () => {
       // afterDate = 31 Jan 2026 in DD/MM/YYYY; the predicate must accept 1 Feb 2026
       // even though '01/02/2026' < '31/01/2026' lexicographically.
-      // toQDateFormat is expected to normalise the stored ref to YYYY/MM/DD so
+      // formatDate is expected to normalise the stored ref to YYYY/MM/DD so
       // the string comparison inside options() remains valid.
       const mockDayjsResult = { toISOString: () => '2026-01-31T00:00:00.000Z' };
       mockMaxDate.mockReturnValue(mockDayjsResult);
-      mockFormatQDate.mockReturnValue('31/01/2026');
-      // Simulate toQDateFormat normalising DD/MM/YYYY → YYYY/MM/DD
-      mockToQDateFormat.mockReturnValue('2026/01/31');
+      // Simulate formatDate normalising DD/MM/YYYY → YYYY/MM/DD
+      mockFormatDate.mockReturnValue('2026/01/31');
       await wrapper.setProps({
         definition: {
           name: 'birthdate',
@@ -688,10 +836,9 @@ describe('Test component: EntityAttributeDateField', () => {
       expect(wrapper.vm.options('2025/12/31')).toBe(false); // before boundary
     });
 
-    it('should pass the mask to toQDateFormat when building the options predicate with DD/MM/YYYY mask', async () => {
+    it('should pass the mask and valueFormat to formatDate when building the options predicate with differing formats', async () => {
       const mockDayjsResult = { toISOString: () => '2026-01-31T00:00:00.000Z' };
       mockMaxDate.mockReturnValue(mockDayjsResult);
-      mockFormatQDate.mockReturnValue('31/01/2026');
       await wrapper.setProps({
         definition: {
           name: 'birthdate',
@@ -701,26 +848,26 @@ describe('Test component: EntityAttributeDateField', () => {
           input: 'Date',
           inputSettings: {
             mask: 'DD/MM/YYYY',
-            options: { afterDate: '31/01/2026' },
+            valueFormat: 'YYYY-MM-DD',
+            options: { afterDate: '2026-01-31' },
           },
         },
       });
 
-      // Access options to trigger the lazy computed and the toQDateFormat call
+      // Access options to trigger the lazy computed and the formatDate call
       wrapper.vm.options('2026/01/01');
 
-      expect(mockToQDateFormat).toHaveBeenCalledWith(
-        '31/01/2026',
-        'DD/MM/YYYY'
+      expect(mockFormatDate).toHaveBeenCalledWith(
+        '2026-01-31T00:00:00.000Z',
+        'DD/MM/YYYY',
+        'YYYY-MM-DD'
       );
     });
   });
 
-  describe('Test function: updateValue', () => {
+  describe('Test function: updateValueFromInput', () => {
     it('should emit event', () => {
-      wrapper.vm.localValue = '1990/01/05';
-
-      wrapper.vm.updateValue();
+      wrapper.vm.updateValueFromInput('1990/01/05');
 
       expect(wrapper.emitted('update:entity')).toBeTruthy();
       expect(wrapper.emitted('update:entity')[0]).toEqual([
@@ -733,12 +880,96 @@ describe('Test component: EntityAttributeDateField', () => {
         },
       ]);
     });
+
+    it('should convert the input value from mask to valueFormat when the two formats differ', async () => {
+      await wrapper.setProps({
+        definition: {
+          name: 'birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: false,
+          input: 'Date',
+          inputSettings: { mask: 'DD/MM/YYYY', valueFormat: 'YYYY-MM-DD' },
+        },
+      });
+
+      wrapper.vm.updateValueFromInput('05/01/1990');
+
+      expect(mockFormatDate).toHaveBeenCalledWith(
+        '05/01/1990',
+        'YYYY-MM-DD',
+        'DD/MM/YYYY'
+      );
+    });
+
+    it('should not emit event when the input value is an incomplete date not matching the mask', () => {
+      mockValidDate.mockReturnValueOnce(vi.fn(() => 'validation.invalidDate'));
+
+      wrapper.vm.updateValueFromInput('1990/01/0');
+
+      expect(wrapper.emitted('update:entity')).toBeFalsy();
+    });
+
+    it('should emit event with an empty value when the input is cleared', () => {
+      wrapper.vm.updateValueFromInput('');
+
+      expect(wrapper.emitted('update:entity')).toBeTruthy();
+      expect(wrapper.emitted('update:entity')[0]).toEqual([
+        {
+          name: 'entity-name',
+          description: 'entity-description',
+          type: 'entity-type',
+          isAdmin: false,
+          birthdate: '',
+        },
+      ]);
+    });
   });
 
-  describe('Test watch: entity', () => {
-    it('should update localValue when entity attribute value changes', async () => {
-      expect(wrapper.vm.localValue).toEqual('1990/01/01');
+  describe('Test function: updateValueFromPicker', () => {
+    it('should emit event', () => {
+      wrapper.vm.updateValueFromPicker('1990/01/05');
 
+      expect(wrapper.emitted('update:entity')).toBeTruthy();
+      expect(wrapper.emitted('update:entity')[0]).toEqual([
+        {
+          name: 'entity-name',
+          description: 'entity-description',
+          type: 'entity-type',
+          isAdmin: false,
+          birthdate: '1990/01/05',
+        },
+      ]);
+    });
+
+    it('should convert the picker value from mask to valueFormat when the two formats differ', async () => {
+      await wrapper.setProps({
+        definition: {
+          name: 'birthdate',
+          type: 'Date',
+          required: false,
+          hasValidations: false,
+          input: 'Date',
+          inputSettings: { mask: 'DD/MM/YYYY', valueFormat: 'YYYY-MM-DD' },
+        },
+      });
+
+      wrapper.vm.updateValueFromPicker('05/01/1990');
+
+      expect(mockFormatDate).toHaveBeenCalledWith(
+        '05/01/1990',
+        'YYYY-MM-DD',
+        'DD/MM/YYYY'
+      );
+    });
+  });
+
+  describe('Test reactivity: displayValue', () => {
+    it('should initialize displayValue from entity attribute', () => {
+      expect(wrapper.vm.displayValue).toEqual('1990/01/01');
+    });
+
+    it('should sync displayValue when the entity attribute value changes externally', async () => {
       await wrapper.setProps({
         entity: {
           name: 'entity-name',
@@ -749,41 +980,79 @@ describe('Test component: EntityAttributeDateField', () => {
         },
       });
 
-      expect(wrapper.vm.localValue).toEqual('2000/12/31');
+      expect(wrapper.vm.displayValue).toEqual('2000/12/31');
     });
 
-    it('should set localValue to null when attribute is undefined', async () => {
-      expect(wrapper.vm.localValue).toEqual('1990/01/01');
-
-      await wrapper.setProps({
-        entity: {
-          name: 'entity-name',
-          description: 'entity-description',
-          type: 'entity-type',
-          isAdmin: false,
+    it('should initialize displayValue to empty string when attribute is undefined', async () => {
+      const newWrapper = shallowMount(EntityAttributeDateField, {
+        props: {
+          uiNamespace: 'namespace',
+          instanceId: 'id',
+          definition: {
+            name: 'birthdate',
+            type: 'Date',
+            required: false,
+            hasValidations: false,
+            input: 'Date',
+            inputSettings: {},
+          },
+          entity: {
+            name: 'entity-name',
+            description: 'entity-description',
+            type: 'entity-type',
+            isAdmin: false,
+          },
+        },
+        global: {
+          stubs: {
+            QInput: {
+              template: '<input />',
+              props: ['modelValue', 'prefix', 'suffix'],
+              emits: ['update:modelValue'],
+            },
+          },
         },
       });
 
-      expect(wrapper.vm.localValue).toEqual(null);
+      expect(newWrapper.vm.displayValue).toEqual('');
     });
 
-    it('should set localValue to null when attribute is null', async () => {
-      expect(wrapper.vm.localValue).toEqual('1990/01/01');
-
-      await wrapper.setProps({
-        entity: {
-          name: 'entity-name',
-          description: 'entity-description',
-          type: 'entity-type',
-          isAdmin: false,
-          birthdate: null,
+    it('should initialize displayValue to empty string when attribute is null', async () => {
+      const newWrapper = shallowMount(EntityAttributeDateField, {
+        props: {
+          uiNamespace: 'namespace',
+          instanceId: 'id',
+          definition: {
+            name: 'birthdate',
+            type: 'Date',
+            required: false,
+            hasValidations: false,
+            input: 'Date',
+            inputSettings: {},
+          },
+          entity: {
+            name: 'entity-name',
+            description: 'entity-description',
+            type: 'entity-type',
+            isAdmin: false,
+            birthdate: null,
+          },
+        },
+        global: {
+          stubs: {
+            QInput: {
+              template: '<input />',
+              props: ['modelValue', 'prefix', 'suffix'],
+              emits: ['update:modelValue'],
+            },
+          },
         },
       });
 
-      expect(wrapper.vm.localValue).toEqual(null);
+      expect(newWrapper.vm.displayValue).toEqual('');
     });
 
-    it('should update localValue when entity reference changes', async () => {
+    it('should update displayValue when entity reference changes', async () => {
       const newEntity = {
         name: 'updated-name',
         description: 'updated-description',
@@ -791,27 +1060,33 @@ describe('Test component: EntityAttributeDateField', () => {
         isAdmin: true,
         birthdate: '1985/06/15',
       };
-      expect(wrapper.vm.localValue).toEqual('1990/01/01');
 
-      await wrapper.setProps({ entity: newEntity });
-
-      expect(wrapper.vm.localValue).toEqual('1985/06/15');
-    });
-
-    it('should not update localValue when another entity attribute changes', async () => {
-      wrapper.vm.localValue = '01/01/2026';
-
-      await wrapper.setProps({
-        entity: {
-          name: 'updated-name',
-          description: 'entity-description',
-          type: 'entity-type',
-          isAdmin: false,
-          birthdate: '1990/01/01',
+      const newWrapper = shallowMount(EntityAttributeDateField, {
+        props: {
+          uiNamespace: 'namespace',
+          instanceId: 'id',
+          definition: {
+            name: 'birthdate',
+            type: 'Date',
+            required: false,
+            hasValidations: false,
+            input: 'Date',
+            inputSettings: {},
+          },
+          entity: newEntity,
+        },
+        global: {
+          stubs: {
+            QInput: {
+              template: '<input />',
+              props: ['modelValue', 'prefix', 'suffix'],
+              emits: ['update:modelValue'],
+            },
+          },
         },
       });
 
-      expect(wrapper.vm.localValue).toEqual('01/01/2026');
+      expect(newWrapper.vm.displayValue).toEqual('1985/06/15');
     });
   });
 
@@ -834,13 +1109,39 @@ describe('Test component: EntityAttributeDateField', () => {
     });
 
     it('should read the value from the nested path', () => {
-      expect(wrapper.vm.localValue).toEqual('1990/01/01');
+      const newWrapper = shallowMount(EntityAttributeDateField, {
+        props: {
+          uiNamespace: 'namespace',
+          instanceId: 'id',
+          definition: {
+            name: 'extraParameters.birthdate',
+            type: 'Date',
+            required: false,
+            hasValidations: false,
+            input: 'Date',
+            inputSettings: {},
+          },
+          entity: {
+            name: 'entity-name',
+            extraParameters: { birthdate: '1990/01/01', role: 'admin' },
+          },
+        },
+        global: {
+          stubs: {
+            QInput: {
+              template: '<input />',
+              props: ['modelValue', 'prefix', 'suffix'],
+              emits: ['update:modelValue'],
+            },
+          },
+        },
+      });
+
+      expect(newWrapper.vm.displayValue).toEqual('1990/01/01');
     });
 
     it('should emit the complete entity with only the nested value updated', () => {
-      wrapper.vm.localValue = '1990/01/05';
-
-      wrapper.vm.updateValue();
+      wrapper.vm.updateValueFromInput('1990/01/05');
 
       expect(wrapper.emitted('update:entity')[0]).toEqual([
         {
@@ -852,9 +1153,8 @@ describe('Test component: EntityAttributeDateField', () => {
 
     it('should create missing intermediate objects when updating', async () => {
       await wrapper.setProps({ entity: { name: 'entity-name' } });
-      wrapper.vm.localValue = '1990/01/05';
 
-      wrapper.vm.updateValue();
+      wrapper.vm.updateValueFromInput('1990/01/05');
 
       expect(wrapper.emitted('update:entity')[0]).toEqual([
         {
@@ -864,12 +1164,38 @@ describe('Test component: EntityAttributeDateField', () => {
       ]);
     });
 
-    it('should update localValue when the nested value changes', async () => {
-      await wrapper.setProps({
-        entity: { extraParameters: { birthdate: '1990/01/01' } },
+    it('should read nested value from updated entity reference', async () => {
+      const newEntity = {
+        name: 'entity-name',
+        extraParameters: { birthdate: '2000/12/31', role: 'user' },
+      };
+
+      const newWrapper = shallowMount(EntityAttributeDateField, {
+        props: {
+          uiNamespace: 'namespace',
+          instanceId: 'id',
+          definition: {
+            name: 'extraParameters.birthdate',
+            type: 'Date',
+            required: false,
+            hasValidations: false,
+            input: 'Date',
+            inputSettings: {},
+          },
+          entity: newEntity,
+        },
+        global: {
+          stubs: {
+            QInput: {
+              template: '<input />',
+              props: ['modelValue', 'prefix', 'suffix'],
+              emits: ['update:modelValue'],
+            },
+          },
+        },
       });
 
-      expect(wrapper.vm.localValue).toEqual('1990/01/01');
+      expect(newWrapper.vm.displayValue).toEqual('2000/12/31');
     });
   });
 });
