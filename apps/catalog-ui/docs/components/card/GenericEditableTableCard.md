@@ -23,19 +23,21 @@ action buttons, dialogs, and confirmation flows.
 
 ## **⚙️ Props**
 
-| Prop name        | Type                                | Default    | Description                                                                                                                                                                       |
-| ---------------- | ----------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `columns`        | `QTableColumn[]`                    | —          | Columns of the table. Labels are translated through the component i18n scope                                                                                                      |
-| `formFields`     | `LinidAttributeConfiguration[]`     | `[]`       | Form fields rendered in the creation and edition form dialogs (see `FormDialog`). Optional when `readOnly` is `true` or when neither `create` nor `update` endpoint is configured |
-| `editFormFields` | `LinidAttributeConfiguration[]`     | —          | Form fields rendered in the edition form dialog instead of `formFields` when configured                                                                                           |
-| `updateBody`     | `Record<string, unknown>`           | `formData` | Nunjucks template replacing the update request body, rendered with `entity`, `item` and `formData`                                                                                |
-| `endpoints`      | `GenericEditableTableCardEndpoints` | —          | Nunjucks templates of the `find`, `create`, `update` and `delete` endpoints                                                                                                       |
-| `entity`         | `Record<string, unknown>`           | `{}`       | Entity owning the collection, provided to the Nunjucks context. Injected by the hosting zone                                                                                      |
-| `rowKey`         | `String`                            | `'id'`     | Name of the row property used as unique row key                                                                                                                                   |
-| `readOnly`       | `Boolean`                           | `false`    | When `true`, hides all action buttons (add, edit, delete) and renders the card in read-only mode                                                                                  |
-| `instanceId`     | `String`                            | —          | Instance identifier passed to the form dialog fields (e.g. API validation rules)                                                                                                  |
-| `uiNamespace`    | `String`                            | —          | Base UI namespace used for design system customization                                                                                                                            |
-| `i18nScope`      | `String`                            | —          | Identifier used to scope translations                                                                                                                                             |
+| Prop name          | Type                                | Default    | Description                                                                                                                                                                       |
+| ------------------ | ----------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `columns`          | `QTableColumn[]`                    | —          | Columns of the table. Labels are translated through the component i18n scope                                                                                                      |
+| `formFields`       | `LinidAttributeConfiguration[]`     | `[]`       | Form fields rendered in the creation and edition form dialogs (see `FormDialog`). Optional when `readOnly` is `true` or when neither `create` nor `update` endpoint is configured |
+| `editFormFields`   | `LinidAttributeConfiguration[]`     | —          | Form fields rendered in the edition form dialog instead of `formFields` when configured                                                                                           |
+| `updateBody`       | `Record<string, unknown>`           | `formData` | Nunjucks template replacing the update request body, rendered with `entity`, `item` and `formData`                                                                                |
+| `endpoints`        | `GenericEditableTableCardEndpoints` | —          | Nunjucks templates of the `find`, `create`, `update` and `delete` endpoints                                                                                                       |
+| `entity`           | `Record<string, unknown>`           | `{}`       | Entity owning the collection, provided to the Nunjucks context. Injected by the hosting zone                                                                                      |
+| `rowKey`           | `String`                            | `'id'`     | Name of the row property used as unique row key                                                                                                                                   |
+| `readOnly`         | `Boolean`                           | `false`    | When `true`, hides all action buttons (add, edit, delete) and renders the card in read-only mode                                                                                  |
+| `enableActions`    | `Boolean`                           | `true`     | When `false`, hides the `ButtonsCard` in the card header (add button, header slots and zone renderer)                                                                             |
+| `enableRowActions` | `Boolean`                           | `true`     | When `false`, hides the entire row actions column (edit button, delete button, row slots and zone renderer)                                                                       |
+| `instanceId`       | `String`                            | —          | Instance identifier passed to the form dialog fields (e.g. API validation rules)                                                                                                  |
+| `uiNamespace`      | `String`                            | —          | Base UI namespace used for design system customization                                                                                                                            |
+| `i18nScope`        | `String`                            | —          | Identifier used to scope translations                                                                                                                                             |
 
 ### Endpoints
 
@@ -214,7 +216,7 @@ and an `editFormFields` entry named `relationExtraParameters.role` that the user
 
 - Each row displays a delete button in the `table_actions` column
 - The `table_actions` column is automatically appended when not declared in `columns` and hosts both
-  the edit and delete buttons
+  the edit and delete buttons, unless `enableRowActions` is `false`
 - The delete button opens the shared `ConfirmationDialog`; the row properties are available as
   named parameters in the dialog title and content translations
 - On confirm, the rendered `delete` endpoint is called
@@ -389,6 +391,31 @@ required — `create`, `update` and `delete` can be omitted entirely:
   }
 }
 ```
+
+#### Hiding header or row actions independently
+
+Use `enableActions` and `enableRowActions` to hide specific parts of the UI without switching the
+entire card to read-only mode. This is useful when custom slots or zone-injected components replace
+the built-in buttons:
+
+```json
+{
+  "zone": "moduleOrganizationDetailsPage.content.after",
+  "plugin": "catalogUI/GenericEditableTableCard",
+  "props": {
+    "enableActions": false,
+    "enableRowActions": false,
+    "columns": [{ "name": "name", "label": "columns.name", "field": "name", "align": "left" }],
+    "endpoints": {
+      "find": "/api/organizations/{{ entity.id }}/members"
+    }
+  }
+}
+```
+
+`enableActions: false` hides the `ButtonsCard` in the card header (add button, header slots and
+zone renderer). `enableRowActions: false` removes the `table_actions` column entirely (edit button,
+delete button, row slots and zone renderer are not rendered).
 
 ### Direct usage
 

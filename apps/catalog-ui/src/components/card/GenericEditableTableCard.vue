@@ -41,6 +41,7 @@
       </h4>
       <q-space />
       <ButtonsCard
+        v-if="enableActions"
         :ui-namespace="localUiNamespace"
         :i18n-scope="localI18nScope"
         :show-confirm-button="false"
@@ -76,7 +77,10 @@
         :loading="isLoading"
         :row-key="rowKey"
       >
-        <template #actions="{ row, rowKey: key }">
+        <template
+          v-if="enableRowActions"
+          #actions="{ row, rowKey: key }"
+        >
           <slot
             name="prepend-row-actions"
             :row="row"
@@ -153,6 +157,8 @@ const props = withDefaults(defineProps<GenericEditableTableCardProps>(), {
   rowKey: 'id',
   readOnly: false,
   formFields: () => [],
+  enableActions: true,
+  enableRowActions: true,
 });
 
 const emit = defineEmits<GenericEditableTableCardOutputs>();
@@ -192,7 +198,10 @@ const columns = computed<GenericTableColumn[]>(() => {
     label: t(column.label),
   }));
 
-  if (!translated.some((column) => column.name === ACTIONS_COLUMN_NAME)) {
+  if (
+    props.enableRowActions &&
+    !translated.some((column) => column.name === ACTIONS_COLUMN_NAME)
+  ) {
     translated.push({
       name: ACTIONS_COLUMN_NAME,
       label: '',

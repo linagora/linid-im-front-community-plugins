@@ -146,6 +146,14 @@ describe('Test component: GenericEditableTableCard', () => {
       ]);
     });
 
+    it('should not append the actions column when enableRowActions is false', () => {
+      wrapper = mountComponent({ enableRowActions: false });
+
+      expect(
+        wrapper.vm.columns.some((column) => column.name === 'table_actions')
+      ).toBe(false);
+    });
+
     it('should not append the actions column when already declared', () => {
       wrapper = mountComponent({
         columns: [
