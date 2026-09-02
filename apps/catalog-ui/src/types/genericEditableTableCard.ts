@@ -137,6 +137,19 @@ export interface GenericEditableTableCardProps extends CommonComponentProps {
    * @default false
    */
   readOnly?: boolean;
+
+  /**
+   * When false, hides the entire header actions section (add button, slots and zone renderer).
+   * @default true
+   */
+  enableActions?: boolean;
+
+  /**
+   * When false, the `table_actions` column is not appended automatically and the per-row actions
+   * section (edit button, delete button, slots and zone renderer) is not rendered.
+   * @default true
+   */
+  enableRowActions?: boolean;
 }
 
 /**
