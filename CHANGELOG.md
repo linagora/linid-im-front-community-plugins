@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.111](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.110...v0.2.111) (2026-09-02)
+
+
+### Features
+
+* **catalog-ui:** support edit form fields and update body template in GenericEditableTableCard ([3766065](https://github.com/linagora/linid-im-front-community-plugins/commit/37660657afb79f69c27d03ca6223838dc8e161e3))
+
 ### [0.2.110](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.109...v0.2.110) (2026-09-02)
 
 ### [0.2.109](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.108...v0.2.109) (2026-08-31)
