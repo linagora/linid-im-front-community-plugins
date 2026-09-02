@@ -48,13 +48,9 @@ export interface DateSearchFilterPanelProps extends CommonComponentProps {
    */
   fieldName: string;
   /**
-   * Date format mask applied to both the text input and the date picker.
-   * Defaults to the library's standard date mask when not provided.
-   */
-  mask?: string;
-  /**
-   * Global i18n key whose translated value is used as the date format mask.
-   * Takes precedence over `mask` when the key exists in the i18n instance.
+   * Global i18n key whose translated value is used as the date format mask
+   * for both the text input and the date picker. Defaults to the library's
+   * standard date mask when the key does not exist in the i18n instance.
    */
   maskI18NKey?: string;
 }

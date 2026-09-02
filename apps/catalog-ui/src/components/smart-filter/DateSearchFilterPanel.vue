@@ -170,7 +170,7 @@ const computedMask = computed(() => {
   if (props.maskI18NKey && globalTe(props.maskI18NKey)) {
     return globalT(props.maskI18NKey);
   }
-  return props.mask ?? QDATE_DEFAULT_MASK;
+  return QDATE_DEFAULT_MASK;
 });
 
 const { validDate } = useQuasarFieldValidation(

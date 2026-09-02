@@ -143,14 +143,10 @@ export interface FieldEmailSettings extends FieldTextSettings {
  */
 export interface FieldDateSettings extends FieldSettings {
   /**
-   * Date format to be used for displaying and parsing the date value.
-   */
-  mask?: string;
-
-  /**
    * Internationalization key for the date format mask.
    * If provided, it will be used to retrieve the localized date format from the translation files.
-   * This allows the date format to adapt to different locales.
+   * This allows the date format to adapt to different locales. When the key does not resolve,
+   * the library's standard date mask is used.
    */
   maskI18NKey?: string;
 

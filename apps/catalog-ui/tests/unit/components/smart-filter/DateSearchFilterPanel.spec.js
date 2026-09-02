@@ -106,13 +106,8 @@ describe('Test component: DateSearchFilterPanel', () => {
   });
 
   describe('Test computed: computedMask', () => {
-    it('should use the default mask when no mask prop is provided', () => {
+    it('should use the default mask when no maskI18NKey prop is provided', () => {
       expect(wrapper.vm.computedMask).toBe('YYYY/MM/DD');
-    });
-
-    it('should use the mask prop when provided', () => {
-      wrapper = mountComponent({ mask: 'DD/MM/YYYY' });
-      expect(wrapper.vm.computedMask).toBe('DD/MM/YYYY');
     });
 
     it('should use the translated value when maskI18NKey exists in the global i18n catalog', () => {
@@ -122,12 +117,11 @@ describe('Test component: DateSearchFilterPanel', () => {
       expect(wrapper.vm.computedMask).toBe('MM/DD/YYYY');
     });
 
-    it('should fall back to mask prop when maskI18NKey key does not exist in the global i18n catalog', () => {
+    it('should fall back to the default mask when maskI18NKey key does not exist in the global i18n catalog', () => {
       wrapper = mountComponent({
         maskI18NKey: 'nonexistent.key',
-        mask: 'DD/MM/YYYY',
       });
-      expect(wrapper.vm.computedMask).toBe('DD/MM/YYYY');
+      expect(wrapper.vm.computedMask).toBe('YYYY/MM/DD');
     });
   });
 

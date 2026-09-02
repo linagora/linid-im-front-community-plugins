@@ -152,57 +152,12 @@ describe('Test component: EntityAttributeDateField', () => {
       expect(wrapper.vm.mask).toEqual('YYYY/MM/DD');
     });
 
-    it('should resolve to QDATE_DEFAULT_MASK when mask and maskI18NKey are not defined', () => {
+    it('should resolve to QDATE_DEFAULT_MASK when maskI18NKey is not defined', () => {
       expect(wrapper.vm.mask).toEqual('YYYY/MM/DD');
       expect(mockGlobalTe).toHaveBeenCalledWith(undefined);
     });
 
-    it('should resolve to QDATE_DEFAULT_MASK when mask is null', async () => {
-      await wrapper.setProps({
-        definition: {
-          name: 'birthdate',
-          type: 'Date',
-          required: false,
-          hasValidations: false,
-          input: 'Date',
-          inputSettings: { mask: null },
-        },
-      });
-
-      expect(wrapper.vm.mask).toEqual('YYYY/MM/DD');
-    });
-
-    it('should resolve to QDATE_DEFAULT_MASK when mask is an empty string', async () => {
-      await wrapper.setProps({
-        definition: {
-          name: 'birthdate',
-          type: 'Date',
-          required: false,
-          hasValidations: false,
-          input: 'Date',
-          inputSettings: { mask: '' },
-        },
-      });
-
-      expect(wrapper.vm.mask).toEqual('YYYY/MM/DD');
-    });
-
-    it('should use the static mask as the resolved value when maskI18NKey does not resolve via te', async () => {
-      await wrapper.setProps({
-        definition: {
-          name: 'birthdate',
-          type: 'Date',
-          required: false,
-          hasValidations: false,
-          input: 'Date',
-          inputSettings: { mask: 'DD/MM/YYYY' },
-        },
-      });
-
-      expect(wrapper.vm.mask).toEqual('DD/MM/YYYY');
-    });
-
-    it('should call te with the configured maskI18NKey and keep the static mask when te returns false', async () => {
+    it('should call te with the configured maskI18NKey and fall back to QDATE_DEFAULT_MASK when te returns false', async () => {
       await wrapper.setProps({
         definition: {
           name: 'birthdate',
@@ -211,14 +166,13 @@ describe('Test component: EntityAttributeDateField', () => {
           hasValidations: false,
           input: 'Date',
           inputSettings: {
-            mask: 'DD/MM/YYYY',
             maskI18NKey: 'global.dateFormat',
           },
         },
       });
 
       expect(mockGlobalTe).toHaveBeenCalledWith('global.dateFormat');
-      expect(wrapper.vm.mask).toEqual('DD/MM/YYYY');
+      expect(wrapper.vm.mask).toEqual('YYYY/MM/DD');
     });
 
     it('should return the globally translated value when maskI18NKey resolves via te', async () => {
@@ -232,7 +186,6 @@ describe('Test component: EntityAttributeDateField', () => {
           hasValidations: false,
           input: 'Date',
           inputSettings: {
-            mask: 'DD/MM/YYYY',
             maskI18NKey: 'global.dateFormat',
           },
         },
@@ -360,6 +313,8 @@ describe('Test component: EntityAttributeDateField', () => {
       const mockDayjsResult = { toISOString: () => '2026-01-31T00:00:00.000Z' };
       mockMaxDate.mockReturnValue(mockDayjsResult);
       mockFormatQDate.mockReturnValue('31/01/2026');
+      mockGlobalTe.mockReturnValue(true);
+      mockGlobalT.mockReturnValue('DD/MM/YYYY');
       await wrapper.setProps({
         definition: {
           name: 'birthdate',
@@ -368,7 +323,7 @@ describe('Test component: EntityAttributeDateField', () => {
           hasValidations: false,
           input: 'Date',
           inputSettings: {
-            mask: 'DD/MM/YYYY',
+            maskI18NKey: 'global.dateFormat',
             options: { afterDate: '31/01/2026' },
           },
         },
@@ -507,6 +462,8 @@ describe('Test component: EntityAttributeDateField', () => {
       const mockDayjsResult = { toISOString: () => '2026-01-31T00:00:00.000Z' };
       mockMaxDate.mockReturnValue(mockDayjsResult);
       mockFormatQDate.mockReturnValue('31/01/2026');
+      mockGlobalTe.mockReturnValue(true);
+      mockGlobalT.mockReturnValue('DD/MM/YYYY');
       await wrapper.setProps({
         definition: {
           name: 'birthdate',
@@ -515,7 +472,7 @@ describe('Test component: EntityAttributeDateField', () => {
           hasValidations: false,
           input: 'Date',
           inputSettings: {
-            mask: 'DD/MM/YYYY',
+            maskI18NKey: 'global.dateFormat',
             options: { afterDate: '31/01/2026' },
           },
         },
@@ -692,6 +649,8 @@ describe('Test component: EntityAttributeDateField', () => {
       const mockDayjsResult = { toISOString: () => '2026-01-31T00:00:00.000Z' };
       mockMaxDate.mockReturnValue(mockDayjsResult);
       mockFormatQDate.mockReturnValue('31/01/2026');
+      mockGlobalTe.mockReturnValue(true);
+      mockGlobalT.mockReturnValue('DD/MM/YYYY');
       await wrapper.setProps({
         definition: {
           name: 'birthdate',
@@ -700,7 +659,7 @@ describe('Test component: EntityAttributeDateField', () => {
           hasValidations: false,
           input: 'Date',
           inputSettings: {
-            mask: 'DD/MM/YYYY',
+            maskI18NKey: 'global.dateFormat',
             options: { afterDate: '31/01/2026' },
           },
         },

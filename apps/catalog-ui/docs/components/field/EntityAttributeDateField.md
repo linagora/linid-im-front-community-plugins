@@ -60,18 +60,11 @@ export interface AttributeFieldProps<T = Record<string, unknown>> extends Common
 ```ts
 export interface FieldDateSettings extends FieldSettings {
   /**
-   * Static date format mask used for displaying and parsing the date value (e.g. "YYYY-MM-DD").
-   * Acts as the fallback used when `maskI18NKey` is absent or has no translation.
-   * @default QDATE_DEFAULT_MASK
-   */
-  mask?: string;
-
-  /**
    * Internationalization key used to resolve a localized date format mask.
    * Looked up against the **global** i18n instance (not scoped to
    * `${i18nScope}.fields.${definition.name}` like `label`/`hint`/`prefix`/`suffix`),
    * so this must be an absolute translation key (e.g. "date.format.fr").
-   * Falls back to `mask` (then to `QDATE_DEFAULT_MASK`) if missing or unresolved.
+   * Falls back to `QDATE_DEFAULT_MASK` if missing or unresolved.
    */
   maskI18NKey?: string;
 
@@ -138,17 +131,14 @@ const mask = computed(() => {
   if (getI18nInstance().global.te(maskI18NKey)) {
     return globalT(maskI18NKey);
   }
-  return props.definition.inputSettings?.mask || QDATE_DEFAULT_MASK;
+  return QDATE_DEFAULT_MASK;
 });
 ```
 
 Resolution order:
 
 1. If `inputSettings.maskI18NKey` is set and the **global** i18n instance has a translation for it (checked via `te`), the globally translated value is used — enabling locale-specific formats (e.g. `DD/MM/YYYY` for `fr`, `MM/DD/YYYY` for `en`). Because this check goes through the global instance rather than the component's scoped `useScopedI18n`, `maskI18NKey` must be an **absolute** translation key, not relative to `${i18nScope}.fields.${definition.name}`.
-2. Otherwise, falls back to the static `inputSettings.mask`
-3. If `inputSettings.mask` is also falsy (`undefined`, `null`, or `''`), falls back to the corelib's `QDATE_DEFAULT_MASK` constant (Quasar's default date format)
-
-> **Note:** the static mask fallback uses `||`, a falsy check — unlike a nullish (`??`) check, an empty string `mask: ''` is **also** replaced by `QDATE_DEFAULT_MASK`.
+2. Otherwise, falls back to the corelib's `QDATE_DEFAULT_MASK` constant (Quasar's default date format)
 
 ### Fallback Behavior
 

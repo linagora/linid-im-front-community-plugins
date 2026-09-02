@@ -166,7 +166,7 @@ const mask = computed(() => {
     // @ts-expect-error - dynamic key, ComposerTranslation blows up type instantiation depth
     return globalT(maskI18NKey);
   }
-  return props.definition.inputSettings?.mask || QDATE_DEFAULT_MASK;
+  return QDATE_DEFAULT_MASK;
 });
 
 const renderedDefinition = computed(() => {
