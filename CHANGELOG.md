@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.112](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.111...v0.2.112) (2026-09-02)
+
+
+### Features
+
+* **catalog-ui:** add option label and value templates to dynamic list field ([42c6968](https://github.com/linagora/linid-im-front-community-plugins/commit/42c69686377021c1984519975d36005b434cbe71))
+
 ### [0.2.111](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.110...v0.2.111) (2026-09-02)
 
 
