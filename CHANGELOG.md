@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.113](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.112...v0.2.113) (2026-09-02)
+
+
+### Features
+
+* **catalog-ui:** add enableActions and enableRowActions props to GenericEditableTableCard ([5d383d7](https://github.com/linagora/linid-im-front-community-plugins/commit/5d383d7a73a9fa75676d2376ed9fdb2900f69a84))
+* **catalog-ui:** add readOnly prop to GenericEditableTableCard ([d0cb1bb](https://github.com/linagora/linid-im-front-community-plugins/commit/d0cb1bb776d2fe026e93c97bcbbc397ff9d6622c))
+
 ### [0.2.112](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.111...v0.2.112) (2026-09-02)
 
 
