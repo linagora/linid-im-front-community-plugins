@@ -23,27 +23,28 @@ action buttons, dialogs, and confirmation flows.
 
 ## **⚙️ Props**
 
-| Prop name        | Type                                | Default    | Description                                                                                        |
-| ---------------- | ----------------------------------- | ---------- | -------------------------------------------------------------------------------------------------- |
-| `columns`        | `QTableColumn[]`                    | —          | Columns of the table. Labels are translated through the component i18n scope                       |
-| `formFields`     | `LinidAttributeConfiguration[]`     | —          | Form fields rendered in the creation and edition form dialogs (see `FormDialog`)                   |
-| `editFormFields` | `LinidAttributeConfiguration[]`     | —          | Form fields rendered in the edition form dialog instead of `formFields` when configured            |
-| `updateBody`     | `Record<string, unknown>`           | `formData` | Nunjucks template replacing the update request body, rendered with `entity`, `item` and `formData` |
-| `endpoints`      | `GenericEditableTableCardEndpoints` | —          | Nunjucks templates of the `find`, `create`, `update` and `delete` endpoints                        |
-| `entity`         | `Record<string, unknown>`           | `{}`       | Entity owning the collection, provided to the Nunjucks context. Injected by the hosting zone       |
-| `rowKey`         | `String`                            | `'id'`     | Name of the row property used as unique row key                                                    |
-| `instanceId`     | `String`                            | —          | Instance identifier passed to the form dialog fields (e.g. API validation rules)                   |
-| `uiNamespace`    | `String`                            | —          | Base UI namespace used for design system customization                                             |
-| `i18nScope`      | `String`                            | —          | Identifier used to scope translations                                                              |
+| Prop name        | Type                                | Default    | Description                                                                                                                                                                       |
+| ---------------- | ----------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `columns`        | `QTableColumn[]`                    | —          | Columns of the table. Labels are translated through the component i18n scope                                                                                                      |
+| `formFields`     | `LinidAttributeConfiguration[]`     | `[]`       | Form fields rendered in the creation and edition form dialogs (see `FormDialog`). Optional when `readOnly` is `true` or when neither `create` nor `update` endpoint is configured |
+| `editFormFields` | `LinidAttributeConfiguration[]`     | —          | Form fields rendered in the edition form dialog instead of `formFields` when configured                                                                                           |
+| `updateBody`     | `Record<string, unknown>`           | `formData` | Nunjucks template replacing the update request body, rendered with `entity`, `item` and `formData`                                                                                |
+| `endpoints`      | `GenericEditableTableCardEndpoints` | —          | Nunjucks templates of the `find`, `create`, `update` and `delete` endpoints                                                                                                       |
+| `entity`         | `Record<string, unknown>`           | `{}`       | Entity owning the collection, provided to the Nunjucks context. Injected by the hosting zone                                                                                      |
+| `rowKey`         | `String`                            | `'id'`     | Name of the row property used as unique row key                                                                                                                                   |
+| `readOnly`       | `Boolean`                           | `false`    | When `true`, hides all action buttons (add, edit, delete) and renders the card in read-only mode                                                                                  |
+| `instanceId`     | `String`                            | —          | Instance identifier passed to the form dialog fields (e.g. API validation rules)                                                                                                  |
+| `uiNamespace`    | `String`                            | —          | Base UI namespace used for design system customization                                                                                                                            |
+| `i18nScope`      | `String`                            | —          | Identifier used to scope translations                                                                                                                                             |
 
 ### Endpoints
 
 ```typescript
 export interface GenericEditableTableCardEndpoints {
   find: string; // GET — fetches the items
-  create: string; // POST — submitted form data is sent as the request body
-  update?: string; // PUT — optional; enables the per-row edit button
-  delete: string; // DELETE — the removed row is available as `item` in the template context
+  create?: string; // POST — optional; enables the add button when the component is not in read-only mode
+  update?: string; // PUT — optional; enables the per-row edit button when the component is not in read-only mode
+  delete?: string; // DELETE — optional; enables the per-row delete button when the component is not in read-only mode
 }
 ```
 
@@ -60,8 +61,8 @@ edited or removed:
 }
 ```
 
-The `update` endpoint is optional: the per-row edit button is only rendered when it is configured, so
-read-only-plus-delete collections keep their previous behaviour.
+The `create`, `update` and `delete` endpoints are all optional: each action button is only rendered when
+its endpoint is configured. Only `find` is always required.
 
 ### Column Formatting
 
@@ -370,6 +371,25 @@ from the row and, thanks to `updateBody`, sends `{ "extraParameters": { ... } }`
 form data — since `updateBody` replaces the whole body, `extraParameters` is the only property sent
 in this request.
 
+#### Read-only mode
+
+Set `readOnly: true` to display the collection without any action button. Only the `find` endpoint is
+required — `create`, `update` and `delete` can be omitted entirely:
+
+```json
+{
+  "zone": "moduleOrganizationDetailsPage.content.after",
+  "plugin": "catalogUI/GenericEditableTableCard",
+  "props": {
+    "readOnly": true,
+    "columns": [{ "name": "name", "label": "columns.name", "field": "name", "align": "left" }],
+    "endpoints": {
+      "find": "/api/organizations/{{ entity.id }}/members"
+    }
+  }
+}
+```
+
 ### Direct usage
 
 ```vue
@@ -381,7 +401,7 @@ in this request.
 ## **✅ Advantages**
 
 - **Standardized:** One consistent flow for managing simple collections
-- **Progressive:** The edit action is opt-in through the `update` endpoint
+- **Progressive:** The edit action is opt-in through the `update` endpoint; the entire card can be switched to read-only via the `readOnly` prop
 - **Composable:** Built on top of `GenericEntityTable`, `FormDialog` and `ConfirmationDialog`
 - **Configurable:** Columns, form fields and endpoints are driven by configuration
 - **Zone-ready:** Designed to be rendered through a zone with the page entity injected

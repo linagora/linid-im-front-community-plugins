@@ -43,22 +43,29 @@ export interface GenericEditableTableCardEndpoints {
 
   /**
    * Endpoint used to create a new item (POST). The submitted form data is sent as the request body.
+   *
+   * Optional: the add button is only rendered when this endpoint is configured and the component is
+   * not in read-only mode.
    */
-  create: string;
+  create?: string;
 
   /**
    * Endpoint used to update an item (PUT). The submitted form data is sent as the request body, and
    * the row being edited is available in the template context as `item`.
    *
-   * Optional: the per-row edit button is only rendered when this endpoint is configured.
+   * Optional: the per-row edit button is only rendered when this endpoint is configured and the
+   * component is not in read-only mode.
    */
   update?: string;
 
   /**
    * Endpoint used to delete an item (DELETE). The row being removed is available in the
    * template context as `item`.
+   *
+   * Optional: the per-row delete button is only rendered when this endpoint is configured and the
+   * component is not in read-only mode.
    */
-  delete: string;
+  delete?: string;
 }
 
 /**
@@ -91,8 +98,12 @@ export interface GenericEditableTableCardProps extends CommonComponentProps {
   /**
    * Form fields rendered in the creation and edition form dialogs, defined as an array of
    * LinidAttributeConfiguration objects (see FormDialog).
+   *
+   * Optional when `readOnly` is `true` or when neither `create` nor `update` endpoint is configured,
+   * as no form dialog is ever opened in those cases.
+   * @default []
    */
-  formFields: LinidAttributeConfiguration[];
+  formFields?: LinidAttributeConfiguration[];
 
   /**
    * Form fields rendered in the edition form dialog instead of `formFields`, defined as an array
@@ -120,6 +131,12 @@ export interface GenericEditableTableCardProps extends CommonComponentProps {
    * @default 'id'
    */
   rowKey?: string;
+
+  /**
+   * When true, hides all action buttons (add, edit, delete), rendering the card in read-only mode.
+   * @default false
+   */
+  readOnly?: boolean;
 }
 
 /**

@@ -310,6 +310,20 @@ describe('Test component: GenericEditableTableCard', () => {
       expect(wrapper.emitted('created')).toBeUndefined();
       expect(mockHttpGet).not.toHaveBeenCalled();
     });
+
+    it('should not call the API when the create endpoint is not configured', async () => {
+      wrapper = mountComponent({
+        endpoints: { ...defaultProps.endpoints, create: undefined },
+      });
+      mockHttpGet.mockClear();
+
+      await wrapper.vm.createItem({ name: 'new item' });
+
+      expect(mockHttpPost).not.toHaveBeenCalled();
+      expect(mockNotify).not.toHaveBeenCalled();
+      expect(wrapper.emitted('created')).toBeUndefined();
+      expect(mockHttpGet).not.toHaveBeenCalled();
+    });
   });
 
   describe('Test function: openEditDialog', () => {
@@ -495,6 +509,20 @@ describe('Test component: GenericEditableTableCard', () => {
         type: 'negative',
         message: 'deleteError',
       });
+      expect(wrapper.emitted('deleted')).toBeUndefined();
+      expect(mockHttpGet).not.toHaveBeenCalled();
+    });
+
+    it('should not call the API when the delete endpoint is not configured', async () => {
+      wrapper = mountComponent({
+        endpoints: { ...defaultProps.endpoints, delete: undefined },
+      });
+      mockHttpGet.mockClear();
+
+      await wrapper.vm.deleteItem({ id: 'item-1' });
+
+      expect(mockHttpDelete).not.toHaveBeenCalled();
+      expect(mockNotify).not.toHaveBeenCalled();
       expect(wrapper.emitted('deleted')).toBeUndefined();
       expect(mockHttpGet).not.toHaveBeenCalled();
     });

@@ -56,6 +56,7 @@
             :i18n-scope="`${localI18nScope}.ButtonsCard`"
           />
           <q-btn
+            v-if="!readOnly && endpoints.create"
             v-bind="uiProps.addButton"
             :label="t('ButtonsCard.add')"
             class="buttons-card--add-button"
@@ -91,7 +92,7 @@
             :i18n-scope="localI18nScope"
           />
           <q-btn
-            v-if="endpoints.update"
+            v-if="!readOnly && endpoints.update"
             v-bind="uiProps.editButton"
             :label="t('editButton')"
             class="generic-editable-table-card--edit-button"
@@ -99,6 +100,7 @@
             @click="openEditDialog(row)"
           />
           <q-btn
+            v-if="!readOnly && endpoints.delete"
             v-bind="uiProps.deleteButton"
             :label="t('deleteButton')"
             class="generic-editable-table-card--delete-button"
@@ -149,6 +151,8 @@ const ACTIONS_COLUMN_NAME = 'table_actions';
 
 const props = withDefaults(defineProps<GenericEditableTableCardProps>(), {
   rowKey: 'id',
+  readOnly: false,
+  formFields: () => [],
 });
 
 const emit = defineEmits<GenericEditableTableCardOutputs>();
@@ -263,6 +267,10 @@ function openCreateDialog(): void {
  * when the creation fails, so the form dialog stays open for correction.
  */
 async function createItem(formData: Record<string, unknown>): Promise<void> {
+  if (!props.endpoints.create) {
+    return;
+  }
+
   try {
     await getHttpClient().post(
       renderString(props.endpoints.create, nunjucksContext.value),
@@ -375,6 +383,10 @@ function openDeleteDialog(item: Record<string, unknown>): void {
  * @returns A promise that resolves when the deletion handling is complete.
  */
 async function deleteItem(item: Record<string, unknown>): Promise<void> {
+  if (!props.endpoints.delete) {
+    return;
+  }
+
   try {
     await getHttpClient().delete(
       renderString(props.endpoints.delete, {
