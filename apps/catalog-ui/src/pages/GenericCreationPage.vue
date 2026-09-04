@@ -133,6 +133,13 @@
             class="row justify-start q-col-gutter-md generic-creation-page--form-section--field"
             :data-cy="`field-container_${formSection.id}`"
           >
+            <LinidZoneRenderer
+              :zone="`${instanceId}.content.form-section-${formSection.id}.prepend`"
+              :entity="entity || {}"
+              :instance-id="instanceId"
+              :ui-namespace="`${uiNamespace}.form-section-${formSection.id}`"
+              :i18n-scope="i18nScope"
+            />
             <entity-attribute-field
               v-for="field in formSection.fields"
               :key="field.name"
@@ -146,6 +153,13 @@
                   : 'col-12 col-sm-6 col-md-4'
               "
               :ui-namespace="`${uiNamespace}.form-section-${formSection.id}`"
+            />
+            <LinidZoneRenderer
+              :zone="`${instanceId}.content.form-section-${formSection.id}.append`"
+              :entity="entity || {}"
+              :instance-id="instanceId"
+              :ui-namespace="`${uiNamespace}.form-section-${formSection.id}`"
+              :i18n-scope="i18nScope"
             />
           </q-card-section>
         </q-card>
@@ -185,20 +199,25 @@
 </template>
 
 <script setup lang="ts">
-import type { LinidQCardProps } from '@linagora/linid-im-front-corelib';
+import type {
+  LinidQCardProps,
+  UiEvent,
+} from '@linagora/linid-im-front-corelib';
 import {
   getModuleHostConfiguration,
   LinidZoneRenderer,
   saveEntity,
+  uiEventSubject,
   useNotify,
   useScopedI18n,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
-import { computed, ref } from 'vue';
+import { type Subscription } from 'rxjs';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import type { ModuleGenericCreationPageOptions } from '../types/ModuleGenericCreationPageOptions';
 import ButtonsCard from '../components/card/ButtonsCard.vue';
 import EntityAttributeField from '../components/field/EntityAttributeField.vue';
+import type { ModuleGenericCreationPageOptions } from '../types/ModuleGenericCreationPageOptions';
 
 const router = useRouter();
 const route = useRoute();
@@ -233,6 +252,25 @@ const uiProps = computed(() => ({
     {}
   ),
 }));
+
+let eventSubscription: Subscription | undefined;
+
+onMounted(() => {
+  eventSubscription = uiEventSubject.subscribe((event: UiEvent) => {
+    if (
+      options.value?.updateEntityOn?.includes(event.key) &&
+      typeof event.data === 'object' &&
+      event.data != null &&
+      !Array.isArray(event.data)
+    ) {
+      entity.value = { ...entity.value, ...event.data };
+    }
+  });
+});
+
+onUnmounted(() => {
+  eventSubscription?.unsubscribe();
+});
 
 /**
  * Save the new entity and redirect to the entity list page.

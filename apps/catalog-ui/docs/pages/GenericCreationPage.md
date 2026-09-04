@@ -10,7 +10,8 @@ It follows the same generic and configurable approach as `GenericTablePage` and 
 
 - Provide a reusable creation page for any entity
 - Render a configurable creation form based on entity attribute definitions
-- Group form fields into ordered sections
+- Group form fields into ordered sections, extensible through zones
+- Let injected plugins feed the edited entity through the UI event bus
 - Handle entity persistence through the generic entity creation mechanism
 - Redirect the user to the created entity details page after successful creation
 
@@ -20,11 +21,12 @@ It follows the same generic and configurable approach as `GenericTablePage` and 
 
 The page resolves its options from the module host configuration (`getModuleHostConfiguration(instanceId).options`), typed by `ModuleGenericCreationPageOptions`.
 
-| Option         | Type            | Required | Description                                                                         |
-| -------------- | --------------- | -------- | ----------------------------------------------------------------------------------- |
-| `formSections` | `FormSection[]` | Yes      | Sections grouping the entity attributes displayed in the creation form              |
-| `idKey`        | `string`        | Yes      | Entity attribute used to retrieve the identifier of the created entity after saving |
-| `parentPath`   | `string`        | Yes      | Route path used to navigate back to the previous page after saving the entity       |
+| Option           | Type            | Required | Description                                                                                  |
+| ---------------- | --------------- | -------- | -------------------------------------------------------------------------------------------- |
+| `formSections`   | `FormSection[]` | Yes      | Sections grouping the entity attributes displayed in the creation form                       |
+| `idKey`          | `string`        | Yes      | Entity attribute used to retrieve the identifier of the created entity after saving          |
+| `parentPath`     | `string`        | Yes      | Route path used to navigate back to the previous page after saving the entity                |
+| `updateEntityOn` | `string[]`      | No       | UI event keys (from the `uiEventSubject` bus) whose payload is merged into the edited entity |
 
 Each `FormSection` defines a group of fields rendered in the form.
 
@@ -90,6 +92,26 @@ The entity starts as an empty object and is progressively populated while the us
 
 ---
 
+## **Entity Synchronization**
+
+Beyond the form fields, the edited entity can also be fed by the UI event bus (`uiEventSubject`), so a plugin injected in one of the page zones can contribute to the entity being created.
+
+- The page subscribes to the bus on mount and unsubscribes on unmount.
+- When `updateEntityOn` is configured, the data of every UI event whose key is listed is **merged** into the entity state.
+- The merge is shallow: the emitted keys overwrite the values already typed in the form, the other ones are preserved. A partial payload is therefore enough to feed a few attributes.
+- Events carrying a payload that is not a plain object (`null` and arrays included) are ignored.
+- Without `updateEntityOn`, UI events are ignored and the entity is only driven by the form fields.
+
+```json
+{
+  "options": {
+    "updateEntityOn": ["applicationTemplateSelected"]
+  }
+}
+```
+
+---
+
 ## **Data Saving**
 
 When the form is submitted:
@@ -133,7 +155,7 @@ The page is composed of:
 
   - Only the custom actions injected through the `header.actions` zone (its own cancel and confirm buttons are disabled)
 
-- Configurable form sections
+- Configurable form sections, each one wrapping its fields between the `prepend` and `append` zones
 - Footer `ButtonsCard` containing:
 
   - Cancel and submit actions
@@ -164,9 +186,16 @@ data-cy="field-container_{id}"
 
 ## **Zones**
 
-This page exposes all default generic page zones described in the main **Zones** documentation.
+This page exposes all default generic page zones described in the main **Zones** documentation, plus two additional page-specific zones rendered for **each** configured form section:
 
-No additional page-specific zones are provided.
+| Zone                                             | Location                                        | Typical Use                                                 |
+| ------------------------------------------------ | ----------------------------------------------- | ----------------------------------------------------------- |
+| `{instanceId}.content.form-section-{id}.prepend` | Inside the section card, before the first field | Section introduction, template picker, custom leading field |
+| `{instanceId}.content.form-section-{id}.append`  | Inside the section card, after the last field   | Extra custom fields, contextual help, computed summary      |
+
+Both zones receive the current `entity`, so an injected plugin can react to the values being typed and, combined with `updateEntityOn`, emit a payload merged back into the entity.
+
+Since these zones are rendered inside the field container (`row q-col-gutter-md`), injected components should carry their own grid classes (for example `col-12 col-sm-6 col-md-4`) to align with the generated fields.
 
 ---
 
@@ -217,6 +246,8 @@ Example:
 }
 ```
 
+The same namespace is also passed to the fields of the section and to its `prepend` and `append` zones, so an injected plugin is customized under the same key as the fields surrounding it.
+
 ---
 
 ## **Dependencies**
@@ -224,6 +255,6 @@ Example:
 - `LinidZoneRenderer` (zone injection points)
 - `EntityAttributeField` (dynamic entity attribute rendering)
 - `ButtonsCard` (navigation and form actions)
-- `saveEntity` / `getModuleHostConfiguration` from `@linagora/linid-im-front-corelib`
+- `saveEntity` / `getModuleHostConfiguration` / `uiEventSubject` from `@linagora/linid-im-front-corelib`
 - `useScopedI18n` (translations)
 - `useUiDesign` (UI customization)

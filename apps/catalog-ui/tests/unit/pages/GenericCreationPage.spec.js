@@ -30,8 +30,12 @@ const mockRoute = {
   },
 };
 
+const UPDATE_ENTITY_EVENT_KEY = 'entity-updated';
+
 const mockNotify = vi.fn();
 const mockRouterPush = vi.fn();
+const mockSubscription = { unsubscribe: vi.fn() };
+const mockSubscribe = vi.fn(() => mockSubscription);
 
 const mockModuleOptions = {
   idKey: 'id',
@@ -73,6 +77,9 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
   useUiDesign: () => ({
     ui: () => ({}),
   }),
+  uiEventSubject: {
+    subscribe: (callback) => mockSubscribe(callback),
+  },
 }));
 
 vi.mock('vue-router', () => ({
@@ -82,23 +89,32 @@ vi.mock('vue-router', () => ({
   }),
 }));
 
+/**
+ * Mount the page with every child component stubbed.
+ * @returns The mounted wrapper.
+ */
+function mountPage() {
+  return shallowMount(GenericCreationPage, {
+    global: {
+      stubs: [
+        'ButtonsCard',
+        'EntityAttributeField',
+        'q-form',
+        'q-card',
+        'q-card-section',
+      ],
+    },
+  });
+}
+
 describe('Test component: GenericCreationPage', () => {
   let wrapper;
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockModuleOptions.updateEntityOn = [UPDATE_ENTITY_EVENT_KEY];
 
-    wrapper = shallowMount(GenericCreationPage, {
-      global: {
-        stubs: [
-          'ButtonsCard',
-          'EntityAttributeField',
-          'q-form',
-          'q-card',
-          'q-card-section',
-        ],
-      },
-    });
+    wrapper = mountPage();
   });
 
   describe('Test initialization', () => {
@@ -183,6 +199,154 @@ describe('Test component: GenericCreationPage', () => {
       expect(mockRouterPush).toHaveBeenCalledWith({
         path: '/page',
       });
+    });
+  });
+
+  describe('Test hook: onMounted', () => {
+    it('should subscribe to the UI event bus', () => {
+      expect(mockSubscribe).toHaveBeenCalledTimes(1);
+    });
+
+    it('should merge the event data into the entity when a configured UI event is emitted', () => {
+      wrapper.vm.entity = {
+        code: 'APP',
+      };
+
+      const callback = mockSubscribe.mock.calls[0][0];
+
+      callback({
+        key: UPDATE_ENTITY_EVENT_KEY,
+        data: {
+          name: 'Application',
+        },
+      });
+
+      expect(wrapper.vm.entity).toEqual({
+        code: 'APP',
+        name: 'Application',
+      });
+    });
+
+    it('should overwrite the already filled values with the event data', () => {
+      wrapper.vm.entity = {
+        code: 'APP',
+        name: 'Application',
+      };
+
+      const callback = mockSubscribe.mock.calls[0][0];
+
+      callback({
+        key: UPDATE_ENTITY_EVENT_KEY,
+        data: {
+          name: 'Updated application',
+        },
+      });
+
+      expect(wrapper.vm.entity).toEqual({
+        code: 'APP',
+        name: 'Updated application',
+      });
+    });
+
+    it('should not update the entity for an unrelated UI event', () => {
+      wrapper.vm.entity = {
+        code: 'APP',
+      };
+
+      const callback = mockSubscribe.mock.calls[0][0];
+
+      callback({
+        key: 'unrelated',
+        data: {
+          name: 'Application',
+        },
+      });
+
+      expect(wrapper.vm.entity).toEqual({
+        code: 'APP',
+      });
+    });
+
+    it('should not update the entity when the event data is not an object', () => {
+      wrapper.vm.entity = {
+        code: 'APP',
+      };
+
+      const callback = mockSubscribe.mock.calls[0][0];
+
+      callback({
+        key: UPDATE_ENTITY_EVENT_KEY,
+        data: 'Application',
+      });
+
+      expect(wrapper.vm.entity).toEqual({
+        code: 'APP',
+      });
+    });
+
+    it('should not update the entity when the event data is an array', () => {
+      wrapper.vm.entity = {
+        code: 'APP',
+      };
+
+      const callback = mockSubscribe.mock.calls[0][0];
+
+      callback({
+        key: UPDATE_ENTITY_EVENT_KEY,
+        data: ['Application'],
+      });
+
+      expect(wrapper.vm.entity).toEqual({
+        code: 'APP',
+      });
+    });
+
+    it('should not update the entity when the event data is null', () => {
+      wrapper.vm.entity = {
+        code: 'APP',
+      };
+
+      const callback = mockSubscribe.mock.calls[0][0];
+
+      callback({
+        key: UPDATE_ENTITY_EVENT_KEY,
+        data: null,
+      });
+
+      expect(wrapper.vm.entity).toEqual({
+        code: 'APP',
+      });
+    });
+
+    it('should ignore any UI event when updateEntityOn is not configured', () => {
+      mockModuleOptions.updateEntityOn = undefined;
+
+      const wrapperWithoutOption = mountPage();
+
+      wrapperWithoutOption.vm.entity = {
+        code: 'APP',
+      };
+
+      const callback = mockSubscribe.mock.calls.at(-1)[0];
+
+      callback({
+        key: UPDATE_ENTITY_EVENT_KEY,
+        data: {
+          name: 'Application',
+        },
+      });
+
+      expect(wrapperWithoutOption.vm.entity).toEqual({
+        code: 'APP',
+      });
+    });
+  });
+
+  describe('Test hook: onUnmounted', () => {
+    it('should unsubscribe from the UI event bus', () => {
+      wrapper.unmount();
+
+      expect(mockSubscription.unsubscribe).toHaveBeenCalled();
     });
   });
 });
