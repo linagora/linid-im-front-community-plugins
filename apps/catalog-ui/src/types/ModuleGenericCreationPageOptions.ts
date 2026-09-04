@@ -41,6 +41,12 @@ export interface ModuleGenericCreationPageOptions extends ModulePageOptions {
    * Defines how fields are grouped and ordered in the forms.
    */
   formSections: FormSection[];
+
+  /**
+   * List of UI event keys that trigger an entity update. When one of these events is received, the
+   * event data is merged into the entity state of the page.
+   */
+  updateEntityOn?: string[];
 }
 
 /**
