@@ -116,7 +116,7 @@ The redirect path is generated using the parent route and the identifier returne
 
 ## **Navigation Behavior**
 
-- The header `ButtonsCard` provides a cancel action.
+- The footer `ButtonsCard` provides the cancel action.
 - Cancel navigation redirects the user back to the parent route.
 - The creation page should generally not be exposed in the main navigation menu (`addNavigationMenu` disabled).
 
@@ -131,13 +131,12 @@ The page is composed of:
 - Optional page title, displayed when the `{instanceId}.title` translation exists
 - Header `ButtonsCard` containing:
 
-  - Cancel action
-  - Optional custom actions through zones
+  - Only the custom actions injected through the `header.actions` zone (its own cancel and confirm buttons are disabled)
 
 - Configurable form sections
 - Footer `ButtonsCard` containing:
 
-  - Submit action
+  - Cancel and submit actions
   - Optional custom actions through zones
 
 Each form section card receives:
@@ -158,7 +157,7 @@ Each form section card receives:
 Each field container receives:
 
 ```text
-data-cy="field-container_{fieldName}"
+data-cy="field-container_{id}"
 ```
 
 ---
