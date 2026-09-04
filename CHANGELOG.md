@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.115](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.114...v0.2.115) (2026-09-04)
+
+
+### Features
+
+* **catalog-ui:** add form section zones and updateEntityOn option to GenericCreationPage ([db3141f](https://github.com/linagora/linid-im-front-community-plugins/commit/db3141f5ff1b8507e34622d9fd9f3afda64f8e89))
+
 ### [0.2.114](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.113...v0.2.114) (2026-09-04)
 
 ### [0.2.113](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.112...v0.2.113) (2026-09-02)
