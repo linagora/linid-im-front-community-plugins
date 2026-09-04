@@ -5,7 +5,7 @@
   "dependencies": {
     "@dicebear/core": "10.7.0",
     "@dicebear/styles": "10.6.0",
-    "@linagora/linid-im-front-corelib": "0.0.95",
+    "@linagora/linid-im-front-corelib": "0.0.96",
     "@superset-ui/embedded-sdk": "0.4.0",
     "@vueuse/core": "14.3.0",
     "interactjs": "1.10.27",

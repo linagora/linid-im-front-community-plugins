@@ -27,7 +27,7 @@
 <template>
   <!-- v8 ignore start -->
   <q-input
-    v-model="localValue"
+    v-model="displayValue"
     :data-cy="`field_${definition.name}`"
     class="entity-attribute-date-field"
     type="text"
@@ -38,7 +38,7 @@
     :prefix="translateOrDefault('', 'prefix')"
     :suffix="translateOrDefault('', 'suffix')"
     :rules="rules"
-    @update:model-value="updateValue"
+    @update:model-value="updateValueFromInput"
   >
     <template #append>
       <q-icon
@@ -52,12 +52,12 @@
           transition-hide="scale"
         >
           <q-date
-            v-model="localValue"
+            v-model="displayValue"
             :data-cy="`field_${definition.name}_datepicker`"
             :mask
             :options
             v-bind="uiProps.date"
-            @update:model-value="updateValue"
+            @update:model-value="updateValueFromPicker"
           >
             <div class="row items-center justify-end">
               <q-btn
@@ -89,10 +89,10 @@ import {
   setNestedValue,
   useDayjs,
   useNunjucks,
-  useQuasarDate,
   useQuasarFieldValidation,
   useScopedI18n,
   useUiDesign,
+  useCommonMapper,
 } from '@linagora/linid-im-front-corelib';
 import type { Dayjs } from 'dayjs';
 import type { ValidationRule } from 'quasar';
@@ -118,7 +118,7 @@ const { t, translateOrDefault } = useScopedI18n(localI18nScope);
 const { ui } = useUiDesign();
 const { render } = useNunjucks();
 const { minDate, maxDate } = useDayjs();
-const { toQDateFormat, formatQDate } = useQuasarDate();
+const { formatDate } = useCommonMapper();
 const {
   required,
   validDate,
@@ -129,10 +129,6 @@ const {
   validateFromApi,
 } = useQuasarFieldValidation(localI18nScope);
 const globalT = getI18nInstance().global.t as ComposerTranslation;
-
-const localValue = ref<string | null>(
-  getNestedValue(props.entity, props.definition.name) as string | null
-);
 
 const uiProps = {
   input: ui<LinidQInputProps>(
@@ -153,27 +149,54 @@ const uiProps = {
   ),
 };
 
-watch(
-  () => getNestedValue(props.entity, props.definition.name),
-  (newValue) => {
-    localValue.value = (newValue as string) ?? null;
+const valueFormat = computed(() => {
+  const valueFormatI18NKey = props.definition.inputSettings
+    ?.valueFormatI18NKey as string;
+  if (getI18nInstance().global.te(valueFormatI18NKey)) {
+    // @ts-expect-error - dynamic key, ComposerTranslation blows up type instantiation depth
+    return globalT(valueFormatI18NKey);
   }
-);
+  return props.definition.inputSettings?.valueFormat || QDATE_DEFAULT_MASK;
+});
 
 const mask = computed(() => {
   const maskI18NKey = props.definition.inputSettings?.maskI18NKey as string;
   if (getI18nInstance().global.te(maskI18NKey)) {
-    // @ts-expect-error - dynamic key, ComposerTranslation blows up type instantiation depth
     return globalT(maskI18NKey);
   }
   return props.definition.inputSettings?.mask || QDATE_DEFAULT_MASK;
 });
 
+/**
+ * Converts an entity value to the display format (`mask`) using a
+ * format-less parse, so the entity value is not required to strictly match `valueFormat`.
+ * @param entityValue The raw value read from the entity, or null/undefined when unset.
+ * @returns The value formatted for display, or an empty string when unset or unparseable.
+ */
+function toDisplayValue(entityValue: unknown): string {
+  if (!entityValue) {
+    return '';
+  }
+  const value = entityValue as string;
+  return formatDate(value, mask.value);
+}
+
+const displayValue = ref<string | null>(
+  toDisplayValue(getNestedValue(props.entity, props.definition.name))
+);
+
+watch(
+  () => getNestedValue(props.entity, props.definition.name),
+  (newValue) => {
+    displayValue.value = toDisplayValue(newValue);
+  }
+);
+
 const renderedDefinition = computed(() => {
   const context = {
     entity: props.entity,
     t: (key: string) => globalT(key),
-    today: formatQDate(new Date(), mask.value),
+    today: formatDate(new Date(), valueFormat.value),
   };
 
   return render<LinidAttributeConfiguration<FieldDateSettings>>(
@@ -185,12 +208,12 @@ const renderedDefinition = computed(() => {
 /**
  * Computes a reference date from a date value and an aggregation function.
  * If the value is empty or nullish, returns null. Otherwise, applies the aggregation function
- * to the resolved array of dates and formats the result as a QDate string.
+ * to the resolved array of dates and formats the result in `valueFormat`.
  * @param value - A date string, an array of date strings, or undefined.
  * @param aggregate - A function that takes an array of date strings and returns a single
  * Dayjs instance representing the aggregated value (e.g., minimum or maximum), or null if
  * the aggregation yields no result.
- * @returns A string representing the computed reference date in QDate format, or null if
+ * @returns A string representing the computed reference date in `valueFormat`, or null if
  * the input is empty.
  */
 function computeRef(
@@ -208,9 +231,11 @@ function computeRef(
     return null;
   }
 
-  const result = aggregate(dates, mask.value);
+  const result = aggregate(dates, valueFormat.value);
 
-  return result != null ? formatQDate(result.toISOString(), mask.value) : null;
+  return result != null
+    ? formatDate(result.toISOString(), valueFormat.value)
+    : null;
 }
 
 const dateConstraints = computed(() => {
@@ -255,9 +280,14 @@ const rules = computed(() => {
   }
 
   const rulesFromConstraints: ValidationRule[] =
-    dateConstraints.value?.map(({ dateRef, validator }) =>
-      validator(dateRef as string, mask.value)
-    ) ?? [];
+    dateConstraints.value?.map(({ dateRef, validator }) => {
+      const maskFormattedDateRef = formatDate(
+        dateRef as string,
+        mask.value,
+        valueFormat.value
+      );
+      return validator(maskFormattedDateRef, mask.value);
+    }) ?? [];
 
   if (props.definition.hasValidations) {
     rulesFromConstraints.push(
@@ -271,7 +301,7 @@ const rules = computed(() => {
 const options = computed(() => {
   const predicates =
     dateConstraints.value?.map(({ dateRef, predicate }) => {
-      const ref = toQDateFormat(dateRef as string, mask.value);
+      const ref = formatDate(dateRef as string, mask.value, valueFormat.value);
       return predicate(ref);
     }) ?? [];
 
@@ -281,13 +311,54 @@ const options = computed(() => {
 });
 
 /**
- * Emits an 'update:entity' event with the updated entity object when date value changes.
- * Updates the value of the attribute in the entity using the local reactive value.
+ * Emits an 'update:entity' event with the value (in `mask` display format) converted to `valueFormat`
+ * and written into the entity.
+ * @param value The new date value, in `mask` display format.
  */
-function updateValue() {
+function updateDisplayValue(value: string | number | null) {
   emits(
     'update:entity',
-    setNestedValue(props.entity, props.definition.name, localValue.value)
+    setNestedValue(
+      props.entity,
+      props.definition.name,
+      formatDate(value, valueFormat.value, mask.value)
+    )
   );
+}
+
+/**
+ * Updates the value of the attribute in the entity from the text input.
+ * Ignores incomplete or invalid intermediate values typed by the user, so the entity, and
+ * therefore the displayed value, is not cleared mid-typing; only a complete date matching
+ * `mask`, or an empty value, is propagated.
+ * @param value The new date value.
+ */
+function updateValueFromInput(value: string | number | null) {
+  // null/undefined means the input is empty, same as an empty string.
+  let stringValue = '';
+  if (value != null) {
+    stringValue = String(value);
+  }
+
+  // An empty input clears the field, so we have to update it to empty
+  if (stringValue === '') {
+    updateDisplayValue(value);
+    return;
+  }
+
+  // When the use fill the input, it update nothing until the date is valid
+  if (validDate(mask.value)(stringValue) !== true) {
+    return;
+  }
+  updateDisplayValue(value);
+}
+
+/**
+ * Emits an 'update:entity' event with the updated entity object when date value changes.
+ * Updates the value of the attribute in the entity using the value parameter.
+ * @param value The new date value.
+ */
+function updateValueFromPicker(value: string | null) {
+  updateDisplayValue(value);
 }
 </script>
