@@ -58,7 +58,11 @@
           data-cy="application_version"
         />
         <q-space />
-        <HeaderProfile :ui-namespace="headerUiNamespace" />
+        <HeaderProfile
+          :ui-namespace="headerUiNamespace"
+          :logout-path="logoutPath"
+          :hide-logout="hideLogout"
+        />
       </q-toolbar>
       <q-toolbar
         v-bind="uiProps.toolbar"
@@ -103,14 +107,21 @@ import {
   useScopedI18n,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
-import { useRouter } from 'vue-router';
+import { computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import NavigationMenu from '../components/menu/NavigationMenu.vue';
 import HeaderProfile from '../components/profile/HeaderProfile.vue';
+import type { BaseLayoutRouteMeta } from '../types/baseLayout';
 
 const { ui } = useUiDesign();
 const { t } = useScopedI18n('application');
 const uiStore = useLinidUiStore();
 const router = useRouter();
+const currentRoute = useRoute();
+
+const routeMeta = computed(() => currentRoute.meta as BaseLayoutRouteMeta);
+const logoutPath = computed(() => routeMeta.value.logoutPath ?? '/logout');
+const hideLogout = computed(() => routeMeta.value.hideLogout === true);
 
 const headerUiNamespace = 'base-layout.header';
 
