@@ -19,13 +19,13 @@ It follows the same generic and configurable approach as `GenericTablePage`: the
 
 The page resolves its options from the module host configuration (`getModuleHostConfiguration(instanceId).options`), typed by `ModuleGenericDetailsPageOptions`:
 
-| Option            | Type              | Required | Description                                                                                                                  |
-| ----------------- | ----------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `sections`        | `DetailSection[]` | Yes      | Sections grouping the displayed attributes by category, rendered in the declared order                                       |
-| `editPath`        | `string`          | No       | Nunjucks template of the edit page path, rendered with the loaded `entity` as context; when set, an edit button is displayed |
-| `reloadDetailsOn` | `string[]`        | No       | UI event keys (from the `uiEventSubject` bus) triggering a reload of the entity                                              |
-| `enableActions`   | `boolean`         | No       | Renders the header actions bar: back button, edit button and the `header.actions` zone (default `true`)                      |
-| `parentPath`      | `string`          | Yes      | Route path used to navigate back to the previous page after saving the entity                                                |
+| Option            | Type              | Required | Description                                                                                                                                                                                      |
+| ----------------- | ----------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `sections`        | `DetailSection[]` | Yes      | Sections grouping the displayed attributes by category, rendered in the declared order                                                                                                           |
+| `editPath`        | `string`          | No       | Nunjucks template of the edit page path, rendered with the loaded `entity` as context; when set, an edit button is displayed                                                                     |
+| `reloadDetailsOn` | `string[]`        | No       | UI event keys (from the `uiEventSubject` bus) triggering a reload of the entity                                                                                                                  |
+| `enableActions`   | `boolean`         | No       | Renders the header actions bar: back button, edit button and the `header.actions` zone (default `true`)                                                                                          |
+| `parentPath`      | `string`          | Yes      | Route path used as the back-navigation fallback when there is no browser history. Supports Nunjucks template interpolation with the `entity` variable (e.g. `"/entities/{{ entity.parentId }}"`) |
 
 Each `DetailSection` is defined as:
 
@@ -106,8 +106,14 @@ The `formatters` array contains `FieldFormatter` objects that specify:
 
 - Detail pages should not enable the `addNavigationMenu` module option, so the module stays out of the host main navigation menu (it is disabled by default).
 - The button card displays a cancel button navigating back to the previous page.
-- The navigation uses the browser history when possible, and falls back to the parent route (`basePath`) otherwise.
+- The navigation uses the browser history when possible, and falls back to `parentPath` otherwise.
+- The fallback path is produced by rendering `parentPath` as a Nunjucks template with the loaded entity as context (variable: `entity`). A static path (e.g. `"/applications"`) works as-is; a dynamic path can reference entity fields (e.g. `"/groups/{{ entity.parentId }}/members"`).
 - When `editPath` is set, an edit button redirects to the rendered path (e.g. `/applications/{{ entity.id }}/edit`).
+
+> **Note:** the back navigation is also triggered when the entity fails to load, and at that point
+> no entity has been loaded. A `parentPath` referencing `entity` fields therefore has nothing to
+> interpolate on that path. Prefer a static `parentPath` when the page must degrade to a usable
+> route on load failure.
 
 ---
 
@@ -135,6 +141,8 @@ This page exposes all default generic page zones described in the main **Zones**
 | `{instanceId}.side-right` | Right sidebar of the details page | Metadata, related information     |
 
 Every zone additionally receives the loaded `entity` and the configured `parentPath` — so a plugin rendering its own back navigation does not have to duplicate the path — and the `content.before`, `content.after`, `side-left`, and `side-right` zones also receive `entityId` and `isLoading`.
+
+`parentPath` is forwarded **as configured**, not as a resolved route: the page renders it through Nunjucks only when it navigates itself. A plugin that builds its own back navigation from this prop must therefore render it too, passing the `entity` it also receives as context — `EntityProfilePanel` does exactly this.
 
 ---
 
@@ -166,3 +174,7 @@ The page uses the LinID design system through `useUiDesign()`:
 - `EntityDetailsCard` (attribute rendering)
 - `ButtonsCard` (navigation actions)
 - `getEntityById` / `getModuleHostConfiguration` / `uiEventSubject` from `@linagora/linid-im-front-corelib`
+- `useScopedI18n` (translations)
+- `useNunjucks` (Nunjucks template rendering for `parentPath` and `editPath`)
+- `useUiDesign` (UI customization)
+- `useNotify` (loading error notification)

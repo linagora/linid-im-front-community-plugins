@@ -21,18 +21,18 @@ It follows the same generic and configurable approach as `GenericTablePage` and 
 
 The page resolves its options from the module host configuration (`getModuleHostConfiguration(instanceId).options`), typed by `ModuleGenericEditionPageOptions`.
 
-| Option         | Type            | Required | Description                                                                   |
-| -------------- | --------------- | -------- | ----------------------------------------------------------------------------- |
-| `formSections` | `FormSection[]` | Yes      | Sections grouping the entity attributes displayed in the edition form         |
-| `idKey`        | `string`        | Yes      | Entity attribute used to retrieve the identifier from the entity data         |
-| `parentPath`   | `string`        | Yes      | Route path used to navigate back to the previous page after saving the entity |
+| Option         | Type            | Required | Description                                                                                                                                                                            |
+| -------------- | --------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `formSections` | `FormSection[]` | Yes      | Sections grouping the entity attributes displayed in the edition form                                                                                                                  |
+| `idKey`        | `string`        | Yes      | Entity attribute used to retrieve the identifier from the entity data                                                                                                                  |
+| `parentPath`   | `string`        | Yes      | Route path used to navigate back on cancel and after saving the entity. Supports Nunjucks template interpolation with the `entity` variable (e.g. `"/entities/{{ entity.parentId }}"`) |
 
 Each `FormSection` defines a group of fields rendered in the form.
 
-| Field    | Type                          | Required | Description                                                              |
-| -------- | ----------------------------- | -------- | ------------------------------------------------------------------------ |
-| `id`     | `string`                      | Yes      | Unique section identifier used for translations and UI design namespaces |
-| `fields` | `EntityAttributeDefinition[]` | Yes      | Ordered list of entity attributes rendered inside the section            |
+| Field    | Type                            | Required | Description                                                              |
+| -------- | ------------------------------- | -------- | ------------------------------------------------------------------------ |
+| `id`     | `string`                        | Yes      | Unique section identifier used for translations and UI design namespaces |
+| `fields` | `LinidAttributeConfiguration[]` | Yes      | Ordered list of entity attributes rendered inside the section            |
 
 Example module configuration:
 
@@ -135,21 +135,24 @@ When the form is submitted:
    - A negative notification (`{instanceId}.error`) is displayed.
    - The user remains on the edition page.
 
-The redirect path is the parent route configured in the page options:
+Both success and cancel go through the same back navigation: `parentPath` is rendered as a Nunjucks
+template and pushed as-is, with no identifier appended.
 
 ```text
-{parentPath}/{entity[idKey]}
+{renderString(parentPath, { entity })}
 ```
+
+`entity` is the edited entity state, so the path can reference its fields.
 
 ---
 
 ## **Navigation Behavior**
 
 - The header `ButtonsCard` provides a cancel action.
-- Cancel navigation redirects the user back to the parent route.
+- Cancel navigation redirects the user to the rendered `parentPath`.
 - The edition page should generally not be exposed in the main navigation menu (`addNavigationMenu` disabled).
 
-After successful edition, the user is redirected to the detail page.
+After successful edition, the user is redirected to the same rendered `parentPath` — see [Data Saving](#data-saving).
 
 ---
 

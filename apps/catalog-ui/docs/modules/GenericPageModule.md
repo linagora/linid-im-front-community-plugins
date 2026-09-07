@@ -34,12 +34,15 @@ No additional lifecycle behavior is required beyond this registration step.
 
 ## **🧭 Routing**
 
-The module exposes a federated route structure:
+The module exposes a federated route structure built from two different levels of the host
+configuration:
 
-- `basePath` → root route of the page module
-- `pagePath` → internal page route
-- `layout` → layout component resolved via Module Federation
-- `page` → page component resolved via Module Federation
+| Key        | Location                  | Role                                            |
+| ---------- | ------------------------- | ----------------------------------------------- |
+| `basePath` | module configuration root | Root route the module is mounted at             |
+| `pagePath` | `options`                 | Internal page route, nested under `basePath`    |
+| `layout`   | `options`                 | Layout component resolved via Module Federation |
+| `page`     | `options`                 | Page component resolved via Module Federation   |
 
 This results in a nested route structure:
 
@@ -49,6 +52,9 @@ basePath/
 └── pagePath → page rendered inside layout
 
 ```
+
+`parentPath` is not part of this structure: it is not a mount point but a navigation target,
+read by the page itself when the user cancels or goes back.
 
 ---
 
@@ -100,13 +106,27 @@ or a form dialog through the `uiEventSubject` bus, without declaring anything.
 The module is configured using `ModulePageOptions`:
 
 ```ts
-interface ModulePageOptions {
-  addNavigationMenu?: boolean; // default false
+interface ModulePageOptions extends ModulePageLifecycleHostOptions {
   layout: string; // MF remote/component for layout
   page: string; // MF remote/component for page
+  parentPath: string; // route to return to, e.g. on cancel
   pagePath: string; // route path inside the module
 }
+
+// from @linagora/linid-im-front-corelib
+interface ModulePageLifecycleHostOptions {
+  addNavigationMenu?: boolean; // default false
+}
 ```
+
+`parentPath` supports Nunjucks template interpolation with an `entity` variable, so the
+path can reference fields of the entity being edited (e.g. `"/entities/{{ entity.parentId }}"`).
+Generic pages render it when the user cancels or navigates back.
+
+These options are the shared baseline. Each generic page extends `ModulePageOptions` with
+its own type — `ModuleGenericCreationPageOptions`, `ModuleGenericDetailsPageOptions`, and so
+on — adding page-specific options on top. See [Generic Pages](../generic-pages.md) for the
+per-page contracts.
 
 ---
 

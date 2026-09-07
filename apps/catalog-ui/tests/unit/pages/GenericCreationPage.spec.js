@@ -34,26 +34,36 @@ const UPDATE_ENTITY_EVENT_KEY = 'entity-updated';
 
 const mockNotify = vi.fn();
 const mockRouterPush = vi.fn();
+const mockRenderString = vi.fn((template) => template);
 const mockSubscription = { unsubscribe: vi.fn() };
 const mockSubscribe = vi.fn(() => mockSubscription);
 
-const mockModuleOptions = {
-  idKey: 'id',
-  parentPath: '/page',
-  formSections: [
-    {
-      id: 'identity',
-      fields: [
-        {
-          name: 'code',
-        },
-        {
-          name: 'name',
-        },
-      ],
-    },
-  ],
-};
+/**
+ * Build the module options, fresh on every call so a test cannot leak state into the next one.
+ * @returns The default module options of the page.
+ */
+function createModuleOptions() {
+  return {
+    idKey: 'id',
+    parentPath: '/page',
+    updateEntityOn: [UPDATE_ENTITY_EVENT_KEY],
+    formSections: [
+      {
+        id: 'identity',
+        fields: [
+          {
+            name: 'code',
+          },
+          {
+            name: 'name',
+          },
+        ],
+      },
+    ],
+  };
+}
+
+let mockModuleOptions = createModuleOptions();
 
 vi.mock('@linagora/linid-im-front-corelib', () => ({
   LinidZoneRenderer: {
@@ -76,6 +86,9 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
   }),
   useUiDesign: () => ({
     ui: () => ({}),
+  }),
+  useNunjucks: () => ({
+    renderString: mockRenderString,
   }),
   uiEventSubject: {
     subscribe: (callback) => mockSubscribe(callback),
@@ -112,7 +125,7 @@ describe('Test component: GenericCreationPage', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockModuleOptions.updateEntityOn = [UPDATE_ENTITY_EVENT_KEY];
+    mockModuleOptions = createModuleOptions();
 
     wrapper = mountPage();
   });
@@ -154,6 +167,44 @@ describe('Test component: GenericCreationPage', () => {
       expect(wrapper.vm.isLoading).toBe(false);
     });
 
+    it('should render the parent path with the submitted values merged with the backend response', async () => {
+      wrapper.vm.entity = {
+        parentId: 'parent-1',
+        code: 'APP',
+      };
+
+      await wrapper.vm.save();
+
+      expect(mockRenderString).toHaveBeenCalledWith('/page', {
+        entity: {
+          parentId: 'parent-1',
+          code: 'APP',
+          id: 'created-entity-id',
+        },
+      });
+    });
+
+    it('should support Nunjucks interpolation in the post-save redirect', async () => {
+      mockRenderString.mockReturnValueOnce('/groups/parent-1/members');
+      wrapper.vm.entity = { parentId: 'parent-1' };
+
+      await wrapper.vm.save();
+
+      expect(mockRouterPush).toHaveBeenCalledWith({
+        path: '/groups/parent-1/members/created-entity-id',
+      });
+    });
+
+    it('should append the identifier returned by the backend, ignoring the one submitted in the form', async () => {
+      wrapper.vm.entity = { id: 'typed-in-the-form', code: 'APP' };
+
+      await wrapper.vm.save();
+
+      expect(mockRouterPush).toHaveBeenCalledWith({
+        path: '/page/created-entity-id',
+      });
+    });
+
     it('should notify on save error', async () => {
       vi.mocked(saveEntity).mockRejectedValueOnce(new Error('creation error'));
 
@@ -193,11 +244,27 @@ describe('Test component: GenericCreationPage', () => {
   });
 
   describe('Test function: cancel', () => {
-    it('should navigate to the parent path', () => {
+    it('should navigate to the parent path rendered with the current entity state', () => {
+      wrapper.vm.entity = { code: 'APP' };
+
+      wrapper.vm.cancel();
+
+      expect(mockRenderString).toHaveBeenCalledWith('/page', {
+        entity: { code: 'APP' },
+      });
+      expect(mockRouterPush).toHaveBeenCalledWith({
+        path: '/page',
+      });
+    });
+
+    it('should support Nunjucks interpolation in the parent path', () => {
+      mockRenderString.mockReturnValueOnce('/page/APP');
+      wrapper.vm.entity = { code: 'APP' };
+
       wrapper.vm.cancel();
 
       expect(mockRouterPush).toHaveBeenCalledWith({
-        path: '/page',
+        path: '/page/APP',
       });
     });
   });

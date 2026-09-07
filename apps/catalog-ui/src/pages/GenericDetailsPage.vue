@@ -267,12 +267,16 @@ function goToEdit() {
 /**
  * Navigates back to the previous page, using the browser history when possible and falling back to
  * the parent route otherwise.
+ *
+ * The fallback path is built by rendering `parentPath` as a Nunjucks template with the loaded
+ * entity as context, allowing the redirect URL to reference entity fields
+ * (e.g. `"/entities/{{ entity.parentId }}"`).
  */
 function goBack() {
   if (router.options.history.state.back) {
     router.back();
   } else {
-    router.push(`${parentPath.value}`);
+    router.push(renderString(parentPath.value, { entity: entity.value ?? {} }));
   }
 }
 

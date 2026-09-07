@@ -209,6 +209,7 @@ import {
   saveEntity,
   uiEventSubject,
   useNotify,
+  useNunjucks,
   useScopedI18n,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
@@ -237,6 +238,7 @@ const isLoading = ref(false);
 const { t, te } = useScopedI18n(i18nScope.value);
 const { Notify } = useNotify();
 const { ui } = useUiDesign();
+const { renderString } = useNunjucks();
 
 const uiProps = computed(() => ({
   card: options.value.formSections.reduce<Record<string, LinidQCardProps>>(
@@ -273,7 +275,16 @@ onUnmounted(() => {
 });
 
 /**
- * Save the new entity and redirect to the entity list page.
+ * Save the new entity and redirect to its details page.
+ *
+ * The target path is `parentPath` joined with the identifier returned by the
+ * backend. `parentPath` is rendered as a Nunjucks template with an `entity`
+ * context holding the submitted values merged with the backend response, so the
+ * path can reference server-generated fields
+ * (e.g. `"/entities/{{ entity.parentId }}"`).
+ *
+ * Save failures are notified to the user and swallowed: the returned promise
+ * always resolves.
  * @returns A promise that resolves when the entity creation process is complete.
  */
 function save(): Promise<void> {
@@ -287,8 +298,12 @@ function save(): Promise<void> {
         type: 'positive',
         message: t('success'),
       });
+      const context = {
+        entity: { ...entity.value, ...data },
+      };
+
       router.push({
-        path: `${parentPath.value}/${data[options.value.idKey] as string}`,
+        path: `${renderString(parentPath.value, context)}/${data[options.value.idKey] as string}`,
       });
     })
     .catch(() => {
@@ -303,10 +318,16 @@ function save(): Promise<void> {
 }
 
 /**
- * Cancel the entity creation and redirect to the entity list page.
+ * Cancel the entity creation and navigate back to the parent route.
+ *
+ * The target path is built by rendering `parentPath` as a Nunjucks template
+ * with the current entity state, allowing the redirect URL to reference entity
+ * fields (e.g. `"/entities/{{ entity.parentId }}"`).
  */
 function cancel() {
-  router.push({ path: parentPath.value });
+  router.push({
+    path: renderString(parentPath.value, { entity: entity.value }),
+  });
 }
 </script>
 

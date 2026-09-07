@@ -272,10 +272,14 @@ function save(): Promise<void> {
 
 /**
  * Navigates back to the parent path.
+ *
+ * The target path is built by rendering `parentPath` as a Nunjucks template with the edited entity
+ * as context, allowing the redirect URL to reference entity fields
+ * (e.g. `"/entities/{{ entity.parentId }}"`).
  */
 function goBack() {
   router.push(
-    renderString(options.value.parentPath!, { entity: entity.value ?? {} })
+    renderString(options.value.parentPath, { entity: entity.value ?? {} })
   );
 }
 
