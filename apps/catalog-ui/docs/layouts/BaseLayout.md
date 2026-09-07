@@ -26,6 +26,7 @@ The header contains two toolbars:
 - **QAvatar:** Application logo
 - **QToolbarTitle:** Application title (i18n: `application.title`)
 - **QBadge:** Application version (i18n: `application.version`)
+- **HeaderProfile:** Profile menu with the user information, the language switcher and the logout entry (see [HeaderProfile](../components/profile/HeaderProfile.md))
 
 #### **2. Navigation Toolbar**
 
@@ -42,6 +43,26 @@ The header contains two toolbars:
 
 ---
 
+## **⚙️ Route meta**
+
+The layout has no props. The logout settings of the header profile menu are read from the `meta` of the current route, which Vue Router merges from the layout route down to its children, so they can be declared on the route mounting the layout (through Vue Router directly or through a `LinidRoute` exposed by a module):
+
+| Meta key     | Type      | Default     | Description                                                                 |
+| ------------ | --------- | ----------- | --------------------------------------------------------------------------- |
+| `logoutPath` | `string`  | `'/logout'` | Route the user is sent to once the logout is confirmed, forwarded to header |
+| `hideLogout` | `boolean` | `false`     | Hides the logout entry of the header profile menu                           |
+
+```typescript
+{
+  path: '/',
+  component: 'catalogUI/BaseLayout',
+  meta: { logoutPath: '/auth/logout' },
+  children: [...]
+}
+```
+
+---
+
 ## **🎨 UI Customization**
 
 The component uses hierarchical UI namespaces for styling:
@@ -54,6 +75,7 @@ The component uses hierarchical UI namespaces for styling:
 | Toolbar Title   | `base-layout.header` | `q-toolbar-title`          |
 | Badge           | `base-layout.header` | `q-badge`                  |
 | Navigation Menu | `base-layout.header` | (passed to NavigationMenu) |
+| Header Profile  | `base-layout.header` | (passed to HeaderProfile)  |
 
 Example customization:
 
@@ -75,7 +97,7 @@ ui('base-layout.header', 'q-avatar'); // Customize logo
 
 ## **✅ Advantages**
 
-- **Zero Configuration:** No props required, works out of the box
+- **Zero Configuration:** No props required, works out of the box; the logout settings are optional route meta
 - **Consistency:** Ensures all modules share the same layout style
 - **Type-Safe:** Full TypeScript support with typed UI props
 - **Scalable:** Can be extended with slots or additional features
