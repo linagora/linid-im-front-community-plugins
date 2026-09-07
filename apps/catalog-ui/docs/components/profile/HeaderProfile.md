@@ -1,7 +1,7 @@
 # **HeaderProfile**
 
 The **HeaderProfile** component displays the authenticated user's profile information in the application header.
-It renders a button showing the user's name and, on click, opens a dropdown menu with the full name and email address retrieved from the LinID user store, together with a language switcher that lets the user change the application language.
+It renders a button showing the user's name and, on click, opens a dropdown menu with the full name and email address retrieved from the LinID user store, a language switcher that lets the user change the application language, and a logout entry that asks for a confirmation before sending the user to the host logout route.
 
 ---
 
@@ -10,6 +10,7 @@ It renders a button showing the user's name and, on click, opens a dropdown menu
 - Displays the authenticated user's identity in the header
 - Provides quick access to profile information (name and email) via a dropdown menu
 - Allows the user to switch the application language via a dropdown selector
+- Lets the user log out, after a confirmation, through the host logout route (see [LogoutMenuItem](./LogoutMenuItem.md))
 - Integrates with the LinID user store to reactively reflect the current user state
 - Integrates with the UI store and the corelib i18n helpers to read and update the active locale
 - Integrates with the LinID design system for consistent styling
@@ -19,15 +20,20 @@ It renders a button showing the user's name and, on click, opens a dropdown menu
 
 ## **Props**
 
-| Prop          | Type     | Required | Default | Description                            |
-| ------------- | -------- | -------- | ------- | -------------------------------------- |
-| `uiNamespace` | `string` | Yes      | -       | UI design namespace for custom styling |
-| `i18nScope`   | `string` | No       | -       | i18n scope for translations            |
+| Prop          | Type      | Required | Default     | Description                                            |
+| ------------- | --------- | -------- | ----------- | ------------------------------------------------------ |
+| `uiNamespace` | `string`  | Yes      | -           | UI design namespace for custom styling                 |
+| `i18nScope`   | `string`  | No       | -           | i18n scope for translations                            |
+| `logoutPath`  | `string`  | No       | `'/logout'` | Route the user is sent to once the logout is confirmed |
+| `hideLogout`  | `boolean` | No       | `false`     | Hides the logout entry of the profile menu             |
 
 ### HeaderProfileProps Interface
 
 ```typescript
-export interface HeaderProfileProps extends CommonComponentProps {}
+export interface HeaderProfileProps extends CommonComponentProps {
+  logoutPath?: string;
+  hideLogout?: boolean;
+}
 ```
 
 ---
@@ -69,6 +75,31 @@ If any of these is missing for a given locale, that language will render with a 
 
 ---
 
+## **Logout**
+
+The last entry of the profile menu is the [LogoutMenuItem](./LogoutMenuItem.md) component. It closes the menu, opens the shared confirmation dialog and, once confirmed, navigates to `logoutPath` (default `/logout`). The logout itself is performed by the host route, which keeps the component agnostic of the authentication mechanism (OIDC, SAML, …).
+
+### Host requirements
+
+- A route matching `logoutPath` that performs the logout.
+- A `ConfirmationDialog` mounted in the layout (`BaseLayout` renders the `base-layout.dialogComponent` zone for this purpose).
+- The translation keys under `application.logout` (see [LogoutMenuItem](./LogoutMenuItem.md) and the i18n documentation).
+
+### Disabling or relocating the entry
+
+Both props are forwarded by `BaseLayout`, so a host mounting `BaseLayout` as a route component can pass them through the route `props`:
+
+```typescript
+{
+  path: '/',
+  component: BaseLayout,
+  props: { hideLogout: true }, // or { logoutPath: '/auth/logout' }
+  children: [...]
+}
+```
+
+---
+
 ## **UI Customization**
 
 The component uses the LinID design system through `useUiDesign()`. The local namespace is built as `{uiNamespace}.header-profile`. You can customize:
@@ -79,6 +110,7 @@ The component uses the LinID design system through `useUiDesign()`. The local na
 - **Language selector**: `{uiNamespace}.header-profile` → applies to `q-select`
 - **Language option items**: `{uiNamespace}.header-profile` → applies to `q-item` (merged with Quasar's own option props)
 - **Flag images**: `{uiNamespace}.header-profile` → applies to `q-img`
+- **Logout entry**: `{uiNamespace}.header-profile.logout-menu-item` → see [LogoutMenuItem](./LogoutMenuItem.md) (item, icon, label and confirmation dialog)
 
 > **Note:** The flags are static SVGs served by the host at `/icons/{locale}.svg`; only their `q-img` props (size, ratio, …) are configurable through the design system.
 
@@ -108,6 +140,16 @@ Here is a sample JSON configuration for the design system:
       },
       "q-img": {
         "width": "24px"
+      },
+      "logout-menu-item": {
+        "q-item": { "dense": true },
+        "confirmation-dialog": {
+          "buttons-card": {
+            "confirm-button": {
+              "q-btn": { "color": "primary", "unelevated": true, "outline": false }
+            }
+          }
+        }
       }
     }
   }
@@ -183,6 +225,7 @@ The component includes `data-cy` attributes for Cypress testing:
 - Language selector row: `data-cy="header_profile_language"`
 - Language selector: `data-cy="header_profile_language_select"`
 - Language option (per locale): `data-cy="header_profile_language_option_[LOCALE]"`
+- Logout entry: `data-cy="header_profile_logout"` (see [LogoutMenuItem](./LogoutMenuItem.md) for the dialog attributes)
 
 Example test:
 
@@ -203,7 +246,7 @@ cy.get('[data-cy="header_profile_language_option_en-US"]').click();
 - The component has no fallback display when the user is not authenticated; the parent layout is responsible for rendering it only when a user session exists
 - The template is excluded from v8 coverage (`<!-- v8 ignore start/stop -->`) as it contains only presentation logic
 - **UI namespacing:** The local namespace `{uiNamespace}.header-profile` is derived from the prop, allowing each host application to style the component independently
-- **Host coupling:** The language switcher expects the host to serve flag assets at `/icons/{locale}.svg` and to provide the `application.language.title` and `application.languages.{locale}` translation keys. Reusing this component in another host requires these to be present.
+- **Host coupling:** The language switcher expects the host to serve flag assets at `/icons/{locale}.svg` and to provide the `application.language.title` and `application.languages.{locale}` translation keys; the logout entry expects a `logoutPath` route and the `application.logout` translation keys. Reusing this component in another host requires these to be present.
 
 ---
 
@@ -217,7 +260,8 @@ The component follows a simple reactive read pattern:
 4. **i18n read:** Reads the active locale and the list of available locales from the UI store (`useLinidUiStore().i18n`); resolves the switcher title and the language names via the `application` scope
 5. **Render:** Displays a `q-btn` with the user's name; on click, a `q-menu` shows the full profile info
 6. **Language switch:** On selecting a language, calls the corelib `changeLocale` helper — which applies the locale to vue-i18n (updating the whole UI reactively), reflects it in the store, and persists it — then closes the profile menu. The currently active language is shown but disabled in the list.
-7. **Extension point:** A `LinidZoneRenderer` with zone `{uiNamespace}.header-profile.menu-items` allows plugins to inject additional menu items (e.g. logout, settings)
+7. **Extension point:** A `LinidZoneRenderer` with zone `{uiNamespace}.header-profile.menu-items` allows plugins to inject additional menu items (e.g. settings)
+8. **Logout:** The [LogoutMenuItem](./LogoutMenuItem.md) component closes the menu, asks for a confirmation and navigates to `logoutPath`, unless `hideLogout` is set
 
 This architecture ensures:
 
