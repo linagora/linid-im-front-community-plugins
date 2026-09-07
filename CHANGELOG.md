@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.116](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.115...v0.2.116) (2026-09-07)
+
+
+### Features
+
+* **catalog-ui:** add display value mask for date input ([4f071a2](https://github.com/linagora/linid-im-front-community-plugins/commit/4f071a240e3d4fe1f796a56de87942f9407a1e7e))
+
 ### [0.2.115](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.114...v0.2.115) (2026-09-04)
 
 
