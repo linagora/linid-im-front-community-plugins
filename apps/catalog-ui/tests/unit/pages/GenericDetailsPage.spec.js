@@ -42,17 +42,28 @@ const mockNotify = vi.fn();
 const mockRouterPush = vi.fn();
 const mockRouterBack = vi.fn();
 const mockRouterHistoryState = { back: null };
+const mockRenderString = vi.fn((value, context) =>
+  value.replace('{{ entity.id }}', context.entity?.id ?? '')
+);
 const mockSubscription = { unsubscribe: vi.fn() };
 const mockSubscribe = vi.fn(() => mockSubscription);
-const mockModuleOptions = {
-  sections: [
-    { key: 'identity', fieldOrder: ['code', 'name'] },
-    { key: 'audit', fieldOrder: ['createdBy'], showRemainingFields: true },
-  ],
-  editPath: '/page/{{ entity.id }}/edit',
-  parentPath: '/page',
-  reloadDetailsOn: ['form'],
-};
+/**
+ * Build the module options, fresh on every call so a test cannot leak state into the next one.
+ * @returns The default module options of the page.
+ */
+function createModuleOptions() {
+  return {
+    sections: [
+      { key: 'identity', fieldOrder: ['code', 'name'] },
+      { key: 'audit', fieldOrder: ['createdBy'], showRemainingFields: true },
+    ],
+    editPath: '/page/{{ entity.id }}/edit',
+    parentPath: '/page',
+    reloadDetailsOn: ['form'],
+  };
+}
+
+let mockModuleOptions = createModuleOptions();
 
 vi.mock('@linagora/linid-im-front-corelib', () => ({
   LinidZoneRenderer: { template: '<div />' },
@@ -69,8 +80,7 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
   }),
   useUiDesign: () => ({ ui: () => ({}) }),
   useNunjucks: () => ({
-    renderString: (value, context) =>
-      value.replace('{{ entity.id }}', context.entity.id),
+    renderString: mockRenderString,
   }),
   uiEventSubject: {
     subscribe: (callback) => mockSubscribe(callback),
@@ -86,17 +96,22 @@ vi.mock('vue-router', () => ({
   }),
 }));
 
+function mountPage() {
+  return shallowMount(GenericDetailsPage, {
+    global: {
+      stubs: ['ButtonsCard', 'EntityDetailsCard'],
+    },
+  });
+}
+
 describe('Test component: GenericDetailsPage', () => {
   let wrapper;
 
   beforeEach(() => {
     vi.clearAllMocks();
     mockRouterHistoryState.back = null;
-    wrapper = shallowMount(GenericDetailsPage, {
-      global: {
-        stubs: ['ButtonsCard', 'EntityDetailsCard'],
-      },
-    });
+    mockModuleOptions = createModuleOptions();
+    wrapper = mountPage();
   });
 
   describe('Test function: loadData', () => {
@@ -135,11 +150,25 @@ describe('Test component: GenericDetailsPage', () => {
       expect(mockRouterPush).not.toHaveBeenCalled();
     });
 
-    it('should navigate to the parent path when there is no history entry', () => {
+    it('should navigate to the parent path rendered with the loaded entity when there is no history entry', async () => {
+      await flushPromises();
+
       wrapper.vm.goBack();
 
+      expect(mockRenderString).toHaveBeenCalledWith('/page', {
+        entity: { id: 'test-entity-id' },
+      });
       expect(mockRouterBack).not.toHaveBeenCalled();
       expect(mockRouterPush).toHaveBeenCalledWith('/page');
+    });
+
+    it('should support Nunjucks interpolation in the parent path', async () => {
+      mockModuleOptions.parentPath = '/page/{{ entity.id }}';
+      await flushPromises();
+
+      wrapper.vm.goBack();
+
+      expect(mockRouterPush).toHaveBeenCalledWith('/page/test-entity-id');
     });
   });
 

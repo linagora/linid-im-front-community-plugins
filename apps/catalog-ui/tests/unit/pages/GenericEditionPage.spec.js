@@ -20,7 +20,7 @@
  */
 
 import { getEntityById, updateEntity } from '@linagora/linid-im-front-corelib';
-import { shallowMount } from '@vue/test-utils';
+import { flushPromises, shallowMount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import GenericEditionPage from '../../../src/pages/GenericEditionPage.vue';
 
@@ -35,24 +35,35 @@ const mockRoute = {
 
 const mockNotify = vi.fn();
 const mockRouterPush = vi.fn();
+const mockRenderString = vi.fn((value, context) =>
+  value.replace('{{ entity.id }}', context.entity?.id || '')
+);
 
-const mockModuleOptions = {
-  idKey: 'id',
-  parentPath: '/page/{{ entity.id }}',
-  formSections: [
-    {
-      id: 'identity',
-      fields: [
-        {
-          name: 'code',
-        },
-        {
-          name: 'name',
-        },
-      ],
-    },
-  ],
-};
+/**
+ * Build the module options, fresh on every call so a test cannot leak state into the next one.
+ * @returns The default module options of the page.
+ */
+function createModuleOptions() {
+  return {
+    idKey: 'id',
+    parentPath: '/page/{{ entity.id }}',
+    formSections: [
+      {
+        id: 'identity',
+        fields: [
+          {
+            name: 'code',
+          },
+          {
+            name: 'name',
+          },
+        ],
+      },
+    ],
+  };
+}
+
+let mockModuleOptions = createModuleOptions();
 
 const mockEntity = {
   id: 'entity-123',
@@ -84,9 +95,7 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
     ui: () => ({}),
   }),
   useNunjucks: () => ({
-    renderString: vi.fn((value, context) =>
-      value.replace('{{ entity.id }}', context.entity?.id || '')
-    ),
+    renderString: mockRenderString,
   }),
 }));
 
@@ -97,23 +106,28 @@ vi.mock('vue-router', () => ({
   }),
 }));
 
+function mountPage() {
+  return shallowMount(GenericEditionPage, {
+    global: {
+      stubs: [
+        'ButtonsCard',
+        'EntityAttributeField',
+        'q-form',
+        'q-card',
+        'q-card-section',
+      ],
+    },
+  });
+}
+
 describe('Test component: GenericEditionPage', () => {
   let wrapper;
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockModuleOptions = createModuleOptions();
 
-    wrapper = shallowMount(GenericEditionPage, {
-      global: {
-        stubs: [
-          'ButtonsCard',
-          'EntityAttributeField',
-          'q-form',
-          'q-card',
-          'q-card-section',
-        ],
-      },
-    });
+    wrapper = mountPage();
   });
 
   describe('Test initialization', () => {
@@ -263,6 +277,16 @@ describe('Test component: GenericEditionPage', () => {
       wrapper.vm.goBack();
 
       expect(mockRouterPush).toHaveBeenCalledWith('/page/entity-123');
+    });
+
+    it('should render the parent path with the entity state', async () => {
+      await flushPromises();
+
+      wrapper.vm.goBack();
+
+      expect(mockRenderString).toHaveBeenCalledWith('/page/{{ entity.id }}', {
+        entity: mockEntity,
+      });
     });
   });
 });
