@@ -95,6 +95,11 @@
           </q-item-section>
         </q-item>
         <LinidZoneRenderer :zone="`${localUiNamespace}.menu-items`" />
+        <LogoutMenuItem
+          v-if="!hideLogout"
+          :ui-namespace="localUiNamespace"
+          :path="logoutPath"
+        />
       </q-list>
     </q-menu>
   </q-btn>
@@ -118,11 +123,15 @@ import {
   useScopedI18n,
   changeLocale,
 } from '@linagora/linid-im-front-corelib';
-import { computed, ref, watch } from 'vue';
-import type { CommonComponentProps } from '../../types/common';
 import type { QMenu } from 'quasar';
+import { computed, ref, watch } from 'vue';
+import type { HeaderProfileProps } from '../../types/headerProfile';
+import LogoutMenuItem from './LogoutMenuItem.vue';
 
-const props = defineProps<CommonComponentProps>();
+const props = withDefaults(defineProps<HeaderProfileProps>(), {
+  logoutPath: '/logout',
+  hideLogout: false,
+});
 
 const { ui } = useUiDesign();
 const { t } = useScopedI18n('application');

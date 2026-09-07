@@ -91,6 +91,30 @@ describe('Test component: HeaderProfile', () => {
     });
   });
 
+  describe('Test props: logoutPath', () => {
+    it('should default to the /logout route', () => {
+      expect(wrapper.vm.logoutPath).toBe('/logout');
+    });
+
+    it('should use provided value', async () => {
+      await wrapper.setProps({ logoutPath: '/bye' });
+
+      expect(wrapper.vm.logoutPath).toBe('/bye');
+    });
+  });
+
+  describe('Test props: hideLogout', () => {
+    it('should show the logout entry by default', () => {
+      expect(wrapper.vm.hideLogout).toBe(false);
+    });
+
+    it('should use provided value', async () => {
+      await wrapper.setProps({ hideLogout: true });
+
+      expect(wrapper.vm.hideLogout).toBe(true);
+    });
+  });
+
   describe('Test computed: name', () => {
     it('should return the fullName from the user store', () => {
       expect(wrapper.vm.name).toBe('John Doe');
