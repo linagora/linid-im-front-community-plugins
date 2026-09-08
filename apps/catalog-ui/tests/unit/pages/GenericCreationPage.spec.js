@@ -160,9 +160,7 @@ describe('Test component: GenericCreationPage', () => {
         message: 'success',
       });
 
-      expect(mockRouterPush).toHaveBeenCalledWith({
-        path: '/page/created-entity-id',
-      });
+      expect(mockRouterPush).toHaveBeenCalledWith('/page/created-entity-id');
 
       expect(wrapper.vm.isLoading).toBe(false);
     });
@@ -190,9 +188,9 @@ describe('Test component: GenericCreationPage', () => {
 
       await wrapper.vm.save();
 
-      expect(mockRouterPush).toHaveBeenCalledWith({
-        path: '/groups/parent-1/members/created-entity-id',
-      });
+      expect(mockRouterPush).toHaveBeenCalledWith(
+        '/groups/parent-1/members/created-entity-id'
+      );
     });
 
     it('should append the identifier returned by the backend, ignoring the one submitted in the form', async () => {
@@ -200,9 +198,7 @@ describe('Test component: GenericCreationPage', () => {
 
       await wrapper.vm.save();
 
-      expect(mockRouterPush).toHaveBeenCalledWith({
-        path: '/page/created-entity-id',
-      });
+      expect(mockRouterPush).toHaveBeenCalledWith('/page/created-entity-id');
     });
 
     it('should notify on save error', async () => {
@@ -252,9 +248,20 @@ describe('Test component: GenericCreationPage', () => {
       expect(mockRenderString).toHaveBeenCalledWith('/page', {
         entity: { code: 'APP' },
       });
-      expect(mockRouterPush).toHaveBeenCalledWith({
-        path: '/page',
-      });
+      expect(mockRouterPush).toHaveBeenCalledWith('/page');
+    });
+
+    it('should push the rendered parent path as a string so its query survives', () => {
+      mockModuleOptions.parentPath = '/applications?created=true#summary';
+      wrapper = mountPage();
+
+      wrapper.vm.cancel();
+
+      // vue-router only parses the query and the fragment when the location is a
+      // string: an object `{ path }` keeps the path and silently drops the rest.
+      expect(mockRouterPush).toHaveBeenCalledWith(
+        '/applications?created=true#summary'
+      );
     });
 
     it('should support Nunjucks interpolation in the parent path', () => {
@@ -263,9 +270,7 @@ describe('Test component: GenericCreationPage', () => {
 
       wrapper.vm.cancel();
 
-      expect(mockRouterPush).toHaveBeenCalledWith({
-        path: '/page/APP',
-      });
+      expect(mockRouterPush).toHaveBeenCalledWith('/page/APP');
     });
   });
 
