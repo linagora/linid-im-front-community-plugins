@@ -27,6 +27,7 @@
 import { Avatar } from '@dicebear/core';
 import { flushPromises, shallowMount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { isProxy, reactive } from 'vue';
 import EntityProfilePanel from '../../../../src/components/panel/EntityProfilePanel.vue';
 
 const mockRoute = {
@@ -385,6 +386,27 @@ describe('Test component: EntityProfilePanel', () => {
       expect(w.vm.avatarSrc).toBe(
         'data:image/svg+xml;base64,MOCK_{{ entity.givenName }} {{ entity.sn }}'
       );
+    });
+
+    it('should pass plain style options to DiceBear when avatarOptions is reactive', async () => {
+      createWrapper({
+        entity: { uid: 'john' },
+        avatarOptions: reactive({
+          seed: ['{{ entity.uid }}'],
+          style: 'adventurer',
+          styleOptions: { animationVariant: ['fast', 'medium'] },
+        }),
+      });
+
+      await flushPromises();
+
+      const [, options] = Avatar.mock.calls.at(-1);
+      expect(isProxy(options.animationVariant)).toBe(false);
+      expect(() => structuredClone(options)).not.toThrow();
+      expect(options).toEqual({
+        animationVariant: ['fast', 'medium'],
+        seed: '{{ entity.uid }}',
+      });
     });
 
     it('should set avatarSrc to undefined when the loader rejects', async () => {
