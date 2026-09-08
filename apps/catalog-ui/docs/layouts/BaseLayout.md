@@ -26,6 +26,7 @@ The header contains two toolbars:
 - **QAvatar:** Application logo
 - **QToolbarTitle:** Application title (i18n: `application.title`)
 - **QBadge:** Application version (i18n: `application.version`)
+- **HeaderProfile:** Profile menu with the user information, the language switcher and the logout entry (see [HeaderProfile](../components/profile/HeaderProfile.md))
 
 #### **2. Navigation Toolbar**
 
@@ -42,6 +43,26 @@ The header contains two toolbars:
 
 ---
 
+## **⚙️ Props**
+
+| Prop         | Type      | Required | Default     | Description                                                                 |
+| ------------ | --------- | -------- | ----------- | --------------------------------------------------------------------------- |
+| `logoutPath` | `string`  | No       | `'/logout'` | Route the user is sent to once the logout is confirmed, forwarded to header |
+| `hideLogout` | `boolean` | No       | `false`     | Hides the logout entry of the header profile menu                           |
+
+When `BaseLayout` is mounted as a route component, pass them through the route `props`:
+
+```typescript
+{
+  path: '/',
+  component: BaseLayout,
+  props: { logoutPath: '/auth/logout' },
+  children: [...]
+}
+```
+
+---
+
 ## **🎨 UI Customization**
 
 The component uses hierarchical UI namespaces for styling:
@@ -54,6 +75,7 @@ The component uses hierarchical UI namespaces for styling:
 | Toolbar Title   | `base-layout.header` | `q-toolbar-title`          |
 | Badge           | `base-layout.header` | `q-badge`                  |
 | Navigation Menu | `base-layout.header` | (passed to NavigationMenu) |
+| Header Profile  | `base-layout.header` | (passed to HeaderProfile)  |
 
 Example customization:
 
@@ -75,7 +97,7 @@ ui('base-layout.header', 'q-avatar'); // Customize logo
 
 ## **✅ Advantages**
 
-- **Zero Configuration:** No props required, works out of the box
+- **Zero Configuration:** Works out of the box, the only props are optional logout settings
 - **Consistency:** Ensures all modules share the same layout style
 - **Type-Safe:** Full TypeScript support with typed UI props
 - **Scalable:** Can be extended with slots or additional features

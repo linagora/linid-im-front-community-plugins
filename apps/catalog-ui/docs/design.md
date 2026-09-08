@@ -89,6 +89,50 @@ User profile button displayed in the application header, including a language sw
 
 ---
 
+### LogoutMenuItem
+
+Logout entry rendered by default at the end of the HeaderProfile menu. Opens a confirmation dialog before navigating to the host logout route. Its namespace is nested in the one of HeaderProfile.
+
+**Namespace:** `{uiNamespace}.logout-menu-item`
+
+```json
+{
+  "base-layout": {
+    "header": {
+      "header-profile": {
+        "logout-menu-item": {
+          "q-separator": {},
+          "q-item": { "dense": true },
+          "icon": {
+            "q-item-section": { "avatar": true },
+            "q-icon": { "name": "logout" }
+          },
+          "label": {
+            "q-item-section": {},
+            "q-item-label": {}
+          },
+          "confirmation-dialog": {
+            "q-dialog": { "persistent": false },
+            "buttons-card": {
+              "confirm-button": {
+                "q-btn": { "color": "primary", "unelevated": true, "outline": false }
+              },
+              "cancel-button": {
+                "q-btn": { "color": "primary", "outline": true }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+> **Note:** `icon.q-item-section.avatar` defaults to `true` and `icon.q-icon.name` to `logout` when not configured.
+
+---
+
 ### NavigationMenu
 
 Tab-based navigation menu for routing between modules. This component is a child of BaseLayout.
@@ -1379,7 +1423,16 @@ A full example showing all CatalogUI components configured together:
         "q-item-label": { "caption": true },
         "q-img": {},
         "q-select": {},
-        "q-item": {}
+        "q-item": {},
+        "logout-menu-item": {
+          "q-item": { "dense": true },
+          "icon": { "q-icon": { "name": "logout" } },
+          "confirmation-dialog": {
+            "buttons-card": {
+              "confirm-button": { "q-btn": { "color": "primary", "unelevated": true } }
+            }
+          }
+        }
       },
       "navigation-menu": {
         "q-tabs": { "dense": false, "align": "left", "noCaps": true },

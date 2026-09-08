@@ -110,6 +110,8 @@ The library organizes components by category. For each component, documentation 
 
 - 👤 **HeaderProfile** — User profile button for the application header, displaying the authenticated user's name and email from the LinID user store
   → Documentation is inside: [`HeaderProfile.md`](./docs/components/profile/HeaderProfile.md)
+- 🚪 **LogoutMenuItem** — Logout entry rendered by HeaderProfile, with a confirmation dialog before navigating to the host logout route
+  → Documentation is inside: [`LogoutMenuItem.md`](./docs/components/profile/LogoutMenuItem.md)
 
 ### **Panel Components**
 
