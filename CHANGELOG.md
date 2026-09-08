@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.117](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.116...v0.2.117) (2026-09-08)
+
+
+### Features
+
+* **catalog-ui:** add a successPath option to GenericCreationPage ([8bed2dc](https://github.com/linagora/linid-im-front-community-plugins/commit/8bed2dcb7ce674b783bd8dc0a96ba8d563fbea06))
+* **catalog-ui:** add the query string to the redirect template context ([5e40dfe](https://github.com/linagora/linid-im-front-community-plugins/commit/5e40dfe5be1e5e9cc42221cf444c04409a3bb44b))
+* **catalog-ui:** render generic page redirect paths as Nunjucks templates ([c9059af](https://github.com/linagora/linid-im-front-community-plugins/commit/c9059afa05d2646f3dd6b4a5f9a67cd59602fab7))
+
+
+### Bug Fixes
+
+* **catalog-ui:** push GenericCreationPage redirects as strings ([d7f772b](https://github.com/linagora/linid-im-front-community-plugins/commit/d7f772b962b7c6338ef01a8978d101a77ba1441c))
+
 ### [0.2.116](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.115...v0.2.116) (2026-09-07)
 
 
