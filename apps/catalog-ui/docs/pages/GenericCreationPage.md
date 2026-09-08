@@ -13,7 +13,7 @@ It follows the same generic and configurable approach as `GenericTablePage` and 
 - Group form fields into ordered sections, extensible through zones
 - Let injected plugins feed the edited entity through the UI event bus
 - Handle entity persistence through the generic entity creation mechanism
-- Redirect the user to the created entity details page after successful creation
+- Redirect the user to the created entity details page after successful creation, or to a configurable path
 
 ---
 
@@ -21,12 +21,13 @@ It follows the same generic and configurable approach as `GenericTablePage` and 
 
 The page resolves its options from the module host configuration (`getModuleHostConfiguration(instanceId).options`), typed by `ModuleGenericCreationPageOptions`.
 
-| Option           | Type            | Required | Description                                                                                                                                                                                                                   |
-| ---------------- | --------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `formSections`   | `FormSection[]` | Yes      | Sections grouping the entity attributes displayed in the creation form                                                                                                                                                        |
-| `idKey`          | `string`        | Yes      | Entity attribute used to retrieve the identifier of the created entity after saving                                                                                                                                           |
-| `parentPath`     | `string`        | Yes      | Route path used to navigate back to the previous page after saving the entity, and on cancel. Supports Nunjucks template interpolation with the `entity` and `query` variables (e.g. `"/groups/{{ query.groupId }}/members"`) |
-| `updateEntityOn` | `string[]`      | No       | UI event keys (from the `uiEventSubject` bus) whose payload is merged into the edited entity                                                                                                                                  |
+| Option           | Type            | Required | Description                                                                                                                                                                                                                            |
+| ---------------- | --------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `formSections`   | `FormSection[]` | Yes      | Sections grouping the entity attributes displayed in the creation form                                                                                                                                                                 |
+| `idKey`          | `string`        | Yes      | Entity attribute used to retrieve the identifier of the created entity after saving                                                                                                                                                    |
+| `parentPath`     | `string`        | Yes      | Route path used for the cancel redirect, and for the post-save redirect when `successPath` is not set. Supports Nunjucks template interpolation with the `entity` and `query` variables (e.g. `"/groups/{{ query.groupId }}/members"`) |
+| `successPath`    | `string`        | No       | Route path the user is redirected to after a successful creation, overriding the default details page redirect. Supports the same Nunjucks interpolation as `parentPath`                                                               |
+| `updateEntityOn` | `string[]`      | No       | UI event keys (from the `uiEventSubject` bus) whose payload is merged into the edited entity                                                                                                                                           |
 
 Each `FormSection` defines a group of fields rendered in the form.
 
@@ -121,20 +122,26 @@ When the form is submitted:
 3. On success:
 
 - A positive notification (`{instanceId}.success`) is displayed.
-- The user is redirected to the created entity details page using the returned identifier.
+- The user is redirected to `successPath` when configured, and otherwise to the created entity details page using the returned identifier.
 
 4. On failure:
 
 - A negative notification (`{instanceId}.error`) is displayed.
 - The user remains on the creation page.
 
-The redirect path is generated by rendering `parentPath` as a Nunjucks template, then appending the identifier returned from the backend:
+By default, the redirect path is generated by rendering `parentPath` as a Nunjucks template, then appending the identifier of the created entity:
 
 ```text
-{renderString(parentPath, { entity, query })}/{data[idKey]}
+{renderString(parentPath, { entity, query })}/{entity[idKey]}
 ```
 
-`entity` is the submitted entity merged with the backend response (the response takes precedence), and `query` holds the query string the creation page was reached with. A templated path can therefore reference the fields typed in the form, the ones generated server-side — regardless of whether the backend echoes the full entity back — and the parent identifiers carried by the URL:
+When `successPath` is configured, it replaces that path entirely: it is rendered as a Nunjucks template and used as-is, with no identifier appended.
+
+```text
+{renderString(successPath, { entity, query })}
+```
+
+In both cases, `entity` is the submitted entity merged with the backend response (the response takes precedence), and `query` holds the query string the creation page was reached with. A templated path can therefore reference the fields typed in the form, the ones generated server-side — regardless of whether the backend echoes the full entity back — and the parent identifiers carried by the URL:
 
 ```json
 {
@@ -144,7 +151,22 @@ The redirect path is generated by rendering `parentPath` as a Nunjucks template,
 }
 ```
 
-The rendered path is handed to the router as a string, not as `{ path }`: vue-router only parses a query string and a fragment in the string form, so `"/applications?created=true#summary"` arrives intact. This holds for both the post-save and the cancel redirect.
+Use `successPath` when the entity has no details page to land on, or when creation should chain into a follow-up step instead of ending on the entity itself:
+
+```json
+{
+  "options": {
+    "parentPath": "/applications",
+    "successPath": "/applications/{{ entity.id }}/permissions"
+  }
+}
+```
+
+Cancel still returns to `/applications`, while a successful creation lands directly on the permissions step of the newly created application. To send the user back to the listing instead, set `successPath` to the same value as `parentPath`.
+
+Both redirects are pushed to the router as a string, so a rendered path may carry a query string and a fragment — `"/applications?created={{ entity.id }}#summary"` arrives intact. The same holds for the cancel redirect.
+
+The identifier appended at the end of the default path is read from the merged context, exactly like a `{{ entity[idKey] }}` interpolation would be. It therefore resolves whether the backend generated the identifier or the user typed it in the form, and a response without a body does not break the redirect.
 
 ---
 
@@ -156,7 +178,7 @@ The rendered path is handed to the router as a string, not as `{ path }`: vue-ro
 - Cancel can fire before the form is touched, and `entity` is empty until then. A `parentPath` interpolating `entity` therefore renders an empty segment on an immediate cancel — use `query` for anything identifying the parent route.
 - The creation page should generally not be exposed in the main navigation menu (`addNavigationMenu` disabled).
 
-After successful creation, the user is redirected to the details page of the newly created entity.
+After successful creation, the user is redirected to the details page of the newly created entity, unless `successPath` is configured — see [Data Saving](#data-saving).
 
 ---
 
@@ -271,5 +293,5 @@ The same namespace is also passed to the fields of the section and to its `prepe
 - `ButtonsCard` (navigation and form actions)
 - `saveEntity` / `getModuleHostConfiguration` / `uiEventSubject` from `@linagora/linid-im-front-corelib`
 - `useScopedI18n` (translations)
-- `useNunjucks` (Nunjucks template rendering for `parentPath`)
+- `useNunjucks` (Nunjucks template rendering for `parentPath` and `successPath`)
 - `useUiDesign` (UI customization)

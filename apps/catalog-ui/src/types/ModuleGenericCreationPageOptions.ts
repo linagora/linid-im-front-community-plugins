@@ -47,6 +47,14 @@ export interface ModuleGenericCreationPageOptions extends ModulePageOptions {
    * event data is merged into the entity state of the page.
    */
   updateEntityOn?: string[];
+
+  /**
+   * The path to navigate to after successfully creating an entity.
+   *
+   * Supports the same Nunjucks interpolation as `parentPath`, with `entity` holding the submitted
+   * values merged with the backend response (e.g. `"/applications/{{ entity.id }}/permissions"`).
+   */
+  successPath?: string;
 }
 
 /**

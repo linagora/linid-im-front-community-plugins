@@ -231,6 +231,7 @@ const moduleConfig = computed(() =>
 );
 const options = computed(() => moduleConfig.value.options);
 const parentPath = computed(() => options.value.parentPath);
+const successPath = computed(() => options.value.successPath);
 
 const entity = ref<Record<string, unknown>>({});
 const isLoading = ref(false);
@@ -275,14 +276,20 @@ onUnmounted(() => {
 });
 
 /**
- * Save the new entity and redirect to its details page.
+ * Save the new entity and redirect on success.
  *
- * The target path is `parentPath` joined with the identifier returned by the
- * backend. `parentPath` is rendered as a Nunjucks template with a context
+ * The target path is `successPath` when configured, otherwise the details page
+ * of the created entity (`parentPath` joined with the identifier returned by the
+ * backend). Both options are rendered as Nunjucks templates with a context
  * holding the submitted values merged with the backend response (`entity`) and
  * the current query string (`query`), so the path can reference server-generated
  * fields as well as the parent identifiers carried by the URL
  * (e.g. `"/groups/{{ query.groupId }}/members"`).
+ *
+ * The appended identifier is read from that same merged context, exactly like a
+ * `{{ entity[idKey] }}` interpolation would be, so it resolves whether the
+ * backend generated it or the user typed it in the form — a response without a
+ * body does not break the redirect.
  *
  * The rendered path is pushed as a string rather than as `{ path }`: vue-router
  * only parses the query and the fragment in the string form, and silently drops
@@ -303,14 +310,16 @@ function save(): Promise<void> {
         type: 'positive',
         message: t('success'),
       });
+
       const context = {
         entity: { ...entity.value, ...data },
         query: route.query,
       };
+      const redirectPath = successPath.value
+        ? renderString(successPath.value, context)
+        : `${renderString(parentPath.value, context)}/${context.entity[options.value.idKey] as string}`;
 
-      router.push(
-        `${renderString(parentPath.value, context)}/${data[options.value.idKey] as string}`
-      );
+      router.push(redirectPath);
     })
     .catch(() => {
       Notify({
