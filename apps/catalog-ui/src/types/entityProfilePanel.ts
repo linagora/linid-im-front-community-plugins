@@ -44,6 +44,7 @@ export interface AvatarOptions {
   style: string;
   /**
    * Style-specific options forwarded to DiceBear (backgroundColor, radius, etc.).
+   * Must be plain, structured-cloneable data: DiceBear deep-clones the object with structuredClone.
    */
   styleOptions?: Record<string, unknown>;
 }

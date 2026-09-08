@@ -120,7 +120,7 @@ When `avatarOptions` is set, the component generates a deterministic SVG avatar 
 
 - **`seed`** _(required)_: array of Nunjucks templates rendered with `{ entity }` and joined — the concatenated string is the seed passed to DiceBear, so two entities with different attributes produce different avatars.
 - **`style`** _(required)_: the DiceBear style name, e.g. `"adventurer"`, `"bottts"`, `"lorelei"` — must match a style exported by `@dicebear/styles`.
-- **`styleOptions`** _(optional)_: additional options forwarded verbatim to DiceBear (e.g. `backgroundColor`, `radius`).
+- **`styleOptions`** _(optional)_: additional options forwarded to DiceBear (e.g. `backgroundColor`, `radius`) — must be plain, structured-cloneable data, as DiceBear deep-clones the object with `structuredClone`.
 
 If the style is not recognised or avatar generation fails for any reason, `avatarSrc` is set to `undefined` and the avatar circle shows the fallback `q-icon` instead.
 
