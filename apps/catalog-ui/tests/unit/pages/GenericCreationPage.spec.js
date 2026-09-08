@@ -197,12 +197,72 @@ describe('Test component: GenericCreationPage', () => {
       );
     });
 
+    it('should redirect to successPath instead of the details page when configured', async () => {
+      mockModuleOptions.successPath = '/applications';
+      wrapper = mountPage();
+      wrapper.vm.entity = {
+        code: 'APP',
+      };
+
+      await wrapper.vm.save();
+
+      expect(mockRouterPush).toHaveBeenCalledWith('/applications');
+    });
+
+    it('should render successPath with the submitted values merged with the backend response', async () => {
+      mockModuleOptions.successPath = '/groups/{{ entity.parentId }}';
+      mockRenderString.mockReturnValueOnce('/groups/parent-1');
+      wrapper = mountPage();
+      wrapper.vm.entity = {
+        parentId: 'parent-1',
+        code: 'APP',
+      };
+
+      await wrapper.vm.save();
+
+      expect(mockRenderString).toHaveBeenCalledWith(
+        '/groups/{{ entity.parentId }}',
+        {
+          entity: {
+            parentId: 'parent-1',
+            code: 'APP',
+            id: 'created-entity-id',
+          },
+          query: { groupId: 'group-1' },
+        }
+      );
+
+      expect(mockRouterPush).toHaveBeenCalledWith('/groups/parent-1');
+    });
+
     it('should append the identifier returned by the backend, ignoring the one submitted in the form', async () => {
       wrapper.vm.entity = { id: 'typed-in-the-form', code: 'APP' };
 
       await wrapper.vm.save();
 
       expect(mockRouterPush).toHaveBeenCalledWith('/page/created-entity-id');
+    });
+
+    it('should append the identifier read from the merged context when the backend returns no body', async () => {
+      vi.mocked(saveEntity).mockResolvedValueOnce({});
+      wrapper.vm.entity = { id: 'typed-in-the-form', code: 'APP' };
+
+      await wrapper.vm.save();
+
+      expect(mockRouterPush).toHaveBeenCalledWith('/page/typed-in-the-form');
+    });
+
+    it('should push the rendered successPath as a string so its query survives', async () => {
+      mockModuleOptions.successPath = '/applications?created=true#summary';
+      wrapper = mountPage();
+
+      await wrapper.vm.save();
+
+      // vue-router only parses the query and the fragment when the location is a
+      // string: an object `{ path }` keeps the path and silently drops the rest.
+      expect(mockRouterPush).toHaveBeenCalledWith(
+        '/applications?created=true#summary'
+      );
     });
 
     it('should notify on save error', async () => {
@@ -254,19 +314,6 @@ describe('Test component: GenericCreationPage', () => {
         query: { groupId: 'group-1' },
       });
       expect(mockRouterPush).toHaveBeenCalledWith('/page');
-    });
-
-    it('should push the rendered parent path as a string so its query survives', () => {
-      mockModuleOptions.parentPath = '/applications?created=true#summary';
-      wrapper = mountPage();
-
-      wrapper.vm.cancel();
-
-      // vue-router only parses the query and the fragment when the location is a
-      // string: an object `{ path }` keeps the path and silently drops the rest.
-      expect(mockRouterPush).toHaveBeenCalledWith(
-        '/applications?created=true#summary'
-      );
     });
 
     it('should support Nunjucks interpolation in the parent path', () => {
