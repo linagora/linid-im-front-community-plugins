@@ -21,11 +21,11 @@ It follows the same generic and configurable approach as `GenericTablePage` and 
 
 The page resolves its options from the module host configuration (`getModuleHostConfiguration(instanceId).options`), typed by `ModuleGenericEditionPageOptions`.
 
-| Option         | Type            | Required | Description                                                                                                                                                                            |
-| -------------- | --------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `formSections` | `FormSection[]` | Yes      | Sections grouping the entity attributes displayed in the edition form                                                                                                                  |
-| `idKey`        | `string`        | Yes      | Entity attribute used to retrieve the identifier from the entity data                                                                                                                  |
-| `parentPath`   | `string`        | Yes      | Route path used to navigate back on cancel and after saving the entity. Supports Nunjucks template interpolation with the `entity` variable (e.g. `"/entities/{{ entity.parentId }}"`) |
+| Option         | Type            | Required | Description                                                                                                                                                                                             |
+| -------------- | --------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `formSections` | `FormSection[]` | Yes      | Sections grouping the entity attributes displayed in the edition form                                                                                                                                   |
+| `idKey`        | `string`        | Yes      | Entity attribute used to retrieve the identifier from the entity data                                                                                                                                   |
+| `parentPath`   | `string`        | Yes      | Route path used to navigate back on cancel and after saving the entity. Supports Nunjucks template interpolation with the `entity` and `query` variables (e.g. `"/groups/{{ query.groupId }}/members"`) |
 
 Each `FormSection` defines a group of fields rendered in the form.
 
@@ -139,10 +139,12 @@ Both success and cancel go through the same back navigation: `parentPath` is ren
 template and pushed as-is, with no identifier appended.
 
 ```text
-{renderString(parentPath, { entity })}
+{renderString(parentPath, { entity, query })}
 ```
 
-`entity` is the edited entity state, so the path can reference its fields.
+`entity` is the edited entity state and `query` the query string of the edition page. Prefer
+`query` for the segments identifying the parent route — it is read from the URL, so it resolves even
+when the entity failed to load.
 
 ---
 

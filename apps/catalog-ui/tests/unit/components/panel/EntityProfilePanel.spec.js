@@ -29,6 +29,12 @@ import { flushPromises, shallowMount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import EntityProfilePanel from '../../../../src/components/panel/EntityProfilePanel.vue';
 
+const mockRoute = {
+  query: {
+    groupId: 'group-1',
+  },
+};
+
 const {
   mockPush,
   mockRender,
@@ -53,6 +59,7 @@ const {
 });
 
 vi.mock('vue-router', () => ({
+  useRoute: () => mockRoute,
   useRouter: () => ({ push: mockPush }),
 }));
 
@@ -600,10 +607,13 @@ describe('Test component: EntityProfilePanel', () => {
   });
 
   describe('Test function: goBack', () => {
-    it('should render parentPath as a Nunjucks template with the entity as context', () => {
+    it('should render parentPath as a Nunjucks template with the entity and query string as context', () => {
       wrapper.vm.goBack();
 
-      expect(mockRender).toHaveBeenCalledWith('/users', { entity: {} });
+      expect(mockRender).toHaveBeenCalledWith('/users', {
+        entity: {},
+        query: { groupId: 'group-1' },
+      });
     });
 
     it('should navigate to the rendered parentPath', () => {
@@ -618,7 +628,26 @@ describe('Test component: EntityProfilePanel', () => {
 
       wrapper.vm.goBack();
 
-      expect(mockRender).toHaveBeenCalledWith('/users', { entity });
+      expect(mockRender).toHaveBeenCalledWith('/users', {
+        entity,
+        query: { groupId: 'group-1' },
+      });
+    });
+
+    it('should resolve a parentPath templated on the query string without any entity', async () => {
+      const parentPath = '/groups/{{ query.groupId }}/members';
+      await wrapper.setProps({ parentPath });
+      mockRender.mockImplementationOnce((template, context) =>
+        template.replace('{{ query.groupId }}', context.query?.groupId ?? '')
+      );
+
+      wrapper.vm.goBack();
+
+      expect(mockRender).toHaveBeenCalledWith(parentPath, {
+        entity: {},
+        query: { groupId: 'group-1' },
+      });
+      expect(mockPush).toHaveBeenCalledWith('/groups/group-1/members');
     });
 
     it('should navigate to the updated parentPath', async () => {

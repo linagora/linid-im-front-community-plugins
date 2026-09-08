@@ -119,9 +119,20 @@ interface ModulePageLifecycleHostOptions {
 }
 ```
 
-`parentPath` supports Nunjucks template interpolation with an `entity` variable, so the
-path can reference fields of the entity being edited (e.g. `"/entities/{{ entity.parentId }}"`).
-Generic pages render it when the user cancels or navigates back.
+`parentPath` supports Nunjucks template interpolation with two variables, so the path can be built
+from the current context instead of being hardcoded. Generic pages render it when the user cancels
+or navigates back.
+
+| Variable | Content                                                     |
+| -------- | ----------------------------------------------------------- |
+| `entity` | Current entity state of the page (`{}` when none is loaded) |
+| `query`  | Query string of the current page (`route.query`)            |
+
+Prefer `query` for the segments identifying the parent route — `"/groups/{{ query.groupId }}/members"`.
+A generic page route is `basePath` + `pagePath` and declares no parent segment, so `route.params`
+holds nothing usable for one: the query string is where such an identifier travels. `entity` is
+empty on a creation page until the form is filled, and on a details page whose entity failed to
+load.
 
 These options are the shared baseline. Each generic page extends `ModulePageOptions` with
 its own type — `ModuleGenericCreationPageOptions`, `ModuleGenericDetailsPageOptions`, and so

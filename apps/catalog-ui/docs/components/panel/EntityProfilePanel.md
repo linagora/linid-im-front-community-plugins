@@ -11,7 +11,7 @@ The component uses the `EntityProfilePanelProps` interface, which extends `Commo
 | Prop               | Type                            | Required | Default | Description                                                                                                                                                        |
 | ------------------ | ------------------------------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `entity`           | `Record<string, unknown>`       | No       | `{}`    | Entity whose profile is displayed                                                                                                                                  |
-| `parentPath`       | `string`                        | No       | —       | Back-button route, passed through Nunjucks with an `entity` context (plain strings are also valid). When missing, the back button is not rendered                  |
+| `parentPath`       | `string`                        | No       | —       | Back-button route, passed through Nunjucks with an `entity` and `query` context (plain strings are also valid). When missing, the back button is not rendered      |
 | `instanceId`       | `string`                        | No       | —       | Forwarded to every plugin zone, and used as a fallback prefix for the namespace and the scope                                                                      |
 | `statusKey`        | `string`                        | No       | —       | Entity key holding the status forwarded to `StatusBadge`. When absent, no badge is rendered. Requires `enableAvatar`                                               |
 | `fieldOrder`       | `string[]`                      | No       | —       | **Exhaustive** list of the attributes displayed in the details card, in that order                                                                                 |
@@ -140,9 +140,10 @@ The `q-img` is bound to the UI namespace under the `q-img` target — its Quasar
 
 ## **Back Navigation**
 
-When `parentPath` is set, the back button calls `router.push` with the result of passing the path through Nunjucks with a context containing `entity` (the current entity prop). The path may embed entity attributes using Nunjucks expressions:
+When `parentPath` is set, the back button calls `router.push` with the result of passing the path through Nunjucks with a context containing `entity` (the current entity prop) and `query` (the current query string). This is the same context the generic pages use, so a `parentPath` forwarded by a page resolves identically whether the page or the panel renders it. The path may embed either variable:
 
 ```
+/users/{{ query.groupId }}/members
 /users/{{ entity.groupId }}/members
 ```
 
