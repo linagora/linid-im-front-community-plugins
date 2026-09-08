@@ -277,7 +277,7 @@ import {
   useScopedI18n,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
-import { computed, ref, watchEffect } from 'vue';
+import { computed, ref, toRaw, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { loadDiceBearStyle } from '../../services/diceBearLoaderService';
 import type {
@@ -382,8 +382,10 @@ watchEffect(async (onCleanup) => {
       return;
     }
 
+    // DiceBear clones its options with structuredClone, which throws on the reactive
+    // proxies wrapping zone props: hand it the raw object.
     avatarSrc.value = new Avatar(loadedStyle, {
-      ...(styleOptions ?? {}),
+      ...toRaw(styleOptions ?? {}),
       seed: renderedSeed,
     }).toDataUri();
   } catch {
