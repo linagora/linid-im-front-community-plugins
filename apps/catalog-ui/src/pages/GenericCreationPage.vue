@@ -283,6 +283,10 @@ onUnmounted(() => {
  * path can reference server-generated fields
  * (e.g. `"/entities/{{ entity.parentId }}"`).
  *
+ * The rendered path is pushed as a string rather than as `{ path }`: vue-router
+ * only parses the query and the fragment in the string form, and silently drops
+ * them from an object `path`.
+ *
  * Save failures are notified to the user and swallowed: the returned promise
  * always resolves.
  * @returns A promise that resolves when the entity creation process is complete.
@@ -302,9 +306,9 @@ function save(): Promise<void> {
         entity: { ...entity.value, ...data },
       };
 
-      router.push({
-        path: `${renderString(parentPath.value, context)}/${data[options.value.idKey] as string}`,
-      });
+      router.push(
+        `${renderString(parentPath.value, context)}/${data[options.value.idKey] as string}`
+      );
     })
     .catch(() => {
       Notify({
@@ -323,11 +327,12 @@ function save(): Promise<void> {
  * The target path is built by rendering `parentPath` as a Nunjucks template
  * with the current entity state, allowing the redirect URL to reference entity
  * fields (e.g. `"/entities/{{ entity.parentId }}"`).
+ *
+ * Pushed as a string for the same reason as the post-save redirect: the object
+ * `{ path }` form drops any query or fragment carried by the rendered path.
  */
 function cancel() {
-  router.push({
-    path: renderString(parentPath.value, { entity: entity.value }),
-  });
+  router.push(renderString(parentPath.value, { entity: entity.value }));
 }
 </script>
 

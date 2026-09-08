@@ -144,6 +144,8 @@ The template context is the submitted entity merged with the backend response (t
 }
 ```
 
+The rendered path is handed to the router as a string, not as `{ path }`: vue-router only parses a query string and a fragment in the string form, so `"/applications?created=true#summary"` arrives intact. This holds for both the post-save and the cancel redirect.
+
 ---
 
 ## **Navigation Behavior**
