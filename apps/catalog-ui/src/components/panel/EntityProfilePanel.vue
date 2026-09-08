@@ -382,8 +382,10 @@ watchEffect(async (onCleanup) => {
       return;
     }
 
+    // DiceBear clones its options with structuredClone, which throws on the reactive
+    // proxies wrapping zone props: hand it plain data only.
     avatarSrc.value = new Avatar(loadedStyle, {
-      ...(styleOptions ?? {}),
+      ...JSON.parse(JSON.stringify(styleOptions ?? {})),
       seed: renderedSeed,
     }).toDataUri();
   } catch {
