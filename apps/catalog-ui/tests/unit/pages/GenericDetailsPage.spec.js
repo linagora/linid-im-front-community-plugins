@@ -36,6 +36,9 @@ const mockRoute = {
   params: {
     id: 'test-entity-id',
   },
+  query: {
+    groupId: 'group-1',
+  },
 };
 
 const mockNotify = vi.fn();
@@ -150,13 +153,14 @@ describe('Test component: GenericDetailsPage', () => {
       expect(mockRouterPush).not.toHaveBeenCalled();
     });
 
-    it('should navigate to the parent path rendered with the loaded entity when there is no history entry', async () => {
+    it('should navigate to the parent path rendered with the current entity state and the query string when there is no history entry', async () => {
       await flushPromises();
 
       wrapper.vm.goBack();
 
       expect(mockRenderString).toHaveBeenCalledWith('/page', {
         entity: { id: 'test-entity-id' },
+        query: { groupId: 'group-1' },
       });
       expect(mockRouterBack).not.toHaveBeenCalled();
       expect(mockRouterPush).toHaveBeenCalledWith('/page');
@@ -169,6 +173,24 @@ describe('Test component: GenericDetailsPage', () => {
       wrapper.vm.goBack();
 
       expect(mockRouterPush).toHaveBeenCalledWith('/page/test-entity-id');
+    });
+
+    it('should resolve a parent path templated on the query string when the entity failed to load', async () => {
+      vi.mocked(getEntityById).mockRejectedValueOnce(new Error('load error'));
+      mockModuleOptions.parentPath = '/groups/{{ query.groupId }}/members';
+      mockRenderString.mockReturnValueOnce('/groups/group-1/members');
+
+      wrapper = mountPage();
+      await flushPromises();
+
+      expect(mockRenderString).toHaveBeenCalledWith(
+        '/groups/{{ query.groupId }}/members',
+        {
+          entity: {},
+          query: { groupId: 'group-1' },
+        }
+      );
+      expect(mockRouterPush).toHaveBeenCalledWith('/groups/group-1/members');
     });
   });
 

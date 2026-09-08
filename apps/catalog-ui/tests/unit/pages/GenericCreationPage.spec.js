@@ -28,6 +28,9 @@ const mockRoute = {
   meta: {
     instanceId: 'test-instance-id',
   },
+  query: {
+    groupId: 'group-1',
+  },
 };
 
 const UPDATE_ENTITY_EVENT_KEY = 'entity-updated';
@@ -179,6 +182,7 @@ describe('Test component: GenericCreationPage', () => {
           code: 'APP',
           id: 'created-entity-id',
         },
+        query: { groupId: 'group-1' },
       });
     });
 
@@ -240,13 +244,14 @@ describe('Test component: GenericCreationPage', () => {
   });
 
   describe('Test function: cancel', () => {
-    it('should navigate to the parent path rendered with the current entity state', () => {
+    it('should navigate to the parent path rendered with the current entity state and the query string', () => {
       wrapper.vm.entity = { code: 'APP' };
 
       wrapper.vm.cancel();
 
       expect(mockRenderString).toHaveBeenCalledWith('/page', {
         entity: { code: 'APP' },
+        query: { groupId: 'group-1' },
       });
       expect(mockRouterPush).toHaveBeenCalledWith('/page');
     });
@@ -271,6 +276,23 @@ describe('Test component: GenericCreationPage', () => {
       wrapper.vm.cancel();
 
       expect(mockRouterPush).toHaveBeenCalledWith('/page/APP');
+    });
+
+    it('should resolve a parent path templated on the query string before the form is filled', () => {
+      mockModuleOptions.parentPath = '/groups/{{ query.groupId }}/members';
+      mockRenderString.mockReturnValueOnce('/groups/group-1/members');
+      wrapper = mountPage();
+
+      wrapper.vm.cancel();
+
+      expect(mockRenderString).toHaveBeenCalledWith(
+        '/groups/{{ query.groupId }}/members',
+        {
+          entity: {},
+          query: { groupId: 'group-1' },
+        }
+      );
+      expect(mockRouterPush).toHaveBeenCalledWith('/groups/group-1/members');
     });
   });
 

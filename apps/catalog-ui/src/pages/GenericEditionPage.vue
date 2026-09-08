@@ -274,12 +274,18 @@ function save(): Promise<void> {
  * Navigates back to the parent path.
  *
  * The target path is built by rendering `parentPath` as a Nunjucks template with the edited entity
- * as context, allowing the redirect URL to reference entity fields
- * (e.g. `"/entities/{{ entity.parentId }}"`).
+ * (`entity`) and the current query string (`query`) as context, so the redirect URL can reference
+ * either (e.g. `"/groups/{{ query.groupId }}/members"`).
+ *
+ * This is also the post-save redirect, and it is reached with `entity` still empty when the initial
+ * load failed.
  */
 function goBack() {
   router.push(
-    renderString(options.value.parentPath, { entity: entity.value ?? {} })
+    renderString(options.value.parentPath, {
+      entity: entity.value ?? {},
+      query: route.query,
+    })
   );
 }
 

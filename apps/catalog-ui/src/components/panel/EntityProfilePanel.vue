@@ -278,7 +278,7 @@ import {
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
 import { computed, ref, watchEffect } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { loadDiceBearStyle } from '../../services/diceBearLoaderService';
 import type {
   EntityProfilePanelOutputs,
@@ -302,6 +302,7 @@ const props = withDefaults(defineProps<EntityProfilePanelProps>(), {
 const emit = defineEmits<EntityProfilePanelOutputs>();
 
 const router = useRouter();
+const route = useRoute();
 
 const localUiNamespace = computed(() => {
   const prefix = props.uiNamespace || props.instanceId;
@@ -395,9 +396,17 @@ watchEffect(async (onCleanup) => {
 /**
  * Navigates back to the configured parent path using vue-router.
  * The back button is only rendered when `parentPath` is set, so the path is always defined here.
+ *
+ * The path is rendered with the same Nunjucks context as the generic pages (`entity` and `query`),
+ * so a `parentPath` templated on the query string resolves identically here and in the page.
  */
 function goBack() {
-  router.push(renderString(props.parentPath!, { entity: props.entity }));
+  router.push(
+    renderString(props.parentPath!, {
+      entity: props.entity,
+      query: route.query,
+    })
+  );
 }
 
 /**

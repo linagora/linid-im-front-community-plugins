@@ -278,10 +278,11 @@ onUnmounted(() => {
  * Save the new entity and redirect to its details page.
  *
  * The target path is `parentPath` joined with the identifier returned by the
- * backend. `parentPath` is rendered as a Nunjucks template with an `entity`
- * context holding the submitted values merged with the backend response, so the
- * path can reference server-generated fields
- * (e.g. `"/entities/{{ entity.parentId }}"`).
+ * backend. `parentPath` is rendered as a Nunjucks template with a context
+ * holding the submitted values merged with the backend response (`entity`) and
+ * the current query string (`query`), so the path can reference server-generated
+ * fields as well as the parent identifiers carried by the URL
+ * (e.g. `"/groups/{{ query.groupId }}/members"`).
  *
  * The rendered path is pushed as a string rather than as `{ path }`: vue-router
  * only parses the query and the fragment in the string form, and silently drops
@@ -304,6 +305,7 @@ function save(): Promise<void> {
       });
       const context = {
         entity: { ...entity.value, ...data },
+        query: route.query,
       };
 
       router.push(
@@ -324,15 +326,22 @@ function save(): Promise<void> {
 /**
  * Cancel the entity creation and navigate back to the parent route.
  *
- * The target path is built by rendering `parentPath` as a Nunjucks template
- * with the current entity state, allowing the redirect URL to reference entity
- * fields (e.g. `"/entities/{{ entity.parentId }}"`).
+ * The target path is built by rendering `parentPath` as a Nunjucks template with
+ * the current entity state (`entity`) and the current query string (`query`), so
+ * the redirect URL can reference either (e.g. `"/groups/{{ query.groupId }}/members"`).
+ *
+ * Cancel can fire before the form is touched, with `entity` still empty.
  *
  * Pushed as a string for the same reason as the post-save redirect: the object
  * `{ path }` form drops any query or fragment carried by the rendered path.
  */
 function cancel() {
-  router.push(renderString(parentPath.value, { entity: entity.value }));
+  router.push(
+    renderString(parentPath.value, {
+      entity: entity.value,
+      query: route.query,
+    })
+  );
 }
 </script>
 

@@ -53,8 +53,14 @@ export interface ModulePageOptions extends ModulePageLifecycleHostOptions {
    * Parent route path associated with the page.
    *
    * Defines the route to navigate to when returning to the previous page, for example on cancel.
-   * Supports Nunjucks template interpolation with the `entity` variable, allowing the path
-   * to reference entity fields (e.g. `"/entities/{{ entity.parentId }}"`).
+   * Supports Nunjucks template interpolation with an `entity` variable holding the current entity
+   * state and a `query` variable holding the current query string, allowing the path to reference
+   * either (e.g. `"/groups/{{ query.groupId }}/members"`).
+   *
+   * Prefer `query` for segments identifying the parent route: a generic page route is built from
+   * `basePath` + `pagePath` and declares no parent segment, so the query string is where such an
+   * identifier travels. `entity` is empty on a creation page until the form is filled, and on a
+   * details page whose entity failed to load.
    */
   parentPath: string;
 
