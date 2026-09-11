@@ -44,13 +44,17 @@ vi.mock('vue-router', () => ({
   useRouter: () => mockRouter,
 }));
 
+vi.mock('vue-i18n', () => ({
+  useI18n: () => ({ t: vi.fn() }),
+}));
+
 describe('Test component: NavigationMenu', () => {
   let wrapper;
 
   const mockItems = [
-    { id: '1', label: 'Home', path: '/home' },
-    { id: '2', label: 'Users', path: '/users' },
-    { id: '3', label: 'Settings', path: '/settings' },
+    { id: '1', labelKey: 'nav.home', path: '/home' },
+    { id: '2', labelKey: 'nav.users', path: '/users' },
+    { id: '3', labelKey: 'nav.settings', path: '/settings' },
   ];
 
   const defaultProps = {
@@ -71,7 +75,9 @@ describe('Test component: NavigationMenu', () => {
     });
 
     it('should use updated value when prop changes', async () => {
-      const newItems = [{ id: '4', label: 'Dashboard', path: '/dashboard' }];
+      const newItems = [
+        { id: '4', labelKey: 'nav.dashboard', path: '/dashboard' },
+      ];
       wrapper.setProps({ items: newItems });
 
       await wrapper.vm.$nextTick();
@@ -121,8 +127,8 @@ describe('Test component: NavigationMenu', () => {
 
     it('should match the longest prefix when paths overlap', async () => {
       const overlappingItems = [
-        { id: '1', label: 'Users', path: '/users' },
-        { id: '2', label: 'User Settings', path: '/users/settings' },
+        { id: '1', labelKey: 'nav.users', path: '/users' },
+        { id: '2', labelKey: 'nav.userSettings', path: '/users/settings' },
       ];
       wrapper = shallowMount(NavigationMenu, {
         props: { items: overlappingItems, uiNamespace: 'test-namespace' },
