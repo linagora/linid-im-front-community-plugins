@@ -79,7 +79,7 @@ describe('Test module lifecycle: ModulePage', () => {
       expect(useLinidUiStore().mainNavigationItems).toEqual([
         {
           id: 'page-instance-2',
-          label: 'translated_page-instance-2.NavigationMenu.label',
+          labelKey: 'page-instance-2.NavigationMenu.label',
           path: '/custom-page-path',
         },
       ]);
