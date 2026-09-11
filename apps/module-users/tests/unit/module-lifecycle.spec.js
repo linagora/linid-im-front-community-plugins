@@ -71,7 +71,7 @@ describe('Test module lifecycle: ModuleUsers', () => {
       expect(mockAddMainNavigationMenuItems).toHaveBeenCalledTimes(1);
       expect(mockAddMainNavigationMenuItems).toHaveBeenCalledWith({
         id: 'users-instance-1',
-        label: 'translated_users-instance-1.NavigationMenu.label',
+        labelKey: 'users-instance-1.NavigationMenu.label',
         path: '/users',
       });
       expect(result).toEqual({ success: true });
@@ -88,7 +88,7 @@ describe('Test module lifecycle: ModuleUsers', () => {
       expect(mockAddMainNavigationMenuItems).toHaveBeenCalledTimes(1);
       expect(mockAddMainNavigationMenuItems).toHaveBeenCalledWith({
         id: 'users-instance-2',
-        label: 'translated_users-instance-2.NavigationMenu.label',
+        labelKey: 'users-instance-2.NavigationMenu.label',
         path: '/custom-users-path',
       });
       expect(result).toEqual({ success: true });
