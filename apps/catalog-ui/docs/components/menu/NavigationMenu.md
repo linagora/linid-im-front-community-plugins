@@ -17,10 +17,10 @@ It leverages Quasar's `QTabs` and `QRouteTab` to enable seamless navigation betw
 
 ## **⚙️ Props**
 
-| Prop          | Type                   | Required | Default | Description                                |
-| ------------- | ---------------------- | -------- | ------- | ------------------------------------------ |
-| `items`       | `NavigationMenuItem[]` | Yes      | -       | List of navigation items (id, label, path) |
-| `uiNamespace` | `string`               | Yes      | -       | UI design namespace for custom styling     |
+| Prop          | Type                   | Required | Default | Description                                   |
+| ------------- | ---------------------- | -------- | ------- | --------------------------------------------- |
+| `items`       | `NavigationMenuItem[]` | Yes      | -       | List of navigation items (id, labelKey, path) |
+| `uiNamespace` | `string`               | Yes      | -       | UI design namespace for custom styling        |
 
 ### NavigationMenuItem Interface
 
@@ -28,12 +28,14 @@ It leverages Quasar's `QTabs` and `QRouteTab` to enable seamless navigation betw
 export interface NavigationMenuItem {
   /** Unique identifier of the navigation item. */
   id: string;
-  /** Label of the navigation item. */
-  label: string;
+  /** I18n key used to resolve the label of the navigation item. */
+  labelKey: string;
   /** Path/route of the navigation item. */
   path: string;
 }
 ```
+
+The component resolves `item.labelKey` through `vue-i18n`'s `t()` to produce the displayed label.
 
 ---
 
@@ -74,6 +76,7 @@ Example:
 - **Framework-friendly:** Built for Vue 3 and Quasar, integrates seamlessly with Vue Router
 - **Customizable:** Supports UI design system for consistent styling
 - **Test-friendly:** Includes `data-cy` attributes for E2E testing
+- **I18n reactivity:** Labels are resolved via `t(item.labelKey)` on every render, so they automatically update when the active locale changes
 
 ---
 
@@ -85,14 +88,14 @@ import NavigationMenu from '@/components/menu/NavigationMenu.vue';
 import type { NavigationMenuItem } from '@linagora/linid-im-front-corelib';
 
 const navigationItems: NavigationMenuItem[] = [
-  { id: '1', label: 'Home', path: '/home' },
-  { id: '2', label: 'Users', path: '/users' },
-  { id: '3', label: 'Settings', path: '/settings' },
+  { id: '1', labelKey: 'nav.home', path: '/home' },
+  { id: '2', labelKey: 'nav.users', path: '/users' },
+  { id: '3', labelKey: 'nav.settings', path: '/settings' },
 ];
 
 const handleItemChange = (item: NavigationMenuItem) => {
   console.log('Selected item:', item);
-  // item contains: { id, label, path }
+  // item contains: { id, labelKey, path }
 };
 </script>
 

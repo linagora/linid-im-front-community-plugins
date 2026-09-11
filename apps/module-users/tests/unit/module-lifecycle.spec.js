@@ -27,7 +27,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockAddMainNavigationMenuItems = vi.fn();
-const mockT = vi.fn((key) => `translated_${key}`);
 
 vi.mock('@linagora/linid-im-front-corelib', async () => {
   const actual = await vi.importActual('@linagora/linid-im-front-corelib');
@@ -35,11 +34,6 @@ vi.mock('@linagora/linid-im-front-corelib', async () => {
     ...actual,
     useLinidUiStore: () => ({
       addMainNavigationMenuItems: mockAddMainNavigationMenuItems,
-    }),
-    getI18nInstance: () => ({
-      global: {
-        t: mockT,
-      },
     }),
   };
 });
@@ -71,7 +65,7 @@ describe('Test module lifecycle: ModuleUsers', () => {
       expect(mockAddMainNavigationMenuItems).toHaveBeenCalledTimes(1);
       expect(mockAddMainNavigationMenuItems).toHaveBeenCalledWith({
         id: 'users-instance-1',
-        label: 'translated_users-instance-1.NavigationMenu.label',
+        labelKey: 'users-instance-1.NavigationMenu.label',
         path: '/users',
       });
       expect(result).toEqual({ success: true });
@@ -88,7 +82,7 @@ describe('Test module lifecycle: ModuleUsers', () => {
       expect(mockAddMainNavigationMenuItems).toHaveBeenCalledTimes(1);
       expect(mockAddMainNavigationMenuItems).toHaveBeenCalledWith({
         id: 'users-instance-2',
-        label: 'translated_users-instance-2.NavigationMenu.label',
+        labelKey: 'users-instance-2.NavigationMenu.label',
         path: '/custom-users-path',
       });
       expect(result).toEqual({ success: true });

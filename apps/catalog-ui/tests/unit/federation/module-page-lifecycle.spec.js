@@ -25,19 +25,17 @@
  */
 
 import {
-  setI18nInstance,
   setPiniaStore,
   useLinidUiStore,
   useLinidZoneStore,
 } from '@linagora/linid-im-front-corelib';
 import { createPinia } from 'pinia';
-import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import modulePage from '../../../src/federation/module-page-lifecycle';
 
 describe('Test module lifecycle: ModulePage', () => {
   beforeAll(() => {
     setPiniaStore(createPinia());
-    setI18nInstance({ global: { t: vi.fn((key) => `translated_${key}`) } });
   });
 
   beforeEach(() => {
@@ -79,7 +77,7 @@ describe('Test module lifecycle: ModulePage', () => {
       expect(useLinidUiStore().mainNavigationItems).toEqual([
         {
           id: 'page-instance-2',
-          label: 'translated_page-instance-2.NavigationMenu.label',
+          labelKey: 'page-instance-2.NavigationMenu.label',
           path: '/custom-page-path',
         },
       ]);

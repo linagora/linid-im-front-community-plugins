@@ -189,6 +189,10 @@ export default defineConfig({
           singleton: true,
           requiredVersion: '5.1.0',
         },
+        'vue-i18n': {
+          singleton: true,
+          requiredVersion: '11.4.6',
+        },
         pinia: {
           singleton: true,
           requiredVersion: '3.0.4',

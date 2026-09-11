@@ -37,7 +37,7 @@
       v-bind="uiProps.routes[item.id]"
       :key="item.id"
       :name="item.path"
-      :label="item.label"
+      :label="t(item.labelKey)"
       :class="`navigation-menu--${item.id}`"
       :data-cy="`item_${item.id}`"
       @click="router.push(item.path)"
@@ -53,6 +53,7 @@ import type {
 } from '@linagora/linid-im-front-corelib';
 import { useUiDesign } from '@linagora/linid-im-front-corelib';
 import { computed, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import type {
   NavigationMenuOutputs,
@@ -65,6 +66,7 @@ const props = defineProps<NavigationMenuProps>();
 const emit = defineEmits<NavigationMenuOutputs>();
 
 const { ui } = useUiDesign();
+const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 
