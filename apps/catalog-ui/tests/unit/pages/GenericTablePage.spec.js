@@ -102,7 +102,11 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
   }),
   usePagination: () => ({
     toPagination: (p) => p,
-    toQuasarPagination: () => 'Updated pagination',
+    toQuasarPagination: () => ({
+      page: 1,
+      rowsPerPage: 50,
+      rowsNumber: 1,
+    }),
   }),
   useUiDesign: () => ({ ui: () => ({}) }),
   useLinidUserPreference: vi.fn(() => ({
@@ -207,7 +211,34 @@ describe('Test component: GenericTablePage', () => {
       expect(wrapper.vm.isLoading).toEqual(false);
       expect(wrapper.vm.items).toEqual([{ id: 1 }]);
       expect(mockNotify).not.toHaveBeenCalled();
-      expect(wrapper.vm.pagination).toEqual('Updated pagination');
+      expect(wrapper.vm.pagination).toEqual({
+        page: 1,
+        rowsPerPage: 50,
+        rowsNumber: 1,
+        sortBy: undefined,
+        descending: undefined,
+      });
+    });
+
+    it('should preserve the current sortBy and descending state', async () => {
+      wrapper.vm.items = [];
+      wrapper.vm.pagination = {
+        page: 1,
+        rowsPerPage: 10,
+        sortBy: 'name',
+        descending: true,
+      };
+      wrapper.vm.isLoading = true;
+
+      await wrapper.vm.loadData();
+
+      expect(wrapper.vm.pagination).toEqual({
+        page: 1,
+        rowsPerPage: 50,
+        rowsNumber: 1,
+        sortBy: 'name',
+        descending: true,
+      });
     });
 
     it('should reset items on error and call Notify', async () => {
