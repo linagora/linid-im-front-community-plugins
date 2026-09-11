@@ -213,6 +213,14 @@ The component supports full server-side pagination:
 
 ---
 
+## **Sorting**
+
+Columns marked as `sortable: true` can be sorted by clicking their header.
+
+Each click cycles through: **No sort → Ascending → Descending → No sort**.
+
+---
+
 ## **Filtering**
 
 Rendered only when `options.filters` is provided and non-empty.

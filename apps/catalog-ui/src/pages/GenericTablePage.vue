@@ -568,7 +568,11 @@ function loadData(): Promise<void> {
   )
     .then((data) => {
       items.value = data.content;
-      pagination.value = toQuasarPagination(data);
+      pagination.value = {
+        ...toQuasarPagination(data),
+        sortBy: pagination.value.sortBy,
+        descending: pagination.value.descending,
+      };
     })
     .catch(() => {
       items.value = [];
