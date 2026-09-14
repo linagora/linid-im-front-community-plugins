@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.118](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.117...v0.2.118) (2026-09-14)
+
+
+### Features
+
+* **catalog-ui:** add a logout entry with confirmation to HeaderProfile ([f5a02a9](https://github.com/linagora/linid-im-front-community-plugins/commit/f5a02a91ca5862ba2fe6ca460fc36dd61fb3acab))
+
 ### [0.2.117](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.116...v0.2.117) (2026-09-08)
 
 
