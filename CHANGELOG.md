@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.120](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.119...v0.2.120) (2026-09-15)
+
+
+### Bug Fixes
+
+* **catalog-ui:** pass plain style options to DiceBear when avatarOptions is reactive ([0c403c4](https://github.com/linagora/linid-im-front-community-plugins/commit/0c403c45526983d93b0a9bfab41a54b10d21b528))
+
 ### [0.2.119](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.118...v0.2.119) (2026-09-15)
 
 
