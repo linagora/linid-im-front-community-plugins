@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.119](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.118...v0.2.119) (2026-09-15)
+
+
+### Features
+
+* use i18N key instead of label in navigationMenu ([3103403](https://github.com/linagora/linid-im-front-community-plugins/commit/31034035c1c51247cbeaff0dc6e006b12e3d4759))
+
 ### [0.2.118](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.117...v0.2.118) (2026-09-14)
 
 
