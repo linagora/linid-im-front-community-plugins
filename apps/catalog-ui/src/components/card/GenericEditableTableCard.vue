@@ -31,7 +31,7 @@
     class="q-mb-md q-px-md generic-editable-table-card"
     data-cy="generic-editable-table-card"
   >
-    <q-card-section class="row items-center justify-between">
+    <q-card-section class="row items-center justify-between" horizontal>
       <h4
         v-if="te('title')"
         class="q-my-none text-subtitle1 generic-editable-table-card--title"
