@@ -39,7 +39,7 @@ const mockRoute = {
 
 const mockNotify = vi.fn();
 const mockRouterPush = vi.fn();
-const mockModuleOptions = {
+const baseModuleOptions = {
   idKey: 'id',
   creationPagePath: '/new',
   columns: [
@@ -47,6 +47,7 @@ const mockModuleOptions = {
     { name: 'name', label: 'Name', field: 'name' },
   ],
 };
+let mockModuleOptions = { ...baseModuleOptions };
 const mockSetFiltersInUrl = vi.fn();
 const mockGetFiltersFromUrl = vi.fn(() => []);
 const { MockLinidFilter } = vi.hoisted(() => ({
@@ -62,6 +63,17 @@ const { MockLinidFilter } = vi.hoisted(() => ({
       return this.values.join('|');
     }
   },
+}));
+const { buildEntityPage } = vi.hoisted(() => ({
+  buildEntityPage: () => ({
+    content: [{ id: 1 }],
+    number: 0,
+    size: 50,
+    totalElements: 1,
+  }),
+}));
+const { mockToQuasarPagination } = vi.hoisted(() => ({
+  mockToQuasarPagination: vi.fn(() => ({ convertedPagination: true })),
 }));
 const { MockLinidFilterSet } = vi.hoisted(() => ({
   MockLinidFilterSet: class MockLinidFilterSet {
@@ -82,14 +94,7 @@ const { MockLinidFilterSet } = vi.hoisted(() => ({
 }));
 
 vi.mock('@linagora/linid-im-front-corelib', () => ({
-  getEntities: vi.fn(() =>
-    Promise.resolve({
-      content: [{ id: 1 }],
-      number: 0,
-      size: 50,
-      totalElements: 1,
-    })
-  ),
+  getEntities: vi.fn(() => Promise.resolve(buildEntityPage())),
   useScopedI18n: () => ({
     t: vi.fn((v) => v),
     te: vi.fn(() => false),
@@ -101,8 +106,8 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
     options: mockModuleOptions,
   }),
   usePagination: () => ({
-    toPagination: (p) => p,
-    toQuasarPagination: () => 'Updated pagination',
+    toPagination: (pagination) => pagination,
+    toQuasarPagination: mockToQuasarPagination,
   }),
   useUiDesign: () => ({ ui: () => ({}) }),
   useLinidUserPreference: vi.fn(() => ({
@@ -133,6 +138,8 @@ describe('Test component: GenericTablePage', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockModuleOptions = { ...baseModuleOptions };
+    getEntities.mockImplementation(() => Promise.resolve(buildEntityPage()));
     wrapper = shallowMount(GenericTablePage, {
       global: {
         stubs: ['GenericEntityTable'],
@@ -199,7 +206,12 @@ describe('Test component: GenericTablePage', () => {
   describe('Test function: loadData', () => {
     it('should retrieve data', async () => {
       wrapper.vm.items = [];
-      wrapper.vm.pagination = {};
+      wrapper.vm.pagination = {
+        page: 1,
+        rowsPerPage: 10,
+        sortBy: null,
+        descending: true,
+      };
       wrapper.vm.isLoading = true;
 
       await wrapper.vm.loadData();
@@ -207,7 +219,28 @@ describe('Test component: GenericTablePage', () => {
       expect(wrapper.vm.isLoading).toEqual(false);
       expect(wrapper.vm.items).toEqual([{ id: 1 }]);
       expect(mockNotify).not.toHaveBeenCalled();
-      expect(wrapper.vm.pagination).toEqual('Updated pagination');
+      expect(wrapper.vm.pagination).toEqual({ convertedPagination: true });
+    });
+
+    it('should hand the current pagination over to the conversion', async () => {
+      wrapper.vm.pagination = {
+        page: 2,
+        rowsPerPage: 10,
+        sortBy: 'name',
+        descending: false,
+      };
+
+      await wrapper.vm.loadData();
+
+      expect(mockToQuasarPagination).toHaveBeenLastCalledWith(
+        buildEntityPage(),
+        {
+          page: 2,
+          rowsPerPage: 10,
+          sortBy: 'name',
+          descending: false,
+        }
+      );
     });
 
     it('should reset items on error and call Notify', async () => {
@@ -245,18 +278,21 @@ describe('Test component: GenericTablePage', () => {
         pagination: {
           page: 2,
           rowsPerPage: 5,
-          sortBy: undefined,
+          sortBy: 'name',
           descending: true,
         },
       };
 
       await wrapper.vm.onRequest(paginationEvent);
 
-      expect(wrapper.vm.pagination).toEqual(paginationEvent.pagination);
       expect(getEntities).toHaveBeenCalledTimes(1);
       expect(getEntities).toHaveBeenCalledWith(
         'test-instance-id',
         { dateFormat: 'yyyy/MM/dd HH:mm:ss' },
+        paginationEvent.pagination
+      );
+      expect(mockToQuasarPagination).toHaveBeenCalledWith(
+        buildEntityPage(),
         paginationEvent.pagination
       );
     });
@@ -274,13 +310,17 @@ describe('Test component: GenericTablePage', () => {
   describe('Test function: onFiltersChange', () => {
     it('should update filters, reset pagination, sync URL and reload data', async () => {
       vi.clearAllMocks();
-      wrapper.vm.pagination.page = 3;
+      wrapper.vm.pagination = {
+        page: 3,
+        rowsPerPage: 10,
+        sortBy: 'name',
+        descending: true,
+      };
       const newFilters = [new MockLinidFilter('name', 'text', {}, ['paris'])];
 
       await wrapper.vm.onFiltersChange(newFilters);
 
       expect(wrapper.vm.filters).toEqual(newFilters);
-      expect(wrapper.vm.pagination.page).toBe(1);
       expect(mockSetFiltersInUrl).toHaveBeenCalledWith(newFilters, []);
       expect(getEntities).toHaveBeenCalledWith(
         'test-instance-id',
@@ -299,8 +339,6 @@ describe('Test component: GenericTablePage', () => {
       await wrapper.vm.onFiltersChange(newFilters);
 
       expect(mockSetFiltersInUrl).toHaveBeenCalledWith(newFilters, ['node']);
-
-      mockModuleOptions.keepQueryParams = undefined;
     });
   });
 
@@ -339,8 +377,6 @@ describe('Test component: GenericTablePage', () => {
         mockModuleOptions.filters
       );
       expect(localWrapper.vm.filters).toEqual(urlFilters);
-
-      mockModuleOptions.filters = undefined;
     });
   });
 
