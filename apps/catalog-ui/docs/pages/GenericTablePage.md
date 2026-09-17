@@ -33,6 +33,7 @@ interface ModuleGenericTablePageOptions {
   idKey: string;
   columns: GenericTableColumn[];
   enableActions: boolean;
+  enableSeeButton?: boolean;
   creationPagePath: string;
   keepQueryParams?: string[];
   filters?: LinidFilter[];
@@ -46,6 +47,7 @@ interface ModuleGenericTablePageOptions {
 | `idKey`            | `string`               | Key used to identify each row and build detail routes                                                   |
 | `columns`          | `GenericTableColumn[]` | Table column definitions (extends Quasar QTableColumn with formatting options)                          |
 | `enableActions`    | `boolean`              | Enables or disables the actions card above the table                                                    |
+| `enableSeeButton`  | `boolean`              | Optional. Shows the per-row "see" button unless explicitly set to `false`                               |
 | `creationPagePath` | `string`               | Route path used for the "create" button navigation                                                      |
 | `keepQueryParams`  | `string[]`             | Optional. URL query parameter keys to preserve as-is when the active filters are synced to the URL      |
 | `filters`          | `LinidFilter[]`        | Optional. Filter definitions rendered by `LinidSmartFilter`. Omitted or empty disables the smart filter |
@@ -156,7 +158,7 @@ Renders a table component:
 Each row includes:
 
 - dynamic cells based on column definition
-- a default **See button** for navigation to detail page
+- a **See button** for navigation to detail page, hidden only when the optional `enableSeeButton` option is explicitly set to `false`
 
 ---
 
@@ -239,11 +241,48 @@ Each active filter is serialized to a query param using `filter.toString()`, key
 
 ## **Zones**
 
-This page exposes all default generic page zones described in the main **Zones** documentation.
+This page exposes all default generic page zones described in the main **Zones** documentation, plus one
+page-specific zone:
 
-No additional page-specific zones are provided. The `header.actions` zone is rendered inside the actions card, before
-the create button, and therefore receives a `uiNamespace` scoped to `.buttons-card` and an `i18nScope` scoped to
-`.ButtonsCard`.
+| Zone                       | Props                                                               | Description                   |
+| -------------------------- | ------------------------------------------------------------------- | ----------------------------- |
+| `{instanceId}.row-actions` | `entity`, `row`, `rowKey`, `instanceId`, `uiNamespace`, `i18nScope` | Before the per-row See button |
+
+`entity` and `row` both carry the row data — `entity` is provided for consistency with other zones injecting
+components that expect an `entity` prop (e.g. `GenericEditableTableCard`).
+
+The `header.actions` zone is rendered inside the actions card, before the create button, and therefore receives a
+`uiNamespace` scoped to `.buttons-card` and an `i18nScope` scoped to `.ButtonsCard`.
+
+The actions column itself is always rendered. If `enableSeeButton` is set to `false` and no plugin is configured
+for the `row-actions` zone, the column is displayed empty.
+
+### **Example: per-row update button**
+
+The `row-actions` zone receives the row through its `entity` prop, so a
+[`FormDialogButton`](../components/button/FormDialogButton.md) declared there can update it in place with
+`fillFormWithEntity` and a `PUT` request addressed by `entity.id`:
+
+```json
+{
+  "zone": "moduleApplicationTablePage.row-actions",
+  "plugin": "catalogUI/FormDialogButton",
+  "props": {
+    "url": "/applications/{{ entity.id }}",
+    "method": "PUT",
+    "fillFormWithEntity": true,
+    "formFields": [
+      {
+        "name": "name",
+        "type": "String",
+        "input": "Text",
+        "required": true,
+        "inputSettings": {}
+      }
+    ]
+  }
+}
+```
 
 ---
 
