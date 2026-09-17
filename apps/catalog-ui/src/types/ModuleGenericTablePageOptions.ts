@@ -97,4 +97,12 @@ export interface ModuleGenericTablePageOptions extends ModulePageOptions {
    * no smart filter is rendered.
    */
   filters?: LinidFilter[];
+
+  /**
+   * UI event keys triggering a reload of the table data.
+   *
+   * When an event with one of these keys is emitted on the UI event bus, the page reloads the
+   * items from the backend, keeping the current pagination and filters.
+   */
+  reloadTableOn?: string[];
 }
