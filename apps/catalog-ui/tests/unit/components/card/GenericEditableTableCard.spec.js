@@ -30,7 +30,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import GenericEditableTableCard from '../../../../src/components/card/GenericEditableTableCard.vue';
 
 const mockNotify = vi.fn();
-const mockHttpGet = vi.fn(() => Promise.resolve({ data: [] }));
+const mockHttpGet = vi.fn(() => Promise.resolve({ data: { content: [] } }));
+const mockToPagination = vi.fn(() => 'Converted pagination');
+const mockToQuasarPagination = vi.fn(() => 'Updated pagination');
 const mockHttpPost = vi.fn(() => Promise.resolve({ data: {} }));
 const mockHttpPut = vi.fn(() => Promise.resolve({ data: {} }));
 const mockT = vi.fn((key) => key);
@@ -54,6 +56,10 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
     Notify: mockNotify,
   }),
   useUiDesign: () => ({ ui: () => ({}) }),
+  usePagination: () => ({
+    toPagination: mockToPagination,
+    toQuasarPagination: mockToQuasarPagination,
+  }),
   useNunjucks: () => {
     function render(value, context) {
       if (typeof value === 'string') {
@@ -118,7 +124,11 @@ describe('Test component: GenericEditableTableCard', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockHttpGet.mockImplementation(() => Promise.resolve({ data: [] }));
+    mockHttpGet.mockImplementation(() =>
+      Promise.resolve({ data: { content: [] } })
+    );
+    mockToPagination.mockImplementation(() => 'Converted pagination');
+    mockToQuasarPagination.mockImplementation(() => 'Updated pagination');
     wrapper = mountComponent();
   });
 
@@ -170,35 +180,44 @@ describe('Test component: GenericEditableTableCard', () => {
   });
 
   describe('Test function: loadData', () => {
-    it('should load items on mount from the rendered find endpoint', async () => {
-      mockHttpGet.mockImplementation(() =>
-        Promise.resolve({ data: [{ id: 'item-1' }] })
-      );
+    it('should load the first page on mount from the rendered find endpoint', async () => {
+      const data = { content: [{ id: 'item-1' }], totalElements: 1 };
+      mockHttpGet.mockImplementation(() => Promise.resolve({ data }));
       wrapper = mountComponent();
 
       await flushPromises();
 
-      expect(mockHttpGet).toHaveBeenCalledWith('/api/parents/parent-1/items');
+      expect(mockToPagination).toHaveBeenCalledWith({
+        page: 1,
+        rowsPerPage: 10,
+        rowsNumber: 0,
+        sortBy: null,
+        descending: true,
+      });
+      expect(mockHttpGet).toHaveBeenCalledWith('/api/parents/parent-1/items', {
+        params: 'Converted pagination',
+      });
       expect(wrapper.vm.items).toEqual([{ id: 'item-1' }]);
       expect(wrapper.vm.isLoading).toBe(false);
     });
 
-    it('should support paginated responses exposing a content array', async () => {
-      mockHttpGet.mockImplementation(() =>
-        Promise.resolve({ data: { content: [{ id: 'item-1' }] } })
-      );
+    it('should update the pagination from the received page and the current pagination', async () => {
+      const data = { content: [], number: 2, size: 5, totalElements: 23 };
+      const current = {
+        page: 3,
+        rowsPerPage: 5,
+        rowsNumber: 60,
+        sortBy: 'name',
+        descending: false,
+      };
+      wrapper.vm.pagination = current;
+      mockHttpGet.mockImplementation(() => Promise.resolve({ data }));
 
       await wrapper.vm.loadData();
 
-      expect(wrapper.vm.items).toEqual([{ id: 'item-1' }]);
-    });
-
-    it('should default to an empty list when the response has no content', async () => {
-      mockHttpGet.mockImplementation(() => Promise.resolve({ data: {} }));
-
-      await wrapper.vm.loadData();
-
-      expect(wrapper.vm.items).toEqual([]);
+      expect(mockToPagination).toHaveBeenLastCalledWith(current);
+      expect(mockToQuasarPagination).toHaveBeenCalledWith(data, current);
+      expect(wrapper.vm.pagination).toBe('Updated pagination');
     });
 
     it('should not load nor notify while the parent entity is not resolved', async () => {
@@ -223,7 +242,9 @@ describe('Test component: GenericEditableTableCard', () => {
 
       await flushPromises();
 
-      expect(mockHttpGet).toHaveBeenCalledWith('/api/items');
+      expect(mockHttpGet).toHaveBeenCalledWith('/api/items', {
+        params: 'Converted pagination',
+      });
     });
 
     it('should reload when the entity is resolved asynchronously by the hosting page', async () => {
@@ -234,7 +255,9 @@ describe('Test component: GenericEditableTableCard', () => {
       await wrapper.setProps({ entity: { id: 'parent-1' } });
       await flushPromises();
 
-      expect(mockHttpGet).toHaveBeenCalledWith('/api/parents/parent-1/items');
+      expect(mockHttpGet).toHaveBeenCalledWith('/api/parents/parent-1/items', {
+        params: 'Converted pagination',
+      });
     });
 
     it('should not reload when the resolved endpoint is unchanged', async () => {
@@ -262,6 +285,26 @@ describe('Test component: GenericEditableTableCard', () => {
         message: 'loadError',
       });
       expect(wrapper.vm.isLoading).toBe(false);
+    });
+  });
+
+  describe('Test function: onRequest', () => {
+    it('should apply the requested pagination and reload the items', async () => {
+      mockHttpGet.mockClear();
+      const requested = {
+        page: 2,
+        rowsPerPage: 5,
+        rowsNumber: 23,
+        sortBy: 'name',
+        descending: false,
+      };
+
+      await wrapper.vm.onRequest({ pagination: requested });
+
+      expect(mockToPagination).toHaveBeenCalledWith(requested);
+      expect(mockHttpGet).toHaveBeenCalledWith('/api/parents/parent-1/items', {
+        params: 'Converted pagination',
+      });
     });
   });
 

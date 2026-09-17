@@ -70,12 +70,14 @@
     </q-card-section>
     <q-card-section>
       <GenericEntityTable
+        v-model:pagination="pagination"
         :ui-namespace="localUiNamespace"
         :i18n-scope="localI18nScope"
         :rows="items"
         :columns="columns"
         :loading="isLoading"
         :row-key="rowKey"
+        @request="onRequest"
       >
         <template
           v-if="enableRowActions"
@@ -127,6 +129,9 @@
 import type {
   LinidQBtnProps,
   LinidQCardProps,
+  Page,
+  QTableRequestEvent,
+  QuasarPagination,
 } from '@linagora/linid-im-front-corelib';
 import {
   getHttpClient,
@@ -134,6 +139,7 @@ import {
   uiEventSubject,
   useNotify,
   useNunjucks,
+  usePagination,
   useScopedI18n,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
@@ -174,9 +180,22 @@ const { t, te, translateOrDefault } = useScopedI18n(localI18nScope.value);
 const { Notify } = useNotify();
 const { render, renderString } = useNunjucks();
 const { ui } = useUiDesign();
+const { toPagination, toQuasarPagination } = usePagination();
 
 const items = ref<Record<string, unknown>[]>([]);
 const isLoading = ref<boolean>(false);
+
+/**
+ * Table pagination state, updated from each paginated response. Rows are sorted by their last update
+ * date, most recent first, until a sortable column is selected.
+ */
+const pagination = ref<QuasarPagination>({
+  page: 1,
+  rowsPerPage: 10,
+  rowsNumber: 0,
+  sortBy: null,
+  descending: true,
+});
 
 const nunjucksContext = computed(() => ({
   entity: props.entity ?? {},
@@ -230,23 +249,36 @@ const uiProps = computed(() => ({
 }));
 
 /**
- * Loads the items from the find endpoint and updates the reactive items state.
- * Supports both plain array responses and paginated responses exposing a `content` array.
+ * Loads the current page of items from the find endpoint and updates the reactive items and
+ * pagination states. The request carries the pagination converted by `usePagination`, and the
+ * paginated response drives the table pagination through its `totalElements`.
  * On failure, clears the items and notifies the user.
  */
 async function loadData(): Promise<void> {
   isLoading.value = true;
   try {
-    const { data } = await getHttpClient().get(
-      renderString(props.endpoints.find, nunjucksContext.value)
+    const { data } = await getHttpClient().get<Page<Record<string, unknown>>>(
+      renderString(props.endpoints.find, nunjucksContext.value),
+      { params: toPagination(pagination.value) }
     );
-    items.value = Array.isArray(data) ? data : (data?.content ?? []);
+    items.value = data.content;
+    pagination.value = toQuasarPagination(data, pagination.value);
   } catch {
     items.value = [];
     Notify({ type: 'negative', message: t('loadError') });
   } finally {
     isLoading.value = false;
   }
+}
+
+/**
+ * Applies the pagination requested by the table (page, rows per page, sort) and reloads the items.
+ * @param event - Event emitted by the table with the requested pagination.
+ * @returns A promise resolved once the items are reloaded.
+ */
+function onRequest(event: QTableRequestEvent): Promise<void> {
+  pagination.value = event.pagination;
+  return loadData();
 }
 
 /**

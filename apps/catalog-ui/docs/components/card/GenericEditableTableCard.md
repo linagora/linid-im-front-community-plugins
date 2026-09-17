@@ -168,7 +168,14 @@ See [Generic Pages](../../generic-pages.md) for how to register a component in a
   This lets the card be rendered by a zone before the hosting page has resolved its entity
 - No request is sent while the `entity` prop is provided but empty, as the endpoints would render with
   a missing identifier. A card configured without an `entity` prop loads its static endpoint as usual
-- Both plain array responses and paginated responses exposing a `content` array are supported
+- The table is paginated on the server side through the corelib `usePagination` composable: each
+  request sends the current page and sort converted by `toPagination` (10 rows per page by default,
+  sorted by `updateDate` descending until a sortable column is selected). Query parameters already
+  present in the `find` endpoint are preserved
+- The `find` endpoint must return a paginated response (`content`, `totalElements`, `number`, `size`),
+  which drives the table pagination
+- Changing the page, the rows per page or the sort reloads the items; so does every successful
+  creation, update and deletion
 - On failure, the items are cleared and a negative notification is displayed
 
 ### Add item
@@ -229,27 +236,27 @@ and an `editFormFields` entry named `relationExtraParameters.role` that the user
 
 All keys are resolved under `${i18nScope}.GenericEditableTableCard`:
 
-| Key                                | Description                                                               |
-| ---------------------------------- | ------------------------------------------------------------------------- |
-| `title`                            | Card title (optional — the title is hidden when the key is not defined)   |
-| `ButtonsCard.add`                  | Label of the add button                                                   |
-| `editButton`                       | Label of the per-row edit button                                          |
-| `deleteButton`                     | Label of the per-row delete button                                        |
-| `loadError`                        | Notification shown when loading the items fails                           |
-| `createSuccess` / `createError`    | Notifications shown after the creation attempt                            |
-| `updateSuccess` / `updateError`    | Notifications shown after the update attempt                              |
-| `deleteSuccess` / `deleteError`    | Notifications shown after the deletion attempt                            |
-| `CreateFormDialog.title`           | Title of the creation form dialog                                         |
-| `CreateFormDialog.content`         | Optional content of the creation form dialog                              |
-| `CreateFormDialog.*`               | Scope given to the `FormDialog` (buttons, field labels)                   |
-| `EditFormDialog.title`             | Title of the edition form dialog (row properties interpolable)            |
-| `EditFormDialog.content`           | Optional content of the edition form dialog (row properties interpolable) |
-| `EditFormDialog.*`                 | Scope given to the `FormDialog` (buttons, field labels)                   |
-| `DeleteConfirmationDialog.title`   | Title of the delete confirmation dialog (row properties interpolable)     |
-| `DeleteConfirmationDialog.content` | Content of the delete confirmation dialog (row properties interpolable)   |
-| `DeleteConfirmationDialog.*`       | Scope given to the `ConfirmationDialog` (buttons)                         |
-| `columns.<label>`                  | Column labels, resolved from each column `label` value                    |
-| `GenericEntityTable.*`             | Scope given to the embedded `GenericEntityTable` (e.g. `noData`)          |
+| Key                                | Description                                                                                   |
+| ---------------------------------- | --------------------------------------------------------------------------------------------- |
+| `title`                            | Card title (optional — the title is hidden when the key is not defined)                       |
+| `ButtonsCard.add`                  | Label of the add button                                                                       |
+| `editButton`                       | Label of the per-row edit button                                                              |
+| `deleteButton`                     | Label of the per-row delete button                                                            |
+| `loadError`                        | Notification shown when loading the items fails                                               |
+| `createSuccess` / `createError`    | Notifications shown after the creation attempt                                                |
+| `updateSuccess` / `updateError`    | Notifications shown after the update attempt                                                  |
+| `deleteSuccess` / `deleteError`    | Notifications shown after the deletion attempt                                                |
+| `CreateFormDialog.title`           | Title of the creation form dialog                                                             |
+| `CreateFormDialog.content`         | Optional content of the creation form dialog                                                  |
+| `CreateFormDialog.*`               | Scope given to the `FormDialog` (buttons, field labels)                                       |
+| `EditFormDialog.title`             | Title of the edition form dialog (row properties interpolable)                                |
+| `EditFormDialog.content`           | Optional content of the edition form dialog (row properties interpolable)                     |
+| `EditFormDialog.*`                 | Scope given to the `FormDialog` (buttons, field labels)                                       |
+| `DeleteConfirmationDialog.title`   | Title of the delete confirmation dialog (row properties interpolable)                         |
+| `DeleteConfirmationDialog.content` | Content of the delete confirmation dialog (row properties interpolable)                       |
+| `DeleteConfirmationDialog.*`       | Scope given to the `ConfirmationDialog` (buttons)                                             |
+| `columns.<label>`                  | Column labels, resolved from each column `label` value                                        |
+| `GenericEntityTable.*`             | Scope given to the embedded `GenericEntityTable` (`noData`, `rowsPerPage`, `paginationLabel`) |
 
 Example of a delete confirmation content using row interpolation:
 
