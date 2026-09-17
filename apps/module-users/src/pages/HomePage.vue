@@ -161,7 +161,7 @@ const { toPagination, toQuasarPagination } = usePagination();
 const pagination = ref<QuasarPagination>({
   page: 1,
   rowsNumber: 0,
-  sortBy: undefined,
+  sortBy: null,
   rowsPerPage: 10,
   descending: true,
 });
@@ -259,7 +259,7 @@ function loadData(): Promise<void> {
   )
     .then((data) => {
       users.value = data.content;
-      pagination.value = toQuasarPagination(data);
+      pagination.value = toQuasarPagination(data, pagination.value);
     })
     .catch(() => {
       users.value = [];
