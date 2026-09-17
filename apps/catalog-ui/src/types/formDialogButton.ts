@@ -94,6 +94,14 @@ export interface FormDialogButtonProps extends CommonComponentProps {
    * @default false
    */
   disable?: boolean;
+
+  /**
+   * When set, the component emits an event with this key on `uiEventSubject` after a successful
+   * submission, with the response body as data. Lets a hosting page react to a submit, for example
+   * reloading its entity through the `reloadDetailsOn` option of a details page, or reloading a
+   * table through the `reloadTableOn` option of a table page.
+   */
+  emitOnSubmit?: string;
 }
 
 /**

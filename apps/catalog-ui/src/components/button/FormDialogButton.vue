@@ -106,9 +106,9 @@ function openDialog(): void {
 
 /**
  * Sends the configured request with the URL and body rendered as Nunjucks templates, then notifies
- * the user and emits the `submitted` event with the response body returned by the API. The template
- * context exposes `entity`, the configured entity merged with the submitted form data, and
- * `parent`, the parent of the entity.
+ * the user, emits the `submitted` event with the response body returned by the API, and publishes
+ * `emitOnSubmit` if configured. The template context exposes `entity`, the configured entity merged
+ * with the submitted form data, and `parent`, the parent of the entity.
  * @param formData - The submitted form data, merged into the entity of the template context.
  * @returns A promise that resolves when the submission handling is complete. The promise rejects
  * when the request fails, so the form dialog stays open for correction.
@@ -129,6 +129,10 @@ async function submitForm(formData: Record<string, unknown>): Promise<void> {
 
     Notify({ type: 'positive', message: t('submitSuccess') });
     emit('submitted', data);
+
+    if (props.emitOnSubmit) {
+      uiEventSubject.next({ key: props.emitOnSubmit, data });
+    }
   } catch (error) {
     Notify({ type: 'negative', message: t('submitError') });
     throw error;

@@ -321,5 +321,39 @@ describe('Test component: FormDialogButton', () => {
       });
       expect(wrapper.emitted('submitted')).toBeUndefined();
     });
+
+    it('should not emit any event on uiEventSubject when emitOnSubmit is not configured', async () => {
+      await wrapper.vm.submitForm({ name: 'My Export' });
+
+      expect(uiEventSubject.next).not.toHaveBeenCalled();
+    });
+
+    it('should emit the configured event on uiEventSubject after a successful submit', async () => {
+      const response = { id: 'export-1' };
+      mockHttpPost.mockImplementationOnce(() =>
+        Promise.resolve({ data: response })
+      );
+      wrapper = mountComponent({ emitOnSubmit: 'export:submitted' });
+
+      await wrapper.vm.submitForm({ name: 'My Export' });
+
+      expect(uiEventSubject.next).toHaveBeenCalledWith({
+        key: 'export:submitted',
+        data: response,
+      });
+    });
+
+    it('should not emit any event on uiEventSubject when the request fails', async () => {
+      wrapper = mountComponent({ emitOnSubmit: 'export:submitted' });
+      mockHttpPost.mockImplementationOnce(() =>
+        Promise.reject(new Error('submit failed'))
+      );
+
+      await expect(
+        wrapper.vm.submitForm({ name: 'My Export' })
+      ).rejects.toThrow('submit failed');
+
+      expect(uiEventSubject.next).not.toHaveBeenCalled();
+    });
   });
 });
