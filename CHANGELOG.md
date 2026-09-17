@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.122](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.121...v0.2.122) (2026-09-17)
+
+
+### Bug Fixes
+
+* **catalog-ui:** paginate the editable table card on the server side ([d6db7cc](https://github.com/linagora/linid-im-front-community-plugins/commit/d6db7cc74dcbd90cf9d10c1a057f9976c4b76c86))
+
 ### [0.2.121](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.120...v0.2.121) (2026-09-17)
 
 
