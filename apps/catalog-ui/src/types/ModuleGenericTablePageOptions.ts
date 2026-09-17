@@ -65,6 +65,13 @@ export interface ModuleGenericTablePageOptions extends ModulePageOptions {
   enableActions: boolean;
 
   /**
+   * Whether the per-row "see" button should be displayed in the table.
+   *
+   * Optional. The button is shown unless this is explicitly set to `false`.
+   */
+  enableSeeButton?: boolean;
+
+  /**
    * Route path used by the creation action.
    *
    * When the creation button is clicked, the user is redirected to this path.

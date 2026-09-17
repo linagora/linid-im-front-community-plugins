@@ -135,8 +135,18 @@
             :data-cy="`cell-${col.name}_${props.row[options.idKey]}`"
           >
             <template v-if="col.name === 'table_actions'">
-              <div class="flex justify-end">
+              <div class="flex justify-end q-gutter-x-sm">
+                <LinidZoneRenderer
+                  :zone="`${instanceId}.row-actions`"
+                  :entity="props.row"
+                  :row="props.row"
+                  :row-key="props.row[options.idKey]"
+                  :instance-id="instanceId"
+                  :ui-namespace="uiNamespace"
+                  :i18n-scope="i18nScope"
+                />
                 <q-btn
+                  v-if="options.enableSeeButton !== false"
                   :label="t('seeButton')"
                   :data-cy="`see-button_${props.row[options.idKey]}`"
                   v-bind="uiProps.seeButton"
