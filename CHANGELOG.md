@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.121](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.120...v0.2.121) (2026-09-17)
+
+
+### Bug Fixes
+
+* **catalog-ui:** preserve sortBy/descending across GenericTablePage reloads ([4845530](https://github.com/linagora/linid-im-front-community-plugins/commit/4845530091db6c4010612a5f41859f0b9876471b)), closes [#290](https://github.com/linagora/linid-im-front-community-plugins/issues/290)
+* **module-users:** preserve sortBy/descending across Homepage reloads ([bcf9697](https://github.com/linagora/linid-im-front-community-plugins/commit/bcf96975420d55f60dd108d93004b35b1693f8f1))
+
 ### [0.2.120](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.119...v0.2.120) (2026-09-15)
 
 
