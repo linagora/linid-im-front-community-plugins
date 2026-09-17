@@ -17,24 +17,27 @@ configuration: no dedicated component is needed to expose a custom entity action
   and the form values
 - Optionally pre-fills the form with the entity values
 - Emits an event with the API response after a successful request
+- Can notify a hosting page after a submit through `emitOnSubmit`, so it can react (e.g. reload its
+  own entity)
 
 ---
 
 ## **⚙️ Props**
 
-| Prop name            | Type                              | Default  | Description                                                                                                |
-| -------------------- | --------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------- |
-| `url`                | `String`                          | —        | Request URL, defined as a Nunjucks template                                                                |
-| `method`             | `'POST' \| 'PUT'`                 | `'POST'` | HTTP method used to send the request                                                                       |
-| `body`               | `Record<string, unknown>`         | `{}`     | JSON payload sent as the request body. Every nested string property is a Nunjucks template                 |
-| `formFields`         | `LinidAttributeConfiguration[]`   | —        | Form fields rendered in the form dialog (see `FormDialog`)                                                 |
-| `entity`             | `Record<string, unknown> \| null` | —        | Entity associated with the current context, provided to the Nunjucks context. Injected by the hosting zone |
-| `parent`             | `Record<string, unknown> \| null` | —        | Parent of the entity (e.g. the application owning a role), provided to the Nunjucks context                |
-| `fillFormWithEntity` | `Boolean`                         | `false`  | Pre-fills the form fields with the matching entity properties when the dialog opens                        |
-| `disable`            | `Boolean`                         | `false`  | Disables the button, preventing the dialog from opening                                                    |
-| `instanceId`         | `String`                          | —        | Instance identifier passed to the form dialog fields (e.g. API validation rules)                           |
-| `uiNamespace`        | `String`                          | —        | Base UI namespace used for design system customization                                                     |
-| `i18nScope`          | `String`                          | —        | Identifier used to scope translations                                                                      |
+| Prop name            | Type                              | Default  | Description                                                                                                          |
+| -------------------- | --------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------- |
+| `url`                | `String`                          | —        | Request URL, defined as a Nunjucks template                                                                          |
+| `method`             | `'POST' \| 'PUT'`                 | `'POST'` | HTTP method used to send the request                                                                                 |
+| `body`               | `Record<string, unknown>`         | `{}`     | JSON payload sent as the request body. Every nested string property is a Nunjucks template                           |
+| `formFields`         | `LinidAttributeConfiguration[]`   | —        | Form fields rendered in the form dialog (see `FormDialog`)                                                           |
+| `entity`             | `Record<string, unknown> \| null` | —        | Entity associated with the current context, provided to the Nunjucks context. Injected by the hosting zone           |
+| `parent`             | `Record<string, unknown> \| null` | —        | Parent of the entity (e.g. the application owning a role), provided to the Nunjucks context                          |
+| `fillFormWithEntity` | `Boolean`                         | `false`  | Pre-fills the form fields with the matching entity properties when the dialog opens                                  |
+| `disable`            | `Boolean`                         | `false`  | Disables the button, preventing the dialog from opening                                                              |
+| `instanceId`         | `String`                          | —        | Instance identifier passed to the form dialog fields (e.g. API validation rules)                                     |
+| `emitOnSubmit`       | `String`                          | —        | When set, emits an event with this key on `uiEventSubject` after a successful submit, with the response body as data |
+| `uiNamespace`        | `String`                          | —        | Base UI namespace used for design system customization                                                               |
+| `i18nScope`          | `String`                          | —        | Identifier used to scope translations                                                                                |
 
 ### Templating
 
@@ -92,8 +95,9 @@ The component works when `entity` is `null`: templates are then rendered with th
   edition use cases
 - On submit, the `url` and `body` templates are rendered with a context containing `entity` merged
   with the form values and `parent`, and the request is sent with the configured method
-- On success: positive notification, `submitted` event with the API response, dialog closes
-- On failure: negative notification, the dialog stays open for correction
+- On success: positive notification, `submitted` event with the API response, the `emitOnSubmit` key
+  (if any) published on `uiEventSubject` with the response body, dialog closes
+- On failure: negative notification, the dialog stays open for correction, nothing is emitted
 
 ---
 
