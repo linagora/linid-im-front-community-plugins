@@ -180,6 +180,7 @@ import type {
   QTableRequestEvent,
   QuasarPagination,
   QueryFilter,
+  UiEvent,
 } from '@linagora/linid-im-front-corelib';
 import {
   getEntities,
@@ -194,7 +195,8 @@ import {
   useScopedI18n,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
-import { computed, onMounted, ref } from 'vue';
+import type { Subscription } from 'rxjs';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import ButtonsCard from '../components/card/ButtonsCard.vue';
 import LinidSmartFilter from '../components/smart-filter/LinidSmartFilter.vue';
@@ -221,6 +223,7 @@ const { userPreferenceStore, deleteUserPreference, saveUserPreference } =
   useLinidUserPreference();
 const items = ref<Record<string, unknown>[]>([]);
 const isLoading = ref<boolean>(false);
+let eventSubscription: Subscription;
 const { Notify } = useNotify();
 const { setFiltersInUrl, getFiltersFromUrl } = useLinidFilterUrl(router, route);
 const filters = ref<LinidFilter[]>(
@@ -593,7 +596,16 @@ function loadData(): Promise<void> {
 }
 
 onMounted(async () => {
+  eventSubscription = uiEventSubject.subscribe((event: UiEvent) => {
+    if (options.value?.reloadTableOn?.includes(event.key)) {
+      loadData();
+    }
+  });
   await loadData();
+});
+
+onUnmounted(() => {
+  eventSubscription.unsubscribe();
 });
 </script>
 

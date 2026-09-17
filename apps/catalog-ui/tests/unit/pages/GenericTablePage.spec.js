@@ -25,7 +25,7 @@
  */
 
 import { getEntities, LinidFilterSet } from '@linagora/linid-im-front-corelib';
-import { shallowMount } from '@vue/test-utils';
+import { flushPromises, shallowMount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import GenericTablePage from '../../../src/pages/GenericTablePage.vue';
 
@@ -50,6 +50,8 @@ const baseModuleOptions = {
 let mockModuleOptions = { ...baseModuleOptions };
 const mockSetFiltersInUrl = vi.fn();
 const mockGetFiltersFromUrl = vi.fn(() => []);
+const mockSubscription = { unsubscribe: vi.fn() };
+const mockSubscribe = vi.fn(() => mockSubscription);
 const { MockLinidFilter } = vi.hoisted(() => ({
   MockLinidFilter: class MockLinidFilter {
     constructor(name, type, options, values) {
@@ -126,6 +128,10 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
   }),
   LinidFilter: MockLinidFilter,
   LinidFilterSet: MockLinidFilterSet,
+  uiEventSubject: {
+    subscribe: (callback) => mockSubscribe(callback),
+    next: vi.fn(),
+  },
 }));
 
 vi.mock('vue-router', () => ({
@@ -431,6 +437,48 @@ describe('Test component: GenericTablePage', () => {
       expect(wrapper.vm.favorites).toEqual([
         LinidFilterSet.fromString('2', 'Test', 'name=value'),
       ]);
+    });
+  });
+
+  describe('Test hook: onMounted', () => {
+    it('should reload the items when a configured UI event is emitted', async () => {
+      mockModuleOptions.reloadTableOn = ['rules:saved'];
+      await flushPromises();
+      getEntities.mockClear();
+
+      const callback = mockSubscribe.mock.calls[0][0];
+      callback({ key: 'rules:saved' });
+
+      expect(getEntities).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not reload the items for an unrelated UI event', async () => {
+      mockModuleOptions.reloadTableOn = ['rules:saved'];
+      await flushPromises();
+      getEntities.mockClear();
+
+      const callback = mockSubscribe.mock.calls[0][0];
+      callback({ key: 'unrelated' });
+
+      expect(getEntities).not.toHaveBeenCalled();
+    });
+
+    it('should not reload the items when no event key is configured', async () => {
+      await flushPromises();
+      getEntities.mockClear();
+
+      const callback = mockSubscribe.mock.calls[0][0];
+      callback({ key: 'rules:saved' });
+
+      expect(getEntities).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Test hook: onUnmounted', () => {
+    it('should unsubscribe from the UI event bus', () => {
+      wrapper.unmount();
+
+      expect(mockSubscription.unsubscribe).toHaveBeenCalled();
     });
   });
 });

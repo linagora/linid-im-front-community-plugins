@@ -37,20 +37,22 @@ interface ModuleGenericTablePageOptions {
   creationPagePath: string;
   keepQueryParams?: string[];
   filters?: LinidFilter[];
+  reloadTableOn?: string[];
 }
 ```
 
 ### **Options**
 
-| Option             | Type                   | Description                                                                                             |
-| ------------------ | ---------------------- | ------------------------------------------------------------------------------------------------------- |
-| `idKey`            | `string`               | Key used to identify each row and build detail routes                                                   |
-| `columns`          | `GenericTableColumn[]` | Table column definitions (extends Quasar QTableColumn with formatting options)                          |
-| `enableActions`    | `boolean`              | Enables or disables the actions card above the table                                                    |
-| `enableSeeButton`  | `boolean`              | Optional. Shows the per-row "see" button unless explicitly set to `false`                               |
-| `creationPagePath` | `string`               | Route path used for the "create" button navigation                                                      |
-| `keepQueryParams`  | `string[]`             | Optional. URL query parameter keys to preserve as-is when the active filters are synced to the URL      |
-| `filters`          | `LinidFilter[]`        | Optional. Filter definitions rendered by `LinidSmartFilter`. Omitted or empty disables the smart filter |
+| Option             | Type                   | Description                                                                                                                       |
+| ------------------ | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `idKey`            | `string`               | Key used to identify each row and build detail routes                                                                             |
+| `columns`          | `GenericTableColumn[]` | Table column definitions (extends Quasar QTableColumn with formatting options)                                                    |
+| `enableActions`    | `boolean`              | Enables or disables the actions card above the table                                                                              |
+| `enableSeeButton`  | `boolean`              | Optional. Shows the per-row "see" button unless explicitly set to `false`                                                         |
+| `creationPagePath` | `string`               | Route path used for the "create" button navigation                                                                                |
+| `keepQueryParams`  | `string[]`             | Optional. URL query parameter keys to preserve as-is when the active filters are synced to the URL                                |
+| `filters`          | `LinidFilter[]`        | Optional. Filter definitions rendered by `LinidSmartFilter`. Omitted or empty disables the smart filter                           |
+| `reloadTableOn`    | `string[]`             | Optional. UI event keys (from the `uiEventSubject` bus) triggering a reload of the table data (see [Data Loading](#data-loading)) |
 
 ---
 
@@ -203,6 +205,14 @@ Data is fetched using:
 5. Pagination is synchronized
 6. Errors trigger a notification
 
+### **Reload on UI event**
+
+When `reloadTableOn` is configured, the page subscribes to `uiEventSubject` on mount and calls `loadData()`
+again every time an event with one of the configured keys is emitted, keeping the current pagination and
+active filters. This lets a zone-injected action (e.g. a [`FormDialogButton`](../components/button/FormDialogButton.md)
+with `emitOnSubmit`, or a `GenericSortableListCard` with `emitOnSave`) refresh the table after it succeeds.
+The subscription is released when the page unmounts.
+
 ---
 
 ## **Pagination**
@@ -257,28 +267,51 @@ The `header.actions` zone is rendered inside the actions card, before the create
 The actions column itself is always rendered. If `enableSeeButton` is set to `false` and no plugin is configured
 for the `row-actions` zone, the column is displayed empty.
 
-### **Example: per-row update button**
+### **Example: per-row update button with table reload**
 
 The `row-actions` zone receives the row through its `entity` prop, so a
 [`FormDialogButton`](../components/button/FormDialogButton.md) declared there can update it in place with
-`fillFormWithEntity` and a `PUT` request addressed by `entity.id`:
+`fillFormWithEntity` and a `PUT` request addressed by `entity.id`. Pairing its `emitOnSubmit` with a matching
+`reloadTableOn` key makes the table reload once the update succeeds:
 
 ```json
 {
-  "zone": "moduleApplicationTablePage.row-actions",
-  "plugin": "catalogUI/FormDialogButton",
-  "props": {
-    "url": "/applications/{{ entity.id }}",
-    "method": "PUT",
-    "fillFormWithEntity": true,
-    "formFields": [
-      {
-        "name": "name",
-        "type": "String",
-        "input": "Text",
-        "required": true,
-        "inputSettings": {}
+  "instanceId": "moduleApplicationTablePage",
+  "remoteName": "catalogUI",
+  "apiEndpoint": "applications",
+  "basePath": "/applications",
+  "zones": [
+    {
+      "zone": "moduleApplicationTablePage.row-actions",
+      "plugin": "catalogUI/FormDialogButton",
+      "props": {
+        "url": "/applications/{{ entity.id }}",
+        "method": "PUT",
+        "fillFormWithEntity": true,
+        "formFields": [
+          {
+            "name": "name",
+            "type": "String",
+            "input": "Text",
+            "required": true,
+            "inputSettings": {}
+          }
+        ],
+        "emitOnSubmit": "applications:updated"
       }
+    }
+  ],
+  "options": {
+    "layout": "catalogUI/BaseLayout",
+    "page": "catalogUI/GenericTablePage",
+    "pagePath": "",
+    "idKey": "id",
+    "enableActions": true,
+    "creationPagePath": "/applications/new",
+    "reloadTableOn": ["applications:updated"],
+    "columns": [
+      { "label": "columns.name", "name": "name", "field": "name" },
+      { "label": "columns.actions", "name": "table_actions", "field": "" }
     ]
   }
 }
@@ -335,6 +368,7 @@ Instead, it relies on:
 - `ButtonsCard` (local `catalog-ui` component, optional)
 - `LinidZoneRenderer` from `@linagora/linid-im-front-corelib` (renders the zones)
 - `catalogUI/LinidSmartFilter` (optional)
+- `uiEventSubject` from `@linagora/linid-im-front-corelib` (used when `reloadTableOn` is configured)
 - `@linagora/linid-im-front-corelib`
 - Quasar Framework
 
