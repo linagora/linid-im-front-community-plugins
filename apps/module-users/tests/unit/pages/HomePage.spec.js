@@ -38,16 +38,20 @@ const mockRoute = {
 
 const mockNotify = vi.fn();
 const mockRouterPush = vi.fn();
+const { buildEntityPage } = vi.hoisted(() => ({
+  buildEntityPage: () => ({
+    content: [{ id: 1 }],
+    number: 0,
+    size: 50,
+    totalElements: 1,
+  }),
+}));
+const { mockToQuasarPagination } = vi.hoisted(() => ({
+  mockToQuasarPagination: vi.fn(() => ({ convertedPagination: true })),
+}));
 
 vi.mock('@linagora/linid-im-front-corelib', () => ({
-  getEntities: vi.fn(() =>
-    Promise.resolve({
-      content: [{ id: 1 }],
-      number: 0,
-      size: 50,
-      totalElements: 1,
-    })
-  ),
+  getEntities: vi.fn(() => Promise.resolve(buildEntityPage())),
   useScopedI18n: () => ({
     t: vi.fn((v) => v),
   }),
@@ -65,8 +69,8 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
   }),
   loadAsyncComponent: () => ({}),
   usePagination: () => ({
-    toPagination: (p) => p,
-    toQuasarPagination: () => 'Updated pagination',
+    toPagination: (pagination) => pagination,
+    toQuasarPagination: mockToQuasarPagination,
   }),
   useUiDesign: () => ({ ui: () => ({}) }),
 }));
@@ -81,6 +85,7 @@ describe('Test component: HomePage', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    getEntities.mockImplementation(() => Promise.resolve(buildEntityPage()));
     wrapper = shallowMount(HomePage, {
       global: {
         stubs: ['GenericEntityTable'],
@@ -146,7 +151,12 @@ describe('Test component: HomePage', () => {
   describe('Test function: loadData', () => {
     it('should retrieve data', async () => {
       wrapper.vm.users = [];
-      wrapper.vm.pagination = {};
+      wrapper.vm.pagination = {
+        page: 1,
+        rowsPerPage: 10,
+        sortBy: null,
+        descending: true,
+      };
       wrapper.vm.isLoading = true;
 
       await wrapper.vm.loadData();
@@ -154,7 +164,28 @@ describe('Test component: HomePage', () => {
       expect(wrapper.vm.isLoading).toEqual(false);
       expect(wrapper.vm.users).toEqual([{ id: 1 }]);
       expect(mockNotify).not.toHaveBeenCalled();
-      expect(wrapper.vm.pagination).toEqual('Updated pagination');
+      expect(wrapper.vm.pagination).toEqual({ convertedPagination: true });
+    });
+
+    it('should hand the current pagination over to the conversion', async () => {
+      wrapper.vm.pagination = {
+        page: 2,
+        rowsPerPage: 10,
+        sortBy: 'name',
+        descending: false,
+      };
+
+      await wrapper.vm.loadData();
+
+      expect(mockToQuasarPagination).toHaveBeenLastCalledWith(
+        buildEntityPage(),
+        {
+          page: 2,
+          rowsPerPage: 10,
+          sortBy: 'name',
+          descending: false,
+        }
+      );
     });
 
     it('should reset users on error and call Notify', async () => {
@@ -192,18 +223,21 @@ describe('Test component: HomePage', () => {
         pagination: {
           page: 2,
           rowsPerPage: 5,
-          sortBy: undefined,
+          sortBy: 'name',
           descending: true,
         },
       };
 
       await wrapper.vm.onRequest(paginationEvent);
 
-      expect(wrapper.vm.pagination).toEqual(paginationEvent.pagination);
       expect(getEntities).toHaveBeenCalledTimes(1);
       expect(getEntities).toHaveBeenCalledWith(
         'test-instance-id',
         {},
+        paginationEvent.pagination
+      );
+      expect(mockToQuasarPagination).toHaveBeenCalledWith(
+        buildEntityPage(),
         paginationEvent.pagination
       );
     });
@@ -212,15 +246,24 @@ describe('Test component: HomePage', () => {
   describe('Test function: onFiltersChange', () => {
     it('should update filters and reset pagination to page 1', async () => {
       vi.clearAllMocks();
-      wrapper.vm.pagination = { page: 3, rowsPerPage: 10 };
+      wrapper.vm.pagination = {
+        page: 3,
+        rowsPerPage: 10,
+        sortBy: 'name',
+        descending: true,
+      };
       wrapper.vm.filters = {};
 
       const newFilters = { email: 'test@example.com', firstName: 'John' };
       await wrapper.vm.onFiltersChange(newFilters);
 
       expect(wrapper.vm.filters).toEqual(newFilters);
-      expect(wrapper.vm.pagination.page).toBe(1);
       expect(getEntities).toHaveBeenCalledTimes(1);
+      expect(getEntities).toHaveBeenCalledWith(
+        'test-instance-id',
+        newFilters,
+        expect.objectContaining({ page: 1 })
+      );
     });
   });
 
