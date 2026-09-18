@@ -292,9 +292,24 @@ export interface DynamicListElement {
 export interface FieldDynamicListSettings extends FieldSettings {
   /**
    * The backend route path to fetch the list values (e.g. "/api/types").
-   * Exposed by the DLVP route plugin.
+   * Exposed by the DLVP route plugin. Rendered as a Nunjucks template with the edited entity
+   * exposed as `entity` (e.g. "/api/organizations/{{ entity.organizationId }}/units"), so the
+   * options are reloaded whenever the entity values the route depends on change.
    */
   route: string;
+
+  /**
+   * Dot-notation paths of the values the `route` needs before it can be loaded, written against the
+   * same context as the `route` template, where the edited entity is exposed as `entity`
+   * (e.g. ["entity.organizationId"] for "/organizations/{{ entity.organizationId }}/units").
+   * While one of them is empty the field is disabled and no request is sent; once they all hold a
+   * value the options are loaded, and they are reloaded whenever the rendered `route` changes.
+   * A path that does not appear in the `route` is accepted — the route is never read to check it.
+   * Such a dependency still disables the field while it is empty, but changing it from one value to
+   * another asks for the very same URL, and therefore reloads nothing.
+   * Omitted or left empty, the options are loaded immediately, as for a route without dependencies.
+   */
+  routeDependencies?: string[];
 
   /**
    * Number of items to fetch per page.

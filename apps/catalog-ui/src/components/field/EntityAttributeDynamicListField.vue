@@ -31,7 +31,7 @@
     :data-cy="`field_${definition.name}`"
     class="entity-attribute-dynamic-list-field"
     v-bind="uiProps"
-    :disable="definition.inputSettings?.disable || false"
+    :disable="isDisabled"
     :label="translateOrDefault('', 'label')"
     :hint="translateOrDefault('', 'hint')"
     :prefix="translateOrDefault('', 'prefix')"
@@ -64,13 +64,14 @@
 import {
   getNestedValue,
   type LinidQSelectProps,
+  type Page,
   setNestedValue,
   useNunjucks,
   useQuasarRules,
   useScopedI18n,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { getDynamicListPage } from '../../services/dynamicListService';
 import type {
   AttributeFieldProps,
@@ -105,6 +106,9 @@ const isLoading = ref(false);
 const error = ref<string | null>(null);
 let currentPage = 0;
 let hasMore = true;
+let loadedRoute: string | null = null;
+/** Identifies the load in progress, so that responses of the ones it replaced can be dropped. */
+let currentLoadId = 0;
 
 const pageSize = computed(() => props.definition.inputSettings?.size ?? 20);
 
@@ -128,7 +132,31 @@ const rules = computed(() =>
     : []
 );
 
-const route = computed(() => props.definition.inputSettings?.route);
+/** The context the route template and the dependency paths are both resolved against. */
+const renderContext = computed(() => ({ entity: props.entity }));
+
+/** Whether every declared dependency holds a non-empty value. */
+const areDependenciesSatisfied = computed(() => {
+  const routeDependencies =
+    props.definition.inputSettings?.routeDependencies ?? [];
+
+  const dependencyValues = routeDependencies.map((dependency) =>
+    getNestedValue(renderContext.value, dependency)
+  );
+
+  return dependencyValues.every(hasValue);
+});
+
+const route = computed(() =>
+  renderString(props.definition.inputSettings?.route ?? '', renderContext.value)
+);
+
+/** Whether the select is non-interactive: either explicitly disabled, or missing a dependency. */
+const isDisabled = computed(
+  () =>
+    props.definition.inputSettings?.disable === true ||
+    !areDependenciesSatisfied.value
+);
 
 watch(
   () => getNestedValue(props.entity, props.definition.name),
@@ -137,42 +165,119 @@ watch(
   }
 );
 
-onMounted(async () => {
-  if (!route.value) {
-    error.value = t('validation.dynamicList.missingRoute');
+watch(
+  [areDependenciesSatisfied, route],
+  async ([areSatisfied, renderedRoute]) => {
+    if (!areSatisfied) {
+      reset();
+      return;
+    }
+    if (!renderedRoute) {
+      error.value = t('validation.dynamicList.missingRoute');
+      return;
+    }
+    if (loadedRoute !== null && loadedRoute !== renderedRoute) {
+      clearSelection();
+    }
+    loadedRoute = renderedRoute;
+    reset();
+    await fetchPage();
+    ensurePresetValueInOptions();
+  },
+  { immediate: true }
+);
+
+/**
+ * Whether a dependency value is usable to build the route. `null`, `undefined`, blank strings and
+ * empty arrays count as missing; every other value, including `0` and `false`, is a value.
+ * @param value - The value read at the dependency path.
+ * @returns True when the dependency holds a non-empty value.
+ */
+function hasValue(value: unknown): boolean {
+  if (value === null || value === undefined) {
+    return false;
+  }
+  if (typeof value === 'string') {
+    return value.trim().length > 0;
+  }
+  if (Array.isArray(value)) {
+    return value.length > 0;
+  }
+  return true;
+}
+
+/**
+ * Drops the selected value when the route it was picked from is replaced: a unit chosen under one
+ * organization is not a unit of the next one. The entity is updated too, so the form stops carrying
+ * a value the field no longer offers, and no placeholder is rebuilt for it.
+ */
+function clearSelection() {
+  if (localValue.value === null) {
     return;
   }
-  await fetchPage();
-  ensurePresetValueInOptions();
-});
+  localValue.value = null;
+  updateValue();
+}
+
+/**
+ * Discards everything that belongs to the previously loaded route: its options, its pagination
+ * cursor, and the loading and error states it owns. Starting a new load leaves every request still
+ * in flight behind, so their responses are dropped instead of landing in the new list.
+ */
+function reset() {
+  currentLoadId++;
+  allOptions.value = [];
+  currentPage = 0;
+  hasMore = true;
+  isLoading.value = false;
+  error.value = null;
+}
 
 /**
  * Fetches the next page of elements from the backend.
  */
 async function fetchPage() {
-  if (!route.value || isLoading.value || !hasMore) {
+  const requestedRoute = route.value;
+  if (
+    !requestedRoute ||
+    !areDependenciesSatisfied.value ||
+    isLoading.value ||
+    !hasMore
+  ) {
     return;
   }
 
+  const loadId = currentLoadId;
   isLoading.value = true;
   error.value = null;
 
+  let page: Page<DynamicListElement> | undefined;
   try {
-    const page = await getDynamicListPage(route.value, {
+    page = await getDynamicListPage(requestedRoute, {
       page: currentPage,
       size: pageSize.value,
     });
-    if (page.content.length > 0) {
-      allOptions.value.push(...page.content.map(toOption));
-      removePlaceholderIfResolved();
-    }
-    hasMore = !page.last;
-    currentPage++;
   } catch {
-    error.value = t('validation.dynamicList.fetchError');
-  } finally {
-    isLoading.value = false;
+    // An absent page reports the failure, once the load is known to still be the current one.
   }
+
+  if (loadId !== currentLoadId) {
+    return;
+  }
+
+  isLoading.value = false;
+
+  if (!page?.content) {
+    error.value = t('validation.dynamicList.fetchError');
+    return;
+  }
+
+  if (page.content.length > 0) {
+    allOptions.value.push(...page.content.map(toOption));
+    removePlaceholderIfResolved();
+  }
+  hasMore = !page.last;
+  currentPage++;
 }
 
 /**
