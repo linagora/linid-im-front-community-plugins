@@ -292,7 +292,9 @@ export interface DynamicListElement {
 export interface FieldDynamicListSettings extends FieldSettings {
   /**
    * The backend route path to fetch the list values (e.g. "/api/types").
-   * Exposed by the DLVP route plugin.
+   * Exposed by the DLVP route plugin. Rendered as a Nunjucks template with the edited entity
+   * exposed as `entity` (e.g. "/api/organizations/{{ entity.organizationId }}/units"), so the
+   * options are reloaded whenever the entity values the route depends on change.
    */
   route: string;
 

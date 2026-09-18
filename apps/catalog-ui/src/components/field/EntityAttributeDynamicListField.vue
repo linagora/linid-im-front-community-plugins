@@ -64,13 +64,14 @@
 import {
   getNestedValue,
   type LinidQSelectProps,
+  type Page,
   setNestedValue,
   useNunjucks,
   useQuasarRules,
   useScopedI18n,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { getDynamicListPage } from '../../services/dynamicListService';
 import type {
   AttributeFieldProps,
@@ -105,6 +106,9 @@ const isLoading = ref(false);
 const error = ref<string | null>(null);
 let currentPage = 0;
 let hasMore = true;
+let loadedRoute: string | null = null;
+/** Identifies the load in progress, so that responses of the ones it replaced can be dropped. */
+let currentLoadId = 0;
 
 const pageSize = computed(() => props.definition.inputSettings?.size ?? 20);
 
@@ -128,7 +132,20 @@ const rules = computed(() =>
     : []
 );
 
-const route = computed(() => props.definition.inputSettings?.route);
+const rawRoute = computed(() => props.definition.inputSettings?.route ?? '');
+
+/**
+ * Whether the route can be rendered. A details page mounts its form before it has loaded the entity,
+ * so a route templated on the entity would render to a malformed URL at that point. Routes without a
+ * template never wait.
+ */
+const isRouteResolved = computed(
+  () => !rawRoute.value.includes('{{') || Object.keys(props.entity).length > 0
+);
+
+const route = computed(() =>
+  renderString(rawRoute.value, { entity: props.entity })
+);
 
 watch(
   () => getNestedValue(props.entity, props.definition.name),
@@ -137,42 +154,95 @@ watch(
   }
 );
 
-onMounted(async () => {
-  if (!route.value) {
-    error.value = t('validation.dynamicList.missingRoute');
+watch(
+  () => (isRouteResolved.value ? route.value : null),
+  async (renderedRoute) => {
+    if (renderedRoute === null) {
+      return;
+    }
+    if (!renderedRoute) {
+      error.value = t('validation.dynamicList.missingRoute');
+      return;
+    }
+    if (loadedRoute !== null && loadedRoute !== renderedRoute) {
+      clearSelection();
+    }
+    loadedRoute = renderedRoute;
+    await reload();
+  },
+  { immediate: true }
+);
+
+/**
+ * Drops the selected value when the route it was picked from is replaced: a unit chosen under one
+ * organization is not a unit of the next one. The entity is updated too, so the form stops carrying
+ * a value the field no longer offers, and no placeholder is rebuilt for it.
+ */
+function clearSelection() {
+  if (localValue.value === null) {
     return;
   }
+  localValue.value = null;
+  updateValue();
+}
+
+/**
+ * Discards the loaded options and fetches the first page again, so that a route templated on the
+ * entity serves fresh options whenever the entity values it depends on change. Starting a new load
+ * leaves every request still in flight behind, so their responses are dropped instead of landing in
+ * the new list.
+ */
+async function reload() {
+  currentLoadId++;
+  allOptions.value = [];
+  currentPage = 0;
+  hasMore = true;
+  isLoading.value = false;
+  error.value = null;
   await fetchPage();
   ensurePresetValueInOptions();
-});
+}
 
 /**
  * Fetches the next page of elements from the backend.
  */
 async function fetchPage() {
-  if (!route.value || isLoading.value || !hasMore) {
+  const requestedRoute = route.value;
+  if (!requestedRoute || isLoading.value || !hasMore) {
     return;
   }
 
+  const loadId = currentLoadId;
   isLoading.value = true;
   error.value = null;
 
+  let page: Page<DynamicListElement> | undefined;
   try {
-    const page = await getDynamicListPage(route.value, {
+    page = await getDynamicListPage(requestedRoute, {
       page: currentPage,
       size: pageSize.value,
     });
-    if (page.content.length > 0) {
-      allOptions.value.push(...page.content.map(toOption));
-      removePlaceholderIfResolved();
-    }
-    hasMore = !page.last;
-    currentPage++;
   } catch {
-    error.value = t('validation.dynamicList.fetchError');
-  } finally {
-    isLoading.value = false;
+    // An absent page reports the failure, once the load is known to still be the current one.
   }
+
+  if (loadId !== currentLoadId) {
+    return;
+  }
+
+  isLoading.value = false;
+
+  if (!page?.content) {
+    error.value = t('validation.dynamicList.fetchError');
+    return;
+  }
+
+  if (page.content.length > 0) {
+    allOptions.value.push(...page.content.map(toOption));
+    removePlaceholderIfResolved();
+  }
+  hasMore = !page.last;
+  currentPage++;
 }
 
 /**
