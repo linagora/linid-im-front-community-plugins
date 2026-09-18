@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.123](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.122...v0.2.123) (2026-09-18)
+
+
+### Features
+
+* **catalog-ui:** add emitOnSubmit to FormDialogButton ([5ae67fb](https://github.com/linagora/linid-im-front-community-plugins/commit/5ae67fb4f60e158944f8b12eb9a9510f07987bb1))
+* **catalog-ui:** add enableSeeButton option and action zone in GenericTablePage ([e2275c7](https://github.com/linagora/linid-im-front-community-plugins/commit/e2275c7ee3ed12d25fda5ad867e8378f314ec163))
+* **catalog-ui:** add reloadTableOn to GenericTablePage ([491d570](https://github.com/linagora/linid-im-front-community-plugins/commit/491d570ae1f1571e0f02e7de68a2f53b3fc6824c))
+
 ### [0.2.122](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.121...v0.2.122) (2026-09-17)
 
 
