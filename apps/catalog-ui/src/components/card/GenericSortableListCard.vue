@@ -31,7 +31,7 @@
     class="q-mb-md q-px-md generic-sortable-list-card"
     data-cy="generic-sortable-list-card"
   >
-    <q-card-section class="row items-center justify-between">
+    <q-card-section class="row items-center justify-between" horizontal>
       <h4
         v-if="te('title')"
         class="q-my-none text-subtitle1 generic-sortable-list-card--title"
@@ -70,10 +70,11 @@
       v-if="hasUnsavedChanges"
       class="generic-sortable-list-card--unsaved-changes-hint"
       data-cy="generic-sortable-list-card_unsaved-changes-hint"
+      horizontal
     >
       <span>{{ t('unsavedChangesHint') }}</span>
     </q-card-section>
-    <q-card-section>
+    <q-card-section horizontal>
       <q-list
         v-bind="uiProps.list"
         class="full-width col-auto generic-sortable-list-card--list"

@@ -32,6 +32,7 @@
   >
     <q-card-section
       v-if="te('title')"
+      horizontal
       class="entity-details-card--title"
     >
       <h4 class="text-subtitle1">

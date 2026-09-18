@@ -87,6 +87,7 @@
       <q-menu
         v-model="isFilterMenuOpen"
         :persistent="isMenuPersistent ?? false"
+        fit
         class="row linid-smart-filter--menu"
         anchor="bottom middle"
         self="top middle"
