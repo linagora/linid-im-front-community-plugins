@@ -155,6 +155,10 @@ export default defineConfig({
           __dirname,
           'src/components/button/FormDialogButton.vue'
         ),
+        './ConfirmDialogButton': resolve(
+          __dirname,
+          'src/components/button/ConfirmDialogButton.vue'
+        ),
         './StatusBadge': resolve(
           __dirname,
           'src/components/badge/StatusBadge.vue'
