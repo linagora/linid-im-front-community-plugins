@@ -205,6 +205,9 @@ The library organizes components by category. For each component, documentation 
 - 📝 **FormDialogButton** — Action button opening the shared form dialog and sending the collected input through a configurable POST or PUT request
   → Documentation is inside: [`FormDialogButton.md`](./docs/components/button/FormDialogButton.md)
 
+- 🗑️ **ConfirmDialogButton** — Action button opening the shared confirmation dialog and sending a configurable DELETE, POST or PUT request once confirmed
+  → Documentation is inside: [`ConfirmDialogButton.md`](./docs/components/button/ConfirmDialogButton.md)
+
 ### **Badge Components**
 
 - 🏷️ **StatusBadge** — Reusable badge component that standardizes the display of entity statuses with i18n support and design configuration

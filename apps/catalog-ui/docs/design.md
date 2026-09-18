@@ -347,6 +347,29 @@ The dialog inherits this namespace.
 
 ---
 
+### ConfirmDialogButton
+
+Action button opening the shared `ConfirmationDialog` before sending a configurable request.
+The dialog inherits this namespace.
+
+**Namespace:** `{uiNamespace}.confirm-dialog-button`
+
+```json
+{
+  "[PARENT_NAMESPACE]": {
+    "confirm-dialog-button": {
+      "q-btn": { "color": "negative", "outline": true, "icon": "delete" },
+      "confirmation-dialog": {
+        "q-dialog": { "persistent": false },
+        "q-card": { "flat": true, "bordered": true }
+      }
+    }
+  }
+}
+```
+
+---
+
 ### EntityDetailsCard
 
 Card for displaying entity attribute details. Fields inside the card can be configured individually.
