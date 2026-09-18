@@ -31,7 +31,7 @@
     :data-cy="`field_${definition.name}`"
     class="entity-attribute-dynamic-list-field"
     v-bind="uiProps"
-    :disable="definition.inputSettings?.disable || false"
+    :disable="isDisabled"
     :label="translateOrDefault('', 'label')"
     :hint="translateOrDefault('', 'hint')"
     :prefix="translateOrDefault('', 'prefix')"
@@ -132,19 +132,30 @@ const rules = computed(() =>
     : []
 );
 
-const rawRoute = computed(() => props.definition.inputSettings?.route ?? '');
+/** The context the route template and the dependency paths are both resolved against. */
+const renderContext = computed(() => ({ entity: props.entity }));
 
-/**
- * Whether the route can be rendered. A details page mounts its form before it has loaded the entity,
- * so a route templated on the entity would render to a malformed URL at that point. Routes without a
- * template never wait.
- */
-const isRouteResolved = computed(
-  () => !rawRoute.value.includes('{{') || Object.keys(props.entity).length > 0
-);
+/** Whether every declared dependency holds a non-empty value. */
+const areDependenciesSatisfied = computed(() => {
+  const routeDependencies =
+    props.definition.inputSettings?.routeDependencies ?? [];
+
+  const dependencyValues = routeDependencies.map((dependency) =>
+    getNestedValue(renderContext.value, dependency)
+  );
+
+  return dependencyValues.every(hasValue);
+});
 
 const route = computed(() =>
-  renderString(rawRoute.value, { entity: props.entity })
+  renderString(props.definition.inputSettings?.route ?? '', renderContext.value)
+);
+
+/** Whether the select is non-interactive: either explicitly disabled, or missing a dependency. */
+const isDisabled = computed(
+  () =>
+    props.definition.inputSettings?.disable === true ||
+    !areDependenciesSatisfied.value
 );
 
 watch(
@@ -155,9 +166,10 @@ watch(
 );
 
 watch(
-  () => (isRouteResolved.value ? route.value : null),
-  async (renderedRoute) => {
-    if (renderedRoute === null) {
+  [areDependenciesSatisfied, route],
+  async ([areSatisfied, renderedRoute]) => {
+    if (!areSatisfied) {
+      reset();
       return;
     }
     if (!renderedRoute) {
@@ -168,10 +180,31 @@ watch(
       clearSelection();
     }
     loadedRoute = renderedRoute;
-    await reload();
+    reset();
+    await fetchPage();
+    ensurePresetValueInOptions();
   },
   { immediate: true }
 );
+
+/**
+ * Whether a dependency value is usable to build the route. `null`, `undefined`, blank strings and
+ * empty arrays count as missing; every other value, including `0` and `false`, is a value.
+ * @param value - The value read at the dependency path.
+ * @returns True when the dependency holds a non-empty value.
+ */
+function hasValue(value: unknown): boolean {
+  if (value === null || value === undefined) {
+    return false;
+  }
+  if (typeof value === 'string') {
+    return value.trim().length > 0;
+  }
+  if (Array.isArray(value)) {
+    return value.length > 0;
+  }
+  return true;
+}
 
 /**
  * Drops the selected value when the route it was picked from is replaced: a unit chosen under one
@@ -187,20 +220,17 @@ function clearSelection() {
 }
 
 /**
- * Discards the loaded options and fetches the first page again, so that a route templated on the
- * entity serves fresh options whenever the entity values it depends on change. Starting a new load
- * leaves every request still in flight behind, so their responses are dropped instead of landing in
- * the new list.
+ * Discards everything that belongs to the previously loaded route: its options, its pagination
+ * cursor, and the loading and error states it owns. Starting a new load leaves every request still
+ * in flight behind, so their responses are dropped instead of landing in the new list.
  */
-async function reload() {
+function reset() {
   currentLoadId++;
   allOptions.value = [];
   currentPage = 0;
   hasMore = true;
   isLoading.value = false;
   error.value = null;
-  await fetchPage();
-  ensurePresetValueInOptions();
 }
 
 /**
@@ -208,7 +238,12 @@ async function reload() {
  */
 async function fetchPage() {
   const requestedRoute = route.value;
-  if (!requestedRoute || isLoading.value || !hasMore) {
+  if (
+    !requestedRoute ||
+    !areDependenciesSatisfied.value ||
+    isLoading.value ||
+    !hasMore
+  ) {
     return;
   }
 

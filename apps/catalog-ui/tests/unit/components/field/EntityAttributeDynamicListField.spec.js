@@ -292,19 +292,7 @@ describe('Test component: EntityAttributeDynamicListField', () => {
       );
     });
 
-    it('should not fetch a templated route while the entity is empty', async () => {
-      mountingOptions.props.entity = {};
-      mountingOptions.props.definition.inputSettings.route =
-        '/api/organizations/{{ entity.organizationId }}/units';
-      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
-      await nextTick();
-      await nextTick();
-
-      expect(mockGetDynamicListPage).not.toHaveBeenCalled();
-      expect(wrapper.vm.error).toBeNull();
-    });
-
-    it('should fetch once the entity is loaded', async () => {
+    it('should fetch the rendered route once the entity is loaded', async () => {
       mountingOptions.props.entity = {};
       mountingOptions.props.definition.inputSettings.route =
         '/api/organizations/{{ entity.organizationId }}/units';
@@ -371,12 +359,319 @@ describe('Test component: EntityAttributeDynamicListField', () => {
     });
   });
 
+  describe('Test computed: areDependenciesSatisfied', () => {
+    const mountWith = (routeDependencies, entity) => {
+      mountingOptions.props.definition.inputSettings.routeDependencies =
+        routeDependencies;
+      mountingOptions.props.entity = entity;
+      return shallowMount(EntityAttributeDynamicListField, mountingOptions);
+    };
+
+    it('should be true when no dependency is declared', () => {
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+
+      expect(wrapper.vm.areDependenciesSatisfied).toEqual(true);
+    });
+
+    it('should be true when an empty dependency array is declared', () => {
+      wrapper = mountWith([], { name: 'entity-name' });
+
+      expect(wrapper.vm.areDependenciesSatisfied).toEqual(true);
+    });
+
+    it('should be true when every dependency holds a value', () => {
+      wrapper = mountWith(['entity.organizationId', 'entity.unitId'], {
+        organizationId: 'org-1',
+        unitId: 'unit-1',
+      });
+
+      expect(wrapper.vm.areDependenciesSatisfied).toEqual(true);
+    });
+
+    it('should be false when a dependency is undefined', () => {
+      wrapper = mountWith(['entity.organizationId'], { name: 'entity-name' });
+
+      expect(wrapper.vm.areDependenciesSatisfied).toEqual(false);
+    });
+
+    it('should be false when a dependency is null', () => {
+      wrapper = mountWith(['entity.organizationId'], {
+        organizationId: null,
+      });
+
+      expect(wrapper.vm.areDependenciesSatisfied).toEqual(false);
+    });
+
+    it('should be false when a dependency is a blank string', () => {
+      wrapper = mountWith(['entity.organizationId'], {
+        organizationId: '   ',
+      });
+
+      expect(wrapper.vm.areDependenciesSatisfied).toEqual(false);
+    });
+
+    it('should be false when a dependency is an empty array', () => {
+      wrapper = mountWith(['entity.roles'], { roles: [] });
+
+      expect(wrapper.vm.areDependenciesSatisfied).toEqual(false);
+    });
+
+    it('should be true when a dependency holds a falsy but non-empty value', () => {
+      wrapper = mountWith(['entity.count', 'entity.enabled'], {
+        count: 0,
+        enabled: false,
+      });
+
+      expect(wrapper.vm.areDependenciesSatisfied).toEqual(true);
+    });
+
+    it('should be false when only part of the dependencies are set', () => {
+      wrapper = mountWith(['entity.organizationId', 'entity.unitId'], {
+        organizationId: 'org-1',
+      });
+
+      expect(wrapper.vm.areDependenciesSatisfied).toEqual(false);
+    });
+
+    it('should resolve a dependency located in a nested path', () => {
+      wrapper = mountWith(['entity.extraParameters.organizationId'], {
+        extraParameters: { organizationId: 'org-1' },
+      });
+
+      expect(wrapper.vm.areDependenciesSatisfied).toEqual(true);
+    });
+  });
+
+  describe('Test computed: isDisabled', () => {
+    it('should be false when no dependency is declared and disable is unset', () => {
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+
+      expect(wrapper.vm.isDisabled).toEqual(false);
+    });
+
+    it('should be true when disable is set in inputSettings', () => {
+      mountingOptions.props.definition.inputSettings.disable = true;
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+
+      expect(wrapper.vm.isDisabled).toEqual(true);
+    });
+
+    it('should be true when a dependency is empty', () => {
+      mountingOptions.props.definition.inputSettings.routeDependencies = [
+        'entity.organizationId',
+      ];
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+
+      expect(wrapper.vm.isDisabled).toEqual(true);
+    });
+
+    it('should become false once every dependency holds a value', async () => {
+      mountingOptions.props.definition.inputSettings.routeDependencies = [
+        'entity.organizationId',
+      ];
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+
+      await wrapper.setProps({ entity: { organizationId: 'org-1' } });
+
+      expect(wrapper.vm.isDisabled).toEqual(false);
+    });
+  });
+
+  describe('Test watch: routeDependencies', () => {
+    beforeEach(() => {
+      mountingOptions.props.definition.inputSettings.route =
+        '/api/organizations/{{ entity.organizationId }}/units';
+      mountingOptions.props.definition.inputSettings.routeDependencies = [
+        'entity.organizationId',
+      ];
+    });
+
+    it('should not fetch while a dependency is empty', async () => {
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+      await nextTick();
+
+      expect(mockGetDynamicListPage).not.toHaveBeenCalled();
+      expect(wrapper.vm.error).toBeNull();
+    });
+
+    it('should fetch once every dependency holds a value', async () => {
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+      await nextTick();
+
+      await wrapper.setProps({ entity: { organizationId: 'org-1' } });
+      await nextTick();
+      await nextTick();
+
+      expect(mockGetDynamicListPage).toHaveBeenCalledWith(
+        '/api/organizations/org-1/units',
+        { page: 0, size: 10 }
+      );
+    });
+
+    it('should wait for every dependency before fetching', async () => {
+      mountingOptions.props.definition.inputSettings.routeDependencies = [
+        'entity.organizationId',
+        'entity.unitId',
+      ];
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+      await nextTick();
+
+      await wrapper.setProps({ entity: { organizationId: 'org-1' } });
+      await nextTick();
+      await nextTick();
+
+      expect(mockGetDynamicListPage).not.toHaveBeenCalled();
+
+      await wrapper.setProps({
+        entity: { organizationId: 'org-1', unitId: 'unit-1' },
+      });
+      await nextTick();
+      await nextTick();
+
+      expect(mockGetDynamicListPage).toHaveBeenCalledWith(
+        '/api/organizations/org-1/units',
+        { page: 0, size: 10 }
+      );
+    });
+
+    it('should not reload when a dependency absent from the route changes value', async () => {
+      mountingOptions.props.definition.inputSettings.route = '/api/types';
+      mountingOptions.props.entity.organizationId = 'org-1';
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+      await nextTick();
+      mockGetDynamicListPage.mockClear();
+
+      await wrapper.setProps({
+        entity: { name: 'entity-name', organizationId: 'org-2' },
+      });
+      await nextTick();
+      await nextTick();
+
+      expect(mockGetDynamicListPage).not.toHaveBeenCalled();
+    });
+
+    it('should reload when a dependency absent from the route is filled in again', async () => {
+      mountingOptions.props.definition.inputSettings.route = '/api/types';
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+      await nextTick();
+      expect(mockGetDynamicListPage).not.toHaveBeenCalled();
+
+      await wrapper.setProps({
+        entity: { name: 'entity-name', organizationId: 'org-1' },
+      });
+      await nextTick();
+      await nextTick();
+
+      expect(mockGetDynamicListPage).toHaveBeenCalledWith('/api/types', {
+        page: 0,
+        size: 10,
+      });
+    });
+
+    it('should reload only once when a dependency also changes the rendered route', async () => {
+      mountingOptions.props.entity.organizationId = 'org-1';
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+      await nextTick();
+      mockGetDynamicListPage.mockClear();
+
+      await wrapper.setProps({
+        entity: { name: 'entity-name', organizationId: 'org-2' },
+      });
+      await nextTick();
+      await nextTick();
+
+      expect(mockGetDynamicListPage).toHaveBeenCalledTimes(1);
+      expect(mockGetDynamicListPage).toHaveBeenCalledWith(
+        '/api/organizations/org-2/units',
+        { page: 0, size: 10 }
+      );
+    });
+
+    it('should discard the loaded options when a dependency becomes empty', async () => {
+      mountingOptions.props.entity.organizationId = 'org-1';
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+      await nextTick();
+      expect(wrapper.vm.allOptions.length).toEqual(3);
+      mockGetDynamicListPage.mockClear();
+
+      await wrapper.setProps({
+        entity: { name: 'entity-name', organizationId: '' },
+      });
+      await nextTick();
+      await nextTick();
+
+      expect(wrapper.vm.allOptions).toEqual([]);
+      expect(wrapper.vm.currentPage).toEqual(0);
+      expect(wrapper.vm.hasMore).toEqual(true);
+      expect(mockGetDynamicListPage).not.toHaveBeenCalled();
+    });
+
+    it('should clear a previous fetch error when a dependency becomes empty', async () => {
+      mockGetDynamicListPage.mockRejectedValue(new Error('Network error'));
+      mountingOptions.props.entity.organizationId = 'org-1';
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+      await nextTick();
+      expect(wrapper.vm.error).toEqual('validation.dynamicList.fetchError');
+
+      await wrapper.setProps({
+        entity: { name: 'entity-name', organizationId: null },
+      });
+      await nextTick();
+      await nextTick();
+
+      expect(wrapper.vm.error).toBeNull();
+    });
+
+    it('should not reload when the entity changes outside of route and dependencies', async () => {
+      mountingOptions.props.entity.organizationId = 'org-1';
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+      await nextTick();
+      mockGetDynamicListPage.mockClear();
+
+      await wrapper.setProps({
+        entity: { name: 'renamed', organizationId: 'org-1' },
+      });
+      await nextTick();
+      await nextTick();
+
+      expect(mockGetDynamicListPage).not.toHaveBeenCalled();
+    });
+  });
+
   describe('Test function: fetchPage', () => {
     beforeEach(async () => {
       wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
       await nextTick();
       await nextTick();
       mockGetDynamicListPage.mockClear();
+    });
+
+    it('should not fetch when a declared dependency is empty', async () => {
+      await wrapper.setProps({
+        definition: {
+          name: 'type',
+          ...mountingOptions.props.definition,
+          inputSettings: {
+            route: '/api/types',
+            size: 10,
+            routeDependencies: ['entity.organizationId'],
+          },
+        },
+      });
+      await nextTick();
+
+      await wrapper.vm.fetchPage();
+
+      expect(mockGetDynamicListPage).not.toHaveBeenCalled();
     });
 
     it('should not fetch when route is missing', async () => {
@@ -541,6 +836,16 @@ describe('Test component: EntityAttributeDynamicListField', () => {
       await wrapper.vm.fetchPage();
 
       expect(wrapper.vm.error).toEqual('validation.dynamicList.fetchError');
+      expect(wrapper.vm.isLoading).toEqual(false);
+    });
+
+    it('should set error when the response carries no content', async () => {
+      mockGetDynamicListPage.mockResolvedValue({});
+      await wrapper.vm.fetchPage();
+
+      expect(wrapper.vm.error).toEqual('validation.dynamicList.fetchError');
+      expect(wrapper.vm.isLoading).toEqual(false);
+      expect(wrapper.vm.currentPage).toEqual(1);
     });
   });
 
@@ -786,6 +1091,9 @@ describe('Test component: EntityAttributeDynamicListField', () => {
     beforeEach(() => {
       mountingOptions.props.definition.inputSettings.route =
         '/api/organizations/{{ entity.organizationId }}/units';
+      mountingOptions.props.definition.inputSettings.routeDependencies = [
+        'entity.organizationId',
+      ];
       mountingOptions.props.entity.organizationId = 'org-1';
       mountingOptions.props.entity.type = 'unit-a';
     });
@@ -841,7 +1149,7 @@ describe('Test component: EntityAttributeDynamicListField', () => {
     });
 
     it('should keep the preset value on the first load', async () => {
-      mountingOptions.props.entity = {};
+      mountingOptions.props.entity = { name: 'entity-name' };
       wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
       await nextTick();
       await nextTick();
@@ -861,6 +1169,30 @@ describe('Test component: EntityAttributeDynamicListField', () => {
         label: 'unit-a',
         value: 'unit-a',
       });
+      expect(wrapper.emitted('update:entity')).toBeUndefined();
+    });
+
+    it('should keep the selection when the route comes back to a loaded one', async () => {
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+      await nextTick();
+
+      await wrapper.setProps({
+        entity: { name: 'entity-name', organizationId: '', type: 'unit-a' },
+      });
+      await nextTick();
+      await nextTick();
+      await wrapper.setProps({
+        entity: {
+          name: 'entity-name',
+          organizationId: 'org-1',
+          type: 'unit-a',
+        },
+      });
+      await nextTick();
+      await nextTick();
+
+      expect(wrapper.vm.localValue).toEqual('unit-a');
       expect(wrapper.emitted('update:entity')).toBeUndefined();
     });
 
