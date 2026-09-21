@@ -70,10 +70,17 @@ export interface FormDialogButtonProps extends CommonComponentProps {
   /**
    * JSON payload sent as the request body. Every nested string property is rendered as a Nunjucks
    * template with a context containing `entity` (the configured entity merged with the submitted
-   * form data) and `parent`.
+   * form data) and `parent`. Ignored when `multipart` is enabled.
    * @default {}
    */
   body?: Record<string, unknown>;
+
+  /**
+   * Whether the submitted form data is sent as a `multipart/form-data` body, one part per form
+   * field, instead of the JSON `body`. Required to upload files selected through a `File` field.
+   * @default false
+   */
+  multipart?: boolean;
 
   /**
    * Form fields rendered in the form dialog, defined as an array of LinidAttributeConfiguration
