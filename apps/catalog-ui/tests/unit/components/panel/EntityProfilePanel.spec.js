@@ -26,7 +26,7 @@
 
 import { Avatar } from '@dicebear/core';
 import { flushPromises, shallowMount } from '@vue/test-utils';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { isProxy, reactive } from 'vue';
 import EntityProfilePanel from '../../../../src/components/panel/EntityProfilePanel.vue';
 
@@ -42,6 +42,7 @@ const {
   mockUi,
   mockUseScopedI18n,
   mockUiEventNext,
+  mockUiEventSubscribe,
   mockLoadDiceBearStyle,
 } = vi.hoisted(() => {
   const t = vi.fn((key) => key);
@@ -55,6 +56,7 @@ const {
     mockUi: vi.fn(() => ({})),
     mockUseScopedI18n: vi.fn(() => ({ t, te, translateOrDefault })),
     mockUiEventNext: vi.fn(),
+    mockUiEventSubscribe: vi.fn(() => ({ unsubscribe: vi.fn() })),
     mockLoadDiceBearStyle: vi.fn(async () => ({})),
   };
 });
@@ -78,7 +80,7 @@ vi.mock('../../../../src/services/diceBearLoaderService', () => ({
 vi.mock('@linagora/linid-im-front-corelib', () => ({
   LinidZoneRenderer: { template: '<div />' },
   useNunjucks: () => ({ renderString: mockRender }),
-  uiEventSubject: { next: mockUiEventNext },
+  uiEventSubject: { next: mockUiEventNext, subscribe: mockUiEventSubscribe },
   useScopedI18n: mockUseScopedI18n,
   useUiDesign: () => ({ ui: mockUi }),
 }));
@@ -101,7 +103,9 @@ describe('Test component: EntityProfilePanel', () => {
       global: {
         stubs: [
           'ButtonsCard',
+          'ConfirmDialogButton',
           'EntityDetailsCard',
+          'MenuButton',
           'FormDialogButton',
           'StatusBadge',
           'LinidZoneRenderer',
@@ -116,7 +120,14 @@ describe('Test component: EntityProfilePanel', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-01-01T00:00:00Z'));
+    mockRender.mockImplementation((template) => template);
     wrapper = createWrapper();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   describe('Test props: entity', () => {
@@ -559,6 +570,260 @@ describe('Test component: EntityProfilePanel', () => {
     });
   });
 
+  describe('Test props: avatarLocation', () => {
+    const avatarOptions = { seed: ['{{ entity.uid }}'], style: 'adventurer' };
+
+    it('should not set avatarLocationSrc when avatarLocation is not provided', () => {
+      expect(wrapper.vm.avatarLocationSrc).toBeUndefined();
+    });
+
+    it('should not set avatarLocationSrc when enableAvatar is false', () => {
+      const w = createWrapper({
+        enableAvatar: false,
+        entity: { id: '1' },
+        avatarLocation: '/avatars/{{ entity.id }}.png',
+      });
+
+      expect(w.vm.avatarLocationSrc).toBeUndefined();
+    });
+
+    it('should not set avatarLocationSrc while the entity is not resolved', () => {
+      const w = createWrapper({
+        avatarLocation: '/avatars/{{ entity.id }}.png',
+      });
+
+      expect(w.vm.isEntityResolved).toBe(false);
+      expect(w.vm.avatarLocationSrc).toBeUndefined();
+      expect(mockRender).not.toHaveBeenCalledWith(
+        '/avatars/{{ entity.id }}.png',
+        expect.anything()
+      );
+    });
+
+    it('should render avatarLocation with the entity and a version query parameter', () => {
+      const entity = { id: '1' };
+      mockRender.mockImplementation((template, context) =>
+        template.replace('{{ entity.id }}', context.entity.id)
+      );
+      const w = createWrapper({
+        entity,
+        avatarLocation: '/avatars/{{ entity.id }}.png',
+      });
+
+      expect(mockRender).toHaveBeenCalledWith('/avatars/{{ entity.id }}.png', {
+        entity,
+      });
+      expect(w.vm.avatarLocationSrc).toBe('/avatars/1.png?v=1767225600000');
+      expect(w.vm.avatarSrc).toBe('/avatars/1.png?v=1767225600000');
+    });
+
+    it('should append the version with an ampersand when the location already has a query string', () => {
+      const w = createWrapper({
+        entity: { id: '1' },
+        avatarLocation: '/avatars/1.png?size=small',
+      });
+
+      expect(w.vm.avatarLocationSrc).toBe(
+        '/avatars/1.png?size=small&v=1767225600000'
+      );
+    });
+
+    it('should use the current time as initial version, so a cached image is not displayed', () => {
+      vi.setSystemTime(new Date('2026-01-02T00:00:00Z'));
+      const w = createWrapper({
+        entity: { id: '1' },
+        avatarLocation: '/avatars/1.png',
+      });
+
+      expect(w.vm.avatarLocationSrc).toBe('/avatars/1.png?v=1767312000000');
+    });
+
+    it('should display the stored image rather than the DiceBear avatar when both are available', async () => {
+      const w = createWrapper({
+        entity: { uid: 'john' },
+        avatarOptions,
+        avatarLocation: '/avatars/john.png',
+      });
+
+      await flushPromises();
+
+      expect(w.vm.diceBearSrc).toMatch(/^data:image\/svg\+xml/);
+      expect(w.vm.isStoredAvatarDisplayed).toBe(true);
+      expect(w.vm.avatarSrc).toBe('/avatars/john.png?v=1767225600000');
+    });
+
+    it('should fall back to the DiceBear avatar when the stored image fails to load', async () => {
+      const w = createWrapper({
+        entity: { uid: 'john' },
+        avatarOptions,
+        avatarLocation: '/avatars/john.png',
+      });
+      await flushPromises();
+
+      w.vm.onAvatarError();
+      await w.vm.$nextTick();
+
+      expect(w.vm.isStoredAvatarDisplayed).toBe(false);
+      expect(w.vm.avatarSrc).toMatch(/^data:image\/svg\+xml/);
+    });
+
+    it('should leave avatarSrc undefined when the stored image fails and no avatarOptions is set', async () => {
+      const w = createWrapper({
+        entity: { uid: 'john' },
+        avatarLocation: '/avatars/john.png',
+      });
+
+      w.vm.onAvatarError();
+      await w.vm.$nextTick();
+
+      expect(w.vm.avatarSrc).toBeUndefined();
+    });
+
+    it('should retry the stored image when the location changes after a failure', async () => {
+      mockRender.mockImplementation((template, context) =>
+        template.replace('{{ entity.id }}', context.entity.id)
+      );
+      const w = createWrapper({
+        entity: { id: '1' },
+        avatarLocation: '/avatars/{{ entity.id }}.png',
+      });
+      w.vm.onAvatarError();
+      await w.vm.$nextTick();
+      expect(w.vm.avatarSrc).toBeUndefined();
+
+      await w.setProps({ entity: { id: '2' } });
+
+      expect(w.vm.avatarSrc).toBe('/avatars/2.png?v=1767225600000');
+    });
+  });
+
+  describe('Test event bus: avatar updated', () => {
+    it('should subscribe on mount and unsubscribe on unmount', () => {
+      const subscription = { unsubscribe: vi.fn() };
+      mockUiEventSubscribe.mockReturnValueOnce(subscription);
+      const w = createWrapper();
+
+      expect(mockUiEventSubscribe).toHaveBeenLastCalledWith(
+        expect.any(Function)
+      );
+
+      w.unmount();
+
+      expect(subscription.unsubscribe).toHaveBeenCalled();
+    });
+
+    it('should expose the avatar updated key to the image actions', () => {
+      expect(wrapper.vm.avatarUpdatedEvent).toBe(
+        'test-namespace.entity-profile-panel.avatar-updated'
+      );
+    });
+
+    it('should refresh the avatar when the avatar updated key is published', async () => {
+      const w = createWrapper({
+        entity: { id: '1' },
+        avatarLocation: '/avatars/john.png',
+      });
+      const callback = mockUiEventSubscribe.mock.calls.at(-1)[0];
+      vi.setSystemTime(new Date('2026-01-02T00:00:00Z'));
+
+      callback({ key: 'test-namespace.entity-profile-panel.avatar-updated' });
+      await w.vm.$nextTick();
+
+      expect(w.vm.avatarSrc).toBe('/avatars/john.png?v=1767312000000');
+    });
+
+    it('should ignore other keys', async () => {
+      const w = createWrapper({
+        entity: { id: '1' },
+        avatarLocation: '/avatars/john.png',
+      });
+      const callback = mockUiEventSubscribe.mock.calls.at(-1)[0];
+      vi.setSystemTime(new Date('2026-01-02T00:00:00Z'));
+
+      callback({ key: 'other-event' });
+      await w.vm.$nextTick();
+
+      expect(w.vm.avatarSrc).toBe('/avatars/john.png?v=1767225600000');
+    });
+  });
+
+  describe('Test function: refreshAvatar', () => {
+    it('should bump the version query parameter and retry the stored image', async () => {
+      const w = createWrapper({
+        entity: { id: '1' },
+        avatarLocation: '/avatars/john.png',
+      });
+      w.vm.onAvatarError();
+      await w.vm.$nextTick();
+      expect(w.vm.avatarSrc).toBeUndefined();
+      vi.setSystemTime(new Date('2026-01-02T00:00:00Z'));
+
+      w.vm.refreshAvatar();
+      await w.vm.$nextTick();
+
+      expect(w.vm.avatarSrc).toBe('/avatars/john.png?v=1767312000000');
+    });
+  });
+
+  describe('Test computed: avatarMenuItems', () => {
+    it('should only list the edit row while the DiceBear avatar is displayed', () => {
+      expect(wrapper.vm.isStoredAvatarDisplayed).toBe(false);
+      expect(wrapper.vm.avatarMenuItems).toEqual(['editImage']);
+    });
+
+    it('should list both rows while the stored image is displayed', () => {
+      const w = createWrapper({
+        entity: { id: '1' },
+        avatarLocation: '/avatars/1.png',
+      });
+
+      expect(w.vm.avatarMenuItems).toEqual(['editImage', 'deleteImage']);
+    });
+
+    it('should drop the delete row when the stored image fails to load', async () => {
+      const w = createWrapper({
+        entity: { id: '1' },
+        avatarLocation: '/avatars/1.png',
+      });
+
+      w.vm.onAvatarError();
+      await w.vm.$nextTick();
+
+      expect(w.vm.avatarMenuItems).toEqual(['editImage']);
+    });
+  });
+
+  describe('Test computed: importFormFields', () => {
+    it('should build a single required file field from importOptions', () => {
+      const w = createWrapper({
+        importOptions: {
+          enabled: true,
+          maxFileSize: 2,
+          allowedExtensions: ['png'],
+          endpoints: { upload: '/upload', delete: '/delete' },
+        },
+      });
+
+      expect(w.vm.importFormFields).toEqual([
+        {
+          name: 'file',
+          type: 'File',
+          input: 'File',
+          required: true,
+          hasValidations: false,
+          inputSettings: { maxFileSize: 2, allowedExtensions: ['png'] },
+        },
+      ]);
+    });
+
+    it('should leave the validation settings undefined when importOptions is not provided', () => {
+      expect(wrapper.vm.importFormFields[0].inputSettings).toEqual({
+        maxFileSize: undefined,
+        allowedExtensions: undefined,
+      });
+    });
+  });
+
   describe('Test computed: zoneNames', () => {
     it('should build every zone name from the local ui namespace', () => {
       expect(wrapper.vm.zoneNames).toEqual({
@@ -594,6 +859,11 @@ describe('Test component: EntityProfilePanel', () => {
         actionsZones: 'test-scope.EntityProfilePanel.actions.ButtonsCard',
         editButton:
           'test-scope.EntityProfilePanel.actions.ButtonsCard.editButton',
+        avatar: 'test-scope.EntityProfilePanel.avatar',
+        editImageButton:
+          'test-scope.EntityProfilePanel.avatar.MenuButton.editImageButton',
+        deleteImageButton:
+          'test-scope.EntityProfilePanel.avatar.MenuButton.deleteImageButton',
       });
     });
 
@@ -617,6 +887,11 @@ describe('Test component: EntityProfilePanel', () => {
           'test-namespace.entity-profile-panel.actions.buttons-card',
         editButton:
           'test-namespace.entity-profile-panel.actions.buttons-card.edit-button',
+        avatar: 'test-namespace.entity-profile-panel.avatar',
+        editImageButton:
+          'test-namespace.entity-profile-panel.avatar.menu-button.edit-image-button',
+        deleteImageButton:
+          'test-namespace.entity-profile-panel.avatar.menu-button.delete-image-button',
       });
     });
 

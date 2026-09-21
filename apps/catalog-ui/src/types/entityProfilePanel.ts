@@ -50,6 +50,42 @@ export interface AvatarOptions {
 }
 
 /**
+ * Configuration of the avatar image import.
+ */
+export interface ImportOptions {
+  /**
+   * Whether the avatar import actions (edit and delete image) are displayed.
+   */
+  enabled: boolean;
+  /**
+   * Maximum allowed size of the uploaded image, in megabytes.
+   * When absent, the file size is not checked.
+   */
+  maxFileSize?: number;
+  /**
+   * Allowed extensions of the uploaded image, without the leading dot (e.g. `["png"]`).
+   * When absent or empty, every extension is accepted.
+   */
+  allowedExtensions?: string[];
+  /**
+   * Endpoints of the avatar image, defined as Nunjucks templates rendered with a context containing
+   * `entity`.
+   */
+  endpoints: {
+    /**
+     * Endpoint receiving the uploaded image as a `multipart/form-data` request with a single `file` part.
+     * Example: `"/avatars/accounts/{{ entity.id }}"`.
+     */
+    upload: string;
+    /**
+     * Endpoint deleting the current image (DELETE request).
+     * Example: `"/avatars/accounts/{{ entity.id }}"`.
+     */
+    delete: string;
+  };
+}
+
+/**
  * Props for the EntityProfilePanel component.
  */
 export interface EntityProfilePanelProps extends CommonComponentProps {
@@ -111,6 +147,21 @@ export interface EntityProfilePanelProps extends CommonComponentProps {
    * When absent, the avatar section shows no image.
    */
   avatarOptions?: AvatarOptions;
+  /**
+   * Location of the stored avatar image, defined as a Nunjucks template rendered with a context
+   * containing `entity`, e.g. `"/avatars/accounts/{{ entity.id }}.png"`.
+   * When the image cannot be loaded, the DiceBear avatar generated from `avatarOptions` is displayed
+   * instead, without any error.
+   * When absent, only the DiceBear avatar is displayed.
+   */
+  avatarLocation?: string;
+  /**
+   * Avatar image import configuration.
+   * The edit and delete image actions are listed in a menu button placed on the avatar only when
+   * provided with `enabled` set to true, and only while the stored image is displayed: it requires
+   * `avatarLocation`, without which the panel has no image to replace or delete.
+   */
+  importOptions?: ImportOptions;
   /**
    * Whether the titles card section, containing title and subtitle,
    * should be displayed on the page.

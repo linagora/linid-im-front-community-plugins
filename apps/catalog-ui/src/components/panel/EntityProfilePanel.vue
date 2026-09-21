@@ -92,6 +92,7 @@
         class="entity-profile-panel--avatar-img"
         data-cy="entity-profile-panel_avatar-img"
         :alt="translateOrDefault('Avatar', 'avatarAlt')"
+        @error="onAvatarError"
       >
         <template #default>
           <q-icon
@@ -111,6 +112,48 @@
           />
         </template>
       </q-img>
+      <MenuButton
+        v-if="importOptions?.enabled"
+        :items="avatarMenuItems"
+        :entity="entity"
+        :instance-id="instanceId"
+        :ui-namespace="computedUiNamespaces.avatar"
+        :i18n-scope="computedI18nScopes.avatar"
+        :disable="isLoading"
+        class="entity-profile-panel--avatar-menu-button"
+        data-cy="entity-profile-panel_avatar-menu-button"
+      >
+        <template #editImage>
+          <FormDialogButton
+            :url="importOptions.endpoints.upload"
+            method="POST"
+            multipart
+            :entity="entity"
+            :form-fields="importFormFields"
+            :ui-namespace="computedUiNamespaces.editImageButton"
+            :i18n-scope="computedI18nScopes.editImageButton"
+            :instance-id="instanceId"
+            :disable="isLoading"
+            class="entity-profile-panel--edit-image-button"
+            data-cy="entity-profile-panel_edit-image-button"
+            :emit-on-submit="avatarUpdatedEvent"
+          />
+        </template>
+        <template #deleteImage>
+          <ConfirmDialogButton
+            :url="importOptions.endpoints.delete"
+            method="DELETE"
+            :entity="entity"
+            :ui-namespace="computedUiNamespaces.deleteImageButton"
+            :i18n-scope="computedI18nScopes.deleteImageButton"
+            :instance-id="instanceId"
+            :disable="isLoading"
+            class="entity-profile-panel--delete-image-button"
+            data-cy="entity-profile-panel_delete-image-button"
+            :emit-on-submit="avatarUpdatedEvent"
+          />
+        </template>
+      </MenuButton>
       <BlurLoader
         v-if="statusKey && isLoading"
         width="md"
@@ -265,10 +308,12 @@
 <script setup lang="ts">
 import { Avatar } from '@dicebear/core';
 import type {
+  LinidAttributeConfiguration,
   LinidQBtnProps,
   LinidQCardProps,
   LinidQIconProps,
   LinidQImgProps,
+  UiEvent,
 } from '@linagora/linid-im-front-corelib';
 import {
   LinidZoneRenderer,
@@ -277,7 +322,16 @@ import {
   useScopedI18n,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
-import { computed, ref, toRaw, watchEffect } from 'vue';
+import type { Subscription } from 'rxjs';
+import {
+  computed,
+  onMounted,
+  onUnmounted,
+  ref,
+  toRaw,
+  watch,
+  watchEffect,
+} from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { loadDiceBearStyle } from '../../services/diceBearLoaderService';
 import type {
@@ -285,7 +339,9 @@ import type {
   EntityProfilePanelProps,
 } from '../../types/entityProfilePanel';
 import StatusBadge from '../badge/StatusBadge.vue';
+import ConfirmDialogButton from '../button/ConfirmDialogButton.vue';
 import FormDialogButton from '../button/FormDialogButton.vue';
+import MenuButton from '../button/MenuButton.vue';
 import ButtonsCard from '../card/ButtonsCard.vue';
 import EntityDetailsCard from '../card/EntityDetailsCard.vue';
 import BlurLoader from '../loader/BlurLoader.vue';
@@ -336,6 +392,9 @@ const computedI18nScopes = computed(() => ({
   actions: `${localI18nScope.value}.actions`,
   actionsZones: `${localI18nScope.value}.actions.ButtonsCard`,
   editButton: `${localI18nScope.value}.actions.ButtonsCard.editButton`,
+  avatar: `${localI18nScope.value}.avatar`,
+  editImageButton: `${localI18nScope.value}.avatar.MenuButton.editImageButton`,
+  deleteImageButton: `${localI18nScope.value}.avatar.MenuButton.deleteImageButton`,
 }));
 
 const computedUiNamespaces = computed(() => ({
@@ -344,6 +403,9 @@ const computedUiNamespaces = computed(() => ({
   actions: `${localUiNamespace.value}.actions`,
   actionsZones: `${localUiNamespace.value}.actions.buttons-card`,
   editButton: `${localUiNamespace.value}.actions.buttons-card.edit-button`,
+  avatar: `${localUiNamespace.value}.avatar`,
+  editImageButton: `${localUiNamespace.value}.avatar.menu-button.edit-image-button`,
+  deleteImageButton: `${localUiNamespace.value}.avatar.menu-button.delete-image-button`,
 }));
 
 const uiProps = computed(() => ({
@@ -356,7 +418,92 @@ const uiProps = computed(() => ({
   avatarIcon: ui<LinidQIconProps>(localUiNamespace.value, 'q-icon'),
 }));
 
-const avatarSrc = ref<string | undefined>(undefined);
+const diceBearSrc = ref<string | undefined>(undefined);
+const avatarVersion = ref(Date.now());
+const avatarLocationFailed = ref(false);
+
+/**
+ * URL of the stored avatar image rendered from `avatarLocation`, suffixed with a version query
+ * parameter so the browser reloads the image after an upload or a deletion, and so a cached image
+ * is not displayed when the page is opened again. The parameter is appended with the separator the
+ * rendered location requires, since it may already carry a query string.
+ * The location is only rendered once the entity is resolved: rendering it on the empty default
+ * entity would request a URL holding an empty identifier.
+ */
+const avatarLocationSrc = computed(() => {
+  if (!props.enableAvatar || !props.avatarLocation || !isEntityResolved.value) {
+    return undefined;
+  }
+
+  const location = renderString(props.avatarLocation, { entity: props.entity });
+
+  return `${location}${location.includes('?') ? '&' : '?'}v=${avatarVersion.value}`;
+});
+
+/** Whether the entity is loaded, so the templates depending on it render actual values. */
+const isEntityResolved = computed(
+  () => Object.keys(props.entity ?? {}).length > 0
+);
+
+/** Whether the stored image is the displayed avatar, rather than the generated DiceBear one. */
+const isStoredAvatarDisplayed = computed(
+  () => avatarLocationSrc.value !== undefined && !avatarLocationFailed.value
+);
+
+/** Displayed avatar: the stored image when it loads, otherwise the generated DiceBear avatar. */
+const avatarSrc = computed(() =>
+  isStoredAvatarDisplayed.value ? avatarLocationSrc.value : diceBearSrc.value
+);
+
+/**
+ * Rows of the avatar menu, each one hosting an image action. The delete row is only listed while the
+ * stored image is displayed: there is nothing to delete behind the generated DiceBear avatar.
+ */
+const avatarMenuItems = computed(() =>
+  isStoredAvatarDisplayed.value ? ['editImage', 'deleteImage'] : ['editImage']
+);
+
+/** Form fields of the image upload dialog: a single required `file` field bound to `importOptions`. */
+const importFormFields = computed<LinidAttributeConfiguration[]>(() => [
+  {
+    name: 'file',
+    type: 'File',
+    input: 'File',
+    required: true,
+    hasValidations: false,
+    inputSettings: {
+      maxFileSize: props.importOptions?.maxFileSize,
+      allowedExtensions: props.importOptions?.allowedExtensions,
+    },
+  },
+]);
+
+// A new location (other entity, new version) deserves a new load attempt.
+watch(avatarLocationSrc, () => {
+  avatarLocationFailed.value = false;
+});
+
+/**
+ * Key published on `uiEventSubject` by the image actions after a successful upload or deletion.
+ * The actions live in the avatar menu, which unmounts them when it closes, so their `submitted`
+ * event is emitted by an unmounted component: the event bus is the reliable channel.
+ */
+const avatarUpdatedEvent = computed(
+  () => `${localUiNamespace.value}.avatar-updated`
+);
+let avatarSubscription: Subscription;
+
+onMounted(() => {
+  avatarSubscription = uiEventSubject.subscribe((event: UiEvent) => {
+    if (event.key === avatarUpdatedEvent.value) {
+      refreshAvatar();
+    }
+  });
+});
+
+onUnmounted(() => {
+  avatarSubscription?.unsubscribe();
+});
 
 watchEffect(async (onCleanup) => {
   let cancelled = false;
@@ -365,7 +512,7 @@ watchEffect(async (onCleanup) => {
   });
 
   if (!props.enableAvatar || !props.avatarOptions) {
-    avatarSrc.value = undefined;
+    diceBearSrc.value = undefined;
     return;
   }
 
@@ -384,16 +531,32 @@ watchEffect(async (onCleanup) => {
 
     // DiceBear clones its options with structuredClone, which throws on the reactive
     // proxies wrapping zone props: hand it the raw object.
-    avatarSrc.value = new Avatar(loadedStyle, {
+    diceBearSrc.value = new Avatar(loadedStyle, {
       ...toRaw(styleOptions ?? {}),
       seed: renderedSeed,
     }).toDataUri();
   } catch {
     if (!cancelled) {
-      avatarSrc.value = undefined;
+      diceBearSrc.value = undefined;
     }
   }
 });
+
+/**
+ * Falls back to the DiceBear avatar when the stored image cannot be loaded, typically because no
+ * image has been uploaded yet. Transparent to the user: no error is displayed.
+ */
+function onAvatarError(): void {
+  avatarLocationFailed.value = true;
+}
+
+/**
+ * Reloads the stored avatar image after an upload or a deletion, published by the image actions on
+ * `uiEventSubject`, by bumping the version query parameter of its URL.
+ */
+function refreshAvatar(): void {
+  avatarVersion.value = Date.now();
+}
 
 /**
  * Navigates back to the configured parent path using vue-router.
@@ -441,11 +604,17 @@ function onSubmitted(data: unknown): void {
   container-type: size;
 }
 
+.entity-profile-panel--avatar-menu-button {
+  position: absolute;
+  right: 0;
+  bottom: 15%;
+}
+
 .entity-profile-panel--status-badge,
 .entity-profile-panel--status-badge-loader {
   position: absolute;
   right: 0;
-  bottom: 15%;
+  top: 15%;
   border-radius: 9999px;
 }
 
