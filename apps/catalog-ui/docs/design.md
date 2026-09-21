@@ -483,6 +483,22 @@ Panel that displays an entity profile in a vertical layout: navigation bar with 
           }
         }
       },
+      "avatar": {
+        "menu-button": {
+          "q-btn": { "round": true, "icon": "edit", "color": "primary", "outline": false },
+          "q-menu": { "anchor": "bottom right", "self": "top left" },
+          "edit-image-button": {
+            "form-dialog-button": {
+              "q-btn": { "flat": true, "align": "left", "noCaps": true, "icon": "photo_camera", "color": "primary", "outline": false }
+            }
+          },
+          "delete-image-button": {
+            "confirm-dialog-button": {
+              "q-btn": { "flat": true, "align": "left", "noCaps": true, "icon": "delete", "color": "negative", "outline": false }
+            }
+          }
+        }
+      },
       "actions": {
         "buttons-card": {
           "q-card": { "flat": true },
@@ -515,6 +531,11 @@ The back button is rendered by the panel itself, nested in the navigation bar un
 `confirm-button` and `cancel-button` sub-namespaces inoperative. The edit button (`FormDialogButton`), rendered only when the panel receives an
 `updateEndpoint`, is nested under `actions.buttons-card.edit-button` and appends `form-dialog-button` as usual. The plugin zones they host receive their
 card's namespace; the five other zones of the panel receive `${uiNamespace}.entity-profile-panel` directly.
+
+When the avatar import is enabled (`importOptions.enabled`), the image actions are listed by a
+[MenuButton](#menubutton) under `avatar.menu-button`: its button, menu and list are styled there, the edit image action under `avatar.menu-button.edit-image-button` (a
+`FormDialogButton`, appending `form-dialog-button`) and the delete image action under
+`avatar.menu-button.delete-image-button` (a `ConfirmDialogButton`, appending `confirm-dialog-button`).
 
 The details card inherits `entity-details-card` and forwards the per-field `information-card` namespaces of the
 [EntityDetailsCard section](#entitydetailscard). The status badge uses the global `status-badge` namespace. The full

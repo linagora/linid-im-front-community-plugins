@@ -1,0 +1,182 @@
+# **EntityAttributeFileField 📎**
+
+The **EntityAttributeFileField** component is a specialized attribute field designed to handle **file attributes**
+within an entity, typically an image to upload.
+
+It relies on Quasar's `QFile` component and integrates with the LinID design system and scoped i18n to provide a
+fully customizable, localized, and reactive file picker.
+
+---
+
+## **🎯 Purpose**
+
+- Renders a file attribute using a native file picker
+- Stores the selected `File` object in the entity model
+- Emits normalized entity updates on selection
+- Validates the selected file against a maximum size and a list of allowed extensions
+- Supports scoped translations for the label, the hint and the validation messages
+- Enables UI customization via the design system
+- Supports disabling the field via `inputSettings.disable`
+
+---
+
+## **⚙️ Props**
+
+The component uses the shared `AttributeFieldProps` interface with `FieldFileSettings`.
+
+| Prop          | Type                                             | Required | Description                                                                  |
+| ------------- | ------------------------------------------------ | -------- | ---------------------------------------------------------------------------- |
+| `instanceId`  | `string`                                         | Yes      | Identifier used for contextual data                                          |
+| `i18nScope`   | `string`                                         | Yes      | I18n scope for localizing the component                                      |
+| `uiNamespace` | `string`                                         | Yes      | Base UI design namespace for styling                                         |
+| `definition`  | `LinidAttributeConfiguration<FieldFileSettings>` | Yes      | Attribute definition (name, type, input configuration)                       |
+| `entity`      | `Record<string, unknown>`                        | Yes      | Entity object holding the selected file                                      |
+| `ignoreRules` | `boolean`                                        | No       | Indicates whether to bypass validation rules for this field (default: false) |
+
+### FieldFileSettings
+
+```ts
+export interface FieldFileSettings extends FieldSettings {
+  /** Maximum allowed file size, in megabytes. When absent, the file size is not checked. */
+  maxFileSize?: number;
+
+  /**
+   * Allowed file extensions, without the leading dot (e.g. `["png", "jpg"]`), compared case-insensitively.
+   * When absent or empty, every extension is accepted.
+   */
+  allowedExtensions?: string[];
+
+  /** Indicates whether to bypass validation rules for this field. */
+  ignoreRules?: boolean;
+
+  /** When true, the picker is rendered as non-interactive (disabled state). */
+  disable?: boolean;
+}
+```
+
+---
+
+## **📤 Events**
+
+| Event           | Payload                   | Description                                                      |
+| --------------- | ------------------------- | ---------------------------------------------------------------- |
+| `update:entity` | `Record<string, unknown>` | Emitted when the selected file changes and the entity is updated |
+
+The emitted entity holds the selected `File` object (or `null` when cleared) under the attribute name. Sending it
+requires a `multipart/form-data` request — see the `multipart` prop of [FormDialogButton](../button/FormDialogButton.md).
+
+---
+
+## **🌍 Internationalization (i18n)**
+
+### Translation Scope
+
+```ts
+`${i18nScope}.fields.${definition.name}`;
+```
+
+### Supported Translation Keys
+
+| Key                            | Usage in UI                                         | Parameters      |
+| ------------------------------ | --------------------------------------------------- | --------------- |
+| `label`                        | Picker label                                        | -               |
+| `hint`                         | Helper text                                         | -               |
+| `validation.required`          | Error when no file is selected on a required field  | -               |
+| `validation.maxFileSize`       | Error when the file exceeds `maxFileSize`           | `{maxFileSize}` |
+| `validation.allowedExtensions` | Error when the extension is not in the allowed list | `{extensions}`  |
+
+`label` and `hint` fall back to an empty string when missing; the validation messages are resolved by the corelib
+validators with `t` and display the raw key when missing.
+
+---
+
+## **🎨 UI Customization**
+
+### Namespace Resolution
+
+```ts
+`${uiNamespace}.${definition.name}`;
+```
+
+### Applied Component
+
+- Quasar component: `q-file`
+- Props type: `LinidQFileProps`
+
+The component sets `clearable` and the native `accept` attribute (built from `allowedExtensions`, e.g. `.png,.jpg`)
+itself; every other `q-file` prop can be overridden from the design system.
+
+---
+
+## **✅ Validation**
+
+Rules are generated by `useQuasarRules` from `@linagora/linid-im-front-corelib`, unless `ignoreRules` (prop) or
+`definition.inputSettings.ignoreRules` is `true`:
+
+```ts
+useQuasarRules(props.instanceId, props.definition, ['maxFileSize', 'allowedExtensions'], localI18nScope);
+```
+
+1. **Required** — when `definition.required` is `true`
+2. **`maxFileSize`** — the file must not exceed `inputSettings.maxFileSize` megabytes, when set
+3. **`allowedExtensions`** — the extension of the file name, compared case-insensitively and without leading dot,
+   must be one of `inputSettings.allowedExtensions`, when the list is not empty; a name without extension is rejected
+4. **Backend API validations** — when `definition.hasValidations` is `true`
+
+The native `accept` attribute filters the file picker on the allowed extensions, but the rule remains the reference:
+a file dropped or picked with another extension is rejected with the `validation.allowedExtensions` message.
+
+---
+
+## **🧭 Nested Attributes**
+
+The attribute `name` supports **dot notation** to target values located inside sub-objects of the entity, like every
+other attribute field: the initial value is read with `getNestedValue` and updates are written with `setNestedValue`.
+
+---
+
+## **💡 Usage Example**
+
+```vue
+<script setup lang="ts">
+import EntityAttributeFileField from '@/components/field/EntityAttributeFileField.vue';
+
+const entity = reactive({});
+
+const definition = {
+  name: 'file',
+  input: 'File',
+  type: 'File',
+  required: true,
+  hasValidations: false,
+  inputSettings: {
+    maxFileSize: 10,
+    allowedExtensions: ['png'],
+  },
+};
+
+const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
+  Object.assign(entity, updatedEntity);
+};
+</script>
+
+<template>
+  <EntityAttributeFileField
+    ui-namespace="avatar-form"
+    instance-id="user-1"
+    i18n-scope="avatar-form"
+    :definition="definition"
+    :entity="entity"
+    @update:entity="onUpdateEntity"
+  />
+</template>
+```
+
+---
+
+## **📌 Notes**
+
+- The component assumes `definition.input === 'File'`
+- The stored value is a `File` object, not a string: it cannot be sent as JSON
+- The field is rendered as non-interactive when `definition.inputSettings.disable` is `true`
+- Intended for use via `EntityAttributeField` and `FormDialog`, not directly in most cases
