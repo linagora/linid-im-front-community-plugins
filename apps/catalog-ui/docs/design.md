@@ -369,6 +369,24 @@ The dialog inherits this namespace.
 
 ---
 
+### RedirectButton
+
+Action button navigating to a route rendered from a Nunjucks template.
+
+**Namespace:** `{uiNamespace}.redirect-button`
+
+```json
+{
+  "[PARENT_NAMESPACE]": {
+    "redirect-button": {
+      "q-btn": { "color": "primary", "outline": true, "icon": "upload" }
+    }
+  }
+}
+```
+
+---
+
 ### EntityDetailsCard
 
 Card for displaying entity attribute details. Fields inside the card can be configured individually.
@@ -1910,6 +1928,9 @@ A full example showing all CatalogUI components configured together:
         "confirmation-dialog": {
           "q-dialog": { "persistent": false }
         }
+      },
+      "redirect-button": {
+        "q-btn": { "color": "primary", "outline": true, "icon": "upload" }
       },
       "confirmation-dialog": {
         "q-dialog": { "persistent": false },

@@ -208,6 +208,9 @@ The library organizes components by category. For each component, documentation 
 - 🗑️ **ConfirmDialogButton** — Action button opening the shared confirmation dialog and sending a configurable DELETE, POST or PUT request once confirmed
   → Documentation is inside: [`ConfirmDialogButton.md`](./docs/components/button/ConfirmDialogButton.md)
 
+- ↗️ **RedirectButton** — Action button navigating through the router to a route rendered from a Nunjucks template, such as `/accounts/{{ entity.id }}`
+  → Documentation is inside: [`RedirectButton.md`](./docs/components/button/RedirectButton.md)
+
 ### **Badge Components**
 
 - 🏷️ **StatusBadge** — Reusable badge component that standardizes the display of entity statuses with i18n support and design configuration
