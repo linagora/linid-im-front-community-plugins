@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.124](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.123...v0.2.124) (2026-09-21)
+
+
+### Features
+
+* **catalog-ui:** add ConfirmDialogButton ([fcf9af7](https://github.com/linagora/linid-im-front-community-plugins/commit/fcf9af74ae5333d9604519c05d7b528b5fcc3d30))
+
 ### [0.2.123](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.122...v0.2.123) (2026-09-18)
 
 
