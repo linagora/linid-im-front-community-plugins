@@ -139,6 +139,22 @@ export interface FieldEmailSettings extends FieldTextSettings {
 }
 
 /**
+ * Settings for input file fields.
+ */
+export interface FieldFileSettings extends FieldSettings {
+  /**
+   * Maximum allowed file size, in megabytes.
+   * When absent, the file size is not checked.
+   */
+  maxFileSize?: number;
+  /**
+   * Allowed file extensions, without the leading dot (e.g. `["png", "jpg"]`), compared case-insensitively.
+   * When absent or empty, every extension is accepted.
+   */
+  allowedExtensions?: string[];
+}
+
+/**
  * Settings for input date fields.
  */
 export interface FieldDateSettings extends FieldSettings {

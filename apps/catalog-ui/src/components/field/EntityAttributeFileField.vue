@@ -26,71 +26,99 @@
 
 <template>
   <!-- v8 ignore start -->
-  <component
-    :is="field"
-    v-if="field"
-    class="entity-attribute-field"
-    :ui-namespace="`${uiNamespace}.EntityAttributeField`"
-    :instance-id="instanceId"
-    :i18n-scope="i18nScope"
-    :definition="definition"
-    :entity="entity"
-    :ignore-rules="ignoreRules"
-    @update:entity="updateEntity"
+  <q-file
+    v-model="localValue"
+    :data-cy="`field_${definition.name}`"
+    class="entity-attribute-file-field"
+    clearable
+    v-bind="uiProps"
+    :accept="accept"
+    :disable="definition.inputSettings?.disable || false"
+    :label="translateOrDefault('', 'label')"
+    :hint="translateOrDefault('', 'hint')"
+    :rules="rules"
+    @update:model-value="updateValue"
   />
   <!-- v8 ignore stop -->
 </template>
 
 <script setup lang="ts">
-import { uiEventSubject } from '@linagora/linid-im-front-corelib';
-import type { Component } from 'vue';
-import { computed, defineAsyncComponent } from 'vue';
+import type { LinidQFileProps } from '@linagora/linid-im-front-corelib';
+import {
+  getNestedValue,
+  setNestedValue,
+  useQuasarRules,
+  useScopedI18n,
+  useUiDesign,
+} from '@linagora/linid-im-front-corelib';
+import { computed, ref, watch } from 'vue';
 import type {
   AttributeFieldProps,
   EntityAttributeFieldOutputs,
+  FieldFileSettings,
 } from '../../types/field';
 
-const props = withDefaults(defineProps<AttributeFieldProps>(), {
-  ignoreRules: false,
-});
+const props = withDefaults(
+  defineProps<AttributeFieldProps<FieldFileSettings>>(),
+  {
+    ignoreRules: false,
+  }
+);
 const emits = defineEmits<EntityAttributeFieldOutputs>();
+const localI18nScope = `${props.i18nScope}.fields.${props.definition.name}`;
 
-const fieldTypes: Record<string, Component> = {
-  Boolean: defineAsyncComponent(
-    () => import('./EntityAttributeBooleanField.vue')
-  ),
-  Number: defineAsyncComponent(
-    () => import('./EntityAttributeNumberField.vue')
-  ),
-  Text: defineAsyncComponent(() => import('./EntityAttributeTextField.vue')),
-  Date: defineAsyncComponent(() => import('./EntityAttributeDateField.vue')),
-  List: defineAsyncComponent(() => import('./EntityAttributeListField.vue')),
-  DynamicList: defineAsyncComponent(
-    () => import('./EntityAttributeDynamicListField.vue')
-  ),
-  TextArea: defineAsyncComponent(
-    () => import('./EntityAttributeTextAreaField.vue')
-  ),
-  Email: defineAsyncComponent(() => import('./EntityAttributeEmailField.vue')),
-  File: defineAsyncComponent(() => import('./EntityAttributeFileField.vue')),
-};
+const { ui } = useUiDesign();
 
-const field = computed<Component | undefined>(
-  () => fieldTypes[props.definition.input]
+const localValue = ref<File | null>(
+  (getNestedValue(props.entity, props.definition.name) as File | null) ?? null
+);
+
+const uiProps = ui<LinidQFileProps>(
+  `${props.uiNamespace}.${props.definition.name}`,
+  'q-file'
+);
+const { translateOrDefault } = useScopedI18n(localI18nScope);
+
+/** Allowed extensions normalized to lowercase without the leading dot. */
+const allowedExtensions = computed(() =>
+  (props.definition.inputSettings?.allowedExtensions ?? []).map((extension) =>
+    extension.toLowerCase().replace(/^\./, '')
+  )
+);
+
+/** Value of the native `accept` attribute, restricting the file picker to the allowed extensions. */
+const accept = computed(() =>
+  allowedExtensions.value.length > 0
+    ? allowedExtensions.value.map((extension) => `.${extension}`).join(',')
+    : undefined
+);
+
+const rules = computed(() =>
+  !props.ignoreRules && !props.definition.inputSettings?.ignoreRules
+    ? useQuasarRules(
+        props.instanceId,
+        props.definition,
+        ['maxFileSize', 'allowedExtensions'],
+        localI18nScope
+      )
+    : []
+);
+
+watch(
+  () => getNestedValue(props.entity, props.definition.name),
+  (newValue) => {
+    localValue.value = (newValue as File) ?? null;
+  }
 );
 
 /**
- * Emits an 'update:entity' event with the updated entity object when the toggle changes.
+ * Emits an 'update:entity' event with the updated entity object when the selected file changes.
  * Updates the value of the attribute in the entity using the local reactive value.
- * @param entity - The updated entity object containing the new attribute values.
  */
-function updateEntity(entity: Record<string, unknown>) {
-  emits('update:entity', entity);
-  if (props.emitOnUpdate) {
-    uiEventSubject.next({
-      key: props.emitOnUpdate,
-      data: entity,
-    });
-  }
+function updateValue() {
+  emits(
+    'update:entity',
+    setNestedValue(props.entity, props.definition.name, localValue.value)
+  );
 }
 </script>
