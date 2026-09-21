@@ -24,20 +24,21 @@ configuration: no dedicated component is needed to expose a custom entity action
 
 ## **⚙️ Props**
 
-| Prop name            | Type                              | Default  | Description                                                                                                          |
-| -------------------- | --------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------- |
-| `url`                | `String`                          | —        | Request URL, defined as a Nunjucks template                                                                          |
-| `method`             | `'POST' \| 'PUT'`                 | `'POST'` | HTTP method used to send the request                                                                                 |
-| `body`               | `Record<string, unknown>`         | `{}`     | JSON payload sent as the request body. Every nested string property is a Nunjucks template                           |
-| `formFields`         | `LinidAttributeConfiguration[]`   | —        | Form fields rendered in the form dialog (see `FormDialog`)                                                           |
-| `entity`             | `Record<string, unknown> \| null` | —        | Entity associated with the current context, provided to the Nunjucks context. Injected by the hosting zone           |
-| `parent`             | `Record<string, unknown> \| null` | —        | Parent of the entity (e.g. the application owning a role), provided to the Nunjucks context                          |
-| `fillFormWithEntity` | `Boolean`                         | `false`  | Pre-fills the form fields with the matching entity properties when the dialog opens                                  |
-| `disable`            | `Boolean`                         | `false`  | Disables the button, preventing the dialog from opening                                                              |
-| `instanceId`         | `String`                          | —        | Instance identifier passed to the form dialog fields (e.g. API validation rules)                                     |
-| `emitOnSubmit`       | `String`                          | —        | When set, emits an event with this key on `uiEventSubject` after a successful submit, with the response body as data |
-| `uiNamespace`        | `String`                          | —        | Base UI namespace used for design system customization                                                               |
-| `i18nScope`          | `String`                          | —        | Identifier used to scope translations                                                                                |
+| Prop name            | Type                              | Default  | Description                                                                                                                                                                              |
+| -------------------- | --------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `url`                | `String`                          | —        | Request URL, defined as a Nunjucks template                                                                                                                                              |
+| `method`             | `'POST' \| 'PUT'`                 | `'POST'` | HTTP method used to send the request                                                                                                                                                     |
+| `body`               | `Record<string, unknown>`         | `{}`     | JSON payload sent as the request body. Every nested string property is a Nunjucks template. Ignored when `multipart` is enabled                                                          |
+| `multipart`          | `Boolean`                         | `false`  | Sends the submitted form data as a `multipart/form-data` body, one part per non-empty form field, instead of the JSON `body` — required to upload a file selected through a `File` field |
+| `formFields`         | `LinidAttributeConfiguration[]`   | —        | Form fields rendered in the form dialog (see `FormDialog`)                                                                                                                               |
+| `entity`             | `Record<string, unknown> \| null` | —        | Entity associated with the current context, provided to the Nunjucks context. Injected by the hosting zone                                                                               |
+| `parent`             | `Record<string, unknown> \| null` | —        | Parent of the entity (e.g. the application owning a role), provided to the Nunjucks context                                                                                              |
+| `fillFormWithEntity` | `Boolean`                         | `false`  | Pre-fills the form fields with the matching entity properties when the dialog opens                                                                                                      |
+| `disable`            | `Boolean`                         | `false`  | Disables the button, preventing the dialog from opening                                                                                                                                  |
+| `instanceId`         | `String`                          | —        | Instance identifier passed to the form dialog fields (e.g. API validation rules)                                                                                                         |
+| `emitOnSubmit`       | `String`                          | —        | When set, emits an event with this key on `uiEventSubject` after a successful submit, with the response body as data                                                                     |
+| `uiNamespace`        | `String`                          | —        | Base UI namespace used for design system customization                                                                                                                                   |
+| `i18nScope`          | `String`                          | —        | Identifier used to scope translations                                                                                                                                                    |
 
 ### Templating
 
@@ -95,6 +96,9 @@ The component works when `entity` is `null`: templates are then rendered with th
   edition use cases
 - On submit, the `url` and `body` templates are rendered with a context containing `entity` merged
   with the form values and `parent`, and the request is sent with the configured method
+- When `multipart` is enabled, the `body` template is ignored: the form values are sent as a
+  `multipart/form-data` body, one part per non-empty field, named after the field — a `File` field
+  named `file` is therefore received as the `file` part
 - On success: positive notification, `submitted` event with the API response, the `emitOnSubmit` key
   (if any) published on `uiEventSubject` with the response body, dialog closes
 - On failure: negative notification, the dialog stays open for correction, nothing is emitted

@@ -115,7 +115,7 @@ The library organizes components by category. For each component, documentation 
 
 ### **Panel Components**
 
-- 🆔 **EntityProfilePanel** — Vertical profile panel with avatar, title/subtitle, action slot and entity details
+- 🆔 **EntityProfilePanel** — Vertical profile panel with avatar (stored image or DiceBear, with optional image import), title/subtitle, action slot and entity details
   → Documentation is inside: [`EntityProfilePanel.md`](./docs/components/panel/EntityProfilePanel.md)
 
 ### **Table Components**
@@ -176,6 +176,8 @@ The library organizes components by category. For each component, documentation 
 
 - 📧 **EntityAttributeEmailField** — Email attribute input with format validation and scoped translations
   → Documentation is inside: [`EntityAttributeEmailField.md`](./docs/components/field/EntityAttributeEmailField.md)
+- 📎 **EntityAttributeFileField** — File attribute picker with maximum size and allowed extensions validation
+  → Documentation is inside: [`EntityAttributeFileField.md`](./docs/components/field/EntityAttributeFileField.md)
 
 ### **Filtering Components**
 
