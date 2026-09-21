@@ -219,6 +219,53 @@ describe('Test component: FormDialogButton', () => {
     });
   });
 
+  describe('Test function: toFormData', () => {
+    it('should append a File as is', () => {
+      const file = new File(['content'], 'avatar.png', { type: 'image/png' });
+
+      const body = wrapper.vm.toFormData({ file });
+
+      expect(body.get('file')).toEqual(file);
+    });
+
+    it('should append one part per file of a multiple selection', () => {
+      const first = new File(['a'], 'a.png');
+      const second = new File(['b'], 'b.png');
+
+      const body = wrapper.vm.toFormData({ files: [first, second] });
+
+      expect(body.getAll('files')).toEqual([first, second]);
+    });
+
+    it('should send scalar values as strings', () => {
+      const body = wrapper.vm.toFormData({ count: 3, enabled: false });
+
+      expect(body.get('count')).toBe('3');
+      expect(body.get('enabled')).toBe('false');
+    });
+
+    it('should keep empty strings', () => {
+      const body = wrapper.vm.toFormData({ comment: '' });
+
+      expect(body.has('comment')).toBe(true);
+      expect(body.get('comment')).toBe('');
+    });
+
+    it('should skip null and undefined values', () => {
+      const body = wrapper.vm.toFormData({ a: null, b: undefined, c: 'kept' });
+
+      expect([...body.keys()]).toEqual(['c']);
+    });
+
+    it('should skip the null and undefined items of a multiple selection', () => {
+      const file = new File(['a'], 'a.png');
+
+      const body = wrapper.vm.toFormData({ files: [file, null, undefined] });
+
+      expect(body.getAll('files')).toEqual([file]);
+    });
+  });
+
   describe('Test function: submitForm', () => {
     it('should post the rendered body to the rendered url, notify and emit submitted', async () => {
       const response = { id: 'export-1' };
@@ -251,6 +298,32 @@ describe('Test component: FormDialogButton', () => {
         description: 'entity description',
         nested: { applicationId: '123' },
       });
+      expect(mockHttpPost).not.toHaveBeenCalled();
+    });
+
+    it('should send the form data as multipart body when multipart is enabled', async () => {
+      wrapper = mountComponent({ multipart: true });
+      const file = new File(['content'], 'avatar.png', { type: 'image/png' });
+
+      await wrapper.vm.submitForm({ file, comment: null });
+
+      const [url, body] = mockHttpPost.mock.calls[0];
+      expect(url).toEqual('/applications/123/export');
+      expect(body).toBeInstanceOf(FormData);
+      expect([...body.keys()]).toEqual(['file']);
+      expect(body.get('file')).toEqual(file);
+    });
+
+    it('should send the form data as multipart body when multipart is enabled with PUT', async () => {
+      wrapper = mountComponent({ multipart: true, method: 'PUT' });
+      const file = new File(['content'], 'avatar.png', { type: 'image/png' });
+
+      await wrapper.vm.submitForm({ file });
+
+      const [url, body] = mockHttpPut.mock.calls[0];
+      expect(url).toEqual('/applications/123/export');
+      expect(body).toBeInstanceOf(FormData);
+      expect(body.get('file')).toEqual(file);
       expect(mockHttpPost).not.toHaveBeenCalled();
     });
 

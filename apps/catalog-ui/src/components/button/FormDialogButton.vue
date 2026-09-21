@@ -58,6 +58,7 @@ const props = withDefaults(defineProps<FormDialogButtonProps>(), {
   method: 'POST',
   body: () => ({}),
   fillFormWithEntity: false,
+  multipart: false,
   disable: false,
 });
 
@@ -105,7 +106,31 @@ function openDialog(): void {
 }
 
 /**
- * Sends the configured request with the URL and body rendered as Nunjucks templates, then notifies
+ * Builds the multipart body from the submitted form data, one part per non-empty form field. A field
+ * holding several values, such as the multiple selection of a file field, appends one part per value
+ * under the same name.
+ * @param formData - The submitted form data.
+ * @returns The multipart body.
+ */
+function toFormData(formData: Record<string, unknown>): FormData {
+  const body = new FormData();
+
+  Object.entries(formData)
+    .filter(([, value]) => value != null)
+    .forEach(([name, value]) =>
+      (Array.isArray(value) ? value : [value])
+        .filter((item) => item != null)
+        .forEach((item) =>
+          body.append(name, item instanceof Blob ? item : String(item))
+        )
+    );
+
+  return body;
+}
+
+/**
+ * Sends the configured request with the URL rendered as a Nunjucks template and the body rendered
+ * as Nunjucks templates, or built as multipart form data when `multipart` is enabled, then notifies
  * the user, emits the `submitted` event with the response body returned by the API, and publishes
  * `emitOnSubmit` if configured. The template context exposes `entity`, the configured entity merged
  * with the submitted form data, and `parent`, the parent of the entity.
@@ -119,7 +144,9 @@ async function submitForm(formData: Record<string, unknown>): Promise<void> {
     parent: props.parent ?? {},
   };
   const requestUrl = renderString(props.url, context);
-  const requestBody = render(props.body, context);
+  const requestBody = props.multipart
+    ? toFormData(formData)
+    : render(props.body, context);
 
   try {
     const { data } =
