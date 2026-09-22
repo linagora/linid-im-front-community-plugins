@@ -459,13 +459,18 @@ import { getDynamicListPage } from '../../services/dynamicListService';
 ### Service API
 
 ```ts
-export async function getDynamicListPage(route: string, pagination: Pagination): Promise<Page<DynamicListElement>> {
+export async function getDynamicListPage(route: string, pagination: Pagination, signal?: AbortSignal): Promise<Page<DynamicListElement>> {
   const response = await getHttpClient().get<Page<DynamicListElement>>(route, {
     params: pagination,
+    signal,
   });
   return response.data;
 }
 ```
+
+The `signal` is what makes a replaced or unmounted fetch stop costing a response: the component passes
+its `PagedFetch.controller.signal`, so aborting the controller aborts the request. It is optional, so a
+caller that does not need cancellation keeps calling the service with two arguments.
 
 ### Backend Response Format (Spring Page)
 

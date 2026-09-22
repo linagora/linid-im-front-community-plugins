@@ -72,6 +72,22 @@ describe('Test service: dynamicListService', () => {
 
       expect(mockGet).toHaveBeenCalledWith('/api/types', {
         params: { page: 0, size: 10 },
+        signal: undefined,
+      });
+    });
+
+    it('should forward the abort signal to the request', async () => {
+      const controller = new AbortController();
+
+      await getDynamicListPage(
+        '/api/types',
+        { page: 0, size: 10 },
+        controller.signal
+      );
+
+      expect(mockGet).toHaveBeenCalledWith('/api/types', {
+        params: { page: 0, size: 10 },
+        signal: controller.signal,
       });
     });
 
