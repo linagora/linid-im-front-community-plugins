@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.125](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.124...v0.2.125) (2026-09-22)
+
+
+### Features
+
+* **catalog-ui:** add support for abort signal in getDynamicListPage ([9d27bf1](https://github.com/linagora/linid-im-front-community-plugins/commit/9d27bf1fabe6dede91d275bbfdeb48fb5fd8dd7d))
+* **catalog-ui:** gate the dynamic list route behind declared routeDependencies ([ae0772a](https://github.com/linagora/linid-im-front-community-plugins/commit/ae0772a3b36561490ba8e2df1f74296c7a22e462)), closes [#300](https://github.com/linagora/linid-im-front-community-plugins/issues/300)
+* **catalog-ui:** render the dynamic list route as a Nunjucks template ([58782ea](https://github.com/linagora/linid-im-front-community-plugins/commit/58782ea16d96881273e0592ce4c0ea4c78a419b9))
+
 ### [0.2.124](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.123...v0.2.124) (2026-09-21)
 
 
