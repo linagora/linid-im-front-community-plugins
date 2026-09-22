@@ -47,12 +47,12 @@
     @update:model-value="updateValue"
   >
     <template
-      v-if="error"
+      v-if="displayedError"
       #no-option
     >
       <q-item>
         <q-item-section class="text-negative">
-          {{ error }}
+          {{ displayedError }}
         </q-item-section>
       </q-item>
     </template>
@@ -64,13 +64,14 @@
 import {
   getNestedValue,
   type LinidQSelectProps,
+  type Page,
   setNestedValue,
   useNunjucks,
   useQuasarRules,
   useScopedI18n,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { getDynamicListPage } from '../../services/dynamicListService';
 import type {
   AttributeFieldProps,
@@ -85,6 +86,20 @@ interface VirtualScrollPayload {
   to: number;
   /** Reference to the virtual scroll component. */
   ref: { /** Refreshes the virtual scroll. */ refresh: () => void } | null;
+}
+
+/** One paginated fetch from a single route, never reset but replaced whole: its identity is what `isStale` compares. */
+interface PagedFetch {
+  /** The route every request of this fetch reads from. */
+  readonly route: string;
+  /** Cancels the requests of this fetch when it is abandoned. */
+  readonly controller: AbortController;
+  /** The zero-based index of the next page to request. */
+  nextPage: number;
+  /** Whether the backend reported further pages. */
+  hasMore: boolean;
+  /** Whether a request of this fetch is awaiting its response. */
+  hasPendingRequest: boolean;
 }
 
 const props = withDefaults(
@@ -102,9 +117,12 @@ const { renderString } = useNunjucks();
 
 const allOptions = ref<DynamicListElement[]>([]);
 const isLoading = ref(false);
+/** The failure of the last request, owned by its fetch: only a new request or `cancelFetch()` clears it. */
 const error = ref<string | null>(null);
-let currentPage = 0;
-let hasMore = true;
+/** The fetch the list is currently filled from, `null` while the field has none. */
+let currentFetch: PagedFetch | null = null;
+/** The last route a request was opened on; outlives the fetches, `null` until the first one. */
+let requestedRoute: string | null = null;
 
 const pageSize = computed(() => props.definition.inputSettings?.size ?? 20);
 
@@ -128,7 +146,23 @@ const rules = computed(() =>
     : []
 );
 
-const route = computed(() => props.definition.inputSettings?.route);
+/** The context the route template and the dependency paths are both resolved against. */
+const renderContext = computed(() => ({ entity: props.entity }));
+
+const renderedRoute = computed(() =>
+  renderString(props.definition.inputSettings?.route ?? '', renderContext.value)
+);
+
+/** No `route` in the configuration: read from the setting, not from what it rendered to. */
+const configurationError = computed(() =>
+  props.definition.inputSettings?.route
+    ? null
+    : t('validation.dynamicList.missingRoute')
+);
+
+/** What the `#no-option` slot displays: a broken configuration outranks a failed request. */
+const displayedError = computed(() => configurationError.value ?? error.value);
+
 
 watch(
   () => getNestedValue(props.entity, props.definition.name),
@@ -137,42 +171,114 @@ watch(
   }
 );
 
-onMounted(async () => {
-  if (!route.value) {
-    error.value = t('validation.dynamicList.missingRoute');
-    return;
-  }
-  await fetchPage();
-  ensurePresetValueInOptions();
-});
+watch(
+  renderedRoute,
+  async (nextRoute) => {
+    if (!nextRoute || requestedRoute === nextRoute) {
+      return;
+    }
+
+    cancelFetch();
+    if (requestedRoute !== null) {
+      clearSelection();
+      allOptions.value = [];
+    }
+    requestedRoute = nextRoute;
+
+    const pagedFetch = {
+      route: nextRoute,
+      controller: new AbortController(),
+      nextPage: 0,
+      hasMore: true,
+      hasPendingRequest: false,
+    };
+    currentFetch = pagedFetch;
+
+    await fetchPage();
+    if (isStale(pagedFetch) || error.value) {
+      return;
+    }
+    ensurePresetValueInOptions();
+  },
+  { immediate: true }
+);
+
+// Leaving the page is one more way for a fetch to become useless: abort it instead of paying for a
+// response nobody will read.
+onBeforeUnmount(cancelFetch);
 
 /**
- * Fetches the next page of elements from the backend.
+ * Whether a fetch was replaced while it was awaiting, which makes its outcome no longer applicable.
+ * @param pagedFetch - The fetch captured before the await.
+ * @returns True when the fetch is no longer the current one.
  */
+function isStale(pagedFetch: PagedFetch): boolean {
+  return pagedFetch !== currentFetch;
+}
+
+/** Drops the selected value and the entity's, since it belongs to a route that no longer applies. */
+function clearSelection() {
+  if (localValue.value === null) {
+    return;
+  }
+  localValue.value = null;
+  updateValue();
+}
+
+/** Abandons the current fetch: aborts its request and drops it, so `isStale` discards a landed response. */
+function cancelFetch() {
+  currentFetch?.controller.abort();
+  currentFetch = null;
+  isLoading.value = false;
+  error.value = null;
+}
+
+/** Fetches the next page of the current fetch and appends it to the options. */
 async function fetchPage() {
-  if (!route.value || isLoading.value || !hasMore) {
+  const pagedFetch = currentFetch;
+  if (!pagedFetch || pagedFetch.hasPendingRequest || !pagedFetch.hasMore) {
     return;
   }
 
+  pagedFetch.hasPendingRequest = true;
   isLoading.value = true;
   error.value = null;
 
+  let page: Page<DynamicListElement> | undefined;
   try {
-    const page = await getDynamicListPage(route.value, {
-      page: currentPage,
-      size: pageSize.value,
-    });
-    if (page.content.length > 0) {
-      allOptions.value.push(...page.content.map(toOption));
-      removePlaceholderIfResolved();
-    }
-    hasMore = !page.last;
-    currentPage++;
+    page = await getDynamicListPage(
+      pagedFetch.route,
+      {
+        page: pagedFetch.nextPage,
+        size: pageSize.value,
+      },
+      pagedFetch.controller.signal
+    );
   } catch {
-    error.value = t('validation.dynamicList.fetchError');
-  } finally {
-    isLoading.value = false;
+    // An absent page is the failure, reported below once the fetch is known to be the current one.
+    // A cancellation lands here too, and never reaches the report: aborting always goes with
+    // replacing `currentFetch`, so the guard below has already returned.
   }
+
+  pagedFetch.hasPendingRequest = false;
+
+  if (isStale(pagedFetch)) {
+    return;
+  }
+
+  isLoading.value = false;
+
+  if (!page?.content) {
+    error.value = t('validation.dynamicList.fetchError');
+    return;
+  }
+
+  if (page.content.length > 0) {
+    allOptions.value.push(...page.content.map(toOption));
+    removePlaceholderIfResolved();
+  }
+  pagedFetch.hasMore = !page.last;
+  pagedFetch.nextPage++;
 }
 
 /**
