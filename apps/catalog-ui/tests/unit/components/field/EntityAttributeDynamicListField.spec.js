@@ -49,7 +49,11 @@ vi.mock('@linagora/linid-im-front-corelib', async () => {
     useQuasarRules: () => [vi.fn(), vi.fn(), vi.fn()],
     useNunjucks: () => ({
       renderString: (value, context) =>
-        value.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, key) => context[key] ?? ''),
+        value.replace(
+          /\{\{\s*([\w.]+)\s*\}\}/g,
+          (_, path) =>
+            path.split('.').reduce((acc, key) => acc?.[key], context) ?? ''
+        ),
     }),
   };
 });
@@ -211,16 +215,12 @@ describe('Test component: EntityAttributeDynamicListField', () => {
     });
   });
 
-  describe('Test computed: route', () => {
+  describe('Test computed: renderedRoute', () => {
     beforeEach(() => {
       wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
     });
 
-    it('should return route from inputSettings', () => {
-      expect(wrapper.vm.route).toEqual('/api/types');
-    });
-
-    it('should return null if route is missing', async () => {
+    it('should return an empty string if route is missing', async () => {
       await wrapper.setProps({
         definition: {
           name: 'type',
@@ -231,19 +231,121 @@ describe('Test component: EntityAttributeDynamicListField', () => {
         },
       });
 
-      expect(wrapper.vm.route).toBeUndefined();
+      expect(wrapper.vm.renderedRoute).toEqual('');
+    });
+
+    it('should render the route template against the entity', async () => {
+      await wrapper.setProps({
+        entity: { name: 'entity-name', organizationId: 'org-1' },
+        definition: {
+          name: 'type',
+          ...mountingOptions.props.definition,
+          inputSettings: {
+            route: '/api/organizations/{{ entity.organizationId }}/units',
+            size: 10,
+          },
+        },
+      });
+
+      expect(wrapper.vm.renderedRoute).toEqual(
+        '/api/organizations/org-1/units'
+      );
     });
   });
 
-  describe('Test hook: onMounted', () => {
-    it('should set error when route is missing from inputSettings', async () => {
+  describe('Test computed: configurationError', () => {
+    it('should report a route missing from inputSettings', async () => {
       mountingOptions.props.definition.inputSettings = {};
       wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
       await nextTick();
       await nextTick();
 
-      expect(wrapper.vm.error).toEqual('validation.dynamicList.missingRoute');
+      expect(wrapper.vm.configurationError).toEqual(
+        'validation.dynamicList.missingRoute'
+      );
+      expect(wrapper.vm.displayedError).toEqual(
+        'validation.dynamicList.missingRoute'
+      );
       expect(mockGetDynamicListPage).not.toHaveBeenCalled();
+    });
+
+    // A templated route that has not resolved yet is a load waiting for its values, not a broken
+    // configuration: the setting is there, so nothing is reported.
+    it('should report nothing when a configured route renders empty', async () => {
+      mountingOptions.props.definition.inputSettings.route =
+        '{{ entity.listRoute }}';
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+      await nextTick();
+
+      expect(wrapper.vm.renderedRoute).toEqual('');
+      expect(wrapper.vm.configurationError).toBeNull();
+      expect(wrapper.vm.displayedError).toBeNull();
+      expect(mockGetDynamicListPage).not.toHaveBeenCalled();
+    });
+
+    // Being derived from the props, it cannot be cleared by the loading flow — unlike the `error`
+    // ref, which every suspension resets.
+    it('should stay reported once a dependency is filled in', async () => {
+      mountingOptions.props.definition.inputSettings = {
+        routeDependencies: ['entity.organizationId'],
+      };
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+      await nextTick();
+
+      await wrapper.setProps({
+        entity: { name: 'entity-name', organizationId: 'org-1' },
+      });
+      await nextTick();
+      await nextTick();
+
+      expect(wrapper.vm.error).toBeNull();
+      expect(wrapper.vm.displayedError).toEqual(
+        'validation.dynamicList.missingRoute'
+      );
+      expect(mockGetDynamicListPage).not.toHaveBeenCalled();
+    });
+
+    it('should let a fetch error through when the configuration is sound', async () => {
+      mockGetDynamicListPage.mockRejectedValue(new Error('Network error'));
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+      await nextTick();
+
+      expect(wrapper.vm.configurationError).toBeNull();
+      expect(wrapper.vm.displayedError).toEqual(
+        'validation.dynamicList.fetchError'
+      );
+    });
+  });
+
+  describe('Test watch: fetch trigger — rendered route', () => {
+    // A route that rendered empty is a suspension, not a configuration error: nothing can be
+    // requested, but nothing is invalidated either. `missingRoute` is derived from the `route`
+    // setting alone, so a template that resolved to nothing never reports it.
+    it('should suspend without requesting anything when the rendered route becomes empty', async () => {
+      mountingOptions.props.entity.listRoute = '/api/types';
+      mountingOptions.props.entity.type = 'value2';
+      mountingOptions.props.definition.inputSettings.route =
+        '{{ entity.listRoute }}';
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+      await nextTick();
+      expect(wrapper.vm.allOptions.length).toEqual(3);
+      mockGetDynamicListPage.mockClear();
+
+      await wrapper.setProps({
+        entity: { name: 'entity-name', listRoute: '', type: 'value2' },
+      });
+      await nextTick();
+      await nextTick();
+
+      expect(mockGetDynamicListPage).not.toHaveBeenCalled();
+      expect(wrapper.vm.displayedError).toBeNull();
+      expect(wrapper.vm.allOptions.length).toEqual(3);
+      expect(wrapper.vm.localValue).toEqual('value2');
+      expect(wrapper.vm.currentFetch).not.toBeNull();
     });
 
     it('should call fetchPage on mount', async () => {
@@ -252,10 +354,174 @@ describe('Test component: EntityAttributeDynamicListField', () => {
       await nextTick();
 
       expect(mockGetDynamicListPage).toHaveBeenCalledTimes(1);
-      expect(mockGetDynamicListPage).toHaveBeenCalledWith('/api/types', {
-        page: 0,
-        size: 10,
+      expect(mockGetDynamicListPage).toHaveBeenCalledWith(
+        '/api/types',
+        {
+          page: 0,
+          size: 10,
+        },
+        expect.any(AbortSignal)
+      );
+    });
+
+    it('should not reload when the entity changes outside of the route', async () => {
+      mountingOptions.props.entity.organizationId = 'org-1';
+      mountingOptions.props.definition.inputSettings.route =
+        '/api/organizations/{{ entity.organizationId }}/units';
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+      await nextTick();
+      mockGetDynamicListPage.mockClear();
+
+      await wrapper.setProps({
+        entity: { name: 'renamed', organizationId: 'org-1' },
       });
+      await nextTick();
+      await nextTick();
+
+      expect(mockGetDynamicListPage).not.toHaveBeenCalled();
+    });
+
+    // `clearSelection()` runs before the reload, so `ensurePresetValueInOptions()` finds no value
+    // left to represent: the new list never presents the old selection as one of its own options.
+    // A route change abandons everything the previous one produced: page 0 of the new route is
+    // requested, the list is replaced, the cursor restarts — and the selection is dropped before
+    // the reload, so `ensurePresetValueInOptions()` finds no value left to re-inject as a
+    // placeholder. A unit chosen under org-1 must not survive as an option of org-2's list.
+    it('should reload from page 0 and drop the selection when the rendered route changes', async () => {
+      mountingOptions.props.entity.organizationId = 'org-1';
+      mountingOptions.props.entity.type = 'unit-a';
+      mountingOptions.props.definition.inputSettings.route =
+        '/api/organizations/{{ entity.organizationId }}/units';
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+      await nextTick();
+      expect(wrapper.vm.localValue).toEqual('unit-a');
+      expect(wrapper.vm.allOptions[0]).toEqual({
+        label: 'unit-a',
+        value: 'unit-a',
+      });
+      mockGetDynamicListPage.mockClear();
+      mockGetDynamicListPage.mockResolvedValue({
+        ...mockPage,
+        content: [{ label: 'Unit B', value: 'unit-b' }],
+        last: true,
+      });
+
+      await wrapper.setProps({
+        entity: {
+          name: 'entity-name',
+          organizationId: 'org-2',
+          type: 'unit-a',
+        },
+      });
+      await nextTick();
+      await nextTick();
+
+      expect(mockGetDynamicListPage).toHaveBeenCalledWith(
+        '/api/organizations/org-2/units',
+        { page: 0, size: 10 },
+        expect.any(AbortSignal)
+      );
+      expect(wrapper.vm.allOptions).toEqual([
+        { label: 'Unit B', value: 'unit-b' },
+      ]);
+      expect(wrapper.vm.currentFetch.nextPage).toEqual(1);
+      expect(wrapper.vm.localValue).toBeNull();
+      expect(wrapper.emitted('update:entity')[0]).toEqual([
+        {
+          name: 'entity-name',
+          organizationId: 'org-2',
+          type: null,
+        },
+      ]);
+    });
+
+    // A -> B -> A while the very first request for A is still in flight. The response that lands
+    // first belongs to a fetch that was replaced, even though the fetch now current reads from the
+    // same URL: the guard compares identities, not routes, so page 0 must be appended only once.
+    it('should discard a superseded response targeting the same route', async () => {
+      const resolvers = [];
+      mockGetDynamicListPage.mockImplementation(
+        () => new Promise((resolve) => resolvers.push(resolve))
+      );
+      mountingOptions.props.entity.organizationId = 'org-1';
+      mountingOptions.props.definition.inputSettings.route =
+        '/api/organizations/{{ entity.organizationId }}/units';
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+
+      await wrapper.setProps({
+        entity: { name: 'entity-name', organizationId: 'org-2' },
+      });
+      await nextTick();
+      await wrapper.setProps({
+        entity: { name: 'entity-name', organizationId: 'org-1' },
+      });
+      await nextTick();
+
+      expect(mockGetDynamicListPage).toHaveBeenCalledTimes(3);
+      resolvers[0]({
+        ...mockPage,
+        content: [{ label: 'Stale', value: 'stale' }],
+        last: true,
+      });
+      await nextTick();
+      await nextTick();
+
+      // The stale response owns none of the shared state anymore: not the list, not the spinner,
+      // which the fetch that replaced it is still driving.
+      expect(wrapper.vm.allOptions).toEqual([]);
+      expect(wrapper.vm.isLoading).toEqual(true);
+      expect(wrapper.vm.error).toBeNull();
+
+      resolvers[2]({
+        ...mockPage,
+        content: [{ label: 'Unit A', value: 'unit-a' }],
+        last: true,
+      });
+      await nextTick();
+      await nextTick();
+
+      expect(wrapper.vm.allOptions).toEqual([
+        { label: 'Unit A', value: 'unit-a' },
+      ]);
+      expect(wrapper.vm.isLoading).toEqual(false);
+      expect(wrapper.vm.currentFetch.nextPage).toEqual(1);
+      expect(wrapper.vm.currentFetch.hasMore).toEqual(false);
+    });
+  });
+
+  describe('Test function: cancelFetch', () => {
+    beforeEach(async () => {
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+      await nextTick();
+      mockGetDynamicListPage.mockClear();
+    });
+
+    it('should abandon the current fetch, abort its request and clear the states it owns', () => {
+      const { controller } = wrapper.vm.currentFetch;
+      wrapper.vm.error = 'validation.dynamicList.fetchError';
+      wrapper.vm.isLoading = true;
+
+      wrapper.vm.cancelFetch();
+
+      // Dropping `currentFetch` is what makes `isStale` work: without it, a response that already
+      // landed would be applied to the list that replaced it.
+      expect(wrapper.vm.currentFetch).toBeNull();
+      expect(controller.signal.aborted).toBe(true);
+      expect(wrapper.vm.isLoading).toEqual(false);
+      expect(wrapper.vm.error).toBeNull();
+    });
+
+    it('should be called on unmount so the in-flight request is aborted', () => {
+      const { controller } = wrapper.vm.currentFetch;
+      expect(controller.signal.aborted).toBe(false);
+
+      wrapper.unmount();
+
+      expect(controller.signal.aborted).toBe(true);
     });
   });
 
@@ -267,24 +533,8 @@ describe('Test component: EntityAttributeDynamicListField', () => {
       mockGetDynamicListPage.mockClear();
     });
 
-    it('should not fetch when route is missing', async () => {
-      await wrapper.setProps({
-        definition: {
-          name: 'type',
-          ...mountingOptions.props.definition,
-          inputSettings: {
-            size: 30,
-          },
-        },
-      });
-
-      await wrapper.vm.fetchPage();
-
-      expect(mockGetDynamicListPage).not.toHaveBeenCalled();
-    });
-
-    it('should not fetch when loading is true', async () => {
-      wrapper.vm.isLoading = true;
+    it('should not fetch when a request of the current fetch is already pending', async () => {
+      wrapper.vm.currentFetch.hasPendingRequest = true;
 
       await wrapper.vm.fetchPage();
 
@@ -292,7 +542,7 @@ describe('Test component: EntityAttributeDynamicListField', () => {
     });
 
     it('should not fetch when hasMore is false', async () => {
-      wrapper.vm.hasMore = false;
+      wrapper.vm.currentFetch.hasMore = false;
       await wrapper.vm.fetchPage();
 
       expect(mockGetDynamicListPage).not.toHaveBeenCalled();
@@ -301,10 +551,14 @@ describe('Test component: EntityAttributeDynamicListField', () => {
     it('should call getDynamicListPage with size from props and current page', async () => {
       await wrapper.vm.fetchPage();
 
-      expect(mockGetDynamicListPage).toHaveBeenCalledWith('/api/types', {
-        page: 1, // 1 because already fetched page 0 on mount
-        size: 10,
-      });
+      expect(mockGetDynamicListPage).toHaveBeenCalledWith(
+        '/api/types',
+        {
+          page: 1, // 1 because already fetched page 0 on mount
+          size: 10,
+        },
+        expect.any(AbortSignal)
+      );
     });
 
     it('should not change options if response content is empty', async () => {
@@ -328,6 +582,26 @@ describe('Test component: EntityAttributeDynamicListField', () => {
     it('should populate options after successful fetch', async () => {
       wrapper.vm.allOptions = [];
       await wrapper.vm.fetchPage();
+      expect(wrapper.vm.allOptions).toEqual([
+        { label: 'Value 1', value: 'value1' },
+        { label: 'Value 2', value: 'value2' },
+        { label: 'Value 3', value: 'value3' },
+      ]);
+    });
+
+    // `inputSettings` is optional on the attribute configuration, and every read of it in the
+    // component is optional-chained. `toOption` falls back to `{}`, so elements are used as-is.
+    // Dropping the settings suspends the load rather than abandoning it, which is what leaves the
+    // fetch installed and still requestable here.
+    it('should use the fetched element as-is when inputSettings is absent', async () => {
+      await wrapper.setProps({
+        definition: { name: 'type', type: 'String', input: 'DynamicList' },
+      });
+      await nextTick();
+      wrapper.vm.allOptions = [];
+
+      await wrapper.vm.fetchPage();
+
       expect(wrapper.vm.allOptions).toEqual([
         { label: 'Value 1', value: 'value1' },
         { label: 'Value 2', value: 'value2' },
@@ -397,23 +671,8 @@ describe('Test component: EntityAttributeDynamicListField', () => {
       ]);
     });
 
-    it('should increment page number after successful fetch', async () => {
-      wrapper.vm.currentPage = 7;
-      mockGetDynamicListPage.mockResolvedValue({
-        ...mockPage,
-        content: [
-          { label: 'Value 4', value: 'value4' },
-          { label: 'Value 5', value: 'value5' },
-        ],
-      });
-
-      await wrapper.vm.fetchPage();
-
-      expect(wrapper.vm.currentPage).toEqual(8);
-    });
-
     it('should set hasMore based on last page flag', async () => {
-      wrapper.vm.hasMore = true;
+      wrapper.vm.currentFetch.hasMore = true;
       mockGetDynamicListPage.mockResolvedValue({
         ...mockPage,
         last: true,
@@ -421,7 +680,7 @@ describe('Test component: EntityAttributeDynamicListField', () => {
 
       await wrapper.vm.fetchPage();
 
-      expect(wrapper.vm.hasMore).toEqual(false);
+      expect(wrapper.vm.currentFetch.hasMore).toEqual(false);
     });
 
     it('should set error on fetch failure', async () => {
@@ -429,6 +688,35 @@ describe('Test component: EntityAttributeDynamicListField', () => {
       await wrapper.vm.fetchPage();
 
       expect(wrapper.vm.error).toEqual('validation.dynamicList.fetchError');
+      expect(wrapper.vm.isLoading).toEqual(false);
+    });
+
+    it('should set error when the response carries no content', async () => {
+      wrapper.vm.currentFetch.nextPage = 7;
+      mockGetDynamicListPage.mockResolvedValue({});
+
+      await wrapper.vm.fetchPage();
+
+      expect(wrapper.vm.error).toEqual('validation.dynamicList.fetchError');
+      expect(wrapper.vm.isLoading).toEqual(false);
+      expect(wrapper.vm.currentFetch.nextPage).toEqual(7);
+    });
+
+    it('should discard a failure from a fetch that was replaced', async () => {
+      let rejectPage;
+      mockGetDynamicListPage.mockImplementation(
+        () =>
+          new Promise((_, reject) => {
+            rejectPage = reject;
+          })
+      );
+
+      const stalePage = wrapper.vm.fetchPage();
+      wrapper.vm.cancelFetch();
+      rejectPage(new Error('Network error'));
+      await stalePage;
+
+      expect(wrapper.vm.error).toBeNull();
     });
   });
 
@@ -573,6 +861,36 @@ describe('Test component: EntityAttributeDynamicListField', () => {
     });
   });
 
+  describe('Test function: clearSelection', () => {
+    beforeEach(() => {
+      mountingOptions.props.entity.type = 'unit-a';
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+    });
+
+    it('should reset localValue and emit the entity without the value', () => {
+      expect(wrapper.vm.localValue).toEqual('unit-a');
+
+      wrapper.vm.clearSelection();
+
+      expect(wrapper.vm.localValue).toBeNull();
+      expect(wrapper.emitted('update:entity')[0]).toEqual([
+        {
+          name: 'entity-name',
+          type: null,
+        },
+      ]);
+    });
+
+    it('should not emit when nothing is selected', () => {
+      wrapper.vm.localValue = null;
+
+      wrapper.vm.clearSelection();
+
+      expect(wrapper.vm.localValue).toBeNull();
+      expect(wrapper.emitted('update:entity')).toBeUndefined();
+    });
+  });
+
   describe('Test function: removePlaceholderIfResolved', () => {
     it('should remove placeholder when real option is loaded on subsequent page', async () => {
       mountingOptions.props.entity.type = 'value-on-page2';
@@ -597,6 +915,29 @@ describe('Test component: EntityAttributeDynamicListField', () => {
       );
       expect(matching.length).toEqual(1);
       expect(matching[0].label).toEqual('Real Label');
+    });
+
+    // Two real options sharing a value is a backend duplicate, not a placeholder: a placeholder is
+    // identified by `label === value`, and neither of these is. Nothing must be removed — the
+    // duplicate-count check alone would otherwise delete a legitimate option.
+    it('should remove nothing when duplicate options are not placeholders', async () => {
+      mountingOptions.props.entity.type = 'value1';
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+      await nextTick();
+      wrapper.vm.allOptions = [{ label: 'First label', value: 'value1' }];
+      mockGetDynamicListPage.mockResolvedValue({
+        ...mockPage,
+        content: [{ label: 'Second label', value: 'value1' }],
+        last: true,
+      });
+
+      await wrapper.vm.fetchPage();
+
+      expect(wrapper.vm.allOptions).toEqual([
+        { label: 'First label', value: 'value1' },
+        { label: 'Second label', value: 'value1' },
+      ]);
     });
   });
 

@@ -4,6 +4,8 @@ The **EntityAttributeDynamicListField** component is a specialized attribute fie
 
 It relies on Quasar's `QSelect` component with **lazy loading** (dynamic loading on virtual scroll) and integrates with the LinID design system and scoped i18n to provide a fully customizable, localized, and reactive select input for structured `{ label, value }` elements fetched from a backend endpoint. The dropdown displays **labels** while the entity stores only the **value**.
 
+The route itself is a **Nunjucks template** rendered against the edited entity, so the endpoint can depend on other attribute values (e.g. `/api/organizations/{{ entity.organizationId }}/units`). Options are reloaded automatically whenever the rendered route changes.
+
 Unlike `EntityAttributeListField`, which uses a static predefined list, this component fetches options **page by page** from a DLVP (Dynamic List Validation Plugin) route endpoint, loading more items as the user scrolls through the dropdown.
 
 ---
@@ -12,6 +14,9 @@ Unlike `EntityAttributeListField`, which uses a static predefined list, this com
 
 - Renders a dynamic list attribute using a dropdown/select field with lazy loading
 - Fetches structured `{ label, value }` elements from a backend route endpoint (DLVP) using pagination
+- Renders the `route` as a Nunjucks template against the edited entity, and reloads the options whenever the rendered route changes
+- Drops the current selection on a route change, so a value picked under a previous scope is never carried over into the new list
+- Suspends a load it cannot perform instead of abandoning it, so restoring the value resumes the list where it stopped
 - Optionally maps elements of any paginated entity endpoint to options through the `optionLabel` and `optionValue` Nunjucks templates
 - Displays **labels** in the dropdown while storing only **values** in the entity
 - Loads additional pages on virtual scroll (infinite scrolling pattern)
@@ -76,8 +81,8 @@ export interface DynamicListElement {
 ```ts
 export interface FieldDynamicListSettings extends FieldSettings {
   /**
-   * The backend route path to fetch the list values (e.g. "/api/types").
-   * Exposed by the DLVP route plugin.
+   * Backend route path exposed by the DLVP route plugin, rendered as a Nunjucks template with the
+   * edited entity as `entity` (e.g. "/api/organizations/{{ entity.organizationId }}/units").
    */
   route: string;
 
@@ -155,10 +160,17 @@ The component uses `useScopedI18n` to resolve translations for multiple UI text 
 
 ### Error Translation Keys
 
-| Key                                   | Usage                                    |
-| ------------------------------------- | ---------------------------------------- |
-| `validation.dynamicList.missingRoute` | Displayed when `route` is not configured |
-| `validation.dynamicList.fetchError`   | Displayed when a fetch request fails     |
+| Key                                   | Usage                                          |
+| ------------------------------------- | ---------------------------------------------- |
+| `validation.dynamicList.missingRoute` | Displayed when no `route` is configured at all |
+| `validation.dynamicList.fetchError`   | Displayed when a fetch request fails           |
+
+Two error sources, deliberately separate:
+
+- **A missing `route` setting** is reported for as long as it is missing — no load can clear it
+- **A failed request** is reported until the next load replaces it
+
+A broken configuration outranks a failed request.
 
 ### Fallback Behavior
 
@@ -299,13 +311,14 @@ The attribute `name` supports **dot notation** to target values located inside s
    - the entity value at `definition.name` (existing value string in entity)
    - `null` (fallback if no entity value exists)
 
-2. On mount, the first page of `{ label, value }` elements is fetched from the backend
-3. After the initial fetch, if the entity has a preset value not found in the loaded options, a placeholder entry `{ label: value, value: value }` is injected so that the field always displays something meaningful
+2. The `route` template is rendered against the entity; as soon as it resolves, the first page of `{ label, value }` elements is fetched from the backend
+3. After the **first page** of each load, a preset value missing from the options gets a placeholder entry `{ label: value, value: value }` — unless that page failed, in which case the list stays empty so the error remains visible
 4. User scrolls through the dropdown → next page is fetched and appended; if the real option matching the preset value is loaded, the placeholder is automatically removed
 5. Quasar's `map-options` resolves the stored value string to its corresponding label for display
 6. User selects an element from the dropdown → `emit-value` ensures only the `value` string is stored
 7. `localValue` is updated via `v-model` (always a string)
 8. `updateValue()` emits `update:entity` with a new entity object
+9. If the updated entity changes a value the route template depends on, the **selection is dropped** — a value picked from the previous route does not belong to the new one — and the options are discarded and refetched from page 0
 
 ```text
 Backend API → fetchPage() → allOptions (DynamicListElement[]) → QSelect (displays labels)
@@ -319,14 +332,23 @@ QSelect → localValue (value string) → updateValue → update:entity
 ### Options Management (Lazy Loading)
 
 ```ts
+interface PagedFetch {
+  readonly route: string;
+  readonly controller: AbortController;
+  nextPage: number;
+  hasMore: boolean;
+  hasPendingRequest: boolean;
+}
+
 const allOptions = ref<DynamicListElement[]>([]);
-let currentPage = 0;
-let hasMore = true;
+let currentFetch: PagedFetch | null = null;
+let requestedRoute: string | null = null;
 ```
 
 - `allOptions`: Accumulates all fetched `{ label, value }` elements across pages
-- `currentPage`: Tracks the next page to fetch (zero-based)
-- `hasMore`: Set to `false` when the backend returns `last: true`
+- `PagedFetch`: One paginated load from a single route, holding its own pagination position. `route` is `readonly`, so page 3 of a load can never come from a different URL than page 0.
+- `currentFetch`: The load the list is currently filled from, `null` while the field has none. Replacing it is what invalidates a response that arrives too late.
+- `requestedRoute`: The last rendered route a request was opened on, `null` until the first one. It is what tells a **first** load, where the persisted value is kept, from a **later route change**, where the selection is dropped.
 
 ### Page Size Configuration
 
@@ -345,92 +367,93 @@ const error = ref<string | null>(null);
 ```
 
 - `isLoading`: `true` while a page fetch is in progress; shows a loading spinner in the `q-select`
-- `error`: Set to a translated error message when a fetch fails or the route is missing; displayed via the `#no-option` slot
+- `error`: the failure of the last request. A missing `route` is reported separately — see _Error Translation Keys_ — and the `#no-option` slot displays whichever of the two applies
+
+### Route Resolution
+
+The `route` is a Nunjucks template rendered against the edited entity, exposed as `entity`:
+
+```json
+{ "route": "/api/organizations/{{ entity.organizationId }}/units" }
+```
+
+- A route without `{{` is used as-is
+- A template that has not resolved renders empty, and the load simply suspends. Only a `route` missing from `inputSettings` is reported as an error.
+
+```ts
+
+### Fetch Trigger
+
+The field loads whenever it can, and reacts to every change of the edited entity — not only at mount:
+
+| State                    | Outcome                                                             |
+| ------------------------ | ------------------------------------------------------------------- |
+| Empty rendered route     | **Suspends**, identically                                           |
+| Same route as before     | **Suspends** too: the list simply carries on where it was           |
+| First route              | Fetches page 0 and **keeps** the preset value                       |
+| The rendered route moved | **Abandons**: drops the selection, empties the list, fetches page 0 |
+
+- Editing an entity attribute the route does not use does **not** refetch
+- A first page that fails leaves its error visible instead of hiding it behind the preset value
+
+### Selection Reset
+
+```ts
+function clearSelection() { ... }
+```
+
+- A unit chosen under `org-1` is not a unit of `org-2`: the selection is dropped whenever the rendered route changes, and `update:entity` is emitted so the form stops carrying it
+- The **first** load never clears anything — a persisted value survives a form mounted before its entity arrives
+- A route that rendered empty is not a route change, it suspends, and the selection stays
+- Returning to a route already loaded is not a change either, so nothing is dropped and nothing is refetched
+
+The field therefore emits outside of a user interaction, like `EntityAttributeListField` when its filtered list stops offering the selected value. Parent components must expect an `update:entity` carrying `null` for this attribute after an edit elsewhere in the form.
+
+#### ⚠️ A disabled field still carries its value
+
+The two list fields look alike but do **not** clear on the same trigger:
+
+| Component                         | Clears the selection when…                                        |
+| --------------------------------- | ----------------------------------------------------------------- |
+| `EntityAttributeListField`        | its `options` no longer contain the value                         |
+| `EntityAttributeDynamicListField` | the **rendered route** changes — not when the options are emptied |
+
+Aligning them is impossible: a dependency is missing on **every** first render of a details page, so clearing there would wipe the persisted value before it was ever displayed.
+
+### Suspending and Abandoning
+
+The field never has to choose between reloading everything and going blank — it has two distinct reactions.
+
+#### Suspending
+
+The route renders empty or it comes back to the one already loaded: the field **keeps what it has** and asks for nothing.
+
+- The options, the selection and the scroll position all survive, so the selected value still displays with its **label** and scrolling resumes where it stopped instead of replaying page 0
+- A request already in flight is left to finish, and its page is added normally
+- A previous fetch error stays displayed — it describes the load, not the moment it failed
+
+#### Abandoning
+
+The rendered route changes, or the component unmounts: the field **throws the load away** and cancels its request. On a route change it also discards the options, drops the selection and fetches page 0 of the new route.
 
 ### Fetch Logic
 
-The `route` is a computed property derived from `inputSettings` and validated in `onMounted`:
+Only the guarantees a caller can observe:
 
-```ts
-const route = computed(() => props.definition.inputSettings?.route);
-
-onMounted(async () => {
-  if (!route.value) {
-    error.value = t('validation.dynamicList.missingRoute');
-    return;
-  }
-  await fetchPage();
-});
-```
-
-```ts
-async function fetchPage() {
-  if (!route.value || isLoading.value || !hasMore) {
-    return;
-  }
-
-  isLoading.value = true;
-  error.value = null;
-
-  try {
-    const page = await getDynamicListPage(route.value, {
-      page: currentPage,
-      size: pageSize.value,
-    });
-    if (page.content.length > 0) {
-      allOptions.value.push(...page.content);
-    }
-    hasMore = !page.last;
-    currentPage++;
-  } catch {
-    error.value = t('validation.dynamicList.fetchError');
-  } finally {
-    isLoading.value = false;
-  }
-}
-```
-
-- The `route` is a **computed** property, validated **once** in `onMounted`
-- Fetches are **guarded** against concurrent calls (`isLoading.value`) and exhausted data (`!hasMore`)
-- `currentPage` and `hasMore` are plain `let` variables — they do not need reactivity since they are never used in the template
-- Uses `push(...page.content)` to append in-place instead of creating a new array each time
-- Skips the append when the page is empty to avoid unnecessary operations
-- On failure, `error` is set to a user-facing translated message
+- A response from a superseded load is discarded whole — it cannot add options, advance the pagination, or change the error or loading state. Two loads of the **same** URL are still told apart, so `org-1 → org-2 → org-1` never appends page 0 twice.
+- A missing or malformed response body is reported as a fetch error; an **empty** page is a success and simply ends the pagination
+- The same page is never requested twice, however often the virtual scroll fires during a single gesture
+- Abandoning a load cancels its request rather than merely ignoring the answer, so leaving a form while its list is loading costs nothing
 
 ### Preset Value Resolution
 
-When editing an entity that already has a value stored, the corresponding option may not be in the first page of results. Two helper functions handle this:
+When editing an entity that already has a value, its option may not be in the first page. The field then shows the raw value as a placeholder, and replaces it with the real option — proper label included — as soon as a page brings it in.
 
-```ts
-function ensurePresetValueInOptions() {
-  // After initial fetch, if localValue is not found in allOptions,
-  // prepends a placeholder { label: value, value: value }
-}
-
-function removePlaceholderIfResolved() {
-  // After each page fetch, if the real option has been loaded,
-  // removes the placeholder to avoid duplicates
-}
-```
-
-- `ensurePresetValueInOptions()`: Called once after the initial `fetchPage()` in `onMounted`. Prepends a placeholder entry if the entity's preset value is not found in the loaded options.
-- `removePlaceholderIfResolved()`: Called after each successful `fetchPage()`. Detects and removes the placeholder when the real option (with its proper label) is loaded.
+This applies to the first load and to any reload a route change did not invalidate; a value the route change dropped is never re-injected. Two real options sharing a value are a backend duplicate, not a placeholder, and are left alone.
 
 ### Virtual Scroll Handler
 
-```ts
-function onVirtualScroll(payload: VirtualScrollPayload) {
-  const lastIndex = allOptions.value.length - 1;
-  if (payload.to < lastIndex) {
-    return;
-  }
-  fetchPage();
-}
-```
-
-- Triggered by Quasar's `@virtual-scroll` event on the `q-select`
-- Fetches the next page only when the scroll position reaches the last loaded item
-- Delegates loading and exhaustion guards to `fetchPage()` to avoid duplicating logic
+Reaching the end of the loaded options fetches the next page, until the backend reports the last one. While the field is disabled the dropdown cannot open, so nothing is paginated.
 
 ### Selected Value Management
 
@@ -543,12 +566,37 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 </template>
 ```
 
+### Templated Route Example
+
+A route may depend on another attribute of the same entity. Here the list of units is scoped to the organization currently selected on the entity:
+
+```json
+{
+  "name": "unit",
+  "type": "String",
+  "input": "DynamicList",
+  "inputSettings": {
+    "route": "/api/organizations/{{ entity.organizationId }}/units",
+    "size": 10
+  }
+}
+```
+
+- While `organizationId` is empty the select is **disabled** and `/api/organizations//units` is never requested
+- Picking `org-1` enables the field and fetches `/api/organizations/org-1/units`
+- Moving to `org-2` fetches its page 0, discards the units of `org-1` and drops the selected unit from the entity
+- Clearing the organization suspends instead: the units, the selection and the cursor are kept, and restoring `org-1` resumes without a request
+
 ---
 
 ## **✅ Advantages**
 
 - **Lazy loading:** Fetches options on demand, avoiding large upfront data transfers
 - **Infinite scrolling:** Seamless pagination via Quasar's virtual scroll
+- **Contextual routes:** The endpoint can depend on other entity attributes, keeping the options scoped to the current selection
+- **Race-safe:** A slow response from a load that no longer applies never corrupts the list on screen
+- **No stale selection:** On a route change, a value picked under the previous scope is removed from the entity rather than surviving as a fabricated option
+- **Resumable:** A load held back by a missing value keeps its options and its cursor, so filling the value back in costs nothing
 - **Loading and error states:** Visual feedback during data fetching
 - **Focused responsibility:** Dedicated to dynamic list-based selection attributes
 - **Immutable updates:** Avoids mutating the parent entity directly
@@ -562,14 +610,29 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 ## **🧪 Testing Considerations**
 
 - Verify initial selected value matches the entity state
-- Assert `getDynamicListPage` is called on mount with `{ page: 0, size: configuredSize }`
+- Assert `getDynamicListPage` is called on mount with `{ page: 0, size: configuredSize }` and the current fetch's abort signal
 - Test default page size (20) when `size` is not configured
 - Verify options are populated with `{ label, value }` objects after a successful fetch
-- Test error state when `route` is missing from `inputSettings`
+- Verify `configurationError` reports a missing `route` setting, reports nothing when a configured one renders empty, and cannot be cleared by the loading flow
+- Verify `displayedError` shows the configuration error over a fetch failure
+- Verify a `route` that renders empty after a load suspends: no request, no `missingRoute`, everything kept
 - Test error state on fetch failure
+- Verify a templated `route` is rendered against the entity before being fetched
+- Verify a route change reloads from page 0, drops the selection, emits `update:entity` with `null`, and rebuilds no placeholder
+- Verify the preset value **survives** the first load, including when the entity arrives after mount
+- Verify a route coming back to an already loaded one requests nothing, and the next scroll asks for the following page
+- Verify `clearSelection` emits nothing when no value is selected — which is what keeps a route change silent in that state
+- Verify **no** reload occurs when the entity changes outside of the values the route depends on
+- Verify a route change **does** clear the fetch error, since `cancelFetch()` kills the fetch that owned it
+- Verify `cancelFetch` aborts the request **and** drops `currentFetch`, clearing the spinner and the error it owned
+- Verify `fetchPage` requests nothing when one of its requests is already pending, or when the last page was reached
+- Verify the in-flight request is aborted on unmount
+- Verify a response arriving after the route changed appends nothing, sets no `error`, and leaves the `isLoading` spinner its replacement owns
+- Verify a response from a superseded load of the **same** route is discarded: going `A → B → A` while the first request for `A` is in flight must not append page 0 twice
+- Verify a failure from a superseded load does not set the error state
+- Verify a response carrying no `content` sets the fetch error, clears `isLoading` and leaves the pagination cursor where it was
 - Verify fetching stops when the last page is reached
-- Verify page number increments after each successful fetch
-- Test that concurrent fetches are prevented (loading guard)
+- Test that a second request for the same page is prevented while the first is awaiting (`hasPendingRequest`, not `isLoading`)
 - Test virtual scroll triggers next page fetch when reaching the end
 - Test virtual scroll does not fetch when not at the end of the list
 - Test virtual scroll does not fetch when `hasMore` is `false`
@@ -591,16 +654,20 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 - The component assumes `definition.input === 'DynamicList'`
 - Uses `FieldDynamicListSettings` type for `inputSettings`, which requires a `route` property
 - The `route` property is **mandatory** in `FieldDynamicListSettings` — without it, the component displays an error
-- The field is rendered as non-interactive when `definition.inputSettings.disable` is `true`
+- The `route` is rendered as a Nunjucks template with the edited entity exposed as `entity`; a route without `{{` is used as-is
+- A route change drops the selection, discards the options and refetches from page 0; anything else that cannot load **suspends**, keeping everything — see _A disabled field still carries its value_
+- A slow response from a load that no longer applies is discarded, even when it targets the same URL as the load in progress
+- Unmounting the component aborts the request in flight, so leaving a form while its list is loading costs nothing
+- The field is rendered as non-interactive when `definition.inputSettings.disable` is **truthy**, like every other attribute field
 - Options are fetched lazily and accumulated across pages
-- The `entity` prop is reactive: changes to the entity value at `definition.name` are reflected in `localValue` via a selective `watch`
+- The `entity` prop is reactive: a change to the value at `definition.name` is reflected in the field, and a change to any other attribute is not
 - Validation is handled internally using `useQuasarRules` with a `unique` rule and can be configured via `inputSettings`
 - Missing translations safely fall back to default values
 - Intended for use via `EntityAttributeField` dispatcher, not directly in most cases
 - The backend endpoint must return a Spring `Page<Map<String, String>>` response with `{ label, value }` elements
 - Works in conjunction with the DLVP (Dynamic List Validation Plugin) on the backend
 - Quasar's `option-label`, `option-value`, `emit-value`, and `map-options` props handle the label/value mapping natively
-- Pre-filled entity values are displayed immediately via a placeholder if not found in the initial page; the placeholder is replaced with the real option (including its proper label) when it is loaded via lazy scrolling
+- A pre-filled value missing from the first page is shown as a placeholder once that page has loaded, and replaced by the real option — proper label included — when a later page brings it in
 
 ---
 
@@ -610,6 +677,7 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 
 It is responsible only for:
 
+- Resolving its route template against the edited entity,
 - Fetching `{ label, value }` elements lazily from a backend DLVP route endpoint
 - Rendering the select dropdown with labels while storing values in the entity
 - Managing local UI state (pagination, loading, error)
