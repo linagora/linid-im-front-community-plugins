@@ -37,7 +37,10 @@
       v-bind="uiProps.card"
       data-cy="form-dialog_card"
     >
-      <q-card-section class="drag-handle">
+      <q-card-section
+        v-bind="uiProps.titleSection"
+        class="drag-handle"
+      >
         <h3
           class="q-my-none form-dialog--title"
           data-cy="form-dialog_title"
@@ -48,6 +51,7 @@
 
       <!-- eslint-disable vue/no-v-text-v-html-on-component vue/no-v-html -->
       <q-card-section
+        v-bind="uiProps.contentSection"
         data-cy="form-dialog_content"
         v-html="content"
       />
@@ -60,6 +64,7 @@
         <q-card-section
           v-for="field in formFields"
           :key="field.name"
+          v-bind="uiProps.fieldSection"
           class="form-dialog--form-section--field"
           :data-cy="`form-dialog_field-container_${field.name}`"
         >
@@ -95,6 +100,7 @@ import type {
   LinidAttributeConfiguration,
   LinidQCardActionsProps,
   LinidQCardProps,
+  LinidQCardSectionProps,
   LinidQDialogProps,
 } from '@linagora/linid-im-front-corelib';
 import {
@@ -126,6 +132,18 @@ const localUiNamespace = computed(() => `${uiNamespace.value}.form-dialog`);
 const uiProps = computed(() => ({
   dialog: ui<LinidQDialogProps>(localUiNamespace.value, 'q-dialog'),
   card: ui<LinidQCardProps>(localUiNamespace.value, 'q-card'),
+  titleSection: ui<LinidQCardSectionProps>(
+    `${localUiNamespace.value}.title-section`,
+    'q-card-section'
+  ),
+  contentSection: ui<LinidQCardSectionProps>(
+    `${localUiNamespace.value}.content-section`,
+    'q-card-section'
+  ),
+  fieldSection: ui<LinidQCardSectionProps>(
+    `${localUiNamespace.value}.field-section`,
+    'q-card-section'
+  ),
   cardActions: ui<LinidQCardActionsProps>(
     localUiNamespace.value,
     'q-card-actions'

@@ -58,6 +58,7 @@
         >
           <q-card-section
             v-if="te(`formSections.${formSection.id}.title`)"
+            v-bind="uiProps.headerSection[formSection.id]"
             class="edit-user-page--form-section--header"
           >
             <h4
@@ -78,6 +79,7 @@
           <q-card-section
             v-for="field in formSection.fields"
             :key="field.name"
+            v-bind="uiProps.fieldSection[formSection.id]"
             class="edit-user-page--form-section--field"
             :data-cy="`field-container_${field.name}`"
           >
@@ -110,7 +112,10 @@
 </template>
 
 <script lang="ts" setup>
-import type { LinidQCardProps } from '@linagora/linid-im-front-corelib';
+import type {
+  LinidQCardProps,
+  LinidQCardSectionProps,
+} from '@linagora/linid-im-front-corelib';
 import {
   deepEqual,
   getEntityById,
@@ -125,7 +130,10 @@ import {
 import { computedAsync } from '@vueuse/core';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import type { ModuleUsersOptions } from '../types/moduleUsers';
+import type {
+  ModuleUsersOptions,
+  UserFormPageUIProps,
+} from '../types/moduleUsers';
 
 const router = useRouter();
 const route = useRoute();
@@ -176,20 +184,26 @@ const { t, te } = useScopedI18n(i18nScope.value);
 const { Notify } = useNotify();
 const { ui } = useUiDesign();
 
-const uiProps = computed(() => ({
-  card: formSections.value.reduce<Record<string, LinidQCardProps>>(
-    (acc, item) => {
-      return {
-        ...acc,
-        [item.id]: ui<LinidQCardProps>(
-          `${uiNamespace.value}.form-section-${item.id}`,
-          'q-card'
-        ),
-      };
+const uiProps = computed(() =>
+  formSections.value.reduce<UserFormPageUIProps>(
+    (acc, { id }) => {
+      const formSectionUiNamespace = `${uiNamespace.value}.form-section-${id}`;
+
+      acc.card[id] = ui<LinidQCardProps>(formSectionUiNamespace, 'q-card');
+      acc.headerSection[id] = ui<LinidQCardSectionProps>(
+        `${formSectionUiNamespace}.header-section`,
+        'q-card-section'
+      );
+      acc.fieldSection[id] = ui<LinidQCardSectionProps>(
+        `${formSectionUiNamespace}.field-section`,
+        'q-card-section'
+      );
+
+      return acc;
     },
-    {}
-  ),
-}));
+    { card: {}, headerSection: {}, fieldSection: {} }
+  )
+);
 
 /**
  * Loads the user entity by ID and updates the reactive user state.

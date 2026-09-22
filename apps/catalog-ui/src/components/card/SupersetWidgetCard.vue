@@ -28,10 +28,11 @@
   <q-card
     class="superset-widget-card"
     :data-cy="`superset-widget-card--${dashboardSlug}`"
-    v-bind="uiCardProps"
+    v-bind="uiProps.card"
   >
     <q-card-section
       v-if="te(`slug.${dashboardSlug}.title`)"
+      v-bind="uiProps.titleSection"
       class="superset-widget-card--title"
     >
       <h4
@@ -42,7 +43,10 @@
       </h4>
     </q-card-section>
     <q-inner-loading :showing="loading" />
-    <q-card-section :style="style">
+    <q-card-section
+      v-bind="uiProps.contentSection"
+      :style="style"
+    >
       <div
         ref="mountPoint"
         class="superset-mount"
@@ -58,6 +62,7 @@ import { embedDashboard } from '@superset-ui/embedded-sdk';
 import {
   getHttpClient,
   type LinidQCardProps,
+  type LinidQCardSectionProps,
   useNotify,
   useNunjucks,
   useScopedI18n,
@@ -81,10 +86,19 @@ const nunjucksContext = computed(() => ({
 const { t, te } = useScopedI18n(`${props.i18nScope}.SupersetWidgetCard`);
 const { ui } = useUiDesign();
 
-const uiCardProps: LinidQCardProps = ui<LinidQCardProps>(
-  `${props.uiNamespace}.superset-widget-card`,
-  'q-card'
-);
+const localUiNamespace = `${props.uiNamespace}.superset-widget-card`;
+
+const uiProps = {
+  card: ui<LinidQCardProps>(localUiNamespace, 'q-card'),
+  titleSection: ui<LinidQCardSectionProps>(
+    `${localUiNamespace}.title-section`,
+    'q-card-section'
+  ),
+  contentSection: ui<LinidQCardSectionProps>(
+    `${localUiNamespace}.content-section`,
+    'q-card-section'
+  ),
+};
 
 /**
  * Fetches a guest token for the Superset dashboard.

@@ -33,6 +33,7 @@
   >
     <q-card-section
       v-if="te('title')"
+      v-bind="uiProps.titleSection"
       class="row justify-start items-center q-pa-sm"
     >
       <q-icon
@@ -46,7 +47,10 @@
       </span>
     </q-card-section>
 
-    <q-card-section class="advanced-search-card--default-filters q-pb-md">
+    <q-card-section
+      v-bind="uiProps.defaultFiltersSection"
+      class="q-pb-md advanced-search-card--default-filters"
+    >
       <div class="row q-gutter-md">
         <div
           v-for="field in defaultFieldsDefinitions"
@@ -85,7 +89,8 @@
       <div v-show="isExpanded">
         <q-separator />
         <q-card-section
-          class="advanced-search-card--advanced-filters q-pt-md"
+          v-bind="uiProps.advancedFiltersSection"
+          class="q-pt-md advanced-search-card--advanced-filters"
           data-cy="advanced-search-card--advanced-section"
         >
           <div class="row q-gutter-md">
@@ -118,6 +123,7 @@
 import type {
   LinidQBtnProps,
   LinidQCardProps,
+  LinidQCardSectionProps,
   LinidQIconProps,
 } from '@linagora/linid-im-front-corelib';
 import {
@@ -144,6 +150,18 @@ const { ui } = useUiDesign();
 const uiProps = {
   card: ui<LinidQCardProps>(localUiNamespace, 'q-card'),
   icon: ui<LinidQIconProps>(localUiNamespace, 'q-icon'),
+  titleSection: ui<LinidQCardSectionProps>(
+    `${localUiNamespace}.title-section`,
+    'q-card-section'
+  ),
+  defaultFiltersSection: ui<LinidQCardSectionProps>(
+    `${localUiNamespace}.default-filters-section`,
+    'q-card-section'
+  ),
+  advancedFiltersSection: ui<LinidQCardSectionProps>(
+    `${localUiNamespace}.advanced-filters-section`,
+    'q-card-section'
+  ),
   toggleButton: ui<LinidQBtnProps>(
     `${localUiNamespace}.toggle-button`,
     'q-btn'

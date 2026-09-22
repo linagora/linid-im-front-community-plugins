@@ -24,7 +24,11 @@
  * LinID Identity Manager software.
  */
 
-import type { LinidAttributeConfiguration } from '@linagora/linid-im-front-corelib';
+import type {
+  LinidAttributeConfiguration,
+  LinidQCardProps,
+  LinidQCardSectionProps,
+} from '@linagora/linid-im-front-corelib';
 import type { QTableColumn } from 'quasar';
 
 /**
@@ -104,4 +108,22 @@ export interface FormSection {
    * List of field names to include in this section, in the desired order.
    */
   fieldsOrder: string[];
+}
+
+/**
+ * UI props for the NewUserPage and EditUserPage components, keyed by form section id.
+ */
+export interface UserFormPageUIProps {
+  /**
+   * The UI properties for the card of each form section.
+   */
+  card: Record<string, LinidQCardProps>;
+  /**
+   * The UI properties for the header section (title and description) of each form section.
+   */
+  headerSection: Record<string, LinidQCardSectionProps>;
+  /**
+   * The UI properties for the section wrapping each field of a form section.
+   */
+  fieldSection: Record<string, LinidQCardSectionProps>;
 }

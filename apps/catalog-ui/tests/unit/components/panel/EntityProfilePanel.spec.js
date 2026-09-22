@@ -321,6 +321,11 @@ describe('Test component: EntityProfilePanel', () => {
         'backButton',
         'image',
         'avatarIcon',
+        'navigationSection',
+        'avatarSection',
+        'titlesSection',
+        'actionsSection',
+        'detailsSection',
       ]);
     });
 

@@ -31,7 +31,10 @@
     class="q-mb-md q-px-md generic-editable-table-card"
     data-cy="generic-editable-table-card"
   >
-    <q-card-section class="row items-center justify-between">
+    <q-card-section
+      v-bind="uiProps.headerSection"
+      class="row items-center justify-between"
+    >
       <h4
         v-if="te('title')"
         class="q-my-none text-subtitle1 generic-editable-table-card--title"
@@ -68,7 +71,7 @@
         </template>
       </ButtonsCard>
     </q-card-section>
-    <q-card-section>
+    <q-card-section v-bind="uiProps.tableSection">
       <GenericEntityTable
         v-model:pagination="pagination"
         :ui-namespace="localUiNamespace"
@@ -129,6 +132,7 @@
 import type {
   LinidQBtnProps,
   LinidQCardProps,
+  LinidQCardSectionProps,
   Page,
   QTableRequestEvent,
   QuasarPagination,
@@ -234,6 +238,14 @@ const columns = computed<GenericTableColumn[]>(() => {
 
 const uiProps = computed(() => ({
   card: ui<LinidQCardProps>(localUiNamespace.value, 'q-card'),
+  headerSection: ui<LinidQCardSectionProps>(
+    `${localUiNamespace.value}.header-section`,
+    'q-card-section'
+  ),
+  tableSection: ui<LinidQCardSectionProps>(
+    `${localUiNamespace.value}.table-section`,
+    'q-card-section'
+  ),
   addButton: ui<LinidQBtnProps>(
     `${localUiNamespace.value}.buttons-card.add-button`,
     'q-btn'

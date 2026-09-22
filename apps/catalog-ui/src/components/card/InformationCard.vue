@@ -30,7 +30,10 @@
     class="information-card"
     v-bind="uiProps.card"
   >
-    <q-card-section class="row justify-start items-center q-pa-sm">
+    <q-card-section
+      v-bind="uiProps.titleSection"
+      class="row justify-start items-center q-pa-sm"
+    >
       <q-icon
         v-if="uiProps.icon.name"
         v-bind="uiProps.icon"
@@ -44,7 +47,10 @@
         {{ label }}
       </span>
     </q-card-section>
-    <q-card-section class="q-pa-sm q-pl-xl">
+    <q-card-section
+      v-bind="uiProps.contentSection"
+      class="q-pa-sm q-pl-xl"
+    >
       <slot
         v-if="isLoading"
         name="loading"
@@ -67,6 +73,7 @@
 <script setup lang="ts">
 import type {
   LinidQCardProps,
+  LinidQCardSectionProps,
   LinidQIconProps,
 } from '@linagora/linid-im-front-corelib';
 import { useUiDesign } from '@linagora/linid-im-front-corelib';
@@ -97,6 +104,14 @@ const localUiNamespace = `${props.uiNamespace}.information-card`;
 const uiProps = {
   card: ui<LinidQCardProps>(localUiNamespace, 'q-card'),
   icon: ui<LinidQIconProps>(localUiNamespace, 'q-icon'),
+  titleSection: ui<LinidQCardSectionProps>(
+    `${localUiNamespace}.title-section`,
+    'q-card-section'
+  ),
+  contentSection: ui<LinidQCardSectionProps>(
+    `${localUiNamespace}.content-section`,
+    'q-card-section'
+  ),
 };
 </script>
 

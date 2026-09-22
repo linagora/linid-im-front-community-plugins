@@ -33,6 +33,7 @@
   >
     <q-card-section
       v-if="enableNavigation"
+      v-bind="uiProps.navigationSection"
       class="q-pa-none q-pb-sm full-width entity-profile-panel--navigation-section"
       data-cy="entity-profile-panel_navigation-section"
     >
@@ -83,6 +84,7 @@
 
     <q-card-section
       v-if="enableAvatar"
+      v-bind="uiProps.avatarSection"
       class="q-pa-none q-pb-lg full-width relative-position entity-profile-panel--avatar-section"
       data-cy="entity-profile-panel_avatar-section"
     >
@@ -172,6 +174,7 @@
 
     <q-card-section
       v-if="enableTitles"
+      v-bind="uiProps.titlesSection"
       class="q-pa-none full-width entity-profile-panel--titles-section"
       data-cy="entity-profile-panel_titles-section"
     >
@@ -216,6 +219,7 @@
     <slot name="after-header" />
 
     <q-card-section
+      v-bind="uiProps.actionsSection"
       class="q-pa-none q-pb-sm full-width entity-profile-panel--actions-section"
       data-cy="entity-profile-panel_actions-section"
     >
@@ -264,6 +268,7 @@
     </q-card-section>
 
     <q-card-section
+      v-bind="uiProps.detailsSection"
       class="q-pa-none full-width entity-profile-panel--details-section"
       data-cy="entity-profile-panel_details-section"
     >
@@ -311,6 +316,7 @@ import type {
   LinidAttributeConfiguration,
   LinidQBtnProps,
   LinidQCardProps,
+  LinidQCardSectionProps,
   LinidQIconProps,
   LinidQImgProps,
   UiEvent,
@@ -416,6 +422,26 @@ const uiProps = computed(() => ({
   ),
   image: ui<LinidQImgProps>(localUiNamespace.value, 'q-img'),
   avatarIcon: ui<LinidQIconProps>(localUiNamespace.value, 'q-icon'),
+  navigationSection: ui<LinidQCardSectionProps>(
+    `${localUiNamespace.value}.navigation-section`,
+    'q-card-section'
+  ),
+  avatarSection: ui<LinidQCardSectionProps>(
+    `${localUiNamespace.value}.avatar-section`,
+    'q-card-section'
+  ),
+  titlesSection: ui<LinidQCardSectionProps>(
+    `${localUiNamespace.value}.titles-section`,
+    'q-card-section'
+  ),
+  actionsSection: ui<LinidQCardSectionProps>(
+    `${localUiNamespace.value}.actions-section`,
+    'q-card-section'
+  ),
+  detailsSection: ui<LinidQCardSectionProps>(
+    `${localUiNamespace.value}.details-section`,
+    'q-card-section'
+  ),
 }));
 
 const diceBearSrc = ref<string | undefined>(undefined);

@@ -38,7 +38,10 @@
       </div>
 
       <q-card v-bind="uiProps.card">
-        <q-card-section class="row items-start">
+        <q-card-section
+          v-bind="uiProps.filesSection"
+          class="row items-start"
+        >
           <load-files-card
             :instance-id="instanceId"
             :ui-namespace="uiNamespace"
@@ -46,7 +49,7 @@
             @update:data="updateData"
           />
         </q-card-section>
-        <q-card-section>
+        <q-card-section v-bind="uiProps.tableSection">
           <imported-data-table
             :instance-id="instanceId"
             :ui-namespace="uiNamespace"
@@ -138,6 +141,7 @@ import type {
   LinidQItemLabelProps,
   LinidQListProps,
   LinidQCardProps,
+  LinidQCardSectionProps,
 } from '@linagora/linid-im-front-corelib';
 import {
   getHttpClient,
@@ -172,6 +176,14 @@ const { t } = useScopedI18n(i18nScope.value);
 
 const uiProps = {
   card: ui<LinidQCardProps>(`${uiNamespace.value}.import-card`, 'q-card'),
+  filesSection: ui<LinidQCardSectionProps>(
+    `${uiNamespace.value}.import-card.files-section`,
+    'q-card-section'
+  ),
+  tableSection: ui<LinidQCardSectionProps>(
+    `${uiNamespace.value}.import-card.table-section`,
+    'q-card-section'
+  ),
   clearButton: ui<LinidQBtnDropdownProps>(
     `${uiNamespace.value}.buttons-card.clear-button`,
     'q-btn-dropdown'
