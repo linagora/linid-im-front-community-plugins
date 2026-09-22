@@ -297,6 +297,14 @@ export interface FieldDynamicListSettings extends FieldSettings {
   route: string;
 
   /**
+   * Paths of the values the `route` needs, in the template's own context (e.g. ["entity.orgId"]):
+   * while any is empty the field is disabled and nothing is requested. Every entity value the
+   * `route` interpolates MUST be declared, otherwise the first render requests a malformed URL and
+   * silently drops the value already stored on the entity. See the component documentation.
+   */
+  routeDependencies?: string[];
+
+  /**
    * Number of items to fetch per page.
    * @default 20
    */
