@@ -31,7 +31,10 @@
     class="q-mb-md q-px-md generic-sortable-list-card"
     data-cy="generic-sortable-list-card"
   >
-    <q-card-section class="row items-center justify-between">
+    <q-card-section
+      v-bind="uiProps.headerSection"
+      class="row items-center justify-between"
+    >
       <h4
         v-if="te('title')"
         class="q-my-none text-subtitle1 generic-sortable-list-card--title"
@@ -68,12 +71,13 @@
     </q-card-section>
     <q-card-section
       v-if="hasUnsavedChanges"
+      v-bind="uiProps.unsavedChangesSection"
       class="generic-sortable-list-card--unsaved-changes-hint"
       data-cy="generic-sortable-list-card_unsaved-changes-hint"
     >
       <span>{{ t('unsavedChangesHint') }}</span>
     </q-card-section>
-    <q-card-section>
+    <q-card-section v-bind="uiProps.listSection">
       <q-list
         v-bind="uiProps.list"
         class="full-width col-auto generic-sortable-list-card--list"
@@ -272,6 +276,7 @@ import type {
   LinidDraggableProps,
   LinidQBtnProps,
   LinidQCardProps,
+  LinidQCardSectionProps,
   LinidQIconProps,
   LinidQItemLabelProps,
   LinidQItemProps,
@@ -381,6 +386,18 @@ let initialItems: Record<string, unknown>[] = [];
 
 const uiProps = computed<GenericSortableListCardUIProps>(() => ({
   card: ui<LinidQCardProps>(localUiNamespace.value, 'q-card'),
+  headerSection: ui<LinidQCardSectionProps>(
+    `${localUiNamespace.value}.header-section`,
+    'q-card-section'
+  ),
+  unsavedChangesSection: ui<LinidQCardSectionProps>(
+    `${localUiNamespace.value}.unsaved-changes-section`,
+    'q-card-section'
+  ),
+  listSection: ui<LinidQCardSectionProps>(
+    `${localUiNamespace.value}.list-section`,
+    'q-card-section'
+  ),
   scrollArea: ui<LinidQScrollAreaProps>(
     localUiNamespace.value,
     'q-scroll-area'

@@ -28,17 +28,18 @@
   <!-- v8 ignore start -->
   <q-card
     class="entity-details-card"
-    v-bind="uiCardProps"
+    v-bind="uiProps.card"
   >
     <q-card-section
       v-if="te('title')"
+      v-bind="uiProps.titleSection"
       class="entity-details-card--title"
     >
       <h4 class="text-subtitle1">
         {{ t('title') }}
       </h4>
     </q-card-section>
-    <q-card-section>
+    <q-card-section v-bind="uiProps.contentSection">
       <div class="flex entity-details-card--container">
         <information-card
           v-for="field in fieldNames"
@@ -57,7 +58,10 @@
 </template>
 
 <script setup lang="ts">
-import type { LinidQCardProps } from '@linagora/linid-im-front-corelib';
+import type {
+  LinidQCardProps,
+  LinidQCardSectionProps,
+} from '@linagora/linid-im-front-corelib';
 import {
   getNestedValue,
   useScopedI18n,
@@ -112,10 +116,17 @@ const values = computed<Record<string, string>>(() => {
 
 const localUiNamespace = `${props.uiNamespace}.entity-details-card`;
 
-const uiCardProps: LinidQCardProps = ui<LinidQCardProps>(
-  localUiNamespace,
-  'q-card'
-);
+const uiProps = {
+  card: ui<LinidQCardProps>(localUiNamespace, 'q-card'),
+  titleSection: ui<LinidQCardSectionProps>(
+    `${localUiNamespace}.title-section`,
+    'q-card-section'
+  ),
+  contentSection: ui<LinidQCardSectionProps>(
+    `${localUiNamespace}.content-section`,
+    'q-card-section'
+  ),
+};
 </script>
 
 <style scoped></style>

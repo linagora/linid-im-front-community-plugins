@@ -113,6 +113,7 @@
         >
           <q-card-section
             v-if="te(`formSections.${formSection.id}.title`)"
+            v-bind="uiProps.headerSection[formSection.id]"
             class="generic-edition-page--form-section--header"
           >
             <h4
@@ -131,7 +132,8 @@
           </q-card-section>
 
           <q-card-section
-            class="row justify-start q-col-gutter-md generic-edition-page--form-section--field"
+            v-bind="uiProps.fieldsSection[formSection.id]"
+            class="row justify-start q-col-gutter-md generic-edition-page--form-section--fields"
             :data-cy="`field-container_${formSection.id}`"
           >
             <entity-attribute-field
@@ -188,7 +190,10 @@
 </template>
 
 <script setup lang="ts">
-import type { LinidQCardProps } from '@linagora/linid-im-front-corelib';
+import type {
+  LinidQCardProps,
+  LinidQCardSectionProps,
+} from '@linagora/linid-im-front-corelib';
 import {
   getEntityById,
   getModuleHostConfiguration,
@@ -203,7 +208,10 @@ import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import ButtonsCard from '../components/card/ButtonsCard.vue';
 import EntityAttributeField from '../components/field/EntityAttributeField.vue';
-import type { ModuleGenericEditionPageOptions } from '../types/ModuleGenericEditionPageOptions';
+import type {
+  GenericEditionPageUIProps,
+  ModuleGenericEditionPageOptions,
+} from '../types/ModuleGenericEditionPageOptions';
 
 const router = useRouter();
 const route = useRoute();
@@ -225,20 +233,26 @@ const { Notify } = useNotify();
 const { renderString } = useNunjucks();
 const { ui } = useUiDesign();
 
-const uiProps = computed(() => ({
-  card: options.value.formSections.reduce<Record<string, LinidQCardProps>>(
-    (acc, item) => {
-      return {
-        ...acc,
-        [item.id]: ui<LinidQCardProps>(
-          `${uiNamespace.value}.form-section-${item.id}`,
-          'q-card'
-        ),
-      };
+const uiProps = computed(() =>
+  options.value.formSections.reduce<GenericEditionPageUIProps>(
+    (acc, { id }) => {
+      const formSectionUiNamespace = `${uiNamespace.value}.form-section-${id}`;
+
+      acc.card[id] = ui<LinidQCardProps>(formSectionUiNamespace, 'q-card');
+      acc.headerSection[id] = ui<LinidQCardSectionProps>(
+        `${formSectionUiNamespace}.header-section`,
+        'q-card-section'
+      );
+      acc.fieldsSection[id] = ui<LinidQCardSectionProps>(
+        `${formSectionUiNamespace}.fields-section`,
+        'q-card-section'
+      );
+
+      return acc;
     },
-    {}
-  ),
-}));
+    { card: {}, headerSection: {}, fieldsSection: {} }
+  )
+);
 
 /**
  * Updates the entity and redirects to the entity details page.

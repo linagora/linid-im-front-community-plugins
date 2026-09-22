@@ -30,6 +30,7 @@ import type {
   LinidDraggableProps,
   LinidQBtnProps,
   LinidQCardProps,
+  LinidQCardSectionProps,
   LinidQIconProps,
   LinidQItemLabelProps,
   LinidQItemProps,
@@ -183,6 +184,18 @@ export interface GenericSortableListCardUIProps {
    * The UI properties for the card container.
    */
   card: LinidQCardProps;
+  /**
+   * The UI properties for the header section holding the title and the actions.
+   */
+  headerSection: LinidQCardSectionProps;
+  /**
+   * The UI properties for the section displaying the unsaved changes hint.
+   */
+  unsavedChangesSection: LinidQCardSectionProps;
+  /**
+   * The UI properties for the section wrapping the sortable list.
+   */
+  listSection: LinidQCardSectionProps;
   /**
    * The UI properties for the scroll area wrapping the sortable list.
    */

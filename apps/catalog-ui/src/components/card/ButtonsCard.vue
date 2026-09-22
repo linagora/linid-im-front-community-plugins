@@ -33,6 +33,7 @@
   >
     <q-card-section
       v-if="te('title')"
+      v-bind="uiProps.titleSection"
       class="row justify-start items-center q-pa-sm"
     >
       <q-icon
@@ -94,6 +95,7 @@ import type {
   LinidQBtnProps,
   LinidQCardActionsProps,
   LinidQCardProps,
+  LinidQCardSectionProps,
   LinidQIconProps,
 } from '@linagora/linid-im-front-corelib';
 import { useScopedI18n, useUiDesign } from '@linagora/linid-im-front-corelib';
@@ -118,6 +120,10 @@ const { ui } = useUiDesign();
 
 const uiProps = {
   card: ui<LinidQCardProps>(`${localUiNamespace}`, 'q-card'),
+  titleSection: ui<LinidQCardSectionProps>(
+    `${localUiNamespace}.title-section`,
+    'q-card-section'
+  ),
   icon: ui<LinidQIconProps>(`${localUiNamespace}`, 'q-icon'),
   cardActions: ui<LinidQCardActionsProps>(
     `${localUiNamespace}`,

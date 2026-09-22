@@ -24,7 +24,11 @@
  * LinID Identity Manager software.
  */
 
-import type { LinidAttributeConfiguration } from '@linagora/linid-im-front-corelib';
+import type {
+  LinidAttributeConfiguration,
+  LinidQCardProps,
+  LinidQCardSectionProps,
+} from '@linagora/linid-im-front-corelib';
 import type { ModulePageOptions } from './ModulePageOptions';
 
 /**
@@ -55,4 +59,22 @@ export interface FormSection {
    * List of field names to include in this section, in the desired order.
    */
   fields: LinidAttributeConfiguration[];
+}
+
+/**
+ * UI props for the GenericEditionPage component, keyed by form section id.
+ */
+export interface GenericEditionPageUIProps {
+  /**
+   * The UI properties for the card of each form section.
+   */
+  card: Record<string, LinidQCardProps>;
+  /**
+   * The UI properties for the header section (title and description) of each form section.
+   */
+  headerSection: Record<string, LinidQCardSectionProps>;
+  /**
+   * The UI properties for the section holding the fields of each form section.
+   */
+  fieldsSection: Record<string, LinidQCardSectionProps>;
 }

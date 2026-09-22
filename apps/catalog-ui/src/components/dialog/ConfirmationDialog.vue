@@ -36,7 +36,10 @@
       ref="dialogRef"
       data-cy="confirmation_dialog_card"
     >
-      <q-card-section class="drag-handle">
+      <q-card-section
+        v-bind="uiProps.titleSection"
+        class="drag-handle"
+      >
         <h3
           class="q-my-none confirmation-dialog-title"
           data-cy="confirmation_dialog_title"
@@ -47,6 +50,7 @@
 
       <!-- eslint-disable vue/no-v-text-v-html-on-component vue/no-v-html -->
       <q-card-section
+        v-bind="uiProps.contentSection"
         data-cy="confirmation_dialog_content"
         v-html="content"
       />
@@ -66,7 +70,10 @@
 </template>
 
 <script setup lang="ts">
-import type { LinidQDialogProps } from '@linagora/linid-im-front-corelib';
+import type {
+  LinidQCardSectionProps,
+  LinidQDialogProps,
+} from '@linagora/linid-im-front-corelib';
 import {
   loadAsyncComponent,
   useDialog,
@@ -94,6 +101,14 @@ const localUiNamespace = computed(
 const { ui } = useUiDesign();
 const uiProps = computed(() => ({
   dialog: ui<LinidQDialogProps>(localUiNamespace.value, 'q-dialog'),
+  titleSection: ui<LinidQCardSectionProps>(
+    `${localUiNamespace.value}.title-section`,
+    'q-card-section'
+  ),
+  contentSection: ui<LinidQCardSectionProps>(
+    `${localUiNamespace.value}.content-section`,
+    'q-card-section'
+  ),
 }));
 
 const buttonsCard = loadAsyncComponent('catalogUI/ButtonsCard');
