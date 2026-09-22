@@ -32,14 +32,17 @@ import type { DynamicListElement } from '../types/field';
  * Fetches a page of dynamic list elements from a DLVP route plugin endpoint.
  * @param route - The route path (e.g. "/api/types").
  * @param pagination - Pagination parameters (page, size).
+ * @param signal - Aborts the request when the caller no longer needs its response.
  * @returns The paginated response containing structured elements.
  */
 export async function getDynamicListPage(
   route: string,
-  pagination: Pagination
+  pagination: Pagination,
+  signal?: AbortSignal
 ): Promise<Page<DynamicListElement>> {
   const response = await getHttpClient().get<Page<DynamicListElement>>(route, {
     params: pagination,
+    signal,
   });
   return response.data;
 }
