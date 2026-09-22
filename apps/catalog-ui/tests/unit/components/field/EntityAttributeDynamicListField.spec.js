@@ -492,6 +492,385 @@ describe('Test component: EntityAttributeDynamicListField', () => {
     });
   });
 
+  describe('Test computed: areDependenciesSatisfied', () => {
+    const mountWith = (routeDependencies, entity) => {
+      mountingOptions.props.definition.inputSettings.routeDependencies =
+        routeDependencies;
+      mountingOptions.props.entity = entity;
+      return shallowMount(EntityAttributeDynamicListField, mountingOptions);
+    };
+
+    it('should be true when no dependency is declared', () => {
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+
+      expect(wrapper.vm.areDependenciesSatisfied).toEqual(true);
+    });
+
+    it('should be true when every dependency holds a value', () => {
+      wrapper = mountWith(['entity.organizationId', 'entity.unitId'], {
+        organizationId: 'org-1',
+        unitId: 'unit-1',
+      });
+
+      expect(wrapper.vm.areDependenciesSatisfied).toEqual(true);
+    });
+
+    it('should be false when a dependency is undefined', () => {
+      wrapper = mountWith(['entity.organizationId'], { name: 'entity-name' });
+
+      expect(wrapper.vm.areDependenciesSatisfied).toEqual(false);
+    });
+
+    it('should be false when a dependency is a blank string', () => {
+      wrapper = mountWith(['entity.organizationId'], {
+        organizationId: '   ',
+      });
+
+      expect(wrapper.vm.areDependenciesSatisfied).toEqual(false);
+    });
+
+    it('should be false when a dependency is an empty array', () => {
+      wrapper = mountWith(['entity.roles'], { roles: [] });
+
+      expect(wrapper.vm.areDependenciesSatisfied).toEqual(false);
+    });
+
+    it('should be true when a dependency holds a falsy but non-empty value', () => {
+      wrapper = mountWith(['entity.count', 'entity.enabled'], {
+        count: 0,
+        enabled: false,
+      });
+
+      expect(wrapper.vm.areDependenciesSatisfied).toEqual(true);
+    });
+
+    // A present-but-empty value rather than an absent path, so this covers a combination none of the
+    // single-dependency cases above reach: `every` must reject on a later entry, not only the first.
+    it('should be false when only part of the dependencies are set', () => {
+      wrapper = mountWith(['entity.organizationId', 'entity.unitId'], {
+        organizationId: 'org-1',
+        unitId: '',
+      });
+
+      expect(wrapper.vm.areDependenciesSatisfied).toEqual(false);
+    });
+
+    it('should resolve a dependency located in a nested path', () => {
+      wrapper = mountWith(['entity.extraParameters.organizationId'], {
+        extraParameters: { organizationId: 'org-1' },
+      });
+
+      expect(wrapper.vm.areDependenciesSatisfied).toEqual(true);
+    });
+  });
+
+  describe('Test computed: isDisabled', () => {
+    it('should be false when no dependency is declared and disable is unset', () => {
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+
+      expect(wrapper.vm.isDisabled).toEqual(false);
+    });
+
+    it('should be true when disable is set in inputSettings', () => {
+      mountingOptions.props.definition.inputSettings.disable = true;
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+
+      expect(wrapper.vm.isDisabled).toEqual(true);
+    });
+
+    // inputSettings come from a JSON configuration, so disable is read as truthy rather than
+    // compared to true: a "true" string must disable this field as it disables the other ones.
+    it('should be true when disable is truthy without being a boolean', () => {
+      mountingOptions.props.definition.inputSettings.disable = 'true';
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+
+      expect(wrapper.vm.isDisabled).toEqual(true);
+    });
+
+    it('should be true when a dependency is empty', () => {
+      mountingOptions.props.definition.inputSettings.routeDependencies = [
+        'entity.organizationId',
+      ];
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+
+      expect(wrapper.vm.isDisabled).toEqual(true);
+    });
+  });
+
+  describe('Test watch: fetch trigger — dependencies', () => {
+    beforeEach(() => {
+      mountingOptions.props.definition.inputSettings.route =
+        '/api/organizations/{{ entity.organizationId }}/units';
+      mountingOptions.props.definition.inputSettings.routeDependencies = [
+        'entity.organizationId',
+      ];
+    });
+
+    it('should not fetch while a dependency is empty', async () => {
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+      await nextTick();
+
+      expect(mockGetDynamicListPage).not.toHaveBeenCalled();
+      expect(wrapper.vm.error).toBeNull();
+    });
+
+    // Covers the single-dependency case too: the fetch only happens on the last one filled in.
+    it('should fetch once every dependency holds a value', async () => {
+      mountingOptions.props.definition.inputSettings.routeDependencies = [
+        'entity.organizationId',
+        'entity.unitId',
+      ];
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+      await nextTick();
+
+      await wrapper.setProps({ entity: { organizationId: 'org-1' } });
+      await nextTick();
+      await nextTick();
+
+      expect(mockGetDynamicListPage).not.toHaveBeenCalled();
+
+      await wrapper.setProps({
+        entity: { organizationId: 'org-1', unitId: 'unit-1' },
+      });
+      await nextTick();
+      await nextTick();
+
+      expect(mockGetDynamicListPage).toHaveBeenCalledWith(
+        '/api/organizations/org-1/units',
+        { page: 0, size: 10 },
+        expect.any(AbortSignal)
+      );
+    });
+
+    it('should reload only once when a dependency also changes the rendered route', async () => {
+      mountingOptions.props.entity.organizationId = 'org-1';
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+      await nextTick();
+      mockGetDynamicListPage.mockClear();
+
+      await wrapper.setProps({
+        entity: { name: 'entity-name', organizationId: 'org-2' },
+      });
+      await nextTick();
+      await nextTick();
+
+      expect(mockGetDynamicListPage).toHaveBeenCalledTimes(1);
+      expect(mockGetDynamicListPage).toHaveBeenCalledWith(
+        '/api/organizations/org-2/units',
+        { page: 0, size: 10 },
+        expect.any(AbortSignal)
+      );
+    });
+
+    it('should keep the options and the selection when a dependency becomes empty', async () => {
+      mountingOptions.props.entity.organizationId = 'org-1';
+      mountingOptions.props.entity.type = 'value2';
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+      await nextTick();
+      expect(wrapper.vm.allOptions.length).toEqual(3);
+      mockGetDynamicListPage.mockClear();
+
+      await wrapper.setProps({
+        entity: { name: 'entity-name', organizationId: '', type: 'value2' },
+      });
+      await nextTick();
+      await nextTick();
+
+      // The field is disabled, so the list is unreachable — but keeping it is what lets q-select
+      // still resolve the selected value to its label instead of showing the raw value. The fetch
+      // is suspended, not abandoned: it keeps its cursor so restoring the dependency resumes it.
+      expect(wrapper.vm.allOptions.length).toEqual(3);
+      expect(mockGetDynamicListPage).not.toHaveBeenCalled();
+      expect(wrapper.vm.localValue).toEqual('value2');
+      expect(wrapper.emitted('update:entity')).toBeUndefined();
+      expect(wrapper.vm.currentFetch).not.toBeNull();
+      expect(wrapper.vm.currentFetch.nextPage).toEqual(1);
+    });
+
+    // Suspending does not abort: the request reads the route the field is still on, so its response
+    // belongs to the list being displayed and is kept, placeholder included.
+    it('should keep a page arriving after a dependency was emptied', async () => {
+      let resolvePage;
+      mockGetDynamicListPage.mockImplementation(
+        () =>
+          new Promise((resolve) => {
+            resolvePage = resolve;
+          })
+      );
+      mountingOptions.props.entity.organizationId = 'org-1';
+      mountingOptions.props.entity.type = 'unit-b';
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+
+      await wrapper.setProps({
+        entity: { name: 'entity-name', organizationId: '', type: 'unit-b' },
+      });
+      await nextTick();
+      resolvePage({
+        ...mockPage,
+        content: [{ label: 'Unit A', value: 'unit-a' }],
+        last: true,
+      });
+      await nextTick();
+      await nextTick();
+
+      expect(wrapper.vm.localValue).toEqual('unit-b');
+      expect(wrapper.vm.allOptions).toEqual([
+        { label: 'unit-b', value: 'unit-b' },
+        { label: 'Unit A', value: 'unit-a' },
+      ]);
+    });
+
+    // The whole point of suspending rather than abandoning: the route is unchanged, so the callback
+    // returns at once and nothing is reloaded — options, selection and cursor all carry on, and the
+    // next scroll asks for page 1 rather than replaying page 0.
+    it('should resume where it stopped when the dependency is restored to the same value', async () => {
+      mountingOptions.props.entity.organizationId = 'org-1';
+      mountingOptions.props.entity.type = 'unit-a';
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+      await nextTick();
+      await wrapper.setProps({
+        entity: { name: 'entity-name', organizationId: '', type: 'unit-a' },
+      });
+      await nextTick();
+      await nextTick();
+      mockGetDynamicListPage.mockClear();
+
+      await wrapper.setProps({
+        entity: {
+          name: 'entity-name',
+          organizationId: 'org-1',
+          type: 'unit-a',
+        },
+      });
+      await nextTick();
+      await nextTick();
+
+      expect(mockGetDynamicListPage).not.toHaveBeenCalled();
+      expect(wrapper.vm.localValue).toEqual('unit-a');
+      expect(wrapper.emitted('update:entity')).toBeUndefined();
+      // The placeholder built on the first load is still there — nothing rebuilt it, nothing
+      // dropped it.
+      expect(wrapper.vm.allOptions[0]).toEqual({
+        label: 'unit-a',
+        value: 'unit-a',
+      });
+      expect(wrapper.vm.allOptions.length).toEqual(4);
+
+      wrapper.vm.onVirtualScroll({ to: 3, ref: null });
+      await nextTick();
+      await nextTick();
+
+      expect(mockGetDynamicListPage).toHaveBeenCalledWith(
+        '/api/organizations/org-1/units',
+        { page: 1, size: 10 },
+        expect.any(AbortSignal)
+      );
+    });
+
+    // The error belongs to the fetch, and a suspension keeps the fetch — so it keeps the error. The
+    // alternative would make the message depend on *when* the request failed: one cleared by the
+    // suspension if it failed before, one left standing if it failed while suspended.
+    it('should keep a previous fetch error when a dependency becomes empty', async () => {
+      mockGetDynamicListPage.mockRejectedValue(new Error('Network error'));
+      mountingOptions.props.entity.organizationId = 'org-1';
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+      await nextTick();
+      expect(wrapper.vm.error).toEqual('validation.dynamicList.fetchError');
+
+      await wrapper.setProps({
+        entity: { name: 'entity-name', organizationId: null },
+      });
+      await nextTick();
+      await nextTick();
+
+      expect(wrapper.vm.error).toEqual('validation.dynamicList.fetchError');
+    });
+
+    // An abandoned fetch does clear it: `cancelFetch()` is what kills the fetch the error belonged
+    // to, so the route change starts from a clean state.
+    it('should clear a previous fetch error when the route changes', async () => {
+      mockGetDynamicListPage.mockRejectedValue(new Error('Network error'));
+      mountingOptions.props.entity.organizationId = 'org-1';
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+      await nextTick();
+      expect(wrapper.vm.error).toEqual('validation.dynamicList.fetchError');
+      mockGetDynamicListPage.mockResolvedValue(mockPage);
+
+      await wrapper.setProps({
+        entity: { name: 'entity-name', organizationId: 'org-2' },
+      });
+      await nextTick();
+      await nextTick();
+
+      expect(wrapper.vm.error).toBeNull();
+      expect(wrapper.vm.allOptions.length).toEqual(3);
+    });
+
+    it('should keep the preset value on the first load', async () => {
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+      await nextTick();
+
+      await wrapper.setProps({
+        entity: {
+          name: 'entity-name',
+          organizationId: 'org-1',
+          type: 'unit-a',
+        },
+      });
+      await nextTick();
+      await nextTick();
+
+      expect(wrapper.vm.localValue).toEqual('unit-a');
+      expect(wrapper.vm.allOptions[0]).toEqual({
+        label: 'unit-a',
+        value: 'unit-a',
+      });
+      expect(wrapper.emitted('update:entity')).toBeUndefined();
+    });
+
+    // The mirror of `should resume … restored to the same value`: coming back to the same route
+    // keeps everything, moving to another one drops the selection — even when the field went
+    // through the suspended state in between, a path the direct org-1 -> org-2 test never takes.
+    it('should drop the selection when the route changes through an emptied dependency', async () => {
+      mountingOptions.props.entity.organizationId = 'org-1';
+      mountingOptions.props.entity.type = 'unit-a';
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      await nextTick();
+      await nextTick();
+
+      await wrapper.setProps({
+        entity: { name: 'entity-name', organizationId: '', type: 'unit-a' },
+      });
+      await nextTick();
+      await nextTick();
+      expect(wrapper.vm.localValue).toEqual('unit-a');
+
+      await wrapper.setProps({
+        entity: {
+          name: 'entity-name',
+          organizationId: 'org-2',
+          type: 'unit-a',
+        },
+      });
+      await nextTick();
+      await nextTick();
+
+      expect(wrapper.vm.localValue).toBeNull();
+      expect(wrapper.emitted('update:entity')[0]).toEqual([
+        { name: 'entity-name', organizationId: 'org-2', type: null },
+      ]);
+    });
+  });
+
   describe('Test function: cancelFetch', () => {
     beforeEach(async () => {
       wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);

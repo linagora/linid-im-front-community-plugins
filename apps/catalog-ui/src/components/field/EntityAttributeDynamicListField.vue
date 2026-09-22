@@ -31,7 +31,7 @@
     :data-cy="`field_${definition.name}`"
     class="entity-attribute-dynamic-list-field"
     v-bind="uiProps"
-    :disable="definition.inputSettings?.disable || false"
+    :disable="isDisabled"
     :label="translateOrDefault('', 'label')"
     :hint="translateOrDefault('', 'hint')"
     :prefix="translateOrDefault('', 'prefix')"
@@ -149,6 +149,18 @@ const rules = computed(() =>
 /** The context the route template and the dependency paths are both resolved against. */
 const renderContext = computed(() => ({ entity: props.entity }));
 
+/** Whether every declared dependency holds a non-empty value. */
+const areDependenciesSatisfied = computed(() => {
+  const routeDependencies =
+    props.definition.inputSettings?.routeDependencies ?? [];
+
+  const dependencyValues = routeDependencies.map((dependency) =>
+    getNestedValue(renderContext.value, dependency)
+  );
+
+  return dependencyValues.every(hasValue);
+});
+
 const renderedRoute = computed(() =>
   renderString(props.definition.inputSettings?.route ?? '', renderContext.value)
 );
@@ -163,6 +175,12 @@ const configurationError = computed(() =>
 /** What the `#no-option` slot displays: a broken configuration outranks a failed request. */
 const displayedError = computed(() => configurationError.value ?? error.value);
 
+/** Whether the select is non-interactive: either explicitly disabled, or missing a dependency. */
+const isDisabled = computed(
+  () =>
+    Boolean(props.definition.inputSettings?.disable) ||
+    !areDependenciesSatisfied.value
+);
 
 watch(
   () => getNestedValue(props.entity, props.definition.name),
@@ -172,9 +190,9 @@ watch(
 );
 
 watch(
-  renderedRoute,
-  async (nextRoute) => {
-    if (!nextRoute || requestedRoute === nextRoute) {
+  [areDependenciesSatisfied, renderedRoute],
+  async ([areSatisfied, nextRoute]) => {
+    if (!areSatisfied || !nextRoute || requestedRoute === nextRoute) {
       return;
     }
 
@@ -206,6 +224,25 @@ watch(
 // Leaving the page is one more way for a fetch to become useless: abort it instead of paying for a
 // response nobody will read.
 onBeforeUnmount(cancelFetch);
+
+/**
+ * Whether a dependency value is usable to build the route. `null`, `undefined`, blank strings and
+ * empty arrays count as missing; every other value, including `0` and `false`, is a value.
+ * @param value - The value read at the dependency path.
+ * @returns True when the dependency holds a non-empty value.
+ */
+function hasValue(value: unknown): boolean {
+  if (value === null || value === undefined) {
+    return false;
+  }
+  if (typeof value === 'string') {
+    return value.trim().length > 0;
+  }
+  if (Array.isArray(value)) {
+    return value.length > 0;
+  }
+  return true;
+}
 
 /**
  * Whether a fetch was replaced while it was awaiting, which makes its outcome no longer applicable.

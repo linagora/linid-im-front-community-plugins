@@ -6,6 +6,8 @@ It relies on Quasar's `QSelect` component with **lazy loading** (dynamic loading
 
 The route itself is a **Nunjucks template** rendered against the edited entity, so the endpoint can depend on other attribute values (e.g. `/api/organizations/{{ entity.organizationId }}/units`). Options are reloaded automatically whenever the rendered route changes.
 
+A templated route declares the values it needs through `routeDependencies`: while any of them is empty the field is **disabled** and nothing is requested. Declaring them is the integrator's responsibility — see _Declaring the interpolated values is the integrator's responsibility_.
+
 Unlike `EntityAttributeListField`, which uses a static predefined list, this component fetches options **page by page** from a DLVP (Dynamic List Validation Plugin) route endpoint, loading more items as the user scrolls through the dropdown.
 
 ---
@@ -16,6 +18,7 @@ Unlike `EntityAttributeListField`, which uses a static predefined list, this com
 - Fetches structured `{ label, value }` elements from a backend route endpoint (DLVP) using pagination
 - Renders the `route` as a Nunjucks template against the edited entity, and reloads the options whenever the rendered route changes
 - Drops the current selection on a route change, so a value picked under a previous scope is never carried over into the new list
+- Disables the field and holds the route back while a value declared in `routeDependencies` is still empty, and loads the options as soon as they all hold a value
 - Suspends a load it cannot perform instead of abandoning it, so restoring the value resumes the list where it stopped
 - Optionally maps elements of any paginated entity endpoint to options through the `optionLabel` and `optionValue` Nunjucks templates
 - Displays **labels** in the dropdown while storing only **values** in the entity
@@ -85,6 +88,14 @@ export interface FieldDynamicListSettings extends FieldSettings {
    * edited entity as `entity` (e.g. "/api/organizations/{{ entity.organizationId }}/units").
    */
   route: string;
+
+  /**
+   * Paths of the values the `route` needs, in the template's own context (e.g. ["entity.orgId"]):
+   * while any is empty the field is disabled and nothing is requested. Every entity value the
+   * `route` interpolates MUST be declared, otherwise the first render requests a malformed URL and
+   * silently drops the value already stored on the entity. See the component documentation.
+   */
+  routeDependencies?: string[];
 
   /**
    * Number of items to fetch per page.
@@ -170,7 +181,7 @@ Two error sources, deliberately separate:
 - **A missing `route` setting** is reported for as long as it is missing — no load can clear it
 - **A failed request** is reported until the next load replaces it
 
-A broken configuration outranks a failed request.
+A broken configuration outranks a failed request. A route that rendered **empty** is neither: like one waiting for a declared dependency, it suspends without a message of its own — though an earlier fetch error stays on screen.
 
 ### Fallback Behavior
 
@@ -311,7 +322,7 @@ The attribute `name` supports **dot notation** to target values located inside s
    - the entity value at `definition.name` (existing value string in entity)
    - `null` (fallback if no entity value exists)
 
-2. The `route` template is rendered against the entity; as soon as it resolves, the first page of `{ label, value }` elements is fetched from the backend
+2. The `route` template is rendered against the entity; as soon as it resolves **and** every declared `routeDependencies` value is non-empty, the first page of `{ label, value }` elements is fetched from the backend
 3. After the **first page** of each load, a preset value missing from the options gets a placeholder entry `{ label: value, value: value }` — unless that page failed, in which case the list stays empty so the error remains visible
 4. User scrolls through the dropdown → next page is fetched and appended; if the real option matching the preset value is loaded, the placeholder is automatically removed
 5. Quasar's `map-options` resolves the stored value string to its corresponding label for display
@@ -319,6 +330,7 @@ The attribute `name` supports **dot notation** to target values located inside s
 7. `localValue` is updated via `v-model` (always a string)
 8. `updateValue()` emits `update:entity` with a new entity object
 9. If the updated entity changes a value the route template depends on, the **selection is dropped** — a value picked from the previous route does not belong to the new one — and the options are discarded and refetched from page 0
+10. If the update empties a declared dependency, or makes the route render empty, the load is **suspended**: nothing is requested, and the options, the selection and the cursor all survive
 
 ```text
 Backend API → fetchPage() → allOptions (DynamicListElement[]) → QSelect (displays labels)
@@ -371,16 +383,76 @@ const error = ref<string | null>(null);
 
 ### Route Resolution
 
-The `route` is a Nunjucks template rendered against the edited entity, exposed as `entity`:
+The `route` is a Nunjucks template rendered against the edited entity, exposed as `entity` — the same context the dependency paths are written against:
 
 ```json
 { "route": "/api/organizations/{{ entity.organizationId }}/units" }
 ```
 
 - A route without `{{` is used as-is
+- It is rendered from the **first render onwards**: the field never guesses whether the entity is loaded yet, which is why `routeDependencies` exists — see _Declaring the interpolated values is the integrator's responsibility_
 - A template that has not resolved renders empty, and the load simply suspends. Only a `route` missing from `inputSettings` is reported as an error.
 
+### Route Dependencies
+
+`routeDependencies` lists the values the route needs before it can be loaded. While any of them is empty the field is disabled and nothing is requested; once they all hold a value the options load.
+
+- Each entry is a **dot-notation path** written exactly as in the route template — `entity.organizationId` for `{{ entity.organizationId }}` — sub-objects included (`entity.extraParameters.orgId`)
+- A dependency the route does not use is accepted: it still gates the field, but changing its value asks for the same URL and reloads nothing
+- Omitted or empty, the field behaves as if it had no dependency
+
+A dependency counts as **missing** when its value is:
+
+| Value                       | Satisfied |
+| --------------------------- | --------- |
+| `undefined` (absent path)   | ❌        |
+| `null`                      | ❌        |
+| `''` or a whitespace string | ❌        |
+| `[]`                        | ❌        |
+| `0`, `false`                | ✅        |
+| `{}`                        | ✅        |
+| Any other value             | ✅        |
+
+Emptiness is only checked for what a route can interpolate — strings and arrays. An empty **object**
+is a value, so declare the leaf the route reads (`entity.address.city`), not the object holding it.
+
+#### ⚠️ A path that never resolves disables the field for good
+
+A typo, or the `entity.` prefix left out, reads `undefined` forever: the field stays disabled and
+reports **nothing**, since waiting for a dependency is deliberately not an error state and nothing
+tells it apart from a value the user has not filled in yet. Check the `entity.` prefix first.
+
+#### ⚠️ Declaring the interpolated values is the integrator's responsibility
+
+The field never parses the `route`, so it cannot know which values a template interpolates, detect an
+omission, or recover from one. Declaring them is up to **whoever configures the field**.
+
+It is not an optimisation. A form renders before its entity is loaded, so an undeclared value is
+rendered as empty — and what that produces depends on where it sits in the route:
+
+| The route is…                          | With the value missing it renders… | When the entity arrives                                             |
+| -------------------------------------- | ---------------------------------- | ------------------------------------------------------------------- |
+| `{{ entity.listRoute }}` (whole route) | `''` — nothing is requested        | Treated as the first load: the stored value is **preserved**        |
+| `/api/organizations//units`            | a malformed but valid-looking URL  | Treated as a **route change**: the stored value is silently dropped |
+
+Declaring the values suppresses the second row entirely — the field simply waits:
+
+```json
+{
+  "route": "/api/organizations/{{ entity.organizationId }}/units",
+  "routeDependencies": ["entity.organizationId"]
+}
+```
+
+### Disabled State
+
 ```ts
+const isDisabled = computed(() => Boolean(props.definition.inputSettings?.disable) || !areDependenciesSatisfied.value);
+```
+
+- The select is non-interactive when it is explicitly disabled through `inputSettings.disable`, **or** while one of its declared dependencies is empty
+- `disable` is read as **truthy**, not compared to `true`, so a setting coming from a JSON configuration disables this field exactly as it disables every other attribute field
+- `disable: true` makes the field non-interactive but does **not** stop it loading: the options are still fetched, so `map-options` can resolve the stored value to its label. Only an empty dependency holds the request back.
 
 ### Fetch Trigger
 
@@ -388,12 +460,14 @@ The field loads whenever it can, and reacts to every change of the edited entity
 
 | State                    | Outcome                                                             |
 | ------------------------ | ------------------------------------------------------------------- |
+| A dependency is empty    | **Suspends** — nothing requested, nothing touched, nothing cleared  |
 | Empty rendered route     | **Suspends**, identically                                           |
 | Same route as before     | **Suspends** too: the list simply carries on where it was           |
 | First route              | Fetches page 0 and **keeps** the preset value                       |
 | The rendered route moved | **Abandons**: drops the selection, empties the list, fetches page 0 |
 
 - Editing an entity attribute the route does not use does **not** refetch
+- A dependency both gates the field and may template the route, but one change still reloads **once**
 - A first page that fails leaves its error visible instead of hiding it behind the preset value
 
 ### Selection Reset
@@ -404,7 +478,7 @@ function clearSelection() { ... }
 
 - A unit chosen under `org-1` is not a unit of `org-2`: the selection is dropped whenever the rendered route changes, and `update:entity` is emitted so the form stops carrying it
 - The **first** load never clears anything — a persisted value survives a form mounted before its entity arrives
-- A route that rendered empty is not a route change, it suspends, and the selection stays
+- Neither an emptied dependency nor a route that rendered empty is a route change: both suspend, and the selection stays
 - Returning to a route already loaded is not a change either, so nothing is dropped and nothing is refetched
 
 The field therefore emits outside of a user interaction, like `EntityAttributeListField` when its filtered list stops offering the selected value. Parent components must expect an `update:entity` carrying `null` for this attribute after an edit elsewhere in the form.
@@ -420,13 +494,15 @@ The two list fields look alike but do **not** clear on the same trigger:
 
 Aligning them is impossible: a dependency is missing on **every** first render of a details page, so clearing there would wipe the persisted value before it was ever displayed.
 
+The consequence is yours to handle — while a dependency is empty the field is disabled, yet the entity still carries the value selected under the previous route, and submitting the form persists it. Make the dependency itself **required** if that is not acceptable.
+
 ### Suspending and Abandoning
 
 The field never has to choose between reloading everything and going blank — it has two distinct reactions.
 
 #### Suspending
 
-The route renders empty or it comes back to the one already loaded: the field **keeps what it has** and asks for nothing.
+A dependency goes empty, the route renders empty, or it comes back to the one already loaded: the field **keeps what it has** and asks for nothing.
 
 - The options, the selection and the scroll position all survive, so the selected value still displays with its **label** and scrolling resumes where it stopped instead of replaying page 0
 - A request already in flight is left to finish, and its page is added normally
@@ -568,7 +644,7 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 
 ### Templated Route Example
 
-A route may depend on another attribute of the same entity. Here the list of units is scoped to the organization currently selected on the entity:
+A route may depend on another attribute of the same entity. Here the list of units is scoped to the organization currently selected on the entity, and `routeDependencies` declares the value that route needs:
 
 ```json
 {
@@ -577,6 +653,7 @@ A route may depend on another attribute of the same entity. Here the list of uni
   "input": "DynamicList",
   "inputSettings": {
     "route": "/api/organizations/{{ entity.organizationId }}/units",
+    "routeDependencies": ["entity.organizationId"],
     "size": 10
   }
 }
@@ -587,6 +664,23 @@ A route may depend on another attribute of the same entity. Here the list of uni
 - Moving to `org-2` fetches its page 0, discards the units of `org-1` and drops the selected unit from the entity
 - Clearing the organization suspends instead: the units, the selection and the cursor are kept, and restoring `org-1` resumes without a request
 
+Several dependencies can be declared, and they do not have to appear in the route:
+
+```json
+{
+  "name": "accountId",
+  "type": "String",
+  "input": "DynamicList",
+  "inputSettings": {
+    "route": "/organizations/{{ entity.organizationId }}/accounts",
+    "routeDependencies": ["entity.organizationId", "entity.unitId"]
+  }
+}
+```
+
+- The list stays disabled until **both** `organizationId` and `unitId` hold a value
+- `unitId` is not part of the route, which the component never checks: emptying it disables the field, but changing it from one non-empty value to another asks for the same URL and reloads nothing
+
 ---
 
 ## **✅ Advantages**
@@ -594,6 +688,7 @@ A route may depend on another attribute of the same entity. Here the list of uni
 - **Lazy loading:** Fetches options on demand, avoiding large upfront data transfers
 - **Infinite scrolling:** Seamless pagination via Quasar's virtual scroll
 - **Contextual routes:** The endpoint can depend on other entity attributes, keeping the options scoped to the current selection
+- **Declared dependencies:** The values the route needs are configuration, not guesswork — the field stays disabled until they are all filled in, without reporting an error
 - **Race-safe:** A slow response from a load that no longer applies never corrupts the list on screen
 - **No stale selection:** On a route change, a value picked under the previous scope is removed from the entity rather than surviving as a fabricated option
 - **Resumable:** A load held back by a missing value keeps its options and its cursor, so filling the value back in costs nothing
@@ -623,7 +718,15 @@ A route may depend on another attribute of the same entity. Here the list of uni
 - Verify a route coming back to an already loaded one requests nothing, and the next scroll asks for the following page
 - Verify `clearSelection` emits nothing when no value is selected — which is what keeps a route change silent in that state
 - Verify **no** reload occurs when the entity changes outside of the values the route depends on
+- Verify the field behaves as if it had no dependency when `routeDependencies` is absent
+- Verify a dependency is satisfied only by a non-empty value: `undefined`, `null`, blank strings and empty arrays are missing, while `0` and `false` are values
+- Verify a dependency located in a nested path is resolved
+- Verify **no** request is sent while a declared dependency is empty, and that the state itself reports no error
+- Verify the fetch happens once every dependency holds a value, including when several are declared
+- Verify a dependency that changes the rendered route reloads the options **once**
+- Verify the options, the selection, the cursor **and** the fetch error are all kept when a dependency becomes empty, and nothing is emitted
 - Verify a route change **does** clear the fetch error, since `cancelFetch()` kills the fetch that owned it
+- Verify a page arriving after a dependency was emptied is **kept**, placeholder included — suspending does not abort
 - Verify `cancelFetch` aborts the request **and** drops `currentFetch`, clearing the spinner and the error it owned
 - Verify `fetchPage` requests nothing when one of its requests is already pending, or when the last page was reached
 - Verify the in-flight request is aborted on unmount
@@ -645,7 +748,8 @@ A route may depend on another attribute of the same entity. Here the list of uni
 - Verify validation rules are applied when `ignoreRules` is `false`
 - Verify that `localValue` is updated when the entity value at `definition.name` changes
 - Verify that `localValue` is **not** overwritten when only other entity attributes change
-- Verify the select is rendered as disabled when `definition.inputSettings.disable` is `true`
+- Verify `isDisabled` is `true` when `definition.inputSettings.disable` is `true`, and also when it is truthy without being a boolean
+- Verify `isDisabled` is `true` while a declared dependency is empty, and `false` when neither cause applies
 
 ---
 
@@ -655,6 +759,7 @@ A route may depend on another attribute of the same entity. Here the list of uni
 - Uses `FieldDynamicListSettings` type for `inputSettings`, which requires a `route` property
 - The `route` property is **mandatory** in `FieldDynamicListSettings` — without it, the component displays an error
 - The `route` is rendered as a Nunjucks template with the edited entity exposed as `entity`; a route without `{{` is used as-is
+- Declaring every value a templated `route` interpolates is the **integrator's** responsibility: an omission silently erases the stored value — see _Declaring the interpolated values is the integrator's responsibility_
 - A route change drops the selection, discards the options and refetches from page 0; anything else that cannot load **suspends**, keeping everything — see _A disabled field still carries its value_
 - A slow response from a load that no longer applies is discarded, even when it targets the same URL as the load in progress
 - Unmounting the component aborts the request in flight, so leaving a form while its list is loading costs nothing
@@ -677,7 +782,7 @@ A route may depend on another attribute of the same entity. Here the list of uni
 
 It is responsible only for:
 
-- Resolving its route template against the edited entity,
+- Resolving its route template against the edited entity, holding it back until its declared dependencies are filled in, and keeping the options **and the selection** in sync with both
 - Fetching `{ label, value }` elements lazily from a backend DLVP route endpoint
 - Rendering the select dropdown with labels while storing values in the entity
 - Managing local UI state (pagination, loading, error)
