@@ -211,6 +211,9 @@ The library organizes components by category. For each component, documentation 
 - ↗️ **RedirectButton** — Action button navigating through the router to a route rendered from a Nunjucks template, such as `/accounts/{{ entity.id }}`
   → Documentation is inside: [`RedirectButton.md`](./docs/components/button/RedirectButton.md)
 
+- ☰ **MenuButton** — Button opening a menu of actions, hosting the other action buttons directly or through a plugin zone
+  → Documentation is inside: [`MenuButton.md`](./docs/components/button/MenuButton.md)
+
 ### **Badge Components**
 
 - 🏷️ **StatusBadge** — Reusable badge component that standardizes the display of entity statuses with i18n support and design configuration

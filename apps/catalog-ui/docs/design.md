@@ -387,6 +387,38 @@ Action button navigating to a route rendered from a Nunjucks template.
 
 ---
 
+### MenuButton
+
+Button opening a menu of actions. The button, the menu, the list and its rows (`q-item`) are styled under the
+same namespace; each row hosted from a zone gets its own namespace `menu-button.<item>`, under which the action appends its
+own segment and fills the row.
+
+**Namespace:** `{uiNamespace}.menu-button`
+
+```json
+{
+  "[PARENT_NAMESPACE]": {
+    "menu-button": {
+      "q-btn": { "round": true, "icon": "edit", "color": "primary", "outline": false },
+      "q-menu": { "anchor": "bottom right", "self": "top left" },
+      "q-item": { "dense": true },
+      "editImage": {
+        "form-dialog-button": {
+          "q-btn": { "flat": true, "align": "left", "icon": "photo_camera", "outline": false }
+        }
+      },
+      "deleteImage": {
+        "confirm-dialog-button": {
+          "q-btn": { "flat": true, "align": "left", "icon": "delete", "color": "negative", "outline": false }
+        }
+      }
+    }
+  }
+}
+```
+
+---
+
 ### EntityDetailsCard
 
 Card for displaying entity attribute details. Fields inside the card can be configured individually.
@@ -1931,6 +1963,20 @@ A full example showing all CatalogUI components configured together:
       },
       "redirect-button": {
         "q-btn": { "color": "primary", "outline": true, "icon": "upload" }
+      },
+      "menu-button": {
+        "q-btn": { "round": true, "icon": "edit", "outline": false },
+        "q-menu": { "anchor": "bottom right" },
+        "editImage": {
+          "form-dialog-button": {
+            "q-btn": { "flat": true, "align": "left", "icon": "photo_camera", "outline": false }
+          }
+        },
+        "deleteImage": {
+          "confirm-dialog-button": {
+            "q-btn": { "flat": true, "align": "left", "icon": "delete", "color": "negative", "outline": false }
+          }
+        }
       },
       "confirmation-dialog": {
         "q-dialog": { "persistent": false },
