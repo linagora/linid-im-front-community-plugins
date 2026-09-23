@@ -163,6 +163,10 @@ export default defineConfig({
           __dirname,
           'src/components/button/RedirectButton.vue'
         ),
+        './MenuButton': resolve(
+          __dirname,
+          'src/components/button/MenuButton.vue'
+        ),
         './StatusBadge': resolve(
           __dirname,
           'src/components/badge/StatusBadge.vue'
