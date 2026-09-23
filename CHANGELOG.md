@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.126](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.125...v0.2.126) (2026-09-23)
+
+
+### Features
+
+* **catalog-ui:** add RedirectButton ([f8638bf](https://github.com/linagora/linid-im-front-community-plugins/commit/f8638bfa7f3d0850d0868f023a6e14d937a057cc))
+
 ### [0.2.125](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.124...v0.2.125) (2026-09-22)
 
 
