@@ -237,7 +237,14 @@ const favorites = computed<LinidFilterSet[]>(() =>
     .filter((key) => key.indexOf(favoritesBaseConfigurationKey.value) === 0)
     .map((key) => parseFavorite(userPreferenceStore.userPreferences[key]))
     .filter((data) => data !== null)
-    .map((data) => LinidFilterSet.fromString(data.id, data.label, data.value))
+    .map((data) =>
+      LinidFilterSet.fromString(
+        data.id,
+        data.label,
+        data.value,
+        options.value.filters ?? []
+      )
+    )
 );
 
 const { toPagination, toQuasarPagination } = usePagination();

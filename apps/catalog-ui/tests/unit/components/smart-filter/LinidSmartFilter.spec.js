@@ -31,13 +31,14 @@ import LinidSmartFilter from '../../../../src/components/smart-filter/LinidSmart
 vi.mock('@linagora/linid-im-front-corelib', () => {
   let idCounter = 0;
   class LinidFilter {
-    constructor(name, type, options, values) {
+    constructor(name, type, options, values, dynamicLabelOptions) {
       idCounter += 1;
       this.id = `generated-${name}-${idCounter}`;
       this.name = name;
       this.type = type;
       this.options = options;
       this.values = values;
+      this.dynamicLabelOptions = dynamicLabelOptions;
     }
   }
   return {
@@ -80,17 +81,26 @@ vi.mock(
 const TEXT_FILTER_ID = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
 const DATE_FILTER_ID = 'b2c3d4e5-f6a7-8901-bcde-f12345678901';
 
-function makeFilter(id, name, type, options = {}) {
+function makeFilter(id, name, type, options = {}, dynamicLabelOptions) {
   return {
     id,
     name,
     type,
     options: { fieldName: name, ...options },
     values: [],
+    dynamicLabelOptions,
   };
 }
 
-const textFilter = makeFilter(TEXT_FILTER_ID, 'username', 'text');
+const textFilter = makeFilter(
+  TEXT_FILTER_ID,
+  'username',
+  'text',
+  {},
+  {
+    url: '/users?id={{ values }}',
+  }
+);
 const dateFilter = makeFilter(DATE_FILTER_ID, 'createdAt', 'date');
 
 const defaultProps = {
@@ -305,6 +315,19 @@ describe('Test component: LinidSmartFilter', () => {
       );
       expect(newFilter.type).toBe(textFilter.type);
       expect(newFilter.options).toEqual(textFilter.options);
+    });
+
+    it('should copy the dynamic label options from the selected filter onto the new entry', () => {
+      wrapper.vm.selectedFilterName = 'username';
+
+      wrapper.vm.onSearch({ field: 'username', values: [{ value: 'alice' }] });
+
+      const newFilter = wrapper.vm.activeFilters.find(
+        (f) => f.name === 'username'
+      );
+      expect(newFilter.dynamicLabelOptions).toEqual(
+        textFilter.dynamicLabelOptions
+      );
     });
 
     it('should emit update:filters after applying values', () => {

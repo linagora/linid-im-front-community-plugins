@@ -348,6 +348,41 @@ describe('Test component: GenericTablePage', () => {
     });
   });
 
+  describe('Test filter definitions restoration', () => {
+    const definition = {
+      name: 'organizationalUnitId',
+      type: 'tree',
+      options: { url: '/organizational-units' },
+      dynamicLabelOptions: { url: '/organizational-units?id={{ values }}' },
+      values: [],
+    };
+
+    beforeEach(() => {
+      mockModuleOptions.filters = [definition];
+    });
+
+    it('should rebuild the filters of the url from their definition', () => {
+      wrapper = shallowMount(GenericTablePage, {
+        global: { stubs: ['GenericEntityTable'] },
+      });
+
+      expect(mockGetFiltersFromUrl).toHaveBeenCalledWith([definition]);
+    });
+
+    it('should rebuild the filters of a favorite from their definition', () => {
+      const fromString = vi.spyOn(LinidFilterSet, 'fromString');
+
+      wrapper = shallowMount(GenericTablePage, {
+        global: { stubs: ['GenericEntityTable'] },
+      });
+
+      expect(wrapper.vm.favorites).toHaveLength(1);
+      expect(fromString).toHaveBeenCalledWith('2', 'Test', 'name=value', [
+        definition,
+      ]);
+    });
+  });
+
   describe('Test function: toQueryFilter', () => {
     it('should build a query filter from the active filters', () => {
       wrapper.vm.filters = [
