@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.128](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.127...v0.2.128) (2026-09-24)
+
+
+### Features
+
+* **catalog-ui:** add MenuButton ([e857104](https://github.com/linagora/linid-im-front-community-plugins/commit/e85710463f31306f83a253688b030d0ae5269f80))
+
 ### [0.2.127](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.126...v0.2.127) (2026-09-24)
 
 ### [0.2.126](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.125...v0.2.126) (2026-09-23)
