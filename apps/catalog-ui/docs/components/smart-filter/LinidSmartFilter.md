@@ -108,7 +108,50 @@ Each applied filter is displayed as a chip in the search field. The chip shows t
 
 **A chip disappears** when the user clicks × on it. The filter's values are cleared and `update:filters` is emitted with the remaining active filters.
 
+**A chip never grows wider than the search field**: whatever the number of values it holds, its content wraps onto as many lines as needed and the chip grows in height instead of overflowing. A value long enough to fill a line on its own — an unresolved identifier, typically — is broken rather than pushed outside.
+
 **All chips disappear at once** when the user clicks the × displayed at the right of the search field. That icon is only rendered while at least one filter is active, and clicking it emits `update:filters` with an empty array without opening the menu.
+
+### Dynamic value labels
+
+A filter holding identifiers — an organizational unit id, for instance — would display raw UUIDs in its chip. When its definition carries `dynamicLabelOptions`, the chip resolves the item behind each value and displays it with the `value` translation key, whose named parameters are the fields of the resolved item:
+
+```json
+{
+  "name": "organizationalUnitId",
+  "type": "tree",
+  "dynamicLabelOptions": {
+    "url": "/organizational-units?id={{ values | join('|') }}",
+    "responseItemsPath": "content",
+    "valuePath": "id"
+  }
+}
+```
+
+with the matching translation:
+
+```json
+{
+  "[INSTANCE_ID]": {
+    "LinidSmartFilter": {
+      "LinidFilterChip": {
+        "organizationalUnitId": {
+          "value": "{name}"
+        }
+      }
+    }
+  }
+}
+```
+
+- Only the values missing an item are requested: a chip whose values are all resolved performs no request, and a resolved item is never requested again.
+- With `multipleRequests` left to its default, a single request resolves all the values at once, and the next pages are requested as long as the API answers `206 Partial Content`. With `multipleRequests: true`, one request per value is performed and the whole response becomes the item.
+- The query string of the rendered URL is percent-encoded before the request: the `|` separator joining the values reaches the API as `%7C`, which servers such as Tomcat require. Write the template with the separator as-is — encoding it in the configuration too is harmless but useless.
+- A spinner replaces each unresolved value while the requests are running.
+- A value that cannot be resolved — no `dynamicLabelOptions`, no `value` translation key, or a failed request — falls back to its raw value, so the chip always stays readable.
+- Only the top-level fields of the item can be displayed: vue-i18n rejects dotted paths such as `{item.name}` in a placeholder.
+
+The `dynamicLabelOptions` contract itself is documented in the corelib `docs/filters.md`.
 
 ---
 
@@ -333,6 +376,7 @@ The component uses scoped i18n with the following translation keys:
 | `[INSTANCE_ID].LinidSmartFilter.suffix`                                        | Input suffix (optional)                                   | Input suffix           | -          |
 | `[INSTANCE_ID].LinidSmartFilter.LinidFilterChip.[FILTER].type`                 | Filter type label (optional, default filter.name)         | Filter label           | -          |
 | `[INSTANCE_ID].LinidSmartFilter.LinidFilterChip.[FILTER].separator`            | Separator between filter values                           | Filter separator label | -          |
+| `[INSTANCE_ID].LinidSmartFilter.LinidFilterChip.[FILTER].value`                | Label of a resolved value (optional)                      | Filter value label     | `item`     |
 | `[INSTANCE_ID].LinidSmartFilter.LinidFilterPanel.title`                        | Panel section title                                       | Header title           | -          |
 | `[INSTANCE_ID].LinidSmartFilter.LinidFilterPanel.columnFilter.[columnName]`    | Column filter label                                       | Column filter label    | -          |
 | `[INSTANCE_ID].LinidSmartFilter.TextSearchFilterPanel.inputLabel`              | Text input label (optional, defaults to empty string)     | QInput label           | -          |
@@ -398,7 +442,8 @@ Example:
       "LinidFilterChip": {
         "[FILTER]": {
           "type": "Filter name",
-          "separator": "or"
+          "separator": "or",
+          "value": "{name}"
         }
       },
       "LinidFilterPanel": {

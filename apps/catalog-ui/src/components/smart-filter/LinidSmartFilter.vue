@@ -264,7 +264,8 @@ function onSearch(payload: LinidFilterPanelSearchPayload): void {
       payload.field,
       selectedFilter.value?.type,
       selectedFilter.value?.options,
-      payload.values
+      payload.values,
+      selectedFilter.value?.dynamicLabelOptions
     )
   );
   emitFilters();
