@@ -275,4 +275,23 @@ em {
   border-bottom-right-radius: 0;
   width: auto;
 }
+
+// A chip holds as many values as the user selected, so it must never grow wider than the field
+// it is rendered in: its content wraps instead, and the chip grows in height.
+.linid-filter-chip {
+  max-width: 100%;
+  height: auto;
+  min-height: 2em;
+  // Quasar centers a single line in a fixed 2em box, where its vertical padding is absorbed. Once
+  // the height follows the content, that padding adds up instead: each line carries the 2em itself.
+  padding-block: 0;
+  line-height: 2;
+
+  :deep(.q-chip__content) {
+    flex-wrap: wrap;
+    white-space: normal;
+    // An unresolved value is displayed raw, and an identifier has no space to wrap on.
+    overflow-wrap: anywhere;
+  }
+}
 </style>

@@ -108,6 +108,8 @@ Each applied filter is displayed as a chip in the search field. The chip shows t
 
 **A chip disappears** when the user clicks × on it. The filter's values are cleared and `update:filters` is emitted with the remaining active filters.
 
+**A chip never grows wider than the search field**: whatever the number of values it holds, its content wraps onto as many lines as needed and the chip grows in height instead of overflowing. A value long enough to fill a line on its own — an unresolved identifier, typically — is broken rather than pushed outside.
+
 **All chips disappear at once** when the user clicks the × displayed at the right of the search field. That icon is only rendered while at least one filter is active, and clicking it emits `update:filters` with an empty array without opening the menu.
 
 ### Dynamic value labels
