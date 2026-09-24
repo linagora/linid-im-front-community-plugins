@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.129](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.128...v0.2.129) (2026-09-24)
+
+
+### Features
+
+* **catalog-ui:** add avatar import management to EntityProfilePanel ([8d6790b](https://github.com/linagora/linid-im-front-community-plugins/commit/8d6790b1c06b749c7425b793b10873c2da6db382))
+* **catalog-ui:** add EntityAttributeFileField ([4350915](https://github.com/linagora/linid-im-front-community-plugins/commit/4350915b0e0d9364ab479bb8d25b1005e8d99103))
+* **catalog-ui:** support multipart submission in FormDialogButton ([b6a986e](https://github.com/linagora/linid-im-front-community-plugins/commit/b6a986ed793f93729e3c60a5e6e4a893dc0ea67f))
+
 ### [0.2.128](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.127...v0.2.128) (2026-09-24)
 
 
