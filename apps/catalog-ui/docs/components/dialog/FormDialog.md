@@ -192,7 +192,7 @@ The dialog, its card, and buttons can be customized using the `uiNamespace` and 
 The component internally computes `localUiNamespace = ${uiNamespace}.form-dialog` and uses it for all design key lookups.
 
 - If `uiNamespace = "moduleUsers.homepage"`, the effective design namespace is `moduleUsers.homepage.form-dialog`.
-- Use this to configure `q-dialog`, `q-card` and `q-card-actions` in your design.json:
+- Use this to configure `q-dialog`, `q-card`, `q-card-actions` and the card sections in your design.json:
 
 ```json
 {
@@ -201,12 +201,29 @@ The component internally computes `localUiNamespace = ${uiNamespace}.form-dialog
       "form-dialog": {
         "q-dialog": { "maximized": false },
         "q-card": { "flat": true, "bordered": true },
-        "q-card-actions": { "align": "right" }
+        "q-card-actions": { "align": "right" },
+        "title-section": {
+          "q-card-section": {}
+        },
+        "content-section": {
+          "q-card-section": {}
+        },
+        "field-section": {
+          "q-card-section": {}
+        }
       }
     }
   }
 }
 ```
+
+The card sections are customized with nested keys, each applied to a `q-card-section`:
+
+| Namespace                                    | Section                                      |
+| -------------------------------------------- | -------------------------------------------- |
+| `${uiNamespace}.form-dialog.title-section`   | Section holding the dialog title             |
+| `${uiNamespace}.form-dialog.content-section` | Section rendering the `content` HTML         |
+| `${uiNamespace}.form-dialog.field-section`   | Section wrapping a form field, one per field |
 
 You can pass the parent component's `uiNamespace` to share dialog styling across all dialogs of a given page, or a dedicated namespace for per-dialog customization.
 

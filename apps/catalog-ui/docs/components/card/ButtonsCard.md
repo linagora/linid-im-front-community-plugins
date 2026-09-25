@@ -247,6 +247,7 @@ The component uses the LinID design system through `useUiDesign()`. You can cust
 
 - **Card container**: `{uiNamespace}.buttons-card` → applies to `q-card`
 - **Icon**: `{uiNamespace}.buttons-card` → applies to `q-icon`
+- **Title section**: `{uiNamespace}.buttons-card.title-section` → applies to the title `q-card-section`
 - **Card actions**: `{uiNamespace}.buttons-card` → applies to `q-card-actions`
 - **Confirm button**: `{uiNamespace}.buttons-card.confirm-button` → applies to confirm `q-btn`
 - **Cancel button**: `{uiNamespace}.buttons-card.cancel-button` → applies to cancel `q-btn`

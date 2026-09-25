@@ -239,6 +239,13 @@ Applied to:
 q-card
 ```
 
+The section header (title and description) and the section holding the fields are customized with nested keys:
+
+| Namespace                                       | Type             | Description                         |
+| ----------------------------------------------- | ---------------- | ----------------------------------- |
+| `{instanceId}.form-section-{id}.header-section` | `q-card-section` | Section header (title, description) |
+| `{instanceId}.form-section-{id}.fields-section` | `q-card-section` | Section holding the fields          |
+
 Example:
 
 ```json

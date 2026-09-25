@@ -335,6 +335,30 @@ catch (e) {
 
 ## **🎨 UI Design**
 
+The component uses the LinID design system through `useUiDesign()`. You can customize:
+
+- **Card container**: `{uiNamespace}.superset-widget-card` → applies to `q-card`
+- **Title section**: `{uiNamespace}.superset-widget-card.title-section` → applies to the `q-card-section` holding the optional dashboard title
+- **Content section**: `{uiNamespace}.superset-widget-card.content-section` → applies to the `q-card-section` holding the Superset mount point
+
+Here is a sample JSON configuration for the design system:
+
+```json
+{
+  "users": {
+    "superset-widget-card": {
+      "q-card": { "flat": true, "bordered": true },
+      "title-section": {
+        "q-card-section": {}
+      },
+      "content-section": {
+        "q-card-section": {}
+      }
+    }
+  }
+}
+```
+
 The component uses the following main CSS classes:
 
 | Class                          | Description                                   |

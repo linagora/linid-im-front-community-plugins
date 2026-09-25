@@ -323,6 +323,14 @@ Buttons are customizable via UI design configuration:
 }
 ```
 
+The card holding the file upload and the preview table, and its two sections, are customized with nested keys:
+
+| Namespace                                             | Type             | Description                       |
+| ----------------------------------------------------- | ---------------- | --------------------------------- |
+| `${instanceId}.import-page.import-card`               | `q-card`         | Card holding both sections        |
+| `${instanceId}.import-page.import-card.files-section` | `q-card-section` | Section holding the file upload   |
+| `${instanceId}.import-page.import-card.table-section` | `q-card-section` | Section holding the preview table |
+
 Namespace:
 
 ```

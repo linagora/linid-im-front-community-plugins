@@ -90,7 +90,13 @@ The component internally computes `localUiNamespace = ${uiNamespace}.confirmatio
   "moduleUsers": {
     "homepage": {
       "confirmation-dialog": {
-        "q-dialog": { "maximized": false }
+        "q-dialog": { "maximized": false },
+        "title-section": {
+          "q-card-section": {}
+        },
+        "content-section": {
+          "q-card-section": {}
+        }
       }
     }
   }

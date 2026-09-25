@@ -121,7 +121,11 @@ Each form section has its own UI namespace for granular styling:
 
 Example: `users.edit-user-page.form-section-main`
 
-This allows different styling for each section's card and fields.
+This allows different styling for each section's card and fields. The inner sections of each card are customized with
+nested keys, both applied to `q-card-section`:
+
+- `{uiNamespace}.form-section-{sectionId}.header-section` — the section header (title and description)
+- `{uiNamespace}.form-section-{sectionId}.field-section` — the section wrapping each field
 
 ---
 

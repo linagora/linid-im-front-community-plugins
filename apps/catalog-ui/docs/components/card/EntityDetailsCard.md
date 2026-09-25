@@ -136,6 +136,40 @@ Displays loading placeholders for all attributes.
 
 ---
 
+## **🎨 UI Customization**
+
+The component uses the LinID design system through `useUiDesign()`. You can customize:
+
+- **Card container**: `{uiNamespace}.entity-details-card` → applies to `q-card`
+- **Title section**: `{uiNamespace}.entity-details-card.title-section` → applies to the title `q-card-section`
+- **Content section**: `{uiNamespace}.entity-details-card.content-section` → applies to the `q-card-section` holding the attribute cards
+- **Attribute cards**: `{uiNamespace}.entity-details-card.{fieldName}` → passed as `uiNamespace` to the `InformationCard` of each attribute, which appends `information-card` (see [InformationCard](./InformationCard.md))
+
+Here is a sample JSON configuration for the design system:
+
+```json
+{
+  "users": {
+    "entity-details-card": {
+      "q-card": { "flat": true, "bordered": true },
+      "title-section": {
+        "q-card-section": {}
+      },
+      "content-section": {
+        "q-card-section": {}
+      },
+      "email": {
+        "information-card": {
+          "q-icon": { "name": "email", "color": "primary" }
+        }
+      }
+    }
+  }
+}
+```
+
+---
+
 ## **✅ Advantages**
 
 - **Composable:** Built on top of `InformationCard` for consistent attribute rendering

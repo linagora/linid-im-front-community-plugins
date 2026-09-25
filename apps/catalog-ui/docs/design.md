@@ -222,7 +222,13 @@ Card component for displaying information with an optional icon.
   "[PARENT_NAMESPACE]": {
     "information-card": {
       "q-card": { "flat": true, "bordered": true },
-      "q-icon": { "name": "info", "color": "primary", "size": "sm" }
+      "q-icon": { "name": "info", "color": "primary", "size": "sm" },
+      "title-section": {
+        "q-card-section": {}
+      },
+      "content-section": {
+        "q-card-section": {}
+      }
     }
   }
 }
@@ -243,6 +249,9 @@ Card with confirm/cancel action buttons.
       "q-card": { "flat": true },
       "q-icon": { "name": "save", "color": "primary" },
       "q-card-actions": { "align": "right" },
+      "title-section": {
+        "q-card-section": {}
+      },
       "confirm-button": {
         "q-btn": { "color": "primary", "unelevated": true }
       },
@@ -430,6 +439,12 @@ Card for displaying entity attribute details. Fields inside the card can be conf
   "[PARENT_NAMESPACE]": {
     "entity-details-card": {
       "q-card": { "flat": true, "bordered": true },
+      "title-section": {
+        "q-card-section": {}
+      },
+      "content-section": {
+        "q-card-section": {}
+      },
       "[FIELD_NAME]": {
         "information-card": {
           "q-card": { "flat": true },
@@ -453,7 +468,13 @@ Widget for displaying superset dashboard.
 {
   "[PARENT_NAMESPACE]": {
     "superset-widget-card": {
-      "q-card": { "flat": true, "bordered": true }
+      "q-card": { "flat": true, "bordered": true },
+      "title-section": {
+        "q-card-section": {}
+      },
+      "content-section": {
+        "q-card-section": {}
+      }
     }
   }
 }
@@ -474,6 +495,21 @@ Panel that displays an entity profile in a vertical layout: navigation bar with 
       "q-card": { "flat": true, "bordered": true },
       "q-img": { "draggable": false },
       "q-icon": { "name": "question_mark", "color": "grey-6" },
+      "navigation-section": {
+        "q-card-section": {}
+      },
+      "avatar-section": {
+        "q-card-section": {}
+      },
+      "titles-section": {
+        "q-card-section": {}
+      },
+      "actions-section": {
+        "q-card-section": {}
+      },
+      "details-section": {
+        "q-card-section": {}
+      },
       "navigation": {
         "buttons-card": {
           "q-card": { "flat": true },
@@ -557,6 +593,12 @@ when the `update` endpoint is configured.
   "[PARENT_NAMESPACE]": {
     "generic-editable-table-card": {
       "q-card": { "flat": true, "bordered": true },
+      "header-section": {
+        "q-card-section": {}
+      },
+      "table-section": {
+        "q-card-section": {}
+      },
       "buttons-card": {
         "q-card": { "flat": true },
         "add-button": {
@@ -604,6 +646,15 @@ change (edits, reordering and deletions) in a single batch. Only the add and edi
       "q-list": { "bordered": false, "separator": true },
       "q-item": { "dense": false },
       "draggable": { "handle": ".drag-handle", "animation": 150 },
+      "header-section": {
+        "q-card-section": {}
+      },
+      "unsaved-changes-section": {
+        "q-card-section": {}
+      },
+      "list-section": {
+        "q-card-section": {}
+      },
       "header-item": {
         "q-item": { "dense": true }
       },
@@ -674,6 +725,15 @@ Expandable search card with default and advanced filters.
     "advanced-search-card": {
       "q-card": { "flat": true, "bordered": true },
       "q-icon": { "name": "search", "color": "primary" },
+      "title-section": {
+        "q-card-section": {}
+      },
+      "default-filters-section": {
+        "q-card-section": {}
+      },
+      "advanced-filters-section": {
+        "q-card-section": {}
+      },
       "toggle-button": {
         "q-btn": { "flat": true, "dense": true }
       },
@@ -870,6 +930,12 @@ Generic page to create entity.
   "[INSTANCE_ID]": {
     "form-section-[FIELD_SECTION]": {
       // q-card
+      "header-section": {
+        "q-card-section": {}
+      },
+      "fields-section": {
+        "q-card-section": {}
+      },
       "EntityAttributeField": {
         "[FIELD_NAME]": {
           "q-input": {
@@ -896,6 +962,12 @@ Generic page to edit an existing entity.
   "[INSTANCE_ID]": {
     "form-section-[FIELD_SECTION]": {
       // q-card
+      "header-section": {
+        "q-card-section": {}
+      },
+      "fields-section": {
+        "q-card-section": {}
+      },
       "EntityAttributeField": {
         "[FIELD_NAME]": {
           "q-input": {
@@ -1044,6 +1116,12 @@ for all confirmation dialogs opened from the same parent:
     "confirmation-dialog": {
       "q-dialog": { "persistent": false },
       "q-card": { "flat": true, "bordered": true },
+      "title-section": {
+        "q-card-section": {}
+      },
+      "content-section": {
+        "q-card-section": {}
+      },
       "buttons-card": {
         "q-card": { "flat": true },
         "confirm-button": {
@@ -1067,6 +1145,12 @@ or for a specific confirmation dialog instance:
       "confirmation-dialog": {
         "q-dialog": { "persistent": false },
         "q-card": { "flat": true, "bordered": true },
+        "title-section": {
+          "q-card-section": {}
+        },
+        "content-section": {
+          "q-card-section": {}
+        },
         "buttons-card": {
           "q-card": { "flat": true },
           "confirm-button": {
@@ -1098,6 +1182,15 @@ for all form dialogs opened from the same parent:
     "form-dialog": {
       "q-dialog": { "persistent": false },
       "q-card": { "flat": true, "bordered": true },
+      "title-section": {
+        "q-card-section": {}
+      },
+      "content-section": {
+        "q-card-section": {}
+      },
+      "field-section": {
+        "q-card-section": {}
+      },
       "EntityAttributeField": {
         "[FIELD_NAME]": {
           "q-input": { "outlined": true, "dense": true }
@@ -1126,6 +1219,15 @@ or for a specific form dialog instance:
       "form-dialog": {
         "q-dialog": { "persistent": false },
         "q-card": { "flat": true, "bordered": true },
+        "title-section": {
+          "q-card-section": {}
+        },
+        "content-section": {
+          "q-card-section": {}
+        },
+        "field-section": {
+          "q-card-section": {}
+        },
         "EntityAttributeField": {
           "[FIELD_NAME]": {
             "q-input": { "outlined": true, "dense": true }
@@ -1538,6 +1640,12 @@ A full example showing all CatalogUI components configured together:
   "[GENERIC_CREATION_PAGE_ID]": {
     "form-section-[FIELD_SECTION]": {
       // q-card
+      "header-section": {
+        "q-card-section": {}
+      },
+      "fields-section": {
+        "q-card-section": {}
+      },
       "EntityAttributeField": {
         "[FIELD_NAME]": {
           "q-input": {
@@ -1551,6 +1659,12 @@ A full example showing all CatalogUI components configured together:
   "[GENERIC_EDITION_PAGE_ID]": {
     "form-section-[FIELD_SECTION]": {
       // q-card
+      "header-section": {
+        "q-card-section": {}
+      },
+      "fields-section": {
+        "q-card-section": {}
+      },
       "EntityAttributeField": {
         "[FIELD_NAME]": {
           "q-input": {
@@ -1579,6 +1693,15 @@ A full example showing all CatalogUI components configured together:
       "advanced-search-card": {
         "q-card": { "flat": true, "bordered": true },
         "q-icon": { "name": "search", "color": "primary" },
+        "title-section": {
+          "q-card-section": {}
+        },
+        "default-filters-section": {
+          "q-card-section": {}
+        },
+        "advanced-filters-section": {
+          "q-card-section": {}
+        },
         "toggle-button": {
           "q-btn": { "flat": true, "icon": "tune" }
         },
@@ -1794,6 +1917,15 @@ A full example showing all CatalogUI components configured together:
         "q-list": { "bordered": false, "separator": true },
         "q-item": { "dense": false },
         "draggable": { "handle": ".drag-handle", "animation": 150 },
+        "header-section": {
+          "q-card-section": {}
+        },
+        "unsaved-changes-section": {
+          "q-card-section": {}
+        },
+        "list-section": {
+          "q-card-section": {}
+        },
         "header-item": {
           "q-item": { "dense": true }
         },
@@ -1866,14 +1998,32 @@ A full example showing all CatalogUI components configured together:
         }
       },
       "superset-widget-card": {
-        "q-card": { "flat": true, "bordered": true }
+        "q-card": { "flat": true, "bordered": true },
+        "title-section": {
+          "q-card-section": {}
+        },
+        "content-section": {
+          "q-card-section": {}
+        }
       },
       "entity-details-card": {
         "q-card": { "flat": true, "bordered": true },
+        "title-section": {
+          "q-card-section": {}
+        },
+        "content-section": {
+          "q-card-section": {}
+        },
         "[FIELD_NAME]": {
           "information-card": {
             "q-card": { "flat": true },
-            "q-icon": { "name": "info", "color": "info" }
+            "q-icon": { "name": "info", "color": "info" },
+            "title-section": {
+              "q-card-section": {}
+            },
+            "content-section": {
+              "q-card-section": {}
+            }
           }
         }
       },
@@ -1881,6 +2031,21 @@ A full example showing all CatalogUI components configured together:
         "q-card": { "flat": true, "bordered": true },
         "q-img": { "draggable": false },
         "q-icon": { "name": "question_mark", "color": "grey-6" },
+        "navigation-section": {
+          "q-card-section": {}
+        },
+        "avatar-section": {
+          "q-card-section": {}
+        },
+        "titles-section": {
+          "q-card-section": {}
+        },
+        "actions-section": {
+          "q-card-section": {}
+        },
+        "details-section": {
+          "q-card-section": {}
+        },
         "navigation": {
           "buttons-card": {
             "q-card": { "flat": true },
@@ -1913,6 +2078,12 @@ A full example showing all CatalogUI components configured together:
       },
       "generic-editable-table-card": {
         "q-card": { "flat": true, "bordered": true },
+        "header-section": {
+          "q-card-section": {}
+        },
+        "table-section": {
+          "q-card-section": {}
+        },
         "buttons-card": {
           "q-card": { "flat": true },
           "add-button": {
@@ -1938,6 +2109,9 @@ A full example showing all CatalogUI components configured together:
       },
       "buttons-card": {
         "q-card": { "flat": true },
+        "title-section": {
+          "q-card-section": {}
+        },
         "confirm-button": {
           "q-btn": { "color": "primary", "icon": "save" }
         },
@@ -2002,6 +2176,12 @@ A full example showing all CatalogUI components configured together:
       "confirmation-dialog": {
         "q-dialog": { "persistent": false },
         "q-card": { "flat": true, "bordered": true },
+        "title-section": {
+          "q-card-section": {}
+        },
+        "content-section": {
+          "q-card-section": {}
+        },
         "buttons-card": {
           "q-card": { "flat": true },
           "confirm-button": {
@@ -2015,6 +2195,15 @@ A full example showing all CatalogUI components configured together:
       "form-dialog": {
         "q-dialog": { "persistent": false },
         "q-card": { "flat": true, "bordered": true },
+        "title-section": {
+          "q-card-section": {}
+        },
+        "content-section": {
+          "q-card-section": {}
+        },
+        "field-section": {
+          "q-card-section": {}
+        },
         "EntityAttributeField": {
           "[FIELD_NAME]": {
             "q-input": { "outlined": true, "dense": true }
