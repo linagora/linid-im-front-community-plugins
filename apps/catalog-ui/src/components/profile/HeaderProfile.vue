@@ -34,10 +34,14 @@
   >
     <q-menu
       ref="profileMenu"
+      class="header-profile-menu"
       data-cy="header_profile_menu"
     >
       <q-list>
-        <q-item data-cy="header_profile_info">
+        <q-item
+          data-cy="header_profile_info"
+          class="header-profile-menu--info"
+        >
           <q-item-section v-bind="uiProps.itemSection">
             <q-icon name="account_circle" />
           </q-item-section>
@@ -53,7 +57,10 @@
           </q-item-section>
         </q-item>
         <q-separator />
-        <q-item data-cy="header_profile_language">
+        <q-item
+          data-cy="header_profile_language"
+          class="header-profile-menu--language"
+        >
           <q-item-section>
             <q-item-label>{{ t('language.title') }}</q-item-label>
           </q-item-section>
