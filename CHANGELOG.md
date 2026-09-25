@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.130](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.129...v0.2.130) (2026-09-25)
+
+
+### Features
+
+* add some classes for css ([9c4a668](https://github.com/linagora/linid-im-front-community-plugins/commit/9c4a6681d51778c5a6357c816c7904dde2e3934a))
+* make card sections customizable through the design system ([450f546](https://github.com/linagora/linid-im-front-community-plugins/commit/450f546387cdee9799b549a940d492a2952132d5))
+
 ### [0.2.129](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.128...v0.2.129) (2026-09-24)
 
 
