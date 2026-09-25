@@ -274,14 +274,16 @@ Example of a delete confirmation content using row interpolation:
 
 Design keys are resolved under `${uiNamespace}.generic-editable-table-card`:
 
-| Namespace                                                            | Type      | Description                              |
-| -------------------------------------------------------------------- | --------- | ---------------------------------------- |
-| `${uiNamespace}.generic-editable-table-card`                         | `q-card`  | Card container                           |
-| `${uiNamespace}.generic-editable-table-card.buttons-card`            | `q-card`  | Container of the add button              |
-| `${uiNamespace}.generic-editable-table-card.buttons-card.add-button` | `q-btn`   | Add button (e.g. custom `icon`, `color`) |
-| `${uiNamespace}.generic-editable-table-card.edit-button`             | `q-btn`   | Per-row edit button                      |
-| `${uiNamespace}.generic-editable-table-card.delete-button`           | `q-btn`   | Per-row delete button                    |
-| `${uiNamespace}.generic-editable-table-card.generic-entity-table`    | `q-table` | Embedded table                           |
+| Namespace                                                            | Type             | Description                              |
+| -------------------------------------------------------------------- | ---------------- | ---------------------------------------- |
+| `${uiNamespace}.generic-editable-table-card`                         | `q-card`         | Card container                           |
+| `${uiNamespace}.generic-editable-table-card.header-section`          | `q-card-section` | Header section (title and actions)       |
+| `${uiNamespace}.generic-editable-table-card.table-section`           | `q-card-section` | Section wrapping the table               |
+| `${uiNamespace}.generic-editable-table-card.buttons-card`            | `q-card`         | Container of the add button              |
+| `${uiNamespace}.generic-editable-table-card.buttons-card.add-button` | `q-btn`          | Add button (e.g. custom `icon`, `color`) |
+| `${uiNamespace}.generic-editable-table-card.edit-button`             | `q-btn`          | Per-row edit button                      |
+| `${uiNamespace}.generic-editable-table-card.delete-button`           | `q-btn`          | Per-row delete button                    |
+| `${uiNamespace}.generic-editable-table-card.generic-entity-table`    | `q-table`        | Embedded table                           |
 
 The add button is rendered through the shared `ButtonsCard` component, with its default confirm and
 cancel buttons not visible. Its label comes from i18n (`ButtonsCard.add`) while its icon and appearance

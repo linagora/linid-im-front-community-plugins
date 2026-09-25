@@ -148,9 +148,11 @@ Page for editing an existing user with multi-section forms.
 
 **Module-specific keys:**
 
-| Key                        | Quasar Component | Description                                                                     |
-| -------------------------- | ---------------- | ------------------------------------------------------------------------------- |
-| `form-section-{sectionId}` | q-card           | Card container for each form section. Replace `{sectionId}` with the section ID |
+| Key                                       | Quasar Component | Description                                                                     |
+| ----------------------------------------- | ---------------- | ------------------------------------------------------------------------------- |
+| `form-section-{sectionId}`                | q-card           | Card container for each form section. Replace `{sectionId}` with the section ID |
+| `form-section-{sectionId}.header-section` | q-card-section   | Header of each form section (title and description)                             |
+| `form-section-{sectionId}.field-section`  | q-card-section   | Section wrapping each field of a form section                                   |
 
 **CatalogUI components used:**
 
@@ -168,6 +170,12 @@ Page for editing an existing user with multi-section forms.
     "edit-user-page": {
       "form-section-basicInfo": {
         "q-card": { "flat": true, "bordered": true },
+        "header-section": {
+          "q-card-section": {}
+        },
+        "field-section": {
+          "q-card-section": {}
+        },
         "EntityAttributeField": {
           "firstName": {
             "q-input": { "outlined": true, "dense": true }
@@ -216,9 +224,11 @@ Page for creating a new user with multi-section forms.
 
 **Module-specific keys:**
 
-| Key                        | Quasar Component | Description                                                                     |
-| -------------------------- | ---------------- | ------------------------------------------------------------------------------- |
-| `form-section-{sectionId}` | q-card           | Card container for each form section. Replace `{sectionId}` with the section ID |
+| Key                                       | Quasar Component | Description                                                                     |
+| ----------------------------------------- | ---------------- | ------------------------------------------------------------------------------- |
+| `form-section-{sectionId}`                | q-card           | Card container for each form section. Replace `{sectionId}` with the section ID |
+| `form-section-{sectionId}.header-section` | q-card-section   | Header of each form section (title and description)                             |
+| `form-section-{sectionId}.field-section`  | q-card-section   | Section wrapping each field of a form section                                   |
 
 **CatalogUI components used:**
 
@@ -236,6 +246,12 @@ Page for creating a new user with multi-section forms.
     "new-user-page": {
       "form-section-basicInfo": {
         "q-card": { "flat": true, "bordered": true },
+        "header-section": {
+          "q-card-section": {}
+        },
+        "field-section": {
+          "q-card-section": {}
+        },
         "EntityAttributeField": {
           "firstName": {
             "q-input": { "outlined": true, "dense": true }
@@ -354,6 +370,12 @@ A full example showing all Users module pages configured together:
     "edit-user-page": {
       "form-section-basicInfo": {
         "q-card": { "flat": true, "bordered": true },
+        "header-section": {
+          "q-card-section": {}
+        },
+        "field-section": {
+          "q-card-section": {}
+        },
         "EntityAttributeField": {
           "firstName": {
             "q-input": { "outlined": true, "dense": true }
@@ -383,6 +405,12 @@ A full example showing all Users module pages configured together:
     "new-user-page": {
       "form-section-basicInfo": {
         "q-card": { "flat": true, "bordered": true },
+        "header-section": {
+          "q-card-section": {}
+        },
+        "field-section": {
+          "q-card-section": {}
+        },
         "EntityAttributeField": {
           "firstName": {
             "q-input": { "outlined": true, "dense": true }

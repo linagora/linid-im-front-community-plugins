@@ -265,12 +265,16 @@ reference and a complete design example, see [design.md](../../design.md#generic
 Key highlights:
 
 - `q-scroll-area` — controls the list height (use `style: "height: Xpx"`)
+- `header-section` / `unsaved-changes-section` / `list-section` > `q-card-section` — the header, the unsaved changes
+  hint and the list sections of the card
 - `draggable` — vuedraggable options (e.g. `handle: ".drag-handle"`, `animation: 150`)
 - `icon-section` > `q-icon` — drag handle icon (e.g. `name: "drag_indicator"`)
 - `header-item` > `q-item` — the header row, styled independently from the item rows
 - `field-label-section` / `field-value-section` > `q-item-section` — the header and item cells of every field
 - `field-label` / `field-value` > `q-item-label` — the labels inside those cells. `lines` is forced to `1` and
   cannot be overridden: the overflow tooltip only works on single-line truncation
+- `no-data-icon-section` > `q-item-section` / `q-icon` and `no-data-label-section` > `q-item-section` — the icon and
+  the label of the empty list row. The icon is rendered only when its `name` is set
 - `item-actions-section` > `q-item-section`, with nested `edit-button` > `q-btn` and `delete-button` > `q-btn`
 - `add-button` > `q-btn` / `save-button` > `q-btn` — header action buttons
 

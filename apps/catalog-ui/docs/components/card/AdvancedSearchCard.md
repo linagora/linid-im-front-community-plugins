@@ -68,6 +68,9 @@ The component uses the LinID design system through `useUiDesign()`. You can cust
 
 - **Card container**: `{uiNamespace}.advanced-search-card` → applies to `q-card`
 - **Card icon**: `{uiNamespace}.advanced-search-card` → applies to `q-icon`
+- **Title section**: `{uiNamespace}.advanced-search-card.title-section` → applies to the title `q-card-section`
+- **Default filters section**: `{uiNamespace}.advanced-search-card.default-filters-section` → applies to the default filters `q-card-section`
+- **Advanced filters section**: `{uiNamespace}.advanced-search-card.advanced-filters-section` → applies to the advanced filters `q-card-section`
 - **Toggle button**: `{uiNamespace}.advanced-search-card.toggle-button` → applies to `q-btn`
 - **Default filters fields**: `{uiNamespace}.advanced-search-card.default-filters.fields.{fieldName}` → applies to field components
 - **Advanced filters fields**: `{uiNamespace}.advanced-search-card.advanced-filters.fields.{fieldName}` → applies to field components

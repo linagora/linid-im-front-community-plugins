@@ -118,6 +118,37 @@ Uses the default slot to render complex or formatted content.
 
 ---
 
+## **🎨 UI Customization**
+
+The component uses the LinID design system through `useUiDesign()`, under the `uiNamespace` inherited from
+`CommonComponentProps`. You can customize:
+
+- **Card container**: `{uiNamespace}.information-card` → applies to `q-card`
+- **Icon**: `{uiNamespace}.information-card` → applies to `q-icon`, rendered only when its `name` is set
+- **Title section**: `{uiNamespace}.information-card.title-section` → applies to the `q-card-section` holding the icon and the label
+- **Content section**: `{uiNamespace}.information-card.content-section` → applies to the `q-card-section` holding the value
+
+Here is a sample JSON configuration for the design system:
+
+```json
+{
+  "users": {
+    "information-card": {
+      "q-card": { "flat": true, "bordered": true },
+      "q-icon": { "name": "info", "color": "primary" },
+      "title-section": {
+        "q-card-section": {}
+      },
+      "content-section": {
+        "q-card-section": {}
+      }
+    }
+  }
+}
+```
+
+---
+
 ## **✅ Advantages**
 
 - **Reusable:** Suitable for any read-only information display

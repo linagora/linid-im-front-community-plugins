@@ -32,7 +32,13 @@ The main page for uploading and importing CSV files.
   "moduleImport": {
     "import-page": {
       "import-card": {
-        "q-card": {}
+        "q-card": {},
+        "files-section": {
+          "q-card-section": {}
+        },
+        "table-section": {
+          "q-card-section": {}
+        }
       },
       "load-files-field": {
         "q-file": {}
