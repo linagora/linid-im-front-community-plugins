@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.133](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.132...v0.2.133) (2026-09-28)
+
+
+### Bug Fixes
+
+* pass release version to Docker build job ([99c9f42](https://github.com/linagora/linid-im-front-community-plugins/commit/99c9f429888755dc653092efe54d365b1c52fee2))
+
 ### [0.2.132](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.131...v0.2.132) (2026-09-28)
 
 
