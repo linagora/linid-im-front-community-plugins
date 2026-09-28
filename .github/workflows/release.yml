@@ -13,6 +13,8 @@ jobs:
   release:
     name: Release with standard-version
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.release-version.outputs.version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -31,6 +33,12 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           pnpx standard-version
 
+      - name: Get release version
+        id: release-version
+        run: |
+          TAG=$(git describe --tags --abbrev=0)
+          echo "version=$TAG" >> "$GITHUB_OUTPUT"
+
       - name: Push changes and tags
         run: |
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
@@ -43,6 +51,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.release.outputs.version }}
 
       - name: Read OpenBao secrets
         uses: hashicorp/vault-action@v4
@@ -62,15 +72,6 @@ jobs:
           username: ${{ env.DOCKERHUB_USERNAME }}
           password: ${{ env.DOCKERHUB_TOKEN }}
 
-      - name: Fetch all tags
-        run: git fetch --tags
-
-      - name: Get latest tag
-        id: tag
-        run: |
-          TAG=$(git describe --tags --abbrev=0)
-          echo "VERSION=$TAG" >> $GITHUB_OUTPUT
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v7
         with:
@@ -79,4 +80,4 @@ jobs:
           push: true
           tags: |
             linagora/linid-catalog-ui:latest
-            linagora/linid-catalog-ui:${{ steps.tag.outputs.VERSION }}
+            linagora/linid-catalog-ui:${{ needs.release.outputs.version }}
