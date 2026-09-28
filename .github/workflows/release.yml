@@ -48,6 +48,7 @@ jobs:
         uses: hashicorp/vault-action@v4
         with:
           url: https://obao.linagora.com
+          namespace: LPS/global
           method: approle
           roleId: ${{ secrets.BAO_CLIENT_ID }}
           secretId: ${{ secrets.BAO_CLIENT_TOKEN }}
