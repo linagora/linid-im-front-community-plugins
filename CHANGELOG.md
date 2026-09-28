@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.131](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.130...v0.2.131) (2026-09-28)
+
 ### [0.2.130](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.129...v0.2.130) (2026-09-25)
 
 
