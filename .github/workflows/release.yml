@@ -35,3 +35,47 @@ jobs:
         run: |
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git push origin main --follow-tags --force-with-lease
+
+  docker-build-and-publish:
+    name: Build and publish Docker image
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Read OpenBao secrets
+        uses: hashicorp/vault-action@v4
+        with:
+          url: https://obao.linagora.com
+          method: approle
+          roleId: ${{ secrets.BAO_CLIENT_ID }}
+          secretId: ${{ secrets.BAO_CLIENT_TOKEN }}
+          secrets: |
+            secret/data/dockerhub USERNAME | DOCKERHUB_USERNAME ;
+            secret/data/dockerhub TOKEN | DOCKERHUB_TOKEN
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ env.DOCKERHUB_TOKEN }}
+
+      - name: Fetch all tags
+        run: git fetch --tags
+
+      - name: Get latest tag
+        id: tag
+        run: |
+          TAG=$(git describe --tags --abbrev=0)
+          echo "VERSION=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: docker/catalog-ui.Dockerfile
+          push: true
+          tags: |
+            linagora/catalog-ui:latest
+            linagora/catalog-ui:${{ steps.tag.outputs.VERSION }}
