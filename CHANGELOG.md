@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.132](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.131...v0.2.132) (2026-09-28)
+
+
+### Bug Fixes
+
+* add missing namespace for OpenBao secrets in release workflow ([5c7855a](https://github.com/linagora/linid-im-front-community-plugins/commit/5c7855aaee5514fc9624cf1ca511748c15c963ab))
+* update Docker image tag for catalog-ui to linid-catalog-ui ([e0b66b3](https://github.com/linagora/linid-im-front-community-plugins/commit/e0b66b3e09bb0a9d7d37ba5e6d870be7eb2eb296))
+
 ### [0.2.131](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.130...v0.2.131) (2026-09-28)
 
 ### [0.2.130](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.129...v0.2.130) (2026-09-25)
