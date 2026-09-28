@@ -78,5 +78,5 @@ jobs:
           file: docker/catalog-ui.Dockerfile
           push: true
           tags: |
-            linagora/catalog-ui:latest
-            linagora/catalog-ui:${{ steps.tag.outputs.VERSION }}
+            linagora/linid-catalog-ui:latest
+            linagora/linid-catalog-ui:${{ steps.tag.outputs.VERSION }}
