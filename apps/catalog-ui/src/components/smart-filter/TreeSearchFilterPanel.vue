@@ -51,18 +51,16 @@
 <script setup lang="ts">
 import type {
   LinidQBtnProps,
-  Page,
-  Pagination,
   TreeNode,
 } from '@linagora/linid-im-front-corelib';
 import {
   useNotify,
-  getHttpClient,
   LinidFilterValue,
   useScopedI18n,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
 import GenericTree from '../tree/GenericTree.vue';
+import { fetchAllPages } from '../../services/paginationService';
 import type { TreeSearchFilterProps } from '../../types/TreeSearchFilterPanel';
 import { onMounted, ref } from 'vue';
 import type { LinidFilterPanelSearchOutputs } from '../../types/linidFilterPanel';
@@ -96,47 +94,6 @@ function onSearch() {
     field: props.fieldName,
     values: filterValues,
   });
-}
-
-/**
- * Fetches nodes from the specified URL with pagination.
- * @param pagination - Pagination parameters for the request.
- * @returns A promise that resolves to a page of nodes.
- */
-async function getNodes(pagination: Pagination) {
-  const response = await getHttpClient().get<Page<Record<string, unknown>>>(
-    props.url,
-    { params: { ...pagination } }
-  );
-  if (!response || !response.data) {
-    return { content: [], last: true };
-  }
-  const { data } = response;
-  return data;
-}
-
-/**
- * Fetches all nodes from the specified URL by iterating through paginated results.
- * @returns A promise that resolves to an array of all nodes.
- */
-async function getAllNodes(): Promise<Record<string, unknown>[]> {
-  const result: Record<string, unknown>[] = [];
-  let page = 0;
-  let isLast = false;
-
-  while (!isLast) {
-    const response = await getNodes({ page, size: props.nodesQuerySize });
-
-    if (!response || !response.content) {
-      break;
-    }
-
-    result.push(...response.content);
-    isLast = response.last ?? true;
-    page++;
-  }
-
-  return result;
 }
 
 /**
@@ -177,7 +134,10 @@ function toTreeNode(
  */
 async function loadData() {
   try {
-    const nodes: Record<string, unknown>[] = await getAllNodes();
+    const nodes: Record<string, unknown>[] = await fetchAllPages(
+      props.url,
+      props.nodesQuerySize
+    );
 
     if (!nodes || nodes.length === 0) {
       return;
