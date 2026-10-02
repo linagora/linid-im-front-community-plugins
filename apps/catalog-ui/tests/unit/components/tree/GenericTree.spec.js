@@ -30,9 +30,13 @@ import GenericTree from '../../../../src/components/tree/GenericTree.vue';
 
 const uiMock = vi.fn((namespace, component) => ({ namespace, component }));
 
+const mockT = vi.fn(
+  (key, params) => `${key} ${Object.values(params ?? {}).join(' ')}`
+);
+
 vi.mock('@linagora/linid-im-front-corelib', () => ({
   useUiDesign: () => ({ ui: uiMock }),
-  useScopedI18n: () => ({ t: vi.fn() }),
+  useScopedI18n: () => ({ t: mockT }),
   useTree: () => ({ toQTreeNodes: vi.fn(() => []) }),
 }));
 
@@ -508,6 +512,51 @@ describe('Test component: GenericTree', () => {
       expect(wrapper.vm.tickedNodes).toEqual(
         expect.arrayContaining(['folder-1', 'file-1'])
       );
+    });
+  });
+
+  describe('Test computed: uiProps.types', () => {
+    it('should build the icon lookup of a declared type without any action', () => {
+      wrapper = mountComponent({ nodeTypes: [{ type: 'folder' }] });
+
+      expect(wrapper.vm.uiProps.types.folder).toEqual({
+        icon: {
+          namespace: 'Homepage.GenericTree.types.folder',
+          component: 'q-icon',
+        },
+        actions: {},
+      });
+    });
+
+    it('should build the action icon lookups of a type with actions', () => {
+      wrapper = mountComponent({
+        nodeTypes: [{ type: 'folder', actions: ['rename'] }],
+      });
+
+      expect(
+        wrapper.vm.uiProps.types.folder.actions.rename.icon.namespace
+      ).toBe('Homepage.GenericTree.types.folder.actions.rename');
+    });
+
+    it('should build the icon lookup of a type only carried by rendered nodes', () => {
+      expect(wrapper.vm.uiProps.types.file.icon.namespace).toBe(
+        'Homepage.GenericTree.types.file'
+      );
+      expect(wrapper.vm.uiProps.types.folder.icon.namespace).toBe(
+        'Homepage.GenericTree.types.folder'
+      );
+    });
+  });
+
+  describe('Test function: defaultFilterMethod', () => {
+    const node = { type: 'folder', key: 'folder-1', value: { name: 'Hello' } };
+
+    it('should match a node whose translated label contains the filter, ignoring case', () => {
+      expect(wrapper.vm.defaultFilterMethod(node, 'HELLO')).toBe(true);
+    });
+
+    it('should not match a node whose translated label does not contain the filter', () => {
+      expect(wrapper.vm.defaultFilterMethod(node, 'nothing')).toBe(false);
     });
   });
 });
