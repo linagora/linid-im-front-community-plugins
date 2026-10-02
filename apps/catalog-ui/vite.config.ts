@@ -147,6 +147,10 @@ export default defineConfig({
           __dirname,
           'src/components/smart-filter/LinidSmartFilter.vue'
         ),
+        './GenericTreeCard': resolve(
+          __dirname,
+          'src/components/card/GenericTreeCard.vue'
+        ),
         './GenericEditableTableCard': resolve(
           __dirname,
           'src/components/card/GenericEditableTableCard.vue'

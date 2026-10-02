@@ -110,6 +110,10 @@
               </q-list>
             </q-menu>
           </q-btn>
+          <slot
+            name="node-actions"
+            :node="prop.node"
+          />
         </div>
       </template>
     </q-tree>
