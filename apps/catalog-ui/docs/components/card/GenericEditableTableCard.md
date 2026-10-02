@@ -35,6 +35,7 @@ action buttons, dialogs, and confirmation flows.
 | `readOnly`         | `Boolean`                           | `false`    | When `true`, hides all action buttons (add, edit, delete) and renders the card in read-only mode                                                                                  |
 | `enableActions`    | `Boolean`                           | `true`     | When `false`, hides the `ButtonsCard` in the card header (add button, header slots and zone renderer)                                                                             |
 | `enableRowActions` | `Boolean`                           | `true`     | When `false`, hides the entire row actions column (edit button, delete button, row slots and zone renderer)                                                                       |
+| `reloadOn`         | `String[]`                          | —          | Event keys reloading the items when they are emitted through the UI event subject                                                                                                 |
 | `instanceId`       | `String`                            | —          | Instance identifier passed to the form dialog fields (e.g. API validation rules)                                                                                                  |
 | `uiNamespace`      | `String`                            | —          | Base UI namespace used for design system customization                                                                                                                            |
 | `i18nScope`        | `String`                            | —          | Identifier used to scope translations                                                                                                                                             |
@@ -176,6 +177,8 @@ See [Generic Pages](../../generic-pages.md) for how to register a component in a
   which drives the table pagination
 - Changing the page, the rows per page or the sort reloads the items; so does every successful
   creation, update and deletion
+- Events listed in `reloadOn` reload the items when they are emitted through the UI event subject,
+  typically by a `FormDialogButton` hosted in another zone of the page
 - On failure, the items are cleared and a negative notification is displayed
 
 ### Add item

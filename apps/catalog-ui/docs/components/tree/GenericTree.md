@@ -18,17 +18,17 @@ It renders a hierarchical tree from provided nodes, with per-type icon support, 
 
 ## **Props**
 
-| Prop            | Type                                           | Required | Default | Description                                                                |
-| --------------- | ---------------------------------------------- | -------- | ------- | -------------------------------------------------------------------------- |
-| `nodes`         | `TreeNode<T>[]`                                | Yes      | -       | Hierarchical node data                                                     |
-| `nodeTypes`     | `TreeNodeType[]`                               | Yes      | -       | Node type definitions with associated actions                              |
-| `uiNamespace`   | `string`                                       | Yes      | -       | UI design namespace for custom styling                                     |
-| `i18nScope`     | `string`                                       | Yes      | -       | i18n scope for translations                                                |
-| `selected`      | `string`                                       | No       | -       | The key of the selected node (v-model).                                    |
-| `searchEnabled` | `boolean`                                      | No       | -       | Displays the built-in filter input field when `true`.                      |
-| `filterMethod`  | `(node: QTreeNode, filter: string) => boolean` | No       | -       | Custom filter function applied to the tree when `searchEnabled` is `true`. |
-| `tickeable`     | `boolean`                                      | No       | -       | Enables checkbox selection mode for multi-node selection.                  |
-| `ticked`        | `string[]`                                     | No       | -       | Array of selected node keys for checkbox mode (v-model:ticked).            |
+| Prop            | Type                                           | Required | Default | Description                                                                                                                                |
+| --------------- | ---------------------------------------------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `nodes`         | `TreeNode<T>[]`                                | Yes      | -       | Hierarchical node data                                                                                                                     |
+| `nodeTypes`     | `TreeNodeType[]`                               | Yes      | -       | Node type definitions with associated actions                                                                                              |
+| `uiNamespace`   | `string`                                       | Yes      | -       | UI design namespace for custom styling                                                                                                     |
+| `i18nScope`     | `string`                                       | Yes      | -       | i18n scope for translations                                                                                                                |
+| `selected`      | `string`                                       | No       | -       | The key of the selected node (v-model).                                                                                                    |
+| `searchEnabled` | `boolean`                                      | No       | -       | Displays the built-in filter input field when `true`.                                                                                      |
+| `filterMethod`  | `(node: QTreeNode, filter: string) => boolean` | No       | -       | Custom filter function applied to the tree when `searchEnabled` is `true`. Defaults to matching the translated node labels, ignoring case. |
+| `tickeable`     | `boolean`                                      | No       | -       | Enables checkbox selection mode for multi-node selection.                                                                                  |
+| `ticked`        | `string[]`                                     | No       | -       | Array of selected node keys for checkbox mode (v-model:ticked).                                                                            |
 
 ---
 
@@ -163,7 +163,10 @@ When the user clicks a node in the tree, the component emits `update:selected` w
 
 ## **Filtering**
 
-When `searchEnabled` is `true`, the component renders a built-in `q-input` above the tree. The text typed in that input is used as the filter string passed to Quasar's `QTree`.
+When `searchEnabled` is `true`, the component renders a built-in `q-input` above the tree. The text typed in that input is used as the filter string passed to Quasar's `QTree`. Without a
+`filterMethod`, the nodes are filtered on their translated labels (rendered from `types.{type}.label`
+with the node value), ignoring case, as the nodes do not carry the `label` property the `QTree`
+default method relies on.
 
 ```vue
 <GenericTree v-model:selected-node="selectedNode" :nodes="nodes" :node-types="nodeTypes" :search-enabled="true" :filter-method="customFilter" ui-namespace="Homepage" i18n-scope="Homepage" />
@@ -248,6 +251,14 @@ const quasarNodes = computed(() => toQTreeNodes(props.nodes));
 ```
 
 This conversion is handled internally by `GenericTree` — consumers simply pass `TreeNode<T>[]`.
+
+---
+
+## Slots
+
+| Slot           | Scope                 | Description                                                     |
+| -------------- | --------------------- | --------------------------------------------------------------- |
+| `node-actions` | `{ node: QTreeNode }` | Rendered at the end of every node header, after the action menu |
 
 ---
 
