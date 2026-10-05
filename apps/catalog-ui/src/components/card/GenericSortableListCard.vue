@@ -283,7 +283,6 @@ import type {
   LinidQItemSectionProps,
   LinidQListProps,
   LinidQScrollAreaProps,
-  Page,
   UiEvent,
 } from '@linagora/linid-im-front-corelib';
 import {
@@ -317,6 +316,7 @@ import {
 } from 'vue';
 import draggable from 'vuedraggable';
 import { DialogKey } from '../../types/dialog';
+import { fetchAllPages } from '../../services/paginationService';
 import type {
   ChangedItem,
   GenericListField,
@@ -521,7 +521,10 @@ watch(
 async function loadData() {
   isLoading.value = true;
   try {
-    const data: Record<string, unknown>[] = await getAllItems();
+    const data: Record<string, unknown>[] = await fetchAllPages(
+      renderString(props.endpoints.find, nunjucksContext.value),
+      props.itemsQuerySize
+    );
 
     items.value = data
       .map((item) => props.itemMapperFn(item))
@@ -537,31 +540,6 @@ async function loadData() {
     pendingDeletions.value = [];
     isLoading.value = false;
   }
-}
-
-/**
- * Fetches all items from the find endpoint by paginating through all available pages.
- * @returns A promise that resolves to an array of all items.
- */
-async function getAllItems(): Promise<Record<string, unknown>[]> {
-  const result: Record<string, unknown>[] = [];
-  let page = 0;
-  let isLast = false;
-
-  while (!isLast) {
-    const response = await getHttpClient().get<Page<Record<string, unknown>>>(
-      renderString(props.endpoints.find, nunjucksContext.value),
-      { params: { page, size: props.itemsQuerySize } }
-    );
-
-    const data = response?.data || { content: [], last: true };
-
-    result.push(...data.content);
-    isLast = data.last ?? true;
-    page++;
-  }
-
-  return result;
 }
 
 /**
