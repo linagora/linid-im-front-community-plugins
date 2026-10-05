@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.134](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.133...v0.2.134) (2026-10-05)
+
+
+### Features
+
+* **catalog-ui:** add GenericTreeCard ([2488712](https://github.com/linagora/linid-im-front-community-plugins/commit/2488712d8777e4ba148c700badc2bce971d0dcff))
+* **catalog-ui:** add reloadOn to GenericEditableTableCard ([9089e17](https://github.com/linagora/linid-im-front-community-plugins/commit/9089e17db633fd060ea286b7b2b44d10d426e161))
+
+
+### Bug Fixes
+
+* **catalog-ui:** base the tree icons and filtering on the node types ([19bf56f](https://github.com/linagora/linid-im-front-community-plugins/commit/19bf56f27f8abbb3039e5d66872da933b5381850))
+
 ### [0.2.133](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.132...v0.2.133) (2026-09-28)
 
 
