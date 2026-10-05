@@ -43,7 +43,7 @@
       :nodes="quasarNodes"
       node-key="key"
       :filter="filter"
-      :filter-method="props.filterMethod"
+      :filter-method="filterMethod ?? defaultFilterMethod"
       v-bind="uiProps.tree"
       no-selection-unset
       :no-nodes-label="t('noNodesLabel')"
@@ -172,6 +172,22 @@ function toggleNodeSelection(nodeKey: string, event: PointerEvent): void {
   emit('update:ticked', [...tickedNodes.value]);
 }
 
+/**
+ * Filters a node on its translated label, as the q-tree default method relies on a label property
+ * the nodes do not carry: labels are rendered through the i18n system from the node type and value.
+ * Used when no filter method is provided.
+ * @param node - The filtered node.
+ * @param filter - The filter input value.
+ * @returns Whether the translated node label contains the filter, ignoring case.
+ */
+function defaultFilterMethod(node: TreeNode<unknown>, filter: string): boolean {
+  return t(`types.${node.type}.label`, {
+    ...(node.value as Record<string, unknown>),
+  })
+    .toLowerCase()
+    .includes(filter.toLowerCase());
+}
+
 const quasarNodes = computed(() => toQTreeNodes(props.nodes));
 const nodeTypesMap = computed(
   () => new Map(props.nodeTypes.map((nodeType) => [nodeType.type, nodeType]))
@@ -264,27 +280,35 @@ const uiProps = computed(() => ({
     `${props.uiNamespace}.GenericTree`,
     'q-checkbox'
   ),
-  types: Object.entries(resolvedActionsByType.value).reduce<UiPropsTypes>(
-    (acc, [type, actions]) => {
-      acc[type] = {
-        icon: ui<LinidQIconProps>(
-          `${props.uiNamespace}.GenericTree.types.${type}`,
-          'q-icon'
-        ),
-        actions: actions.reduce<UiPropsAction>((acc, action) => {
-          acc[action] = {
+  // Every node type gets its icon lookup, whether it is declared, carried by a rendered node or
+  // resolved from the actions, so every node displays the icon its type provides.
+  types: [
+    ...new Set([
+      ...props.nodeTypes.map((nodeType) => nodeType.type),
+      ...Object.values(treeNodeRecord.value).map((node) => node.type),
+      ...Object.keys(resolvedActionsByType.value),
+    ]),
+  ].reduce<UiPropsTypes>((acc, type) => {
+    acc[type] = {
+      icon: ui<LinidQIconProps>(
+        `${props.uiNamespace}.GenericTree.types.${type}`,
+        'q-icon'
+      ),
+      actions: (resolvedActionsByType.value[type] || []).reduce<UiPropsAction>(
+        (actionsAcc, action) => {
+          actionsAcc[action] = {
             icon: ui<LinidQIconProps>(
               `${props.uiNamespace}.GenericTree.types.${type}.actions.${action}`,
               'q-icon'
             ),
           };
-          return acc;
-        }, {}),
-      };
-      return acc;
-    },
-    {}
-  ),
+          return actionsAcc;
+        },
+        {}
+      ),
+    };
+    return acc;
+  }, {}),
 }));
 </script>
 
