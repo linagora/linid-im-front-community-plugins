@@ -148,6 +148,9 @@ The library organizes components by category. For each component, documentation 
 - 📋 **GenericSortableListCard** — Card managing an ordered collection as a drag-and-drop list with a column header, per-item actions and order persistence
   → Documentation is inside: [`GenericSortableListCard.md`](./docs/components/card/GenericSortableListCard.md)
 
+- 🌳 **GenericTreeCard** — Card displaying an endpoint-driven tree, with configuration-driven node navigation and edition flows
+  → Documentation is inside: [`GenericTreeCard.md`](./docs/components/card/GenericTreeCard.md)
+
 ### **Forms Components**
 
 - 🧩 **EntityAttributeField** — Dynamic attribute field resolver that selects and renders the correct input component

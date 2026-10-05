@@ -713,6 +713,49 @@ Notes:
 
 ---
 
+### GenericTreeCard
+
+Card displaying an endpoint-driven tree: the rendering is delegated to a nested `GenericTree`, which inherits this
+namespace, the header actions area is rendered through a nested `ButtonsCard`, and the components hosted by the
+`node-actions` zones inherit the `node-actions` namespace.
+
+**Namespace:** `{uiNamespace}.generic-tree-card`
+
+```json
+{
+  "[PARENT_NAMESPACE]": {
+    "generic-tree-card": {
+      "q-card": { "flat": true, "bordered": true },
+      "header-section": {
+        "q-card-section": {}
+      },
+      "tree-section": {
+        "q-card-section": {}
+      },
+      "buttons-card": {
+        "q-card": { "flat": true }
+      },
+      "GenericTree": {
+        "q-tree": { "defaultExpandAll": true },
+        "types": {
+          "STRUCTURE": { "q-icon": { "name": "domain" } },
+          "HIERARCHY": {
+            "q-icon": { "name": "account_tree" }
+          }
+        }
+      },
+      "node-actions": {
+        "form-dialog-button": {
+          "q-btn": { "icon": "edit", "flat": true, "round": true }
+        }
+      }
+    }
+  }
+}
+```
+
+---
+
 ### AdvancedSearchCard
 
 Expandable search card with default and advanced filters.
@@ -2073,6 +2116,32 @@ A full example showing all CatalogUI components configured together:
               "q-card": { "flat": true },
               "q-icon": { "name": "info", "color": "primary" }
             }
+          }
+        }
+      },
+      "generic-tree-card": {
+        "q-card": { "flat": true, "bordered": true },
+        "header-section": {
+          "q-card-section": {}
+        },
+        "tree-section": {
+          "q-card-section": {}
+        },
+        "buttons-card": {
+          "q-card": { "flat": true }
+        },
+        "GenericTree": {
+          "q-tree": { "defaultExpandAll": true },
+          "types": {
+            "STRUCTURE": { "q-icon": { "name": "domain" } },
+            "HIERARCHY": {
+              "q-icon": { "name": "account_tree" }
+            }
+          }
+        },
+        "node-actions": {
+          "form-dialog-button": {
+            "q-btn": { "icon": "edit", "flat": true, "round": true }
           }
         }
       },
