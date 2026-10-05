@@ -136,6 +136,7 @@ import type {
   Page,
   QTableRequestEvent,
   QuasarPagination,
+  UiEvent,
 } from '@linagora/linid-im-front-corelib';
 import {
   getHttpClient,
@@ -147,7 +148,8 @@ import {
   useScopedI18n,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
-import { computed, ref, watch } from 'vue';
+import type { Subscription } from 'rxjs';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { DialogKey } from '../../types/dialog';
 import type {
   GenericEditableTableCardOutputs,
@@ -188,6 +190,8 @@ const { toPagination, toQuasarPagination } = usePagination();
 
 const items = ref<Record<string, unknown>[]>([]);
 const isLoading = ref<boolean>(false);
+
+let eventSubscription: Subscription;
 
 /**
  * Table pagination state, updated from each paginated response. Rows are sorted by their last update
@@ -471,6 +475,18 @@ watch(
   },
   { immediate: true }
 );
+
+onMounted(() => {
+  eventSubscription = uiEventSubject.subscribe((event: UiEvent) => {
+    if (props.reloadOn?.includes(event.key)) {
+      loadData();
+    }
+  });
+});
+
+onUnmounted(() => {
+  eventSubscription?.unsubscribe();
+});
 </script>
 
 <style scoped></style>

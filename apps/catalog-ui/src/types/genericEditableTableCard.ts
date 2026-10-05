@@ -150,6 +150,12 @@ export interface GenericEditableTableCardProps extends CommonComponentProps {
    * @default true
    */
   enableRowActions?: boolean;
+
+  /**
+   * Event keys reloading the items when they are emitted through the UI event subject, typically
+   * by components updating the managed collection from outside the card.
+   */
+  reloadOn?: string[];
 }
 
 /**

@@ -38,6 +38,8 @@ const mockHttpPut = vi.fn(() => Promise.resolve({ data: {} }));
 const mockT = vi.fn((key) => key);
 const mockTranslateOrDefault = vi.fn((defaultValue) => defaultValue);
 const mockHttpDelete = vi.fn(() => Promise.resolve({ data: {} }));
+const mockSubscription = { unsubscribe: vi.fn() };
+const mockSubscribe = vi.fn(() => mockSubscription);
 
 vi.mock('@linagora/linid-im-front-corelib', () => ({
   LinidZoneRenderer: { template: '<div />' },
@@ -82,6 +84,7 @@ vi.mock('@linagora/linid-im-front-corelib', () => ({
   },
   uiEventSubject: {
     next: vi.fn(),
+    subscribe: (callback) => mockSubscribe(callback),
   },
 }));
 
@@ -576,6 +579,40 @@ describe('Test component: GenericEditableTableCard', () => {
       expect(mockNotify).not.toHaveBeenCalled();
       expect(wrapper.emitted('deleted')).toBeUndefined();
       expect(mockHttpGet).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Test hook: onMounted', () => {
+    it('should reload the items when a configured event is emitted', async () => {
+      wrapper = mountComponent({ reloadOn: ['item-attached'] });
+      await flushPromises();
+      mockHttpGet.mockClear();
+
+      const callback = mockSubscribe.mock.calls.at(-1)[0];
+      callback({ key: 'item-attached' });
+      await flushPromises();
+
+      expect(mockHttpGet).toHaveBeenCalled();
+    });
+
+    it('should ignore events that are not configured', async () => {
+      wrapper = mountComponent({ reloadOn: ['item-attached'] });
+      await flushPromises();
+      mockHttpGet.mockClear();
+
+      const callback = mockSubscribe.mock.calls.at(-1)[0];
+      callback({ key: 'other-event' });
+      await flushPromises();
+
+      expect(mockHttpGet).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Test hook: onUnmounted', () => {
+    it('should unsubscribe from the UI event bus on unmount', () => {
+      wrapper.unmount();
+
+      expect(mockSubscription.unsubscribe).toHaveBeenCalled();
     });
   });
 });
