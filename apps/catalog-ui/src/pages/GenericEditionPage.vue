@@ -144,7 +144,7 @@
               :definition="field"
               :i18n-scope="i18nScope"
               :class="
-                field.input === 'TextArea'
+                ['TextArea', 'Tree'].includes(field.input)
                   ? 'col-12'
                   : 'col-12 col-sm-6 col-md-4'
               "

@@ -127,6 +127,15 @@ The user can then fold and unfold nodes freely on top of this initial state. Whi
 input, the whole tree expands so every match is visible, and the previous expansion comes back once the filter is
 cleared.
 
+### Layout
+
+The generic form pages render a `Tree` field on a full row (`col-12`), like a `TextArea`. To present the tree as a
+card of its own — a title and the tree below the other inputs, as `GenericTreeCard` does — declare the field in a
+dedicated form section: the section provides the card and its translated title, and `q-field.borderless` removes
+the field frame around the tree.
+
+---
+
 ## **✅ Validation**
 
 The tree itself is not a Quasar form component, so the field wraps it in a **`q-field`** holding the attribute value
