@@ -1145,6 +1145,36 @@ Dropdown select field for dynamic list attributes with lazy loading from a backe
 
 ---
 
+### EntityAttributeTreeField
+
+Tree node picker field: the tree is wrapped in a `q-field` and rendered by a nested `GenericTree`, which inherits
+the field namespace.
+
+**Namespace:** `{uiNamespace}.{FIELD_NAME}`
+
+```json
+{
+  "[PARENT_NAMESPACE]": {
+    "[FIELD_NAME]": {
+      "q-field": { "borderless": true },
+      "retry-button": {
+        "q-btn": { "flat": true, "color": "primary" }
+      },
+      "GenericTree": {
+        "q-tree": {},
+        "types": {
+          "[TYPE]": {
+            "q-icon": { "name": "folder" }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+---
+
 ### ConfirmationDialog
 
 Generic confirmation dialog for user actions (e.g., delete, confirm, etc.).
@@ -1694,6 +1724,20 @@ A full example showing all CatalogUI components configured together:
           "q-input": {
             "outlined": true,
             "dense": true
+          }
+        },
+        "[TREE_FIELD_NAME]": {
+          "q-field": { "borderless": true },
+          "retry-button": {
+            "q-btn": { "flat": true, "color": "primary" }
+          },
+          "GenericTree": {
+            "q-tree": {},
+            "types": {
+              "[TYPE]": {
+                "q-icon": { "name": "folder" }
+              }
+            }
           }
         }
       }

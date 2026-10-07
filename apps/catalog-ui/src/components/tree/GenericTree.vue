@@ -44,11 +44,13 @@
       node-key="key"
       :filter="filter"
       :filter-method="filterMethod ?? defaultFilterMethod"
+      :expanded="expandedNodes"
       v-bind="uiProps.tree"
       no-selection-unset
       :no-nodes-label="t('noNodesLabel')"
       :no-results-label="t('noResultsLabel')"
       data-cy="generic-tree"
+      @update:expanded="onExpandedUpdate"
     >
       <template #default-header="prop">
         <div
@@ -134,6 +136,7 @@ import {
   useTree,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
+import type { QTreeNode } from 'quasar';
 import type { Ref } from 'vue';
 import { computed, ref, toRaw, watch, watchEffect } from 'vue';
 import type {
@@ -188,7 +191,34 @@ function defaultFilterMethod(node: TreeNode<unknown>, filter: string): boolean {
     .includes(filter.toLowerCase());
 }
 
-const quasarNodes = computed(() => toQTreeNodes(props.nodes));
+/** The node types declared non-selectable in the node-type definitions. */
+const nonSelectableTypes = computed(
+  () =>
+    new Set(
+      props.nodeTypes
+        .filter((nodeType) => nodeType.selectable === false)
+        .map((nodeType) => nodeType.type)
+    )
+);
+
+/**
+ * Marks the nodes of a non-selectable type, so q-tree renders them expandable but not selectable.
+ * @param nodes - The Quasar nodes to mark.
+ * @returns The nodes with the selectable flag set on the non-selectable types.
+ */
+function markSelectable(nodes: QTreeNode[]): QTreeNode[] {
+  if (nonSelectableTypes.value.size === 0) {
+    return nodes;
+  }
+
+  return nodes.map((node) => ({
+    ...node,
+    selectable: !nonSelectableTypes.value.has(String(node.type)),
+    children: markSelectable(node.children ?? []),
+  }));
+}
+
+const quasarNodes = computed(() => markSelectable(toQTreeNodes(props.nodes)));
 const nodeTypesMap = computed(
   () => new Map(props.nodeTypes.map((nodeType) => [nodeType.type, nodeType]))
 );
@@ -197,6 +227,15 @@ const resolvedActionsByNode: Ref<Record<string, string[]>> = ref({});
 const resolvedActionsByType: Ref<Record<string, string[]>> = ref({});
 const treeNodeRecord: Ref<Record<string, TreeNode<unknown>>> = ref({});
 const selectedNode = ref<string>(props.selected || '');
+const expandedNodes = ref<string[]>(props.expanded ? [...props.expanded] : []);
+
+/**
+ * Keeps the controlled expansion in sync with the user folding and unfolding nodes.
+ * @param keys - The keys of the expanded nodes reported by the tree.
+ */
+function onExpandedUpdate(keys: readonly string[]) {
+  expandedNodes.value = [...keys];
+}
 
 /**
  * Recursively builds indexes for quick lookup of actions by node key and type.
@@ -241,6 +280,22 @@ watchEffect(() => {
   buildIndexes(props.nodes);
 });
 
+/** The controlled expansion to restore when the filter is cleared. */
+let preFilterExpansion: string[] | null = null;
+
+// A filtered tree only shows the matching branches, but q-tree keeps the expansion state: the
+// whole tree expands while a filter is typed so every match is visible, and the previous
+// expansion comes back once the filter is cleared.
+watch(filter, (value: string, previous: string) => {
+  if (value) {
+    preFilterExpansion ??= [...expandedNodes.value];
+    expandedNodes.value = Object.keys(treeNodeRecord.value);
+  } else if (previous) {
+    expandedNodes.value = preFilterExpansion ?? [];
+    preFilterExpansion = null;
+  }
+});
+
 watch(selectedNode, (key: string) => {
   emit('update:selected', key);
 });
@@ -249,6 +304,22 @@ watch(
   () => props.selected,
   (key: string | undefined) => {
     selectedNode.value = key || '';
+  }
+);
+
+watch(
+  () => props.expanded,
+  (keys: string[] | undefined) => {
+    const next = keys ? [...keys] : [];
+
+    // While a filter is active, the tree stays fully expanded: the new expansion becomes the
+    // state restored when the filter is cleared.
+    if (preFilterExpansion !== null) {
+      preFilterExpansion = next;
+      return;
+    }
+
+    expandedNodes.value = next;
   }
 );
 
@@ -271,7 +342,12 @@ const uiProps = computed(() => ({
     `${props.uiNamespace}.GenericTree`,
     'q-input'
   ),
-  tree: ui<LinidQTreeProps>(`${props.uiNamespace}.GenericTree`, 'q-tree'),
+  // A controlled expansion owns the expanded state: a defaultExpandAll coming from the design,
+  // including a global default, would override it with every node on first render.
+  tree: {
+    ...ui<LinidQTreeProps>(`${props.uiNamespace}.GenericTree`, 'q-tree'),
+    ...(props.expanded === undefined ? {} : { defaultExpandAll: false }),
+  },
   buttonActions: ui<LinidQBtnProps>(
     `${props.uiNamespace}.GenericTree.ButtonActions`,
     'q-btn'

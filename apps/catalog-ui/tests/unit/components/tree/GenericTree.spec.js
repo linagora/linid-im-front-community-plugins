@@ -26,6 +26,7 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { shallowMount } from '@vue/test-utils';
+import { nextTick } from 'vue';
 import GenericTree from '../../../../src/components/tree/GenericTree.vue';
 
 const uiMock = vi.fn((namespace, component) => ({ namespace, component }));
@@ -34,10 +35,18 @@ const mockT = vi.fn(
   (key, params) => `${key} ${Object.values(params ?? {}).join(' ')}`
 );
 
+const toQTreeNodesMock = (nodes) =>
+  nodes.map((node) => ({
+    type: node.type,
+    key: node.key,
+    value: node.value,
+    children: toQTreeNodesMock(node.nodes),
+  }));
+
 vi.mock('@linagora/linid-im-front-corelib', () => ({
   useUiDesign: () => ({ ui: uiMock }),
   useScopedI18n: () => ({ t: mockT }),
-  useTree: () => ({ toQTreeNodes: vi.fn(() => []) }),
+  useTree: () => ({ toQTreeNodes: toQTreeNodesMock }),
 }));
 
 const fileNode = (key = 'file-1', extraActions = []) => ({
@@ -557,6 +566,132 @@ describe('Test component: GenericTree', () => {
 
     it('should not match a node whose translated label does not contain the filter', () => {
       expect(wrapper.vm.defaultFilterMethod(node, 'nothing')).toBe(false);
+    });
+  });
+
+  describe('Test prop: expanded', () => {
+    it('should initialize the expanded nodes from the prop', () => {
+      wrapper = mountComponent({ expanded: ['folder-1'] });
+
+      expect(wrapper.vm.expandedNodes).toEqual(['folder-1']);
+    });
+
+    it('should follow the prop when it changes', async () => {
+      wrapper = mountComponent({ expanded: ['folder-1'] });
+
+      await wrapper.setProps({ expanded: ['folder-1', 'file-1'] });
+
+      expect(wrapper.vm.expandedNodes).toEqual(['folder-1', 'file-1']);
+    });
+
+    it('should keep the user folding and unfolding on top of the controlled expansion', () => {
+      wrapper = mountComponent({ expanded: ['folder-1'] });
+
+      wrapper.vm.onExpandedUpdate(['folder-1', 'file-1']);
+
+      expect(wrapper.vm.expandedNodes).toEqual(['folder-1', 'file-1']);
+    });
+
+    it('should force defaultExpandAll off when the expansion is controlled', () => {
+      wrapper = mountComponent({ expanded: [] });
+
+      expect(wrapper.vm.uiProps.tree.defaultExpandAll).toBe(false);
+    });
+
+    it('should leave the design expansion settings untouched when uncontrolled', () => {
+      expect(wrapper.vm.uiProps.tree).not.toHaveProperty('defaultExpandAll');
+    });
+
+    it('should expand every node while a filter is typed, so the matches are visible', async () => {
+      wrapper = mountComponent({ expanded: ['folder-1'] });
+
+      wrapper.vm.filter = 'file';
+      await nextTick();
+
+      expect([...wrapper.vm.expandedNodes].sort()).toEqual([
+        'file-1',
+        'folder-1',
+      ]);
+    });
+
+    it('should restore the previous expansion when the filter is cleared', async () => {
+      wrapper = mountComponent({ expanded: ['folder-1'] });
+
+      wrapper.vm.filter = 'file';
+      await nextTick();
+      wrapper.vm.filter = '';
+      await nextTick();
+
+      expect(wrapper.vm.expandedNodes).toEqual(['folder-1']);
+    });
+
+    it('should expand an uncontrolled tree while filtering and restore it on clear', async () => {
+      wrapper.vm.filter = 'file';
+      await nextTick();
+
+      expect([...wrapper.vm.expandedNodes].sort()).toEqual([
+        'file-1',
+        'folder-1',
+      ]);
+
+      wrapper.vm.filter = '';
+      await nextTick();
+
+      expect(wrapper.vm.expandedNodes).toEqual([]);
+    });
+
+    it('should hold a prop change arriving during a filter until the filter is cleared', async () => {
+      wrapper = mountComponent({ expanded: ['folder-1'] });
+
+      wrapper.vm.filter = 'file';
+      await nextTick();
+      await wrapper.setProps({ expanded: ['file-1'] });
+
+      expect([...wrapper.vm.expandedNodes].sort()).toEqual([
+        'file-1',
+        'folder-1',
+      ]);
+
+      wrapper.vm.filter = '';
+      await nextTick();
+
+      expect(wrapper.vm.expandedNodes).toEqual(['file-1']);
+    });
+  });
+
+  describe('Test computed: quasarNodes (selectable node types)', () => {
+    it('should leave the nodes untouched when no type is declared non-selectable', () => {
+      wrapper = mountComponent({ nodeTypes: [{ type: 'folder' }] });
+
+      expect(wrapper.vm.quasarNodes[0]).not.toHaveProperty('selectable');
+      expect(wrapper.vm.quasarNodes[0].children[0]).not.toHaveProperty(
+        'selectable'
+      );
+    });
+
+    it('should mark the nodes of a non-selectable type at every depth', () => {
+      wrapper = mountComponent({
+        nodes: [
+          folderNode('folder-1', [fileNode('file-1'), folderNode('folder-2')]),
+        ],
+        nodeTypes: [{ type: 'folder', selectable: false }, { type: 'file' }],
+      });
+
+      expect(wrapper.vm.quasarNodes[0].selectable).toBe(false);
+      expect(wrapper.vm.quasarNodes[0].children[0].selectable).toBe(true);
+      expect(wrapper.vm.quasarNodes[0].children[1].selectable).toBe(false);
+    });
+
+    it('should treat a type declared with selectable true as selectable', () => {
+      wrapper = mountComponent({
+        nodeTypes: [
+          { type: 'folder', selectable: true },
+          { type: 'file', selectable: false },
+        ],
+      });
+
+      expect(wrapper.vm.quasarNodes[0].selectable).toBe(true);
+      expect(wrapper.vm.quasarNodes[0].children[0].selectable).toBe(false);
     });
   });
 });

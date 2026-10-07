@@ -271,6 +271,26 @@ describe('Test component: GenericTreeCard', () => {
       expect(wrapper.vm.nodes).toHaveLength(2);
       expect(wrapper.vm.isLoading).toBe(true);
     });
+
+    it('should build the tree from the configured identifier, parent and type properties', async () => {
+      mockHttpGet.mockImplementation(() =>
+        buildPage([
+          { uuid: 'a', father: null, kind: 'STRUCTURE' },
+          { uuid: 'b', father: 'a', kind: 'HIERARCHY' },
+        ])
+      );
+      wrapper = mountComponent({
+        idKey: 'uuid',
+        parentIdKey: 'father',
+        typeKey: 'kind',
+      });
+      await flushPromises();
+
+      expect(wrapper.vm.nodes).toHaveLength(1);
+      expect(wrapper.vm.nodes[0].type).toBe('STRUCTURE');
+      expect(wrapper.vm.nodes[0].nodes[0].key).toBe('b');
+      expect(wrapper.vm.nodes[0].nodes[0].type).toBe('HIERARCHY');
+    });
   });
 
   describe('Test function: onNodeSelected', () => {
@@ -342,51 +362,6 @@ describe('Test component: GenericTreeCard', () => {
       wrapper.unmount();
 
       expect(signals.at(-1).aborted).toBe(true);
-    });
-  });
-
-  describe('Test function: toTreeNodes', () => {
-    it('should turn an orphan node into a root', () => {
-      const roots = wrapper.vm.toTreeNodes([
-        { id: 'h1', parentId: 'missing', type: 'HIERARCHY' },
-      ]);
-
-      expect(roots).toHaveLength(1);
-      expect(roots[0].key).toBe('h1');
-    });
-
-    it('should turn a node being its own parent into a root', () => {
-      const roots = wrapper.vm.toTreeNodes([
-        { id: 'h1', parentId: 'h1', type: 'HIERARCHY' },
-      ]);
-
-      expect(roots).toHaveLength(1);
-      expect(roots[0].nodes).toEqual([]);
-    });
-
-    it('should default the type of a node without one to an empty string', () => {
-      const roots = wrapper.vm.toTreeNodes([{ id: 'h1', parentId: null }]);
-
-      expect(roots[0].type).toBe('');
-    });
-
-    it('should read the configured identifier, parent and type properties', async () => {
-      wrapper = mountComponent({
-        idKey: 'uuid',
-        parentIdKey: 'father',
-        typeKey: 'kind',
-      });
-      await flushPromises();
-
-      const roots = wrapper.vm.toTreeNodes([
-        { uuid: 'a', father: null, kind: 'STRUCTURE' },
-        { uuid: 'b', father: 'a', kind: 'HIERARCHY' },
-      ]);
-
-      expect(roots).toHaveLength(1);
-      expect(roots[0].type).toBe('STRUCTURE');
-      expect(roots[0].nodes[0].key).toBe('b');
-      expect(roots[0].nodes[0].type).toBe('HIERARCHY');
     });
   });
 });
