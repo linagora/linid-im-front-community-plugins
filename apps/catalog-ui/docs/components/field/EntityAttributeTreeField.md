@@ -112,6 +112,8 @@ The embedded tree resolves its own keys under the same field scope, as documente
 - The wrapping field reads `q-field` properties from the namespace above.
 - The embedded tree reads its properties under `{uiNamespace}.{definition.name}.GenericTree` (`q-tree`, `q-input`
   for the filter, and `types.{TYPE}.q-icon` for the node icons).
+- The selected node is highlighted and carries a check icon next to its label (a positive `check` by default,
+  customizable under `{uiNamespace}.{definition.name}.GenericTree.selected-icon.q-icon`).
 
 ### Initial Expansion
 

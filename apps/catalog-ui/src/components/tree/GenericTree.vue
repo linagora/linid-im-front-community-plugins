@@ -25,7 +25,10 @@
 -->
 
 <template>
-  <div class="generic-tree-container">
+  <div
+    class="generic-tree-container"
+    :class="{ 'generic-tree-container--selectable': props.selectedIcon }"
+  >
     <q-input
       v-if="props.searchEnabled"
       v-model="filter"
@@ -75,6 +78,12 @@
             :data-cy="`generic-tree-node-${prop.node.key}`"
           >
             {{ t(`types.${prop.node.type}.label`, { ...prop.node.value }) }}
+            <q-icon
+              v-if="props.selectedIcon && prop.node.key === selectedNode"
+              v-bind="uiProps.selectedIcon"
+              class="q-ml-xs tree-header-selected-icon"
+              :data-cy="`tree-selected-icon-${prop.node.key}`"
+            />
           </div>
           <q-btn
             v-if="resolvedActionsByNode[prop.node.key]"
@@ -348,6 +357,14 @@ const uiProps = computed(() => ({
     ...ui<LinidQTreeProps>(`${props.uiNamespace}.GenericTree`, 'q-tree'),
     ...(props.expanded === undefined ? {} : { defaultExpandAll: false }),
   },
+  selectedIcon: {
+    name: 'check',
+    color: 'positive',
+    ...ui<LinidQIconProps>(
+      `${props.uiNamespace}.GenericTree.selected-icon`,
+      'q-icon'
+    ),
+  },
   buttonActions: ui<LinidQBtnProps>(
     `${props.uiNamespace}.GenericTree.ButtonActions`,
     'q-btn'
@@ -391,5 +408,12 @@ const uiProps = computed(() => ({
 <style>
 .generic-tree-container {
   padding: 1rem;
+}
+
+/* Mirrors the hover feedback on the selected node, with the selection color of the tree, in the
+   trees where the selection is a value, such as the tree form field. */
+.generic-tree-container--selectable
+  .q-tree__node-header.q-tree__node--selected {
+  background-color: color-mix(in srgb, currentColor 10%, transparent);
 }
 </style>

@@ -659,6 +659,33 @@ describe('Test component: GenericTree', () => {
     });
   });
 
+  describe('Test prop: selectedIcon (highlight)', () => {
+    it('should mark the container as selectable when the icon is enabled', () => {
+      wrapper = mountComponent({ selectedIcon: true });
+
+      expect(wrapper.classes()).toContain('generic-tree-container--selectable');
+    });
+
+    it('should leave the container unmarked by default', () => {
+      expect(wrapper.classes()).not.toContain(
+        'generic-tree-container--selectable'
+      );
+    });
+  });
+
+  describe('Test computed: uiProps (selectedIcon)', () => {
+    it('should default the selected icon to a positive check', () => {
+      expect(wrapper.vm.uiProps.selectedIcon.name).toBe('check');
+      expect(wrapper.vm.uiProps.selectedIcon.color).toBe('positive');
+    });
+
+    it('should resolve the selected icon from the GenericTree namespace', () => {
+      expect(wrapper.vm.uiProps.selectedIcon.namespace).toBe(
+        'Homepage.GenericTree.selected-icon'
+      );
+    });
+  });
+
   describe('Test computed: quasarNodes (selectable node types)', () => {
     it('should leave the nodes untouched when no type is declared non-selectable', () => {
       wrapper = mountComponent({ nodeTypes: [{ type: 'folder' }] });

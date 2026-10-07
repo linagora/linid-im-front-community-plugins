@@ -48,6 +48,10 @@ export interface TreeProps<T> extends CommonComponentProps {
    */
   selected?: string;
   /**
+   * Whether the selected node displays a trailing check icon.
+   */
+  selectedIcon?: boolean;
+  /**
    * The keys of the expanded nodes. When absent, the tree manages its expansion on its own and
    * design settings such as `defaultExpandAll` apply; when given, it controls the initial
    * expansion and the user folding and unfolding still applies on top of it.
