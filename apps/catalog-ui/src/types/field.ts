@@ -24,7 +24,10 @@
  * LinID Identity Manager software.
  */
 
-import type { LinidAttributeConfiguration } from '@linagora/linid-im-front-corelib';
+import type {
+  LinidAttributeConfiguration,
+  TreeNodeType,
+} from '@linagora/linid-im-front-corelib';
 import type { CommonComponentProps } from './common';
 
 /**
@@ -348,4 +351,58 @@ export interface FieldDynamicListSettings extends FieldSettings {
    * - When `false` or omitted: no uniqueness validation is performed.
    */
   unique?: boolean;
+}
+
+/**
+ * Settings for fields selecting a node in a tree fetched from a backend endpoint.
+ */
+export interface FieldTreeSettings extends FieldSettings {
+  /**
+   * Backend route returning the flat tree nodes, rendered as a Nunjucks template with the edited
+   * entity as `entity` (e.g. "/api/geographies").
+   */
+  route: string;
+
+  /**
+   * Paths of the values the `route` needs, in the template's own context (e.g. ["entity.orgId"]):
+   * while any is empty the field is disabled and nothing is requested. Every entity value the
+   * `route` interpolates MUST be declared, otherwise the first render requests a malformed URL.
+   */
+  routeDependencies?: string[];
+
+  /**
+   * The node types rendered in the tree: icons and labels are resolved from them, and a type
+   * declared with `selectable: false` renders its nodes expandable but not selectable.
+   */
+  nodeTypes?: TreeNodeType[];
+
+  /**
+   * The flat node property holding the node identifier, stored as the field value.
+   * @default 'id'
+   */
+  idKey?: string;
+
+  /**
+   * The flat node property holding the parent node identifier.
+   * @default 'parentId'
+   */
+  parentIdKey?: string;
+
+  /**
+   * The flat node property holding the node type.
+   * @default 'type'
+   */
+  typeKey?: string;
+
+  /**
+   * Whether the text filter is displayed above the tree.
+   * @default false
+   */
+  searchEnabled?: boolean;
+
+  /**
+   * Number of nodes to fetch per page while loading the complete tree.
+   * @default 50
+   */
+  nodesQuerySize?: number;
 }

@@ -125,6 +125,7 @@ import type { Subscription } from 'rxjs';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { fetchAllPages } from '../../services/paginationService';
+import { toTreeNodes } from '../../services/treeService';
 import type { GenericTreeCardProps } from '../../types/genericTreeCard';
 import ButtonsCard from './ButtonsCard.vue';
 import BlurLoader from '../loader/BlurLoader.vue';
@@ -157,7 +158,7 @@ const isLoading = ref<boolean>(false);
  * Tree nodes indexed by their key, rebuilt on every load and used to resolve the node selected
  * in the tree.
  */
-const nodesByKey = new Map<string, TreeNode<Record<string, unknown>>>();
+let nodesByKey = new Map<string, TreeNode<Record<string, unknown>>>();
 
 let eventSubscription: Subscription;
 let abortController: AbortController | undefined;
@@ -189,50 +190,6 @@ const uiProps = computed(() => ({
 }));
 
 /**
- * Builds the tree from the flat nodes using their identifier and parent identifier properties,
- * and rebuilds the key index. Nodes without a parent, or whose parent is not part of the flat
- * nodes, become roots. The nodes keep the order returned by the API.
- * @param flatNodes - The flat nodes fetched from the find endpoint.
- * @returns The root nodes of the built tree.
- */
-function toTreeNodes(
-  flatNodes: Record<string, unknown>[]
-): TreeNode<Record<string, unknown>>[] {
-  const index: Record<string, TreeNode<Record<string, unknown>>> = {};
-
-  for (const flatNode of flatNodes) {
-    const key = String(flatNode[props.idKey]);
-    index[key] = {
-      key,
-      type: String(flatNode[props.typeKey] ?? ''),
-      value: flatNode,
-      nodes: [],
-    };
-  }
-
-  const roots: TreeNode<Record<string, unknown>>[] = [];
-
-  for (const flatNode of flatNodes) {
-    const node = index[String(flatNode[props.idKey])];
-    const parentId = flatNode[props.parentIdKey];
-    const parent = parentId == null ? undefined : index[String(parentId)];
-
-    if (parent && parent !== node) {
-      parent.nodes.push(node);
-    } else {
-      roots.push(node);
-    }
-  }
-
-  nodesByKey.clear();
-  for (const node of Object.values(index)) {
-    nodesByKey.set(node.key, node);
-  }
-
-  return roots;
-}
-
-/**
  * Loads the complete tree from the rendered find endpoint and updates the reactive nodes state.
  * A load still in flight is aborted when a new one starts, so only the latest one is applied.
  * On failure, clears the nodes and notifies the user.
@@ -244,20 +201,27 @@ async function loadData(): Promise<void> {
   isLoading.value = true;
 
   try {
-    nodes.value = toTreeNodes(
+    const built = toTreeNodes(
       await fetchAllPages(
         renderString(props.url, nunjucksContext.value),
         props.nodesQuerySize,
         controller.signal
-      )
+      ),
+      {
+        idKey: props.idKey,
+        parentIdKey: props.parentIdKey,
+        typeKey: props.typeKey,
+      }
     );
+    nodes.value = built.roots;
+    nodesByKey = built.nodesByKey;
   } catch {
     if (controller.signal.aborted) {
       return;
     }
 
     nodes.value = [];
-    nodesByKey.clear();
+    nodesByKey = new Map();
     Notify({ type: 'negative', message: t('loadError') });
   } finally {
     if (abortController === controller) {

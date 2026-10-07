@@ -18,17 +18,18 @@ It renders a hierarchical tree from provided nodes, with per-type icon support, 
 
 ## **Props**
 
-| Prop            | Type                                           | Required | Default | Description                                                                                                                                |
-| --------------- | ---------------------------------------------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `nodes`         | `TreeNode<T>[]`                                | Yes      | -       | Hierarchical node data                                                                                                                     |
-| `nodeTypes`     | `TreeNodeType[]`                               | Yes      | -       | Node type definitions with associated actions                                                                                              |
-| `uiNamespace`   | `string`                                       | Yes      | -       | UI design namespace for custom styling                                                                                                     |
-| `i18nScope`     | `string`                                       | Yes      | -       | i18n scope for translations                                                                                                                |
-| `selected`      | `string`                                       | No       | -       | The key of the selected node (v-model).                                                                                                    |
-| `searchEnabled` | `boolean`                                      | No       | -       | Displays the built-in filter input field when `true`.                                                                                      |
-| `filterMethod`  | `(node: QTreeNode, filter: string) => boolean` | No       | -       | Custom filter function applied to the tree when `searchEnabled` is `true`. Defaults to matching the translated node labels, ignoring case. |
-| `tickeable`     | `boolean`                                      | No       | -       | Enables checkbox selection mode for multi-node selection.                                                                                  |
-| `ticked`        | `string[]`                                     | No       | -       | Array of selected node keys for checkbox mode (v-model:ticked).                                                                            |
+| Prop            | Type                                           | Required | Default | Description                                                                                                                                                                                                                                                                                                                                                          |
+| --------------- | ---------------------------------------------- | -------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `nodes`         | `TreeNode<T>[]`                                | Yes      | -       | Hierarchical node data                                                                                                                                                                                                                                                                                                                                               |
+| `nodeTypes`     | `TreeNodeType[]`                               | Yes      | -       | Node type definitions with associated actions and selectable flag                                                                                                                                                                                                                                                                                                    |
+| `uiNamespace`   | `string`                                       | Yes      | -       | UI design namespace for custom styling                                                                                                                                                                                                                                                                                                                               |
+| `i18nScope`     | `string`                                       | Yes      | -       | i18n scope for translations                                                                                                                                                                                                                                                                                                                                          |
+| `selected`      | `string`                                       | No       | -       | The key of the selected node (v-model).                                                                                                                                                                                                                                                                                                                              |
+| `expanded`      | `string[]`                                     | No       | -       | Controls the expanded nodes. When absent, the tree manages its expansion on its own and `q-tree.defaultExpandAll` applies; when given, it sets the expansion (ignoring `defaultExpandAll`) and user folding applies on top. In both modes, the tree fully expands while a filter is typed to keep the matches visible, and restores the previous expansion on clear. |
+| `searchEnabled` | `boolean`                                      | No       | -       | Displays the built-in filter input field when `true`.                                                                                                                                                                                                                                                                                                                |
+| `filterMethod`  | `(node: QTreeNode, filter: string) => boolean` | No       | -       | Custom filter function applied to the tree when `searchEnabled` is `true`. Defaults to matching the translated node labels, ignoring case.                                                                                                                                                                                                                           |
+| `tickeable`     | `boolean`                                      | No       | -       | Enables checkbox selection mode for multi-node selection.                                                                                                                                                                                                                                                                                                            |
+| `ticked`        | `string[]`                                     | No       | -       | Array of selected node keys for checkbox mode (v-model:ticked).                                                                                                                                                                                                                                                                                                      |
 
 ---
 
@@ -158,6 +159,16 @@ Use `v-model:selected` to keep the parent in sync with the currently selected no
 ```
 
 When the user clicks a node in the tree, the component emits `update:selected` with the corresponding key.
+
+### Non-selectable node types
+
+A node type declared with `selectable: false` renders its nodes expandable but not selectable: clicking them
+does not change the selection and no `update:selected` event is emitted. Use it for structural nodes, such as
+the root of a hierarchy, that are not valid selection targets:
+
+```ts
+const nodeTypes: TreeNodeType[] = [{ type: 'root', selectable: false }, { type: 'folder' }, { type: 'file' }];
+```
 
 ---
 
