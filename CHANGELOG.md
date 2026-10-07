@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.135](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.134...v0.2.135) (2026-10-07)
+
+
+### Features
+
+* **catalog-ui:** add the EntityAttributeTreeField form input ([49fe76c](https://github.com/linagora/linid-im-front-community-plugins/commit/49fe76c5dae3afade221caacbc2fc17463452c2c))
+* **catalog-ui:** highlight the selected tree node with a check icon ([94841b2](https://github.com/linagora/linid-im-front-community-plugins/commit/94841b26410733c3b00c877a5880bddbdfad2975))
+* **catalog-ui:** register the Tree input in the entity attribute fields ([6bc5ac5](https://github.com/linagora/linid-im-front-community-plugins/commit/6bc5ac5b717cea5bf7279b5f3d4e62ddf2d6262a))
+
 ### [0.2.134](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.133...v0.2.134) (2026-10-05)
 
 
