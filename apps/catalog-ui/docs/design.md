@@ -182,6 +182,9 @@ Hierarchical tree for displaying entity structures.
     "GenericTree": {
       "q-tree": {},
       "q-checkbox": {},
+      "selected-icon": {
+        "q-icon": { "name": "check", "color": "positive" }
+      },
       "ButtonActions": {
         "q-btn": {
           "flat": true,
@@ -1162,6 +1165,9 @@ the field namespace.
       },
       "GenericTree": {
         "q-tree": {},
+        "selected-icon": {
+          "q-icon": { "name": "check", "color": "positive" }
+        },
         "types": {
           "[TYPE]": {
             "q-icon": { "name": "folder" }
@@ -1733,6 +1739,9 @@ A full example showing all CatalogUI components configured together:
           },
           "GenericTree": {
             "q-tree": {},
+            "selected-icon": {
+              "q-icon": { "name": "check", "color": "positive" }
+            },
             "types": {
               "[TYPE]": {
                 "q-icon": { "name": "folder" }

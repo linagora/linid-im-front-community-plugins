@@ -52,6 +52,7 @@
         :node-types="settings.nodeTypes"
         :selected="selectedKey"
         :expanded="expandedKeys"
+        selected-icon
         :search-enabled="settings.searchEnabled"
         :ui-namespace="localUiNamespace"
         :i18n-scope="localI18nScope"

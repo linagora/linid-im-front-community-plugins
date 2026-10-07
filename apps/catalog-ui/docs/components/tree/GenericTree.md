@@ -25,6 +25,7 @@ It renders a hierarchical tree from provided nodes, with per-type icon support, 
 | `uiNamespace`   | `string`                                       | Yes      | -       | UI design namespace for custom styling                                                                                                                                                                                                                                                                                                                               |
 | `i18nScope`     | `string`                                       | Yes      | -       | i18n scope for translations                                                                                                                                                                                                                                                                                                                                          |
 | `selected`      | `string`                                       | No       | -       | The key of the selected node (v-model).                                                                                                                                                                                                                                                                                                                              |
+| `selectedIcon`  | `boolean`                                      | No       | `false` | Displays a check icon next to the selected node label and highlights its row. The icon defaults to a positive `check`, customizable under `GenericTree.selected-icon.q-icon`.                                                                                                                                                                                        |
 | `expanded`      | `string[]`                                     | No       | -       | Controls the expanded nodes. When absent, the tree manages its expansion on its own and `q-tree.defaultExpandAll` applies; when given, it sets the expansion (ignoring `defaultExpandAll`) and user folding applies on top. In both modes, the tree fully expands while a filter is typed to keep the matches visible, and restores the previous expansion on clear. |
 | `searchEnabled` | `boolean`                                      | No       | -       | Displays the built-in filter input field when `true`.                                                                                                                                                                                                                                                                                                                |
 | `filterMethod`  | `(node: QTreeNode, filter: string) => boolean` | No       | -       | Custom filter function applied to the tree when `searchEnabled` is `true`. Defaults to matching the translated node labels, ignoring case.                                                                                                                                                                                                                           |
@@ -285,6 +286,7 @@ The component uses the LinID design system through `useUiDesign()` and applies p
 | `{uiNamespace}.GenericTree.ButtonActions`                 | `q-btn`      | Context menu trigger button            |
 | `{uiNamespace}.GenericTree.types.{type}`                  | `q-icon`     | Icon for the node type label           |
 | `{uiNamespace}.GenericTree.types.{type}.actions.{action}` | `q-icon`     | Icon for a specific action in the menu |
+| `{uiNamespace}.GenericTree.selected-icon`                 | `q-icon`     | Check icon on the selected node        |
 
 Example:
 
@@ -295,6 +297,7 @@ Example:
 // Checkbox:      ui('Homepage.GenericTree', 'q-checkbox')
 // Folder icon:   ui('Homepage.GenericTree.types.folder', 'q-icon')
 // Delete icon:   ui('Homepage.GenericTree.types.folder.actions.delete', 'q-icon')
+// Selected icon: ui('Homepage.GenericTree.selected-icon', 'q-icon')
 ```
 
 ---
