@@ -121,10 +121,17 @@
               </q-list>
             </q-menu>
           </q-btn>
-          <slot
-            name="node-actions"
-            :node="prop.node"
-          />
+          <!-- The actions open their own dialogs or menus, so their clicks must not select the
+            node, which would navigate away from the tree. -->
+          <div
+            class="tree-header-node-actions"
+            @click.stop
+          >
+            <slot
+              name="node-actions"
+              :node="prop.node"
+            />
+          </div>
         </div>
       </template>
     </q-tree>
