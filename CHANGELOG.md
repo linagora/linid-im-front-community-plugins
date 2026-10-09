@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.137](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.136...v0.2.137) (2026-10-09)
+
+
+### Features
+
+* remove module-users ([089984d](https://github.com/linagora/linid-im-front-community-plugins/commit/089984db596500f6b2909b4e4da00f45e681ef2d))
+
 ### [0.2.136](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.135...v0.2.136) (2026-10-09)
 
 
