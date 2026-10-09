@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.136](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.135...v0.2.136) (2026-10-09)
+
+
+### Bug Fixes
+
+* **catalog-ui:** stop the tree node actions click from selecting the node ([07383a6](https://github.com/linagora/linid-im-front-community-plugins/commit/07383a6540ada6e0eaef9253e421aa187ef75879))
+
 ### [0.2.135](https://github.com/linagora/linid-im-front-community-plugins/compare/v0.2.134...v0.2.135) (2026-10-07)
 
 
