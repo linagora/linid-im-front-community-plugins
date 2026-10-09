@@ -40,17 +40,17 @@ This project follows the **Conventional Commits** format:
 
 ### **Accepted types**
 
-* `feat` – A new feature
-* `fix` – A bug fix
-* `docs` – Documentation changes only
-* `style` – Code formatting only (no logic)
-* `refactor` – Code refactoring without behavior change
-* `perf` – Performance improvements
-* `test` – Test-related changes
-* `security` – Security-related changes
-* `deprecated` – Deprecation of APIs or modules
-* `chore` – Internal tooling, CI, dependency bumps…
-* `build` – Build pipeline or configuration updates
+- `feat` – A new feature
+- `fix` – A bug fix
+- `docs` – Documentation changes only
+- `style` – Code formatting only (no logic)
+- `refactor` – Code refactoring without behavior change
+- `perf` – Performance improvements
+- `test` – Test-related changes
+- `security` – Security-related changes
+- `deprecated` – Deprecation of APIs or modules
+- `chore` – Internal tooling, CI, dependency bumps…
+- `build` – Build pipeline or configuration updates
 
 ---
 
@@ -63,10 +63,10 @@ In this monorepo, **your commit scope determines which module receives a version
 Example:
 
 ```
-feat(module-users): add bulk import feature
+feat(catalog-ui): add bulk import feature
 ```
 
-➡ The **module-users** package will receive a **minor** version bump.
+➡ The **catalog-ui** package will receive a **minor** version bump.
 ➡ Only this module is impacted.
 
 Another example:
@@ -124,8 +124,8 @@ Each plugin, module, generator or architectural concept must have its own Markdo
 
 Mermaid is used for flowcharts and architecture diagrams.
 
-* Files must be `.md` or `.mmd`
-* Output PNG must be committed with the source
+- Files must be `.md` or `.mmd`
+- Output PNG must be committed with the source
 
 ### Generate diagrams
 
@@ -246,10 +246,10 @@ pnpm exec nx generate @linid-im-front-community-plugins/module:create
 
 This will:
 
-* create a new remote module
-* configure module federation
-* setup tests, linting, tsconfig
-* generate base pages & components
+- create a new remote module
+- configure module federation
+- setup tests, linting, tsconfig
+- generate base pages & components
 
 ---
 
@@ -257,10 +257,10 @@ This will:
 
 We enforce strict quality standards via:
 
-* **ESLint**
-* **Prettier**
-* **TypeScript**
-* **Nx task orchestration**
+- **ESLint**
+- **Prettier**
+- **TypeScript**
+- **Nx task orchestration**
 
 Use:
 
@@ -322,10 +322,10 @@ Releases are automated using **Semantic Release** with Nx awareness.
 
 When merging into `main`:
 
-* Version bumps are determined **per module**, based on commit scopes
-* `package.json` versions are updated
-* Changelogs are generated for each module
-* Git tags are created automatically
+- Version bumps are determined **per module**, based on commit scopes
+- `package.json` versions are updated
+- Changelogs are generated for each module
+- Git tags are created automatically
 
 ⚠ **No manual versioning is allowed.**
 
