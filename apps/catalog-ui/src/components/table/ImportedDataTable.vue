@@ -122,13 +122,7 @@
 </template>
 
 <script setup lang="ts">
-import type {
-  ImportedDataTableOutputs,
-  ImportedDataTableProps,
-} from '../../types/ImportedDataTable';
-import { computed, type ComputedRef } from 'vue';
 import {
-  getModuleHostConfiguration,
   type LinidQBadgeProps,
   type LinidQBtnProps,
   type LinidQSpinnerProps,
@@ -136,25 +130,25 @@ import {
   useScopedI18n,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
-import type { ModuleImportOptions } from '../../types/moduleImport';
 import type { QTableColumn } from 'quasar';
-import type { ImportedData } from '../../types/File';
+import { computed, type ComputedRef } from 'vue';
+import type {
+  ImportedData,
+  ImportedDataTableOutputs,
+  ImportedDataTableProps,
+  ImportStatus,
+} from '../../types/importedDataTable';
 
 const props = withDefaults(defineProps<ImportedDataTableProps>(), {
   isLoading: false,
 });
 const emit = defineEmits<ImportedDataTableOutputs>();
 
-const localI18NScope = `${props.i18nScope}.ImportedDataTable`;
 const localUiNamespace = `${props.uiNamespace}.imported-data-table`;
-const { translateOrDefault } = useScopedI18n(localI18NScope);
+const { translateOrDefault } = useScopedI18n(
+  `${props.i18nScope}.ImportedDataTable`
+);
 const { ui } = useUiDesign();
-
-/**
- * Represents the possible import status values.
- * Derived from {@link ImportedData.__status} to avoid divergence.
- */
-type ImportStatus = ImportedData['__status'];
 
 const uiProps = {
   table: ui<LinidQTableProps>(localUiNamespace, 'q-table'),
@@ -167,7 +161,7 @@ const uiProps = {
     'q-btn'
   ),
   deleteBtn: ui<LinidQBtnProps>(`${localUiNamespace}.delete-button`, 'q-btn'),
-  spinner: ui<LinidQSpinnerProps>(`${localUiNamespace}`, 'q-spinner'),
+  spinner: ui<LinidQSpinnerProps>(localUiNamespace, 'q-spinner'),
   badge: {
     READY: ui<LinidQBadgeProps>(`${localUiNamespace}.READY`, 'q-badge'),
     IMPORTING: ui<LinidQBadgeProps>(`${localUiNamespace}.IMPORTING`, 'q-badge'),
@@ -175,10 +169,6 @@ const uiProps = {
     ERROR: ui<LinidQBadgeProps>(`${localUiNamespace}.ERROR`, 'q-badge'),
   } satisfies Record<ImportStatus, LinidQBadgeProps>,
 };
-const options: ComputedRef<ModuleImportOptions> = computed(
-  () =>
-    getModuleHostConfiguration<ModuleImportOptions>(props.instanceId)!.options
-);
 
 const columns: ComputedRef<QTableColumn[]> = computed(() => [
   {
@@ -209,10 +199,10 @@ const columns: ComputedRef<QTableColumn[]> = computed(() => [
     sortable: true,
     align: 'left' as const,
   },
-  ...Object.keys(options.value.fieldMappingTemplates).map((header) => ({
-    field: header,
-    name: header,
-    label: translateOrDefault(header, `headers.${header}`),
+  ...props.fields.map((field) => ({
+    field,
+    name: field,
+    label: translateOrDefault(field, `headers.${field}`),
     sortable: true,
     align: 'left' as const,
   })),

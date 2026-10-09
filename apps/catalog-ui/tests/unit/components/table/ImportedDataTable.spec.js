@@ -30,19 +30,10 @@ import ImportedDataTable from '../../../../src/components/table/ImportedDataTabl
 
 vi.mock('@linagora/linid-im-front-corelib', () => ({
   useScopedI18n: () => ({
-    t: (key) => key,
-    translateOrDefault: (a, b) => b,
+    translateOrDefault: (_defaultValue, key) => key,
   }),
   useUiDesign: () => ({
     ui: () => ({}),
-  }),
-  getModuleHostConfiguration: () => ({
-    options: {
-      fieldMappingTemplates: {
-        firstName: '{{ First Name }}',
-        email: '{{ Email }}',
-      },
-    },
   }),
 }));
 
@@ -54,96 +45,76 @@ describe('Test component: ImportedDataTable', () => {
 
     wrapper = shallowMount(ImportedDataTable, {
       props: {
-        instanceId: 'instance-id',
         uiNamespace: 'ui-namespace',
         i18nScope: 'i18n-scope',
+        fields: ['firstName', 'email'],
         rows: [],
       },
     });
   });
 
-  describe('Test computed: options', () => {
-    it('should retrieve options from module host configuration', () => {
-      const options = wrapper.vm.options;
-      expect(options).toBeDefined();
-      expect(options.fieldMappingTemplates).toEqual({
-        firstName: '{{ First Name }}',
-        email: '{{ Email }}',
-      });
-    });
-  });
-
   describe('Test computed: columns', () => {
-    it('should retrieve valid columns from module host configuration', () => {
+    it('should put internal columns first, then the configured fields', () => {
       const columns = wrapper.vm.columns;
 
-      expect(columns).toBeDefined();
-      expect(Array.isArray(columns)).toBe(true);
-      expect(columns).toHaveLength(6);
-
-      expect(columns[0]).toMatchObject({
-        field: '__error',
-        name: '__error',
-        label: 'headers.__error',
-        sortable: false,
-      });
-
-      expect(columns[1]).toMatchObject({
-        field: '__id',
-        name: '__delete',
-        label: 'headers.__delete',
-        sortable: false,
-      });
-
-      expect(columns[2]).toMatchObject({
-        field: '__file',
-        name: '__file',
-        label: 'headers.__file',
-        sortable: true,
-      });
-
-      expect(columns[3]).toMatchObject({
-        field: '__status',
-        name: '__status',
-        label: 'headers.__status',
-        sortable: true,
-      });
-
-      expect(columns[4]).toMatchObject({
-        field: 'firstName',
-        name: 'firstName',
-        label: 'headers.firstName',
-        sortable: true,
-      });
-
-      expect(columns[5]).toMatchObject({
-        field: 'email',
-        name: 'email',
-        label: 'headers.email',
-        sortable: true,
-      });
+      expect(
+        columns.map(({ name, field, label, sortable }) => ({
+          name,
+          field,
+          label,
+          sortable,
+        }))
+      ).toEqual([
+        {
+          name: '__error',
+          field: '__error',
+          label: 'headers.__error',
+          sortable: false,
+        },
+        {
+          name: '__delete',
+          field: '__id',
+          label: 'headers.__delete',
+          sortable: false,
+        },
+        {
+          name: '__file',
+          field: '__file',
+          label: 'headers.__file',
+          sortable: true,
+        },
+        {
+          name: '__status',
+          field: '__status',
+          label: 'headers.__status',
+          sortable: true,
+        },
+        {
+          name: 'firstName',
+          field: 'firstName',
+          label: 'headers.firstName',
+          sortable: true,
+        },
+        {
+          name: 'email',
+          field: 'email',
+          label: 'headers.email',
+          sortable: true,
+        },
+      ]);
     });
   });
 
   describe('Test function: getRowClass', () => {
     it('should return "row-error" when row status is ERROR', () => {
-      const row = { __status: 'ERROR' };
-      expect(wrapper.vm.getRowClass(row)).toBe('row-error');
+      expect(wrapper.vm.getRowClass({ __status: 'ERROR' })).toBe('row-error');
     });
 
-    it('should return empty string when row status is READY', () => {
-      const row = { __status: 'READY' };
-      expect(wrapper.vm.getRowClass(row)).toBe('');
-    });
-
-    it('should return empty string when row status is undefined', () => {
-      const row = { __status: '' };
-      expect(wrapper.vm.getRowClass(row)).toBe('');
-    });
-
-    it('should ignore other properties and only check __status', () => {
-      const row = { __status: 'PENDING', firstName: 'John' };
-      expect(wrapper.vm.getRowClass(row)).toBe('');
-    });
+    it.each(['READY', 'IMPORTING', 'IMPORTED'])(
+      'should return empty string when row status is %s',
+      (status) => {
+        expect(wrapper.vm.getRowClass({ __status: status })).toBe('');
+      }
+    );
   });
 });

@@ -308,7 +308,7 @@ function onItemClick({ key }: { key: string }) {
     :is="dropdownButton"
     v-if="dropdownButton"
     ui-namespace="catalogPage"
-    i18n-scope="moduleImport.ImportPage"
+    i18n-scope="catalogPage"
     :items="items"
     @item-click="onItemClick"
   />

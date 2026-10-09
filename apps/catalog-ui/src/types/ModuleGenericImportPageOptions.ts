@@ -24,43 +24,42 @@
  * LinID Identity Manager software.
  */
 
+import type {
+  LinidQCardProps,
+  LinidQCardSectionProps,
+} from '@linagora/linid-im-front-corelib';
+import type { CsvParsingOptions } from './loadFilesField';
+import type { ModulePageOptions } from './ModulePageOptions';
+
 /**
- * Options for the ModuleImport remote module.
+ * Configuration options for a generic CSV import page.
+ *
+ * Every loaded row is sent to the module `apiEndpoint` through the generic
+ * entity creation mechanism.
  */
-export interface ModuleImportOptions {
+export interface ModuleGenericImportPageOptions
+  extends ModulePageOptions, CsvParsingOptions {
   /**
-   * List of zone identifiers where the "Go to Import Page" button should be displayed.
-   *
-   * Each entry represents the name of a UI zone in which
-   * the import navigation action will be injected.
-   */
-  zones: string[];
-  /**
-   * Path to navigate back when the user clicks the "Cancel" or "Go Back" button.
-   * Typically points to the parent or previous page of the import module.
-   */
-  previousPath: string;
-  /**
-   * Maps target object field names to Nunjucks templates. Each template is evaluated using the current CSV row
-   * as context and produces the final value assigned to the corresponding field.
-   */
-  fieldMappingTemplates: Record<string, string>;
-  /**
-   * When enabled, the importer ignores CSV header names and maps values based on predefined column indexes.
-   */
-  useColumnIndexParsing: boolean;
-  /**
-   * List of CSV header names that must be present in the file. Used only when useColumnIndexParsing is true.
-   */
-  expectedCsvHeaders?: string[];
-  /**
-   * Number of lines to skip at the beginning of the CSV file.
-   * Useful when the CSV contains metadata or comments before the header row.
-   */
-  skipFirstCsvNLines: number;
-  /**
-   * Maximum number of CSV rows to import concurrently.
-   * Limits parallel processing to prevent overloading the server.
+   * Maximum number of rows imported concurrently.
+   * Limits parallel requests to prevent overloading the server.
    */
   numberOfParallelImports: number;
+}
+
+/**
+ * UI props for the GenericImportPage component.
+ */
+export interface GenericImportPageUIProps {
+  /**
+   * The UI properties for the card holding the file field and the preview table.
+   */
+  card: LinidQCardProps;
+  /**
+   * The UI properties for the section holding the file field.
+   */
+  filesSection: LinidQCardSectionProps;
+  /**
+   * The UI properties for the section holding the preview table.
+   */
+  tableSection: LinidQCardSectionProps;
 }

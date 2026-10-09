@@ -24,61 +24,82 @@
  * LinID Identity Manager software.
  */
 
+import { saveEntity } from '@linagora/linid-im-front-corelib';
 import { shallowMount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import ImportPage from '../../../src/pages/ImportPage.vue';
-import { useRouter } from 'vue-router';
+import GenericImportPage from '../../../src/pages/GenericImportPage.vue';
 
-const pushMock = vi.fn();
-const postMock = vi.fn(() => Promise.resolve({}));
-const notifyMock = vi.fn();
+const mockRouterPush = vi.fn();
+const mockNotify = vi.fn();
+const mockRenderString = vi.fn((template) => template);
 
 vi.mock('vue-router', () => ({
   useRoute: () => ({
     meta: {
-      instanceId: 'instanceId',
+      instanceId: 'test-instance-id',
     },
+    query: {},
   }),
   useRouter: () => ({
-    push: pushMock,
+    push: mockRouterPush,
   }),
 }));
 
 vi.mock('@linagora/linid-im-front-corelib', () => ({
-  useNotify: () => ({ Notify: notifyMock }),
-  getHttpClient: () => ({
-    post: postMock,
-  }),
-  getModuleHostConfiguration: vi.fn(() => ({
-    instanceId: 'instanceId',
-    apiEndpoint: 'apiEndpoint',
+  LinidZoneRenderer: {
+    template: '<div />',
+  },
+  saveEntity: vi.fn(() => Promise.resolve({})),
+  getModuleHostConfiguration: () => ({
     options: {
-      parentInstanceId: 'parentInstanceId',
-      previousPath: 'previousPath',
+      parentPath: '/parent',
       fieldMappingTemplates: {
         name: '{{name}}',
       },
       useColumnIndexParsing: false,
+      skipFirstCsvNLines: 0,
       numberOfParallelImports: 2,
     },
-  })),
-  loadAsyncComponent: vi.fn(() => null),
-  useScopedI18n: () => ({ t: (key) => key }),
+  }),
+  useNotify: () => ({ Notify: mockNotify }),
+  useNunjucks: () => ({ renderString: mockRenderString }),
+  useScopedI18n: () => ({ t: (key) => key, te: () => false }),
   useUiDesign: () => ({ ui: vi.fn(() => ({})) }),
 }));
 
-describe('Test component: ImportPage', () => {
+describe('Test component: GenericImportPage', () => {
   let wrapper;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    wrapper = shallowMount(ImportPage);
+    wrapper = shallowMount(GenericImportPage, {
+      global: {
+        stubs: [
+          'ButtonsCard',
+          'DropdownButton',
+          'LoadFilesField',
+          'ImportedDataTable',
+          'q-card',
+          'q-card-section',
+        ],
+      },
+    });
+  });
+
+  describe('Test computed: fields', () => {
+    it('should list the mapped fields', () => {
+      expect(wrapper.vm.fields).toEqual(['name']);
+    });
   });
 
   describe('Test function: cancel', () => {
-    it('should redirect to previous page', () => {
+    it('should redirect to the rendered parent path', () => {
       wrapper.vm.cancel();
-      expect(useRouter().push).toHaveBeenCalledWith({ path: 'previousPath' });
+      expect(mockRenderString).toHaveBeenCalledWith('/parent', {
+        entity: {},
+        query: {},
+      });
+      expect(mockRouterPush).toHaveBeenCalledWith('/parent');
     });
   });
 
@@ -102,9 +123,19 @@ describe('Test component: ImportPage', () => {
     it('should notify success', async () => {
       wrapper.vm.fileItems = [{ __id: 1, __status: 'READY' }];
       await wrapper.vm.importAllData();
-      expect(notifyMock).toHaveBeenCalledWith(
+      expect(mockNotify).toHaveBeenCalledWith(
         expect.objectContaining({ type: 'positive' })
       );
+      expect(wrapper.vm.isLoading).toBe(false);
+    });
+
+    it('should only import rows ready to be imported', async () => {
+      wrapper.vm.fileItems = [
+        { __id: 1, __status: 'READY' },
+        { __id: 2, __status: 'IMPORTED' },
+      ];
+      await wrapper.vm.importAllData();
+      expect(saveEntity).toHaveBeenCalledTimes(1);
     });
 
     it('should notify warning if some fail', async () => {
@@ -112,36 +143,43 @@ describe('Test component: ImportPage', () => {
         { __id: 1, __status: 'READY' },
         { __id: 2, __status: 'READY' },
       ];
-      postMock.mockResolvedValueOnce({});
-      postMock.mockRejectedValueOnce(new Error('fail'));
+      saveEntity.mockResolvedValueOnce({});
+      saveEntity.mockRejectedValueOnce(new Error('fail'));
       await wrapper.vm.importAllData();
-      expect(notifyMock).toHaveBeenCalledWith(
+      expect(mockNotify).toHaveBeenCalledWith(
         expect.objectContaining({ type: 'warning' })
       );
     });
 
     it('should notify error if all fail', async () => {
       wrapper.vm.fileItems = [{ __id: 1, __status: 'READY' }];
-      postMock.mockRejectedValueOnce(new Error('fail'));
+      saveEntity.mockRejectedValueOnce(new Error('fail'));
       await wrapper.vm.importAllData();
-      expect(notifyMock).toHaveBeenCalledWith(
+      expect(mockNotify).toHaveBeenCalledWith(
         expect.objectContaining({ type: 'negative' })
       );
     });
   });
 
   describe('Test function: importData', () => {
-    it('should set data as imported', async () => {
-      const data = { __id: 1 };
-      postMock.mockResolvedValueOnce({});
+    it('should send the row without internal fields and set it as imported', async () => {
+      const data = {
+        __id: 1,
+        __status: 'READY',
+        __file: 'file.csv',
+        name: 'John',
+      };
       const result = await wrapper.vm.importData(data);
+      expect(saveEntity).toHaveBeenCalledWith('test-instance-id', {
+        name: 'John',
+      });
       expect(result).toBe(true);
       expect(data.__status).toBe('IMPORTED');
     });
 
     it('should set data as error', async () => {
       const data = { __id: 1 };
-      postMock.mockRejectedValueOnce(new Error('fail'));
+      saveEntity.mockRejectedValueOnce(new Error('fail'));
       const result = await wrapper.vm.importData(data);
       expect(result).toBe(false);
       expect(data.__status).toBe('ERROR');
@@ -158,30 +196,46 @@ describe('Test component: ImportPage', () => {
       ];
       wrapper.vm.clear(['ERROR', 'IMPORTED']);
       expect(wrapper.vm.fileItems).toEqual([{ __id: 3, __status: 'READY' }]);
-      expect(notifyMock).toHaveBeenCalledWith(
+      expect(mockNotify).toHaveBeenCalledWith(
         expect.objectContaining({ type: 'positive' })
       );
     });
 
     it('should notify warning if no rows are removed', () => {
-      wrapper.vm.fileItems = [
-        { __id: 1, __status: 'READY' },
-        { __id: 2, __status: 'READY' },
-      ];
-
+      wrapper.vm.fileItems = [{ __id: 1, __status: 'READY' }];
       wrapper.vm.clear(['ERROR']);
-
-      expect(wrapper.vm.fileItems).toEqual([
-        { __id: 1, __status: 'READY' },
-        { __id: 2, __status: 'READY' },
-      ]);
-
-      expect(notifyMock).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: 'warning',
-          message: expect.any(String),
-        })
+      expect(wrapper.vm.fileItems).toEqual([{ __id: 1, __status: 'READY' }]);
+      expect(mockNotify).toHaveBeenCalledWith(
+        expect.objectContaining({ type: 'warning' })
       );
+    });
+  });
+
+  describe('Test function: onClearItemClick', () => {
+    it.each([
+      ['clearAll', []],
+      [
+        'clearError',
+        [
+          { __id: 2, __status: 'IMPORTED' },
+          { __id: 3, __status: 'READY' },
+        ],
+      ],
+      [
+        'clearImported',
+        [
+          { __id: 1, __status: 'ERROR' },
+          { __id: 3, __status: 'READY' },
+        ],
+      ],
+    ])('should clear the rows matching %s', (key, expected) => {
+      wrapper.vm.fileItems = [
+        { __id: 1, __status: 'ERROR' },
+        { __id: 2, __status: 'IMPORTED' },
+        { __id: 3, __status: 'READY' },
+      ];
+      wrapper.vm.onClearItemClick({ key });
+      expect(wrapper.vm.fileItems).toEqual(expected);
     });
   });
 });
