@@ -47,6 +47,24 @@
     @update:model-value="updateValue"
   >
     <template
+      v-if="disabledText"
+      #option="scope"
+    >
+      <q-item v-bind="{ ...optionProps.item, ...scope.itemProps }">
+        <q-item-section v-bind="optionProps.section">
+          <q-item-label v-bind="optionProps.label">
+            {{ scope.opt.label }}
+          </q-item-label>
+          <q-item-label
+            v-if="scope.opt.disable"
+            v-bind="optionProps.disabledCaption"
+          >
+            {{ disabledText }}
+          </q-item-label>
+        </q-item-section>
+      </q-item>
+    </template>
+    <template
       v-if="displayedError"
       #no-option
     >
@@ -63,6 +81,9 @@
 <script setup lang="ts">
 import {
   getNestedValue,
+  type LinidQItemLabelProps,
+  type LinidQItemProps,
+  type LinidQItemSectionProps,
   type LinidQSelectProps,
   type Page,
   setNestedValue,
@@ -131,10 +152,27 @@ const localValue = ref(
   getNestedValue(props.entity, props.definition.name) ?? null
 );
 
-const uiProps = ui<LinidQSelectProps>(
-  `${props.uiNamespace}.${props.definition.name}`,
-  'q-select'
-);
+const localUiNamespace = `${props.uiNamespace}.${props.definition.name}`;
+
+const uiProps = ui<LinidQSelectProps>(localUiNamespace, 'q-select');
+
+/** The option rendering, only used when a `disabledText` translation calls for the two-line layout. */
+const optionProps = {
+  item: ui<LinidQItemProps>(localUiNamespace, 'q-item'),
+  section: ui<LinidQItemSectionProps>(localUiNamespace, 'q-item-section'),
+  label: ui<LinidQItemLabelProps>(localUiNamespace, 'q-item-label'),
+  /** A caption by default: the design configuration can still turn it into any other label style. */
+  disabledCaption: {
+    caption: true,
+    ...ui<LinidQItemLabelProps>(
+      `${localUiNamespace}.disabled-caption`,
+      'q-item-label'
+    ),
+  },
+};
+
+/** The caption of a disabled option, empty when the field has no `disabledText` translation. */
+const disabledText = computed(() => translateOrDefault('', 'disabledText'));
 
 const rules = computed(() =>
   !props.ignoreRules && !props.definition.inputSettings?.ignoreRules
@@ -295,25 +333,35 @@ async function fetchPage() {
 }
 
 /**
- * Maps a fetched element to a dropdown option. When the `optionLabel` or `optionValue` settings
- * are configured, they are rendered as Nunjucks templates with the element as context, allowing
- * the field to consume any paginated entity endpoint. Otherwise the element is used as-is.
+ * Maps a fetched element to a dropdown option. When the `optionLabel`, `optionValue` or
+ * `optionDisabled` settings are configured, they are rendered as Nunjucks templates with the
+ * element as context and the edited entity as `entity`, allowing the field to consume any
+ * paginated entity endpoint. Otherwise the element is used as-is.
  * @param element - The element fetched from the backend.
  * @returns The dropdown option.
  */
 function toOption(element: DynamicListElement): DynamicListElement {
-  const { optionLabel, optionValue } = props.definition.inputSettings ?? {};
+  const { optionLabel, optionValue, optionDisabled } =
+    props.definition.inputSettings ?? {};
 
-  if (!optionLabel && !optionValue) {
+  if (!optionLabel && !optionValue && !optionDisabled) {
     return element;
   }
 
-  const context = element as unknown as Record<string, unknown>;
-
-  return {
+  // The element wins over `entity`: an element carrying an `entity` property keeps its own.
+  const context = { entity: props.entity, ...element };
+  const option: DynamicListElement = {
     label: optionLabel ? renderString(optionLabel, context) : element.label,
     value: optionValue ? renderString(optionValue, context) : element.value,
   };
+
+  if (optionDisabled) {
+    // A template renders to a string: only the literal `true` disables, anything else keeps the
+    // option selectable.
+    option.disable = renderString(optionDisabled, context).trim() === 'true';
+  }
+
+  return option;
 }
 
 /**

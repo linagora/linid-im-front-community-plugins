@@ -1158,7 +1158,9 @@ Dropdown select field for list attributes.
 
 ### EntityAttributeDynamicListField
 
-Dropdown select field for dynamic list attributes with lazy loading from a backend endpoint.
+Dropdown select field for dynamic list attributes with lazy loading from a backend endpoint. When the field has a
+`disabledText` translation, each option is rendered as a `q-item` so the caption can be displayed under the options
+disabled through `inputSettings.optionDisabled`; the caption itself is styled by `disabled-caption`.
 
 **Namespace:** `{uiNamespace}` (direct, no suffix)
 
@@ -1166,11 +1168,24 @@ Dropdown select field for dynamic list attributes with lazy loading from a backe
 {
   "[PARENT_NAMESPACE]": {
     "[FIELD_NAME]": {
-      "q-select": { "outlined": true, "dense": true }
+      "q-select": { "outlined": true, "dense": true },
+      "q-item": {},
+      "q-item-section": {},
+      "q-item-label": {},
+      "disabled-caption": {
+        "q-item-label": { "caption": true, "class": "text-negative" }
+      }
     }
   }
 }
 ```
+
+Notes:
+
+- `q-item`, `q-item-section` and `q-item-label` only apply when the field has a `disabledText` translation: without
+  it, Quasar renders the options itself. The props Quasar computes for an option (`clickable`, `active`, `disable`,
+  `focused`...) win over the `q-item` entry.
+- `disabled-caption` is a caption by default: `caption` is only read from the configuration when it is set there.
 
 ---
 

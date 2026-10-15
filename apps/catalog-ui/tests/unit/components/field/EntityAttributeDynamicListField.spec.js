@@ -31,6 +31,7 @@ import EntityAttributeDynamicListField from '../../../../src/components/field/En
 
 const mockUi = vi.fn(() => ({}));
 const mockT = vi.fn((key) => key);
+const mockTranslateOrDefault = vi.fn((defaultValue) => defaultValue);
 
 vi.mock('@linagora/linid-im-front-corelib', async () => {
   const { getNestedValue, setNestedValue } = await vi.importActual(
@@ -43,7 +44,7 @@ vi.mock('@linagora/linid-im-front-corelib', async () => {
       ui: mockUi,
     }),
     useScopedI18n: () => ({
-      translateOrDefault: vi.fn(),
+      translateOrDefault: mockTranslateOrDefault,
       t: mockT,
     }),
     useQuasarRules: () => [vi.fn(), vi.fn(), vi.fn()],
@@ -143,6 +144,7 @@ describe('Test component: EntityAttributeDynamicListField', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockTranslateOrDefault.mockImplementation((defaultValue) => defaultValue);
     mockGetDynamicListPage.mockResolvedValue(mockPage);
     mountingOptions = {
       ...initialMountingOptions,
@@ -1050,6 +1052,92 @@ describe('Test component: EntityAttributeDynamicListField', () => {
       ]);
     });
 
+    it('should disable an option when its disabled template renders to true', async () => {
+      mountingOptions.props.definition.inputSettings.optionDisabled =
+        '{{ disabled }}';
+      mockGetDynamicListPage.mockResolvedValue({
+        ...mockPage,
+        content: [
+          { label: 'Taken', value: 'taken', disabled: true },
+          { label: 'Free', value: 'free', disabled: false },
+        ],
+      });
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      wrapper.vm.allOptions = [];
+
+      await wrapper.vm.fetchPage();
+
+      expect(wrapper.vm.allOptions).toEqual([
+        { label: 'Taken', value: 'taken', disable: true },
+        { label: 'Free', value: 'free', disable: false },
+      ]);
+    });
+
+    it('should keep an option enabled when its disabled template renders to anything but true', async () => {
+      mountingOptions.props.definition.inputSettings.optionDisabled =
+        '{{ disabled }}';
+      mockGetDynamicListPage.mockResolvedValue({
+        ...mockPage,
+        content: [
+          { label: 'Yes', value: 'yes', disabled: 'yes' },
+          { label: 'One', value: 'one', disabled: 1 },
+          { label: 'Unset', value: 'unset' },
+        ],
+      });
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      wrapper.vm.allOptions = [];
+
+      await wrapper.vm.fetchPage();
+
+      expect(wrapper.vm.allOptions).toEqual([
+        { label: 'Yes', value: 'yes', disable: false },
+        { label: 'One', value: 'one', disable: false },
+        { label: 'Unset', value: 'unset', disable: false },
+      ]);
+    });
+
+    it('should expose the edited entity to the disabled template without shadowing the element', async () => {
+      mountingOptions.props.definition.inputSettings.optionDisabled =
+        '{{ entity.ownerId }}';
+      mountingOptions.props.entity = { ownerId: true };
+      mockGetDynamicListPage.mockResolvedValue({
+        ...mockPage,
+        content: [
+          { label: 'Plain', value: 'plain' },
+          {
+            label: 'Shadowing',
+            value: 'shadowing',
+            entity: { ownerId: false },
+          },
+        ],
+      });
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      wrapper.vm.allOptions = [];
+
+      await wrapper.vm.fetchPage();
+
+      expect(wrapper.vm.allOptions).toEqual([
+        { label: 'Plain', value: 'plain', disable: true },
+        { label: 'Shadowing', value: 'shadowing', disable: false },
+      ]);
+    });
+
+    it('should leave the option without a disabled state when no disabled template is set', async () => {
+      mountingOptions.props.definition.inputSettings.optionValue = '{{ id }}';
+      mockGetDynamicListPage.mockResolvedValue({
+        ...mockPage,
+        content: [{ id: 'account-1', label: 'Taken', disabled: true }],
+      });
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+      wrapper.vm.allOptions = [];
+
+      await wrapper.vm.fetchPage();
+
+      expect(wrapper.vm.allOptions).toEqual([
+        { label: 'Taken', value: 'account-1' },
+      ]);
+    });
+
     it('should set hasMore based on last page flag', async () => {
       wrapper.vm.currentFetch.hasMore = true;
       mockGetDynamicListPage.mockResolvedValue({
@@ -1096,6 +1184,24 @@ describe('Test component: EntityAttributeDynamicListField', () => {
       await stalePage;
 
       expect(wrapper.vm.error).toBeNull();
+    });
+  });
+
+  describe('Test computed: disabledText', () => {
+    it('should be empty when the field has no disabledText translation', () => {
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+
+      expect(wrapper.vm.disabledText).toBe('');
+      expect(mockTranslateOrDefault).toHaveBeenCalledWith('', 'disabledText');
+    });
+
+    it('should hold the disabledText translation when the field has one', () => {
+      mockTranslateOrDefault.mockImplementation((defaultValue, key) =>
+        key === 'disabledText' ? 'Already assigned' : defaultValue
+      );
+      wrapper = shallowMount(EntityAttributeDynamicListField, mountingOptions);
+
+      expect(wrapper.vm.disabledText).toBe('Already assigned');
     });
   });
 
