@@ -35,6 +35,7 @@
     :hint="translateOrDefault('', 'hint')"
     :prefix="translateOrDefault('', 'prefix')"
     :suffix="translateOrDefault('', 'suffix')"
+    class="load-files-field"
     multiple
     clearable
     data-cy="field_import_files"
@@ -45,39 +46,35 @@
 <script setup lang="ts">
 import type { LinidQFileProps } from '@linagora/linid-im-front-corelib';
 import {
-  getModuleHostConfiguration,
-  getNunjucksEnv,
   useNotify,
+  useNunjucks,
   useScopedI18n,
   useUiDesign,
 } from '@linagora/linid-im-front-corelib';
 import type { ParseError, ParseResult } from 'papaparse';
 import Papa from 'papaparse';
-import type { ComputedRef } from 'vue';
-import { computed, ref, watch } from 'vue';
-import type { ImportedData } from '../../types/File';
+import { ref, watch } from 'vue';
+import type { ImportedData } from '../../types/importedDataTable';
 import type {
-  LoadFileCardOutputs,
-  LoadFileCardProps,
-} from '../../types/LoadFileCard';
-import type { ModuleImportOptions } from '../../types/moduleImport';
+  LoadFilesFieldOutputs,
+  LoadFilesFieldProps,
+} from '../../types/loadFilesField';
 
-const props = defineProps<LoadFileCardProps>();
-const emit = defineEmits<LoadFileCardOutputs>();
+const props = defineProps<LoadFilesFieldProps>();
+const emit = defineEmits<LoadFilesFieldOutputs>();
 
-const localUiNamespace = `${props.uiNamespace}.load-files-field`;
 const { t, translateOrDefault } = useScopedI18n(
   `${props.i18nScope}.LoadFilesField`
 );
 const { ui } = useUiDesign();
 const { Notify } = useNotify();
+const { renderString } = useNunjucks();
 
 const files = ref<File[] | null>(null);
 const isLoading = ref(false);
-const uiProps = ui<LinidQFileProps>(localUiNamespace, 'q-file');
-const options: ComputedRef<ModuleImportOptions> = computed(
-  () =>
-    getModuleHostConfiguration<ModuleImportOptions>(props.instanceId).options
+const uiProps = ui<LinidQFileProps>(
+  `${props.uiNamespace}.load-files-field`,
+  'q-file'
 );
 
 let id = 0;
@@ -150,18 +147,17 @@ function loadFiles(files: File[]): Promise<void> {
 }
 
 /**
- * Parses a CSV file using the strategy defined in module options.
+ * Parses a CSV file using the strategy defined in the parsing options.
  *
- * If `useColumnIndexParsing` is enabled in `ModuleImportOptions`,
- * the file is parsed using positional column mapping
- * (`parseCsvWithColumnIndex`). Otherwise, header-based parsing
+ * If `useColumnIndexParsing` is enabled, the file is parsed using positional
+ * column mapping (`parseCsvWithColumnIndex`). Otherwise, header-based parsing
  * (`parseCsvWithHeader`) is used.
  * @param file - The CSV file to parse.
  * @returns A Promise that resolves with an array of `ImportedData`
  *          objects representing the parsed and normalized rows.
  */
 function parseCsv(file: File): Promise<ImportedData[]> {
-  if (options.value.useColumnIndexParsing) {
+  if (props.parsingOptions.useColumnIndexParsing) {
     return parseCsvWithColumnIndex(file);
   }
 
@@ -169,12 +165,8 @@ function parseCsv(file: File): Promise<ImportedData[]> {
 }
 
 /**
- * Parses a single CSV file using PapaParse and returns the rows
- * as an array of `ImportedData` objects.
- *
- * The parser is configured to:
- * - Treat the first row as headers (`header: true`)
- * - Skip empty lines (`skipEmptyLines: true`).
+ * Parses a single CSV file without header using PapaParse, mapping each column
+ * to the `expectedCsvHeaders` entry at the same index.
  *
  * If any parsing errors occur, the returned Promise is rejected
  * with a `ParseError` or an array of `ParseError`s.
@@ -192,7 +184,7 @@ function parseCsvWithColumnIndex(file: File): Promise<ImportedData[]> {
     Papa.parse(file, {
       header: false,
       skipEmptyLines: true,
-      skipFirstNLines: options.value.skipFirstCsvNLines,
+      skipFirstNLines: props.parsingOptions.skipFirstCsvNLines,
       complete: (results: ParseResult<string[]>) => {
         if (results.errors && results.errors.length > 0) {
           reject(results.errors);
@@ -239,7 +231,7 @@ function parseCsvWithHeader(file: File): Promise<ImportedData[]> {
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
-      skipFirstNLines: options.value.skipFirstCsvNLines - 1,
+      skipFirstNLines: props.parsingOptions.skipFirstCsvNLines - 1,
       complete: (results: ParseResult<Record<string, unknown>>) => {
         if (results.errors && results.errors.length > 0) {
           reject(results.errors);
@@ -264,28 +256,23 @@ function parseCsvWithHeader(file: File): Promise<ImportedData[]> {
 
 /**
  * Maps a parsed CSV row to a normalized object based on the
- * configured header mapping.
+ * configured field mapping.
  *
  * For each key in `fieldMappingTemplates`, a template string is
  * rendered using Nunjucks, with the original row data as context.
- *
- * This allows generating derived or computed properties from
- * the CSV row.
  * @param item - A single parsed CSV row represented as a key-value object.
  * @returns A new object containing the mapped and rendered properties
  *          according to `fieldMappingTemplates`.
  */
 function mapItem(item: Record<string, unknown>): Record<string, unknown> {
-  const result: Record<string, unknown> = {};
+  const { fieldMappingTemplates } = props.parsingOptions;
 
-  Object.keys(options.value.fieldMappingTemplates).forEach((key: string) => {
-    result[key] = getNunjucksEnv().renderString(
-      options.value.fieldMappingTemplates[key],
-      item
-    );
-  });
-
-  return result;
+  return Object.fromEntries(
+    Object.keys(fieldMappingTemplates).map((key) => [
+      key,
+      renderString(fieldMappingTemplates[key], item),
+    ])
+  );
 }
 
 /**
@@ -293,20 +280,17 @@ function mapItem(item: Record<string, unknown>): Record<string, unknown> {
  * to an object keyed by the configured `expectedCsvHeaders`.
  *
  * Each column value is assigned to the corresponding property name
- * defined in `ModuleImportOptions.expectedCsvHeaders`, based on its index.
+ * defined in `expectedCsvHeaders`, based on its index.
  * If `expectedCsvHeaders` is undefined, an empty object is returned.
  * @param item - A single parsed CSV row represented as an array of string values.
  * @returns An object mapping expected column names to their corresponding values.
  */
 function mapItemByIndex(item: string[]): Record<string, unknown> {
-  return (
-    options.value.expectedCsvHeaders?.reduce(
-      (acc: Record<string, unknown>, name: string, index: number) => {
-        acc[name] = item[index];
-        return acc;
-      },
-      {}
-    ) || {}
+  return Object.fromEntries(
+    (props.parsingOptions.expectedCsvHeaders ?? []).map((name, index) => [
+      name,
+      item[index],
+    ])
   );
 }
 </script>

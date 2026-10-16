@@ -25,26 +25,72 @@
  */
 
 export default {
-  '{{config.instanceId}}': {
-    ImportButton: {
-      label: 'Import Data',
-    },
-    ImportPage: {
-      title: 'Data Import',
-      LoadFilesField: {
-        label: 'Files to Import',
-        loadEmpty: 'No rows to import',
-        loadSuccess: 'File(s) successfully loaded',
-        loadError: 'Error while importing files',
+  'fr-FR': {
+    '{{ config.instanceId }}': {
+      title: 'Import de données',
+      ButtonsCard: {
+        cancel: 'Annuler',
+        confirm: 'Importer',
+        confirmLoading: 'Import en cours…',
       },
+      DropdownButton: {
+        title: 'Effacer…',
+        clearAll: 'Toutes les lignes',
+        clearError: 'Lignes avec erreurs',
+        clearImported: 'Lignes importées',
+      },
+      LoadFilesField: {
+        label: 'Fichiers à importer',
+        loadSuccess: 'Fichier(s) chargé(s) avec succès',
+        loadEmpty: 'Aucune ligne à importer',
+        loadError: 'Erreur lors du chargement des fichiers',
+      },
+      ImportedDataTable: {
+        expandButtonOpen: 'Voir les erreurs',
+        expandButtonClose: 'Fermer',
+        deleteButton: 'Supprimer',
+        headers: {
+          __error: '',
+          __delete: 'Actions',
+          __status: 'Statut',
+          __file: 'Source',
+        },
+        status: {
+          READY: 'Prêt',
+          IMPORTING: 'Import en cours',
+          IMPORTED: 'Importé',
+          ERROR: 'Erreur(s)',
+        },
+        rowsPerPage: 'Lignes par page',
+        paginationLabel: '{start}–{end} sur {total}',
+        noData: 'Aucune donnée',
+      },
+      importSuccess: 'Toutes les données ont été importées avec succès',
+      importWarning: "Certaines données n'ont pas pu être importées",
+      importError: "Aucune donnée n'a pu être importée",
+      clearSuccess: 'Les lignes ont été supprimées avec succès',
+      clearWarning: "Aucune ligne n'a été supprimée",
+    },
+  },
+  'en-US': {
+    '{{ config.instanceId }}': {
+      title: 'Data import',
       ButtonsCard: {
         cancel: 'Cancel',
         confirm: 'Import',
-        confirmLoading: 'Importing...',
-        clear: 'Clear...',
+        confirmLoading: 'Importing…',
+      },
+      DropdownButton: {
+        title: 'Clear…',
         clearAll: 'All rows',
         clearError: 'Rows with errors',
         clearImported: 'Imported rows',
+      },
+      LoadFilesField: {
+        label: 'Files to import',
+        loadSuccess: 'File(s) loaded successfully',
+        loadEmpty: 'No rows to import',
+        loadError: 'Error while loading files',
       },
       ImportedDataTable: {
         expandButtonOpen: 'View errors',
@@ -55,19 +101,21 @@ export default {
           __delete: 'Actions',
           __status: 'Status',
           __file: 'Source',
-          name: 'Name',
         },
         status: {
-          READY: 'Ready to import',
+          READY: 'Ready',
           IMPORTING: 'Importing',
-          IMPORTED: 'Successfully imported',
-          ERROR: 'Error(s) during import',
+          IMPORTED: 'Imported',
+          ERROR: 'Error(s)',
         },
+        rowsPerPage: 'Rows per page',
+        paginationLabel: '{start}–{end} of {total}',
+        noData: 'No data',
       },
-      importSuccess: 'All data has been successfully imported',
+      importSuccess: 'All data has been imported successfully',
       importWarning: 'Some data could not be imported',
       importError: 'No data could be imported',
-      clearSuccess: 'Rows have been successfully deleted',
+      clearSuccess: 'Rows have been deleted successfully',
       clearWarning: 'No rows have been deleted',
     },
   },

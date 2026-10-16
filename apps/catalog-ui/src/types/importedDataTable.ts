@@ -24,51 +24,74 @@
  * LinID Identity Manager software.
  */
 
-export default {
-  '{{config.instanceId}}': {
-    ImportButton: {
-      label: 'Importer des données',
-    },
-    ImportPage: {
-      title: 'Importation des données',
-      LoadFilesField: {
-        label: 'Fichiers à importer',
-        loadEmpty: 'Aucune ligne à importer',
-        loadSuccess: 'Fichier(s) chargé(s) avec succès',
-        loadError: "Erreur lors de d'importation des fichiers",
-      },
-      ButtonsCard: {
-        cancel: 'Annuler',
-        confirm: 'Importer',
-        confirmLoading: 'Importation...',
-        clear: 'Effacer...',
-        clearAll: 'Toutes les lignes',
-        clearError: 'Les lignes en erreur',
-        clearImported: 'Les lignes importées',
-      },
-      ImportedDataTable: {
-        expandButtonOpen: 'Voir les erreurs',
-        expandButtonClose: 'Fermer',
-        deleteButton: 'Supprimer',
-        headers: {
-          __error: '',
-          __delete: 'Actions',
-          __status: 'Statut',
-          __file: 'Source',
-          name: 'Nom',
-        },
-        status: {
-          READY: 'Prête à être importée',
-          IMPORTING: "En cours d'importation",
-          IMPORTED: 'Importée avec succès',
-          ERROR: "Erreur(s) lors de l'importation",
-        },
-      },
-      importSuccess: 'Toutes les données ont été importées avec succès',
-      importWarning: "Une partie des données n'a pas pu être importée",
-      importError: "Aucune des données n'a pu être importée",
-      clearSuccess: 'Les lignes ont été supprimées',
-      clearWarning: 'Aucune ligne supprimées.',
-    },
-  },
-};
+import type { CommonComponentProps } from './common';
+
+/**
+ * Represents a single entry of imported data from a CSV or similar source.
+ */
+export interface ImportedData {
+  /**
+   * Current processing status of the imported data.
+   *
+   * - `READY`: The data is prepared and ready to be imported.
+   * - `IMPORTING`: The import process is currently in progress.
+   * - `IMPORTED`: The data has been successfully imported.
+   * - `ERROR`: The import process failed.
+   */
+  __status: ImportStatus;
+
+  /**
+   * Unique identifier associated with this imported entry.
+   */
+  __id: number;
+
+  /**
+   * Name or path of the source file from which the data was imported.
+   */
+  __file: string;
+
+  /**
+   * Optional error message describing why the import failed.
+   * Present only when `__status` is `ERROR`.
+   */
+  __error?: string;
+
+  /**
+   * Additional dynamic properties coming from the imported dataset.
+   */
+  [key: string]: unknown;
+}
+
+/**
+ * Represents the possible import status values.
+ */
+export type ImportStatus = 'READY' | 'IMPORTING' | 'IMPORTED' | 'ERROR';
+
+/**
+ * Props for the ImportedDataTable component.
+ */
+export interface ImportedDataTableProps extends CommonComponentProps {
+  /**
+   * Names of the entity fields displayed as columns, after the internal ones.
+   */
+  fields: string[];
+  /**
+   * Array of data rows to be displayed in the table.
+   */
+  rows: ImportedData[];
+  /**
+   * Indicates whether the table is importing data.
+   * @default false
+   */
+  isLoading?: boolean;
+}
+
+/**
+ * Outputs (events) emitted by the ImportedDataTable component.
+ */
+export interface ImportedDataTableOutputs {
+  /**
+   * Emitted when a row needs to be deleted.
+   */
+  'delete:item': [number];
+}

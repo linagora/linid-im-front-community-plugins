@@ -119,6 +119,10 @@ export default defineConfig({
           'src/federation/empty-lifecycle.ts'
         ),
         './EmptyI18n': resolve(__dirname, 'src/federation/empty-i18n.ts'),
+        './ImportPageI18n': resolve(
+          __dirname,
+          'src/federation/import-page-i18n.ts'
+        ),
         './PageRoutes': resolve(
           __dirname,
           'src/federation/module-page-route.ts'
@@ -142,6 +146,10 @@ export default defineConfig({
         './GenericEditionPage': resolve(
           __dirname,
           'src/pages/GenericEditionPage.vue'
+        ),
+        './GenericImportPage': resolve(
+          __dirname,
+          'src/pages/GenericImportPage.vue'
         ),
         './LinidSmartFilter': resolve(
           __dirname,

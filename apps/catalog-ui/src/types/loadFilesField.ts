@@ -24,61 +24,49 @@
  * LinID Identity Manager software.
  */
 
-import type {
-  ModuleHostConfig,
-  ModuleLifecycleResult,
-} from '@linagora/linid-im-front-corelib';
-import {
-  BasicRemoteModule,
-  useLinidZoneStore,
-} from '@linagora/linid-im-front-corelib';
-import type { ModuleImportOptions } from './types/moduleImport';
+import type { CommonComponentProps } from './common';
+import type { ImportedData } from './importedDataTable';
 
 /**
- * Remote module responsible for import csv features.
- *
- * This module acts as a federated entry point exposing import
- * capabilities (routes, components, and services) to the host application.
- * It extends {@link BasicRemoteModule} to inherit common metadata and
- * registration behavior for remote modules.
+ * Options driving how CSV files are parsed and mapped to entities.
  */
-class ModuleImport extends BasicRemoteModule<ModuleImportOptions> {
+export interface CsvParsingOptions {
   /**
-   * Creates a new instance of the Import remote module.
-   *
-   * Initializes the module with its unique identifier, human-readable name,
-   * semantic version, and a short functional description. These values are
-   * typically used by the host application to register, display, and manage
-   * the lifecycle of the remote module.
+   * Maps target object field names to Nunjucks templates. Each template is evaluated using the current CSV row
+   * as context and produces the final value assigned to the corresponding field.
    */
-  constructor() {
-    super(
-      'module-import',
-      'Import module',
-      '0.0.1',
-      'Module to import entity in system'
-    );
-  }
-
+  fieldMappingTemplates: Record<string, string>;
   /**
-   * Performs post-initialization tasks for the Import module:
-   * - add the module to the wanted zones.
-   * @param config - The configuration object provided by the host application.
-   * @returns A promise that resolves to the result of the module lifecycle operation.
+   * When enabled, the importer ignores CSV header names and maps values based on predefined column indexes.
    */
-  override async postInit(
-    config: ModuleHostConfig<ModuleImportOptions>
-  ): Promise<ModuleLifecycleResult> {
-    const linidZoneStore = useLinidZoneStore();
-
-    config.options.zones.forEach((zone) =>
-      linidZoneStore.registerPlugin(zone, 'moduleImport/ImportButton', {
-        instanceId: config.instanceId,
-      })
-    );
-
-    return { success: true };
-  }
+  useColumnIndexParsing: boolean;
+  /**
+   * List of CSV header names that must be present in the file. Used only when useColumnIndexParsing is true.
+   */
+  expectedCsvHeaders?: string[];
+  /**
+   * Number of lines to skip at the beginning of the CSV file.
+   * Useful when the CSV contains metadata or comments before the header row.
+   */
+  skipFirstCsvNLines: number;
 }
 
-export default new ModuleImport();
+/**
+ * Props for the LoadFilesField component.
+ */
+export interface LoadFilesFieldProps extends CommonComponentProps {
+  /**
+   * Options used to parse the loaded CSV files.
+   */
+  parsingOptions: CsvParsingOptions;
+}
+
+/**
+ * Outputs (events) emitted by the LoadFilesField component.
+ */
+export interface LoadFilesFieldOutputs {
+  /**
+   * Emitted when rows are loaded from files.
+   */
+  'update:data': [ImportedData[]];
+}
