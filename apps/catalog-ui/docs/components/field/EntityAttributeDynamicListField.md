@@ -21,6 +21,7 @@ Unlike `EntityAttributeListField`, which uses a static predefined list, this com
 - Disables the field and holds the route back while a value declared in `routeDependencies` is still empty, and loads the options as soon as they all hold a value
 - Suspends a load it cannot perform instead of abandoning it, so restoring the value resumes the list where it stopped
 - Optionally maps elements of any paginated entity endpoint to options through the `optionLabel` and `optionValue` Nunjucks templates
+- Optionally disables individual options through the `optionDisabled` Nunjucks template, keeping them listed but unselectable, with a translated caption explaining why
 - Displays **labels** in the dropdown while storing only **values** in the entity
 - Loads additional pages on virtual scroll (infinite scrolling pattern)
 - Resolves pre-filled entity values to their corresponding label via Quasar's `map-options`
@@ -76,6 +77,8 @@ export interface DynamicListElement {
   label: string;
   /** The stored value used for entity binding. */
   value: string;
+  /** Whether the option is shown but cannot be selected. */
+  disable?: boolean;
 }
 ```
 
@@ -115,6 +118,13 @@ export interface FieldDynamicListSettings extends FieldSettings {
    * (e.g. "{{ id }}"). When omitted, the element `value` property is used.
    */
   optionValue?: string;
+
+  /**
+   * Nunjucks template rendered with each fetched element as context, the edited entity being
+   * available as `entity` (e.g. "{{ disabled }}" or "{{ hasItem(entity.members, 'id', id) }}").
+   * The option is disabled only when it renders to `true`: it stays listed but cannot be selected.
+   */
+  optionDisabled?: string;
 
   /**
    * Controls uniqueness validation for this field.
@@ -162,12 +172,15 @@ The component uses `useScopedI18n` to resolve translations for multiple UI text 
 
 ### Supported Translation Keys
 
-| Key      | Usage in UI  |
-| -------- | ------------ |
-| `label`  | Select label |
-| `hint`   | Helper text  |
-| `prefix` | Input prefix |
-| `suffix` | Input suffix |
+| Key            | Usage in UI                                  |
+| -------------- | -------------------------------------------- |
+| `label`        | Select label                                 |
+| `hint`         | Helper text                                  |
+| `prefix`       | Input prefix                                 |
+| `suffix`       | Input suffix                                 |
+| `disabledText` | Caption displayed under each disabled option |
+
+`disabledText` is specific to this field: it only applies to the options `optionDisabled` disabled — see _Disabled Options_.
 
 ### Error Translation Keys
 
@@ -205,19 +218,30 @@ UI customization is handled via the LinID design system using `useUiDesign()`.
 `${uiNamespace}.${definition.name}`;
 ```
 
-### Applied Component
+### Applied Components
 
-- Quasar component: `q-select`
-- Props type: `LinidQSelectProps`
+| Sub-namespace      | Quasar component | Props type               | Usage                                                     |
+| ------------------ | ---------------- | ------------------------ | --------------------------------------------------------- |
+| _(none)_           | `q-select`       | `LinidQSelectProps`      | The select itself                                         |
+| _(none)_           | `q-item`         | `LinidQItemProps`        | Each option, when the two-line layout applies (see below) |
+| _(none)_           | `q-item-section` | `LinidQItemSectionProps` | The section holding the option label and caption          |
+| _(none)_           | `q-item-label`   | `LinidQItemLabelProps`   | The option label                                          |
+| `disabled-caption` | `q-item-label`   | `LinidQItemLabelProps`   | The `disabledText` caption of each disabled option        |
+
+The option elements are only rendered when the field has a `disabledText` translation: without it, Quasar renders the options itself and these keys have no effect. The props Quasar computes for an option (`clickable`, `active`, `disable`, `focused`...) win over the `q-item` design entry.
 
 Example:
 
 ```ts
 uiNamespace = 'entity-editor'
 
-// Final UI namespace
+// Final UI namespaces
 entity-editor.type → q-select
+entity-editor.type → q-item, q-item-section, q-item-label
+entity-editor.type.disabled-caption → q-item-label
 ```
+
+The caption is rendered with `caption: true` unless the design configuration says otherwise. Like any design entry, it also accepts the `class` and `style` attributes (e.g. `"class": "text-negative"`).
 
 This allows full control over appearance, validation rules, and behavior per attribute.
 
@@ -527,6 +551,24 @@ When editing an entity that already has a value, its option may not be in the fi
 
 This applies to the first load and to any reload a route change did not invalidate; a value the route change dropped is never re-injected. Two real options sharing a value are a backend duplicate, not a placeholder, and are left alone.
 
+### Disabled Options
+
+When `optionDisabled` is configured, every fetched element is rendered through it like `optionLabel` and `optionValue` are, and the option carries a `disable` flag read by Quasar's `option-disable`:
+
+```ts
+option.disable = renderString(optionDisabled, context).trim() === 'true';
+```
+
+- A Nunjucks template renders to a **string**, so only the literal `true` disables: `"yes"`, `1`, an empty render or a missing property all keep the option selectable
+- The template context is the element itself, with the edited entity exposed as `entity` — e.g. `{{ hasItem(entity.members, 'id', id) }}` disables the members already assigned. An element carrying its own `entity` property shadows it
+- A disabled option stays listed but cannot be selected: Quasar skips it on click and keyboard navigation
+- `optionLabel` and `optionValue` are not required: `optionDisabled` alone switches the element to the rendered form, keeping its `label` and `value` as they are
+- The template is evaluated when the page is **fetched**: an entity change that happens afterwards, such as a member added in the same form, does not re-evaluate the options already loaded
+
+When the field has a `disabledText` translation, the options are rendered through the `#option` slot on two lines — the label, then the translated caption under each disabled option. Without the translation, the default Quasar rendering is kept untouched, whether or not options are disabled.
+
+The preset value placeholder is never disabled: it stands for a value the entity already holds.
+
 ### Virtual Scroll Handler
 
 Reaching the end of the loaded options fetches the next page, until the backend reports the last one. While the field is disabled the dropdown cannot open, so nothing is paginated.
@@ -642,6 +684,41 @@ const onUpdateEntity = (updatedEntity: Record<string, unknown>) => {
 </template>
 ```
 
+### Disabled Options Example
+
+```ts
+const definition = {
+  name: 'accountId',
+  input: 'DynamicList',
+  type: 'String',
+  required: true,
+  inputSettings: {
+    route: '/api/accounts',
+    optionLabel: '{{ lastname }} {{ firstname }} ({{ email }})',
+    optionValue: '{{ id }}',
+    optionDisabled: '{{ hasItem(entity.members, "id", id) }}',
+  },
+};
+```
+
+With the translation:
+
+```json
+{
+  "user-editor": {
+    "fields": {
+      "accountId": {
+        "label": "Account",
+        "disabledText": "This account is already a member"
+      }
+    }
+  }
+}
+```
+
+- Every account found in `entity.members` is listed greyed out, with the caption under its label
+- Removing `disabledText` keeps the accounts disabled but renders the list on one line per option, as before
+
 ### Templated Route Example
 
 A route may depend on another attribute of the same entity. Here the list of units is scoped to the organization currently selected on the entity, and `routeDependencies` declares the value that route needs:
@@ -750,6 +827,10 @@ Several dependencies can be declared, and they do not have to appear in the rout
 - Verify that `localValue` is **not** overwritten when only other entity attributes change
 - Verify `isDisabled` is `true` when `definition.inputSettings.disable` is `true`, and also when it is truthy without being a boolean
 - Verify `isDisabled` is `true` while a declared dependency is empty, and `false` when neither cause applies
+- Verify an option is disabled when `optionDisabled` renders to `true`, and stays enabled for `false`, any other string or a missing property
+- Verify `optionDisabled` reads the edited entity as `entity`, and that an element property of the same name wins over it
+- Verify the options carry no `disable` flag when `optionDisabled` is not configured
+- Verify `disabledText` is empty without the translation and holds it otherwise
 
 ---
 
