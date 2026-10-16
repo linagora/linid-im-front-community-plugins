@@ -62,12 +62,6 @@ Catalogs = **UI-oriented**, no business logic, reusable everywhere.
 | ------------ | ----------------------------------------------------------------------- |
 | `catalog-ui` | A reusable, generic catalog of UI components used across LinID modules. |
 
-### **🧩 Modules**
-
-| Name            | Description                                                    |
-| --------------- | -------------------------------------------------------------- |
-| `module-import` | Module for importing data from CSV files into existing modules |
-
 ---
 
 ## **Tech Stack 🛠️**
@@ -108,9 +102,6 @@ Each plugin (module or component catalog) contains its own documentation inside 
 
 - 🎨 **Catalog UI** — A reusable set of visual components designed for all LinID modules
   → Documentation is inside: [apps/catalog-ui/README.md](apps/catalog-ui/README.md)
-
-- 📥 **Module Import** — Module for importing data from CSV files into existing modules
-  → Documentation is inside: [apps/module-import/README.md](apps/module-import/README.md)
 
 These documents explain how developers can extend the community plugins ecosystem, create new modules, and integrate them with the host app:
 
