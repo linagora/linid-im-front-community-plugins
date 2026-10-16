@@ -50,6 +50,7 @@ Example module configuration:
   "remoteName": "catalogUI",
   "lifecycleRemote": "catalogUI/PageLifecycle",
   "routesRemote": "catalogUI/PageRoutes",
+  "i18nRemote": "catalogUI/ImportPageI18n",
   "apiEndpoint": "api/users",
   "basePath": "/users",
   "options": {
@@ -201,6 +202,14 @@ No zone receives an `entity`. `content.before`, `content.after` and `content.act
 ---
 
 ## **Internationalization**
+
+Default `fr-FR` and `en-US` translations for this page are available through the federated remote
+`catalogUI/ImportPageI18n` (implemented in `src/federation/import-page-i18n.ts`). Setting it as the
+`i18nRemote` of the module configuration provides usable default translations for the page without writing a
+custom i18n module: the remote namespaces its translations under the `{{ config.instanceId }}` placeholder
+key, which the module host replaces with the actual `instanceId` of the configuration. Business column
+headers (`{instanceId}.ImportedDataTable.headers.{column}`) are still module-specific and can be added on top
+of the defaults.
 
 | Key                                                | Description                                      |
 | -------------------------------------------------- | ------------------------------------------------ |
